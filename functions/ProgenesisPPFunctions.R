@@ -49,8 +49,10 @@ calculateMedianIntensitiesPerCond <- function(e, expDesign){
 		#tag <- paste(cond,"MedianIntensity",sep="")
 		tag = cond
 		xCondFirstReplicate = skip
-		xCondLastReplicate = xCondFirstReplicate+replicates-1
-		xCondSpectralCount = data[,xCondFirstReplicate:xCondLastReplicate]
+		xCondLastReplicate = xCondFirstReplicate+replicates-
+			
+		### @TODO problem here -> progData		
+		xCondSpectralCount = progOutData[,xCondFirstReplicate:xCondLastReplicate]
 		medianIntensity = list()
 		#medianIntensity[[tag]] = apply(e[,xCondFirstReplicate:xCondLastReplicate], 1 ,FUN=median)
 		
@@ -146,7 +148,7 @@ createExpressionDataset <- function(logNormData,expDesign){
 	experimentData = new("MIAME", name = "Erik Ahrne",
 			lab = "Proteomics Core Facillity, Biozentrum, Basel", contact = "erik.ahrne@unibas.ch",
 			title = "test proteomics bioC", abstract = "An example ExpressionSet",
-			url = "www.lab.not.exist", other = list(notes = "Created from text files"))
+			url = "www.lab.not.exist", other = list(notes = "Created from csv file"))
 	
 	eset = new("ExpressionSet", exprs = logNormData,
 			phenoData = phenoData, experimentData = experimentData,
