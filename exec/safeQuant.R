@@ -1,9 +1,10 @@
 #!/usr/bin/Rscript
 
-# TODO: Add comment
+# TODO: Run SafeQuant
 # 
 # Author: erikahrne
 ###############################################################################
+
 
 # TEST FILE
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides1_FILTERED.csv
