@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
 
-# TODO: Run SafeQuant
+# TODO: Run Safequant
 # 
 # Author: erikahrne
 ###############################################################################
