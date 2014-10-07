@@ -12,7 +12,7 @@ proteinSeq2 <- "MVKKSRRRGAAQWAAVRAQAGLTATDENEDDLGLPPSPGDSSYYQDQVDEFHEARSRAVLAKGW
 proteinSeq3 <- "MSERMRPVVVDLPTSASSSMKVNG"	
 proteinSeq4 <- "RKR"
 
-fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/tests/sp_mouse_160512.decoy.fasta"
+fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
 
 ### INIT END
 

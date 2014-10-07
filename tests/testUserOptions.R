@@ -27,7 +27,7 @@ testExpDesignTagToExpDesign <- function(){
 	stopifnot(all.equal(nrow(exprs(eset)),nrow(m)))
 	
 	expDesignString1 <- "1,2,3:4,5,6"
-
+	
 	# 6-plex default: 1,2,3:4,5,6 
 	#condition isControl
 	#1 Condition 1      TRUE
@@ -36,10 +36,12 @@ testExpDesignTagToExpDesign <- function(){
 	#4 Condition 2     FALSE
 	#5 Condition 2     FALSE
 	#6 Condition 2     FALSE
-
 	
-	expDesign1 <- expDesignTagToExpDesign(expDesignString1)
-
+	
+	expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3))),isControl=sort(rep(c(T,F),3),decreasing=T) )
+	
+	expDesign1 <- expDesignTagToExpDesign(expDesignString1, expDesign)
+	
 	stopifnot(nrow(expDesign1) == 6 )
 	stopifnot(length(unique(expDesign1$condition)) == 2 )
 	stopifnot(sum(expDesign1$isControl) == 3 )
@@ -59,7 +61,8 @@ testExpDesignTagToExpDesign <- function(){
 	#9 Condition 3     FALSE
 	#10 Condition 1     TRUE
 	
-	expDesign2 <- expDesignTagToExpDesign(expDesignString2)
+	expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1)),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+	expDesign2 <- expDesignTagToExpDesign(expDesignString2, expDesign)
 	stopifnot(nrow(expDesign2) == 10 )
 	stopifnot(length(unique(expDesign2$condition)) == 3 )
 	stopifnot(sum(expDesign2$isControl) == 4 )
