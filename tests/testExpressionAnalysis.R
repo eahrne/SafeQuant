@@ -1,0 +1,295 @@
+# TODO: Add comment
+# 
+# Author: erikahrne
+###############################################################################
+
+### INIT
+
+source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+
+### INIT END
+
+
+### TEST FUNCTIONS
+
+testCreateExpressionDataset <- function(){
+	
+	cat("--- testCreateExpressionDataset: --- \n")
+	
+	stopifnot(all.equal(pData(eset),expDesign))
+	stopifnot(all.equal(sampleNames(eset),colnames(m)))
+	stopifnot(all.equal(nrow(exprs(eset)),nrow(m)))
+	cat("--- testCreateExpressionDataset: PASS ALL TEST --- \n")
+	
+}
+
+
+testGetAllEBayes <- function(){
+	
+	
+	cat("--- testGetAllEBayes: --- \n")
+	p <- getAllEBayes(eset)
+	stopifnot( mean(p[,"A"]) > mean(p[,"B"]) )
+	p <- getAllEBayes(eset)
+	stopifnot( mean(p[,"A"]) > mean(p[,"B"]) )
+	pAdj <- getAllEBayes(eset, adjust=T)
+	
+	stopifnot( mean(pAdj[,"A"]) > mean(p[,"A"]) )
+	cat("--- testGetAllEBayes: PASS ALL TEST --- \n")
+	
+	print(head(p))
+	
+}
+
+testGetRatios <- function(){
+	
+	cat("--- testGetRatios: --- \n")
+	
+	r <- getRatios(eset)
+	
+	exprs(eset)[1,c(5:6,1:2)]
+	#  C_rep_1  C_rep_2  A_rep_1  A_rep_2 
+	# 9.963852 9.966003 9.965568 9.967214 
+	
+	
+	## NOTE: C is control
+	stopifnot(r[1,1] ==  log2(median(exprs(eset)[1,1:2]) / median(exprs(eset)[1,5:6]) ))
+	
+	stopifnot(mean(r[,"A"]) < mean(r[,"B"]))
+	stopifnot(all.equal(r,getRatios(eset,method="mean")))
+	r <- getRatios(eset)
+	stopifnot(mean(r[,"B"]) == mean(r[,"B"]))
+	
+	cat("--- testGetRatios: PASS ALL TEST --- \n")
+	
+}
+
+testGetAllCV <- function(){
+	
+	cat("--- testGetAllCV: --- \n")
+	
+	cv <- getAllCV(eset)
+	
+	stopifnot(cv[1,"A"] == (sd(exprs(eset)[1,unlist(pData(eset)$condition == "A")]) / mean(exprs(eset)[1,unlist(pData(eset)$condition == "A")])))
+	stopifnot(cv[200,"C"] == sd(exprs(eset)[200,unlist(pData(eset)$condition == "C")]) / mean(exprs(eset)[200,unlist(pData(eset)$condition == "C")]))
+	
+	cat("--- testGetAllCV: PASS ALL TEST --- \n")
+}
+
+testGlobalNormalize <- function(){
+	
+	cat("--- testGlobalNormalize: --- \n")
+	
+	globalNormFactors <- getGlobalNormFactors(eset)
+	### add normalization factors to ExpressionSet
+	pData(eset) <- cbind(pData(eset),globalNormFactors)
+	esetNorm <- globalNormalize(eset,globalNormFactors)
+	
+	stopifnot(all.equal(as.vector(unlist(apply(exprs(esetNorm),2,median))),as.vector(rev(unlist(apply(exprs(esetNorm),2,median))))))
+	
+	stopifnot(pData(esetNorm)$normFactor[1] == 1)
+	stopifnot(pData(esetNorm)$normFactor[2] != 1)
+	
+	cat("--- testGlobalNormalize: PASS ALL TEST --- \n")
+	
+	# Should generate error and stop	
+#	fData(eset)$isNormAnchor <- rep(F,nrow(eset))
+#	esetNorm <- normalizeIntensities(eset)
+	
+}
+
+testGetSignalPerCondition <- function(){
+	
+	cat("--- testGetSignalPerCondition: --- \n")
+	stopifnot(sum(getSignalPerCondition(eset,method="min")[,"A"] <= getSignalPerCondition(eset,method="max")[,"A"]) == nrow(eset))
+	stopifnot(sum(getSignalPerCondition(eset,method="min")[,"C"] <= getSignalPerCondition(eset,method="median")[,"C"]) == nrow(eset))
+	cat("--- testGetSignalPerCondition: PASS ALL TEST --- \n")
+}
+
+testBaselineIntensity <- function(){
+	
+	cat("--- testBaselineIntensity: --- \n")
+	
+	allInt <- as.vector(unlist(exprs(eset)))
+	bl <- round(getBaselineIntensity(allInt,promille=5),2)
+	#hist(allInt)
+	#abline(v=bl,lwd=2)
+	stopifnot(bl == 997.88 )
+	
+	
+	set.seed(1234)
+	suppressWarnings(allInt2 <- log10(rnorm(1000,1,1)))
+	bl2 <- round(getBaselineIntensity(allInt2,promille=5),2)
+	stopifnot(-1.95== bl2)
+	#hist(allInt2)
+	#abline(v=bl2,lwd=2)
+	
+	cat("--- testBaselineIntensity: PASS ALL TEST --- \n")
+	
+}
+
+testRollUp <- function(){
+	
+	cat(" --- testRollUp --- \n")
+	
+	rollUpEset1 <- rollUp(eset,featureDataColumnName= c("proteinName"), method=c("sum"),isProgressBar=F)
+	stopifnot( length( unique( fData(eset)$proteinName ) ) == nrow(rollUpEset1)) 
+	
+	rollUpEset2 <- rollUp(eset ,featureDataColumnName= c("ptm"), method=c("sum"),isProgressBar=F)
+	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
+	
+	rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"),isProgressBar=F)
+	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
+	
+	stopifnot(sum(exprs(rollUpEset2)) == sum(exprs(rollUpEset1))  ) ### test sum
+	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))  ) ### test mean
+	
+	rollUpEset4 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"),isProgressBar=F)
+	stopifnot(sum(exprs(rollUpEset3)) != sum(exprs(rollUpEset4))  ) ### test top 3
+	
+	cat(" --- testRollUp: PASS ALL TEST  --- \n")
+	
+#	progenesisPeptideCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
+#	d <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile3))
+#	e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide"))
+#	unique(fData(d)$proteinName)
+#	
+#	sqa <- safeQuantAnalysis(e)
+#	
+#	sqa$baselineIntensity
+	
+	
+}
+
+
+testTopX <- function(){
+	
+	cat(" --- testTopX --- \n")
+	
+	entryData1  <- data.frame(t(matrix(c(1,1,1,3,3,3,2,2,2,5,5,5),ncol=4)))
+	rownames(entryData1) <- paste("peptide",1:nrow(entryData1),sep="_")
+	#           X1 X2 X3
+	# peptide_1  1  1  1
+	# peptide_2  3  3  3
+	# peptide_3  2  2  2
+	# peptide_4  5  5  5
+	stopifnot(sum(rep(10/3,3) == getTopX(entryData1)) == 3)
+	
+	entryData2 <- data.frame(t(matrix(c(1,1,1,3,3,3,2,2,2,5,5,NA),ncol=4)))
+	rownames(entryData2) <- paste("peptide",1:nrow(entryData2),sep="_")
+	
+	#           X1 X2 X3
+	# peptide_1  1  1  1
+	# peptide_2  3  3  3
+	# peptide_3  2  2  2
+	# peptide_4  5  5 NA
+	stopifnot(sum(c(4,4,3) == getTopX(entryData2,topX=2 )) == 3)
+	
+	# 1 row
+	stopifnot(sum(rep(1,3) == getTopX(entryData1[1,])) == 3)
+	
+	# 1 col
+	stopifnot(sum(getTopX(entryData1) == getTopX(entryData1[,1])) == 3)
+	
+	top1 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"),isProgressBar=F)),1,sum)
+	top3 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"),isProgressBar=F)),1,sum)
+	meanInt <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("mean"),isProgressBar=F)),1,sum)
+	
+	stopifnot(sum(top1 >=  top3 ) == length(top3))
+	stopifnot(sum(top1) > sum(top3))
+	stopifnot(sum(top1) > sum(meanInt))
+	stopifnot(sum(top3) == sum(meanInt))
+	
+	cat(" --- testTopX: PASS ALL TEST  --- \n")
+	
+}
+
+testGetIBAQEset <- function(){
+	
+	cat(" --- testGetIBAQEset --- \n")
+	
+	fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/tests/sp_mouse_160512.decoy.fasta"
+	# read protein fasta
+	proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+	
+	iBaqEset <- getIBAQEset(eset,proteinDB=proteinDB)
+	stopifnot(round(exprs(iBaqEset))[1,1] == 125)
+	stopifnot(round(exprs(iBaqEset))[2,2] == 39)
+	
+	cat(" --- testGetIBAQEset: PASS ALL TEST --- \n")
+}
+
+testGetLoocvFoldError <- function(){
+	
+	cat(" --- testGetLoocvFoldError --- \n")
+	#plotCalibrationCurve(fit)
+	stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
+	cat(" --- testGetLoocvFoldError: PASS ALL TEST --- \n")
+}
+
+testNormalize <- function(){
+	
+	cat(" --- testNormalize --- \n")
+	
+	stopifnot(nrow(normalize(eset, method = "global")) == 900)
+	esetTmp <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	stopifnot(nrow(normalize(esetTmp, method = "rt")) == 496)
+	
+	#stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
+	cat(" --- testNormalize: PASS ALL TEST --- \n")
+}
+	
+
+testRtNormalize <- function(){
+	
+	cat(" --- testRTNormalize --- \n")
+	esetTmp <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)
+	stopifnot(nrow(rtNormalize(esetTmp,rtNormFactors)) == 496)
+	cat(" --- testRTNormalize: PASS ALL TEST --- \n")
+}
+
+testRemoveOutliers <- function(){
+	
+	cat(" --- removeOutliers --- \n")
+	set.seed(1234)
+	stopifnot(sum(is.na(removeOutliers(c(-10,  rnorm(100), 10)))) == 2)
+	cat(" --- removeOutliers: PASS ALL TEST --- \n")
+}
+
+
+### TEST FUNCTIONS END
+
+### TESTS
+testCreateExpressionDataset()
+testGetAllEBayes()
+testGetRatios()
+testGetAllCV()
+testGlobalNormalize()
+#testNormalize()
+testRtNormalize()
+testGetSignalPerCondition()
+testBaselineIntensity()
+testRollUp()
+testTopX()
+testGetIBAQEset()
+testGetLoocvFoldError()
+
+testRemoveOutliers()
+
+### @TODO add tests for getRTNormFactors and rtNormalize
+
+# @TODO testGetLoocvFoldError()
+
+### TESTS END
+#
+#e <- combine(eset[1:10,],eset[1:10,])
+#exprs(e)
+
+
+### @TODO predictAbsoluteAbundance
+
+
+
+
+

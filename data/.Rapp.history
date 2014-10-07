@@ -1,0 +1,2 @@
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda")
+ls()

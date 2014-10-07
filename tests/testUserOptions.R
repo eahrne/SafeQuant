@@ -1,0 +1,93 @@
+# TODO: Add comment
+# 
+# Author: erikahrne
+###############################################################################
+
+
+# TODO: Add comment
+# 
+# Author: erikahrne
+###############################################################################
+
+### INIT
+
+source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+
+### INIT END
+
+
+### TEST FUNCTIONS
+
+testExpDesignTagToExpDesign <- function(){
+	
+	cat("--- testExpDesignTagToExpDesign: --- \n")
+	
+	stopifnot(all.equal(pData(eset),expDesign))
+	stopifnot(all.equal(sampleNames(eset),colnames(m)))
+	stopifnot(all.equal(nrow(exprs(eset)),nrow(m)))
+	
+	expDesignString1 <- "1,2,3:4,5,6"
+
+	# 6-plex default: 1,2,3:4,5,6 
+	#condition isControl
+	#1 Condition 1      TRUE
+	#2 Condition 1      TRUE
+	#3 Condition 1     TRUE
+	#4 Condition 2     FALSE
+	#5 Condition 2     FALSE
+	#6 Condition 2     FALSE
+
+	
+	expDesign1 <- expDesignTagToExpDesign(expDesignString1)
+
+	stopifnot(nrow(expDesign1) == 6 )
+	stopifnot(length(unique(expDesign1$condition)) == 2 )
+	stopifnot(sum(expDesign1$isControl) == 3 )
+	
+	expDesignString2 <- "1,4,7,10:2,5,8:3,6,9"
+	
+	# 10-plex default is "1,4,7,10:2,5,8:3,6,9"
+	#condition isControl
+	#1 Condition 1      TRUE
+	#2 Condition 2      FALSE
+	#3 Condition 3     FALSE
+	#4 Condition 1     TRUE
+	#5 Condition 2     FALSE
+	#6 Condition 3     FALSE
+	#7 Condition 1     TRUE
+	#8 Condition 2     FALSE
+	#9 Condition 3     FALSE
+	#10 Condition 1     TRUE
+	
+	expDesign2 <- expDesignTagToExpDesign(expDesignString2)
+	stopifnot(nrow(expDesign2) == 10 )
+	stopifnot(length(unique(expDesign2$condition)) == 3 )
+	stopifnot(sum(expDesign2$isControl) == 4 )
+	
+	
+	cat("--- testExpDesignTagToExpDesign: PASS ALL TEST --- \n")
+	
+	#expDesignTagToExpDesign("3")
+	
+}
+
+
+### TEST FUNCTIONS END
+
+### TESTS
+testExpDesignTagToExpDesign()
+
+
+
+
+
+
+
+
+
+
+
+
+
+#names(expDesign) <- 1:ncol(expDesign)
+

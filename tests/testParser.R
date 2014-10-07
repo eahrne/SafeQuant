@@ -1,0 +1,162 @@
+# TODO: Add comment
+# 
+# Author: erikahrne
+###############################################################################
+
+
+
+source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+
+### TEST FUNCTIONS
+
+################## TMT ##################
+
+testGetSkipLineNb <- function(){
+	cat(" --- testGetSkipLineNb --- \n")
+	stopifnot(40 ==  .getSkipLineNb(tmt6PlexRawTestFile))
+	stopifnot(40 ==  .getSkipLineNb(tmt10PlexRawTestFile))
+	cat(" --- testGetSkipLineNb: PASS ALL TEST --- \n")	
+}
+
+testGetNbPlex <- function(){
+	cat(" --- testGetNbPlex --- \n")
+	stopifnot(10 ==.getNbPlex(tmt10PlexRawTestFile))
+	stopifnot(6 ==.getNbPlex(tmt6PlexRawTestFile))
+	cat(" --- testGetNbPlex: PASS ALL TEST --- \n")	
+}
+
+
+
+################## LFQ ##################
+
+testGetProgenesisCsvIntColIndices <- function(){
+	
+	cat(" --- testGetProgenesisCsvProteinIntColIndices --- \n")
+	
+	stopifnot(sum(14:17 %in% .getProgenesisCsvIntColIndices(progenesisProteinCsvFile1) ) == 4 )
+	stopifnot( sum(20:29 %in% .getProgenesisCsvIntColIndices(progenesisProteinCsvFile2) ) == 10 )
+	
+	stopifnot(sum(31:48 %in% .getProgenesisCsvIntColIndices(progenesisPeptideCsvFile1) ) == 18 )
+	stopifnot( sum(22:30 %in% .getProgenesisCsvIntColIndices(progenesisPeptideCsvFile2) ) == 9 )
+	
+	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
+	
+}
+
+testGetExpDesignProgenesisCsv <- function(){
+	
+	cat(" --- testGetExpDesignProgenesisCsv --- \n")
+	
+	stopifnot(4 == nrow( getExpDesignProgenesisCsv(progenesisProteinCsvFile1) )) 
+	stopifnot(10 == nrow(getExpDesignProgenesisCsv(progenesisProteinCsvFile2) ))
+	
+	stopifnot(18 == nrow(getExpDesignProgenesisCsv(progenesisPeptideCsvFile1) ))
+	stopifnot(9 == nrow(getExpDesignProgenesisCsv(progenesisPeptideCsvFile2) ))
+	
+	cat(" --- testGetExpDesignProgenesisCsv: PASS ALL TEST  --- \n")
+	
+}
+
+
+testParseProgenesisProteinCsv <- function(){
+	
+	cat(" --- testParseProgenesisProteinCsv --- \n")
+	
+	eset <- parseProgenesisProteinCsv(file=progenesisProteinCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisProteinCsvFile1))
+	stopifnot(1917 == nrow(eset))
+	stopifnot(6 == ncol(fData(eset)))
+	stopifnot(4 == nrow(pData(eset)))
+	
+	expDesign <- getExpDesignProgenesisCsv(progenesisProteinCsvFile1)[c(3,2),]
+	eset2 <- parseProgenesisProteinCsv(file=progenesisProteinCsvFile1,expDesign=expDesign)
+	
+	stopifnot(colnames(eset2) == row.names(pData(eset))[c(3,2)]   )
+	### change expDesign
+	
+	cat(" --- testParseProgenesisProteinCsv: PASS ALL TEST  --- \n")
+}
+
+testParseProgenesisPeptideCsv <- function(){
+	
+	cat(" --- testParseProgenesisPeptideCsv --- \n")
+	
+	eset <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	stopifnot(496 == nrow(eset))
+	names(fData(eset))
+	stopifnot(12 == ncol(fData(eset)))
+	stopifnot(18 == nrow(pData(eset)))
+	
+#	expDesign <- getExpDesignProgenesisCsv(progenesisPeptideCsvFile1)[c(3,4:8),]
+#	eset2 <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=expDesign)
+#	
+#	pData(eset2)
+#	pData(eset)
+	
+	cat(" --- testParseProgenesisPeptideCsv: PASS ALL TEST  --- \n")
+}
+
+testParseScaffoldRawFile <- function(){
+	
+	
+	cat(" --- testParseScaffoldRawFile --- \n")
+	
+	# 6 plex	
+	
+	expDesignTMTSixPlex <- data.frame(condition=sort(rep(c(1,2),3)),isControl=sort(rep(c(T,F),3),decreasing=T) )
+	eset <- parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex)
+	stopifnot(329 ==  nrow(eset))
+	stopifnot("sp|P38711|RS27B_YEAST,sp|P35997|RS27_YEAST" ==  fData(eset)$proteinName[1])
+	stopifnot("sp|P38711|RS27B_YEAST" == fData(parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex,keepFirstAcOnly=T))$proteinName[1])
+	
+	expDesignTMTSixPlex <- data.frame(condition=sort(rep(c(1,2),3)),isControl=sort(rep(c(T,F),3),decreasing=T) )
+	rownames(expDesignTMTSixPlex) <- rev(1:6)
+	eset2 <- parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex[1:5,])
+	stopifnot(exprs(eset)[1,6] == exprs(eset2)[1,1])
+	
+	# 10 plex	
+	expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )
+	eset3 <- parseScaffoldRawFile(tmt10PlexRawTestFile,expDesign=expDesignTMTTenPlex, keepFirstAcOnly=T)
+	stopifnot(8875 ==  nrow(eset3))
+	cat(" --- testParseScaffoldRawFile: PASS ALL TEST --- \n")
+	
+}
+
+testGetFileType <- function(){
+	
+	cat(" --- testGetFileType --- \n")
+	
+	stopifnot(.getFileType(tmt6PlexRawTestFile) == "ScaffoldTMT")
+	stopifnot(.getFileType(tmt10PlexRawTestFile) == "ScaffoldTMT")
+	stopifnot(.getFileType(progenesisPeptideCsvFile1) == "ProgenesisPeptide")
+	stopifnot(.getFileType(progenesisPeptideCsvFile2) == "ProgenesisPeptide")
+	stopifnot(.getFileType(progenesisProteinCsvFile1) == "ProgenesisProtein")
+	stopifnot(.getFileType(progenesisProteinCsvFile2) == "ProgenesisProtein")
+	
+	cat(" --- testGetFileType: PASS ALL TEST --- \n")
+}
+
+
+### TEST FUNCTIONS END
+
+
+### TESTS
+
+testGetSkipLineNb()
+testParseScaffoldRawFile()
+testGetNbPlex()
+testGetProgenesisCsvIntColIndices()
+testGetExpDesignProgenesisCsv()
+testParseProgenesisProteinCsv()
+testParseProgenesisPeptideCsv()
+testGetFileType()
+
+### TESTS END
+
+
+
+
+
+
+
+
+
