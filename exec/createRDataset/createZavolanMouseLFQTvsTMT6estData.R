@@ -51,32 +51,10 @@ esetLFQSpectrum <- esetLFQSpectrum[fData(esetLFQSpectrum)$peptide %in% sharedPep
 esetTMTSpectrum <- esetTMTSpectrum[fData(esetTMTSpectrum)$peptide %in% sharedPeptides,]
 
 #### ROLL UP
-### LFQ
-
-esetLFQPeptide <- rollUp(esetLFQSpectrum, featureDataColumnName= c("peptide","ptm"), method=c("top1"),isProgressBar=T ) 
-
-
-### select for no modified data and peptides with 
-esetLFQPeptide <- esetLFQPeptide[nchar(as.character(fData(esetLFQPeptide)$ptm)) == 0,]
-esetLFQPeptide <- esetLFQPeptide[!isCon(fData(esetLFQPeptide)$proteinName),]
-esetLFQPeptide <- addIdQvalues(esetLFQPeptide)
-esetLFQPeptide <- esetLFQPeptide[fData(esetLFQPeptide)$idQValue <=  fdrCutOff,]
-esetLFQPeptide <- esetLFQPeptide[!isDecoy(fData(esetLFQPeptide)$proteinName),]
-
-esetLFQProtein <- rollUp(esetLFQPeptide, featureDataColumnName= c("proteinName","ptm"), method=c("sum"),isProgressBar=T ) 
-
-okMS1 <- fData(esetLFQProtein)$nbRolledFeatures > peptidesPerProt
-esetLFQProtein <- esetLFQProtein[okMS1,]
-
-
 
 ### TMT
 
-### keep only peptides shared with MS1 dataset
-esetTMTSpectrum <- esetTMTSpectrum[fData(esetTMTSpectrum)$peptide %in% fData(esetLFQSpectrum)$peptide,]
-
 esetTMTPeptide <- rollUp(esetTMTSpectrum, featureDataColumnName= c("peptide"), method=c("top1"),isProgressBar=T ) 
-
 
 ### parse proteome discoverer report file
 # scanNb format "A14-08007.23464X"
@@ -100,10 +78,38 @@ fData(esetTMTPeptide)$interference[fData(esetTMTPeptide)$interference == 0] <- N
 
 esetTMTProtein <- rollUp(esetTMTPeptide, featureDataColumnName= c("proteinName"), method=c("sum"),isProgressBar=T ) 
 
+
+### LFQ
+
+### same protein (inference) annotations for TMT and LFQ
+fData(esetLFQSpectrum)$proteinName <- fData(esetTMTPeptide[as.character(fData(esetLFQSpectrum)$peptide),])$proteinName
+
+esetLFQPeptide <- rollUp(esetLFQSpectrum, featureDataColumnName= c("peptide","ptm"), method=c("top1"),isProgressBar=T ) 
+### discard PEPTIDE_ -> PEPTIDE
+rownames(esetLFQPeptide) <- gsub("_","",rownames(esetLFQPeptide))
+
+### select for no modified data and peptides with 
+esetLFQPeptide <- esetLFQPeptide[nchar(as.character(fData(esetLFQPeptide)$ptm)) == 0,]
+esetLFQPeptide <- esetLFQPeptide[!isCon(fData(esetLFQPeptide)$proteinName),]
+esetLFQPeptide <- addIdQvalues(esetLFQPeptide)
+esetLFQPeptide <- esetLFQPeptide[fData(esetLFQPeptide)$idQValue <=  fdrCutOff,]
+esetLFQPeptide <- esetLFQPeptide[!isDecoy(fData(esetLFQPeptide)$proteinName),]
+
+esetLFQProtein <- rollUp(esetLFQPeptide, featureDataColumnName= c("proteinName"), method=c("sum"),isProgressBar=T ) 
+
+### require x peptides per protein
+okLFQ <- fData(esetLFQProtein)$nbRolledFeatures >= peptidesPerProt
+esetLFQProtein <- esetLFQProtein[okLFQ,]
+
+
+
 ### FILTER PROTEIN ROLL-UP
 
-okTMT <- fData(esetTMTProtein)$nbRolledFeatures > peptidesPerProt
+okTMT <- fData(esetTMTProtein)$nbRolledFeatures >= peptidesPerProt
 esetTMTProtein <- esetTMTProtein[okTMT,]
+
+
+
 
 
 save(esetLFQSpectrum,esetLFQPeptide,esetLFQProtein,esetTMTSpectrum,esetTMTProtein,esetTMTPeptide,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/zavolanMouseLFQvsTMT6.rda")
