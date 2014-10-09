@@ -1,5 +1,4 @@
 #### results out put & test data
-*.pdf
 *.csv
 *.tsv
 *.xls
@@ -14,4 +13,4 @@ ehthumbs.db
 Thumbs.db
 .Rapp.history
 ### todos
-*.txt
+
