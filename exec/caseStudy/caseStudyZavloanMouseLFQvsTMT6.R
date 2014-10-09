@@ -26,6 +26,7 @@ sqaTMTProtein <- safeQuantAnalysis(esetTMTProtein,method="global")
 # create spectrum sqa objects
 sqaTMTSpectrum <- safeQuantAnalysis(esetTMTSpectrum,method="global")
 
+# @TODO select for proteins significantly regulated in LFQ
 
 # plot uncorrected protein ratio correlation
 plotXYDensity(sqaLFQProtein$ratio[,1], sqaTMTProtein$ratio[ gsub("_$","",rownames(sqaLFQProtein$ratio)) ,],xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
@@ -33,34 +34,15 @@ plotXYDensity(sqaLFQProtein$ratio[,1], sqaTMTProtein$ratio[ gsub("_$","",rowname
 # plot uncorrected spectrum  ratios vs. reference ratios
 plotXYDensity(sqaLFQProtein$ratio[ paste(fData(sqaTMTSpectrum$eset)$proteinName,"_",sep="") ,], sqaTMTSpectrum$ratio[,1],xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
 
-
-#@TODO plotXYDensity(apply(sqaTMTSpectrum$), sqaLFQProtein$ratio[ paste(fData(sqaTMTSpectrum$eset)$proteinName,"_",sep="") ,] - sqaTMTSpectrum$ratio[,1],xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
-
-
-head(esetLFQProtein)
-
-esetLFQPeptide
-
-esetLFQSpectrum
+# plot log2 ratio difference vs tmt intensity
+plotXYDensity(log2(apply(exprs(sqaTMTSpectrum$eset),1,min))
+	, sqaLFQProtein$ratio[ paste(fData(sqaTMTSpectrum$eset)$proteinName,"_",sep="") ,] - sqaTMTSpectrum$ratio[,1]
+	, xlab="log2 TMT intensity sum"
+	, ylab="(LFQ log2 Ratio) - (TMT log2 Ratio) " )
+abline(h=0, lty=2)
 
 
-unique(fData(esetLFQPeptide)$proteinName)
+boxplot(sqaLFQProtein$ratio[ paste(fData(sqaTMTSpectrum$eset)$proteinName,"_",sep="") ,] - sqaTMTSpectrum$ratio[,1])
+abline(h=0, lty=2)
 
-gsub("_","",rownames(esetLFQPeptide)) %in% rownames(esetTMTPeptide)
-
-
-unique(fData(esetLFQPeptide)$proteinName)
-
-
-
-intersect(gsub("_$","",rownames(esetLFQProtein)), rownames(esetTMTProtein))
-
-
-
-
-
-sqaLFQProtein$ratio
-
-sqaTMTProtein$ratio
-
-
+plotVolcano(sqaLFQProtein, adjusted=F)
