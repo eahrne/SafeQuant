@@ -260,7 +260,7 @@ getUserOptions <- function(version=version){
 	
 	#FILTER: precursorMassFilter
 	### check input format precursorMassFilter
-	if(is.na(cmdOpt$FDeltaMassTolerancePrecursor) | regexpr("^\\[\\-*[0-9]{1,}\\,\\-*[0-9]{1,}\\]$",as.character(cmdOpt$FDeltaMassTolerancePrecursor)) == -1 ){
+	if(is.na(cmdOpt$FDeltaMassTolerancePrecursor) | regexpr("^\\[\\-*[0-9]{1,}\\,\\-*[0-9]{1,}\\]*$",as.character(cmdOpt$FDeltaMassTolerancePrecursor)) == -1 ){
 		cat("ERROR. invalid precursorMassFilter ",userOptions$precursorMassFilter,"\n") 
 		q(status=-1)
 	}

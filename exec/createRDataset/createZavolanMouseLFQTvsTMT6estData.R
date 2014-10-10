@@ -54,28 +54,28 @@ esetTMTSpectrum <- esetTMTSpectrum[fData(esetTMTSpectrum)$peptide %in% sharedPep
 
 ### TMT
 
-esetTMTPeptide <- rollUp(esetTMTSpectrum, featureDataColumnName= c("peptide"), method=c("top1"),isProgressBar=T ) 
 
 ### parse proteome discoverer report file
 # scanNb format "A14-08007.23464X"
-scanNb <- paste(gsub("\\.[0-9]{1,6}\\.[0-9]{1,2}$","",fData(esetTMTPeptide)$spectrumName),"X",sep="")
+scanNb <- paste(gsub("\\.[0-9]{1,6}\\.[0-9]{1,2}$","",fData(esetTMTSpectrum)$spectrumName),"X",sep="")
 pdReport <- read.csv(pdReportFile,sep="\t")
 rownames(pdReport) <- paste(gsub("\\.raw","",pdReport$Spectrum.File),".",pdReport$First.Scan,"X",sep="") 
 
 ### add selected columns to fData
 pdAddedColumns <- data.frame(pdReport[scanNb,c("Precursor.Intensity","Isolation.Interference....","Ion.Inject.Time..ms.")])
 names(pdAddedColumns) <- c("ms1Int","interference","injectionTime")
-fData(esetTMTPeptide) <- cbind(fData(esetTMTPeptide),pdAddedColumns)
+fData(esetTMTSpectrum) <- cbind(fData(esetTMTSpectrum),pdAddedColumns)
 
 ### calculate mz frequency
-mzFreqTable <- table(round(fData(esetTMTPeptide)$mz)) / sum(table(round(fData(esetTMTPeptide)$mz)))
-mzFreq 	<-  mzFreqTable[as.character(round(fData(esetTMTPeptide)$mz))]
-fData(esetTMTPeptide) <- cbind(fData(esetTMTPeptide),mzFreq)
+mzFreqTable <- table(round(fData(esetTMTSpectrum)$mz)) / sum(table(round(fData(esetTMTSpectrum)$mz)))
+mzFreq 	<-  mzFreqTable[as.character(round(fData(esetTMTSpectrum)$mz))]
+fData(esetTMTSpectrum) <- cbind(fData(esetTMTSpectrum),mzFreq)
 
 ### replace 0's with NA
-fData(esetTMTPeptide)$ms1Int[fData(esetTMTPeptide)$ms1Int == 0] <- NA
-fData(esetTMTPeptide)$interference[fData(esetTMTPeptide)$interference == 0] <- NA
+fData(esetTMTSpectrum)$ms1Int[fData(esetTMTSpectrum)$ms1Int == 0] <- NA
+fData(esetTMTSpectrum)$interference[fData(esetTMTSpectrum)$interference == 0] <- NA
 
+esetTMTPeptide <- rollUp(esetTMTSpectrum, featureDataColumnName= c("peptide"), method=c("top1"),isProgressBar=T ) 
 esetTMTProtein <- rollUp(esetTMTPeptide, featureDataColumnName= c("proteinName"), method=c("sum"),isProgressBar=T ) 
 
 

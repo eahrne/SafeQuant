@@ -7,9 +7,9 @@
 
 
 # TEST FILE
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides1_FILTERED.csv
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/ProteinsSQAnalysis/proteins1.csv
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/TMT/TMT_Scaffold_Raw_Export_Example.xls
+# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv
+# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
+# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
 
 if(F){
 	### 
@@ -170,14 +170,6 @@ if(userOptions$verbose)  print(pData(eset))
 
 if(userOptions$verbose) print(names(fData(eset)))
 
-### CREATE FEATURE DATA
-
-if("idScore" %in% names(fData(eset))){
-	eset <- addIdQvalues(eset)
-}
-
-### CREATE FEATURE DATA END
-
 #### CREATE FEATURE DATA AND FILTER (pre-rollup)
 
 # generic
@@ -188,6 +180,8 @@ filter <- data.frame(
 )
 
 if("idScore" %in% names(fData(eset))){
+### applicable to Progenesis Exports	
+	
 	# add id-level qValues
 	eset <- addIdQvalues(eset)
 	filter <- cbind(filter,fData(eset)$idQValue > userOptions$fdrCutoff)
@@ -195,7 +189,8 @@ if("idScore" %in% names(fData(eset))){
 
 
 if("pMassError" %in% names(fData(eset))){
-	
+### applicable to Progenesis feature Exports	
+
 	filter <- cbind(filter, 
 			(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
 					| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
@@ -212,6 +207,7 @@ if("ptm" %in% names(fData(eset))){
 }
 
 if("nbPeptides" %in% names(fData(eset))){
+### applicable to Progenesis Protein Exports (or other upon Protein level roll-up)
 	filter <- cbind(filter,fData(eset)$nbPeptides < userOptions$minNbPeptidesPerProt)
 }	
 
@@ -246,7 +242,8 @@ sqa <- safeQuantAnalysis(eset, method=sqaMethod)
 
 pdf(userOptions$pdfFile)
 
-.qcPlots(eset)
+.qcPlots(sqa$eset,selection=1:5 )
+.qcPlots(eset,selection=6 )
 
 cat("CREATED FILE ", userOptions$pdfFile,"\n")
 
@@ -254,8 +251,18 @@ dev.off()
 
 ### GRAPHICS END
 
+#print(userOptions)
+
+### TSV EXPORT
+
+
+write.table(cbind(exprs(eset),fData(sqa$eset)),file=userOptions$tsvFilePath,sep="\t", row.names=F)
+
+cat("CREATED FILE ", userOptions$tsvFilePath,"\n")	
+	
+### TSV EXPORT END
+
 #print(sqa$qValue)
 
 
 
- #print(userOptions)

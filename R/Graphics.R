@@ -20,7 +20,7 @@ COLORS <- as.character(c(
 )
 
 ### some quality control plots
-.qcPlots <- function(eset,selection=1:5,nbFeatures=500, ...){
+.qcPlots <- function(eset,selection=1:6,nbFeatures=500, ...){
 	
 	if(nrow(eset) < nbFeatures) nbFeatures <- nrow(eset) 
 	
@@ -31,6 +31,11 @@ COLORS <- as.character(c(
 	if(3 %in% selection)plotMSSignalDistributions(log2(exprs(eset)), col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), lwd=1.5, ...)
 	if(4 %in% selection)pairsAnnot(log2(exprs(eset)[sel,order(pData(eset)$condition)]), ...)
 	if(5 %in% selection)hClustHeatMap(eset[sel,], ...)
+	### retention time normalization plot
+	if((6 %in% selection) && ("rt" %in% sqaMethod) ){
+		plotRTNormSummary(getRTNormFactors(eset, minFeaturesPerBin=100))
+	}
+	
 	
 } 
 
