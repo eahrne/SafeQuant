@@ -51,6 +51,9 @@ plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & (abs(sqaTMTSpect
 plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 0)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 0)]) 
 # gloally 55% of tmtMinInt is noise
 
+plotXYDensity(log2(tmtMinInt), log2(tmtInterference)) 
+# gloally 72% of tmtMinInt is noise
+
 plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 1)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 1)])
 plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2)])
 plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2.5)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2.5)])
@@ -63,7 +66,23 @@ plot(c(1:10)-1,(c(1:10) - 1)/0.3)
 
 
 
-tmtMedianPerCondAdjusted <- tmtMedianPerCond - (tmtMinInt * 0.7) 
+plotXYDensity(log2(tmtInterference)[(tmtInterference != tmtMinInt) & !is.na(ratioLFQ)] , log2(fData(sqaTMTSpectrum$eset)$ms1Int)[(tmtInterference != tmtMinInt) & !is.na(ratioLFQ)])
+
+boxplot(log2(tmtInterference) ~ signif(fData(sqaTMTSpectrum$eset)$mzFreq,1))
+boxplot(tmtInterference/tmtMinInt ~ signif(fData(sqaTMTSpectrum$eset)$mzFreq,1))
+
+plotXYDensity(fData(sqaTMTSpectrum$eset)$mzFreq, tmtInterference/tmtMinInt  )
+
+
+boxplot(log2(tmtInterference) ~ I(round((fData(sqaTMTSpectrum$eset)$injectionTime+5)/10)*10))
+
+boxplot(log2(tmtInterference) ~ fData(sqaTMTSpectrum$eset)$charge)
+
+boxplot(tmtInterference/tmtMinInt ~ fData(sqaTMTSpectrum$eset)$charge)
+
+boxplot(tmtInterference/tmtMinInt ~ I(round((fData(sqaTMTSpectrum$eset)$injectionTime+5.1)/10)*10))
+
+tmtMedianPerCondAdjusted <- tmtMedianPerCond - (tmtMinInt * 0.72) 
 
 
 ratioTMTAdjusted <- log2(tmtMedianPerCondAdjusted[,2] / tmtMedianPerCondAdjusted[,1])
@@ -71,6 +90,11 @@ ratioTMTAdjusted <- log2(tmtMedianPerCondAdjusted[,2] / tmtMedianPerCondAdjusted
 plotXYDensity(ratioTMT,ratioTMTAdjusted)
 abline(coef=c(0,1))
 
+plotXYDensity(log2(apply(sqaTMTSpectrum$eset,1,min)), log2(fData(sqaTMTSpectrum$eset)$ms1Int))
+plotXYDensity(log2(apply(sqaTMTSpectrum$eset,1,max)), log2(fData(sqaTMTSpectrum$eset)$ms1Int))
+
+
+boxplot(log2(apply(sqaTMTSpectrum$eset,1,sum)) ~ fData(sqaTMTSpectrum$eset)$charge)
 
 ### HERE
 plotXYDensity(ratioLFQ,ratioTMT)

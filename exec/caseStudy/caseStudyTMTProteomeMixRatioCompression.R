@@ -38,91 +38,36 @@ par(mfrow=c(1,1))
 boxplot((2^sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,])-1)
 
 
-medianTMTFC <-  apply((2^abs(sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,])) ,2,median, na.rm=T )-1
-
-FC <-  c(1.5,5,10,2)-1
-
-k <- c(0.4,0.1,0.4,0.3)
-
-plot(medianTMTFC,FC)
-
-pData(sqaSpectrum$eset)
-
-sqaSpectrumMedianInt <- getSignalPerCondition(sqaSpectrum$eset)
-
-par(mfrow=c(2,2))
-summary(plotXYDensity(log2(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"]))
-
-par(mfrow=c(2,2))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_1"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]))
-summary(plotXYDensity(log(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_1"]),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"]))
-
-
-par(mfrow=c(2,2))
-summary(plotXYDensity(log2(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum))  ,sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]))
-
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"]))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"]))
-par(mfrow=c(1,1))
 
 
 
-refRatios <- log2(data.frame( rep(1.5,nrow(esetTMT6Spectrum))
-								,rep(0.2,nrow(esetTMT6Spectrum))
-								,rep(10,nrow(esetTMT6Spectrum))
-								,rep(0.5,nrow(esetTMT6Spectrum))
-		
-		))
-
-relativeCompression <- sqaSpectrum$ratio
-
-relativeCompression[,1] <-  refRatios[,1] / sqaSpectrum$ratio[,1]
-relativeCompression[,2] <-  refRatios[,2] / sqaSpectrum$ratio[,2]
-relativeCompression[,3] <-  refRatios[,3] / sqaSpectrum$ratio[,3]
-relativeCompression[,4] <-  refRatios[,4] / sqaSpectrum$ratio[,4]
-
-relativeCompression[relativeCompression < 0] <- NA
-
-names(relativeCompression) <- names(sqaSpectrum$ratio)
 
 pdf("/Users/erikahrne/tmp/tmp.pdf")
 
-par(mfrow=c(2,2))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"], ylim=c(-10,10) ))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"], ylim=c(-10,10) ))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"], ylim=c(-10,10) ))
-summary(plotXYDensity(log(apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,],1,sum)),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"], ylim=c(-10,10) ))
+par(mfrow=c(1,2))
+
+### ratios 1.5,0.2,10,0.5
+medianTMTRatio <-  apply(sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,] ,2,median, na.rm=T )
+refRatio <-  log2(c(1.5,0.2,10,0.5))
+plot(refRatio,medianTMTRatio)
+abline(lm(medianTMTRatio ~ refRatio))
+abline(coef=c(0,1), lty=2)
+
+expDesignPosRatios <- data.frame(condition=paste("cond",c(1,2,3,1,4,5),sep="_"),isControl=rep(F,6) )
+expDesignPosRatios$isControl[c(3)] <- T
 
 
+esetPosRatios <- createExpressionDataset(expressionMatrix=exprs(esetTMT6Spectrum),expDesign=expDesignPosRatios,featureAnnotations=fData(esetTMT6Spectrum))
 
-par(mfrow=c(2,2))
-summary(plotXYDensity(log(fData(sqaSpectrum$eset)$ms1Int[!fData(sqaSpectrum$eset)$isNormAnchor]),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_2"]))
-summary(plotXYDensity(log(fData(sqaSpectrum$eset)$ms1Int[!fData(sqaSpectrum$eset)$isNormAnchor]),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_3"]))
-summary(plotXYDensity(log(fData(sqaSpectrum$eset)$ms1Int[!fData(sqaSpectrum$eset)$isNormAnchor]),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_4"]))
-summary(plotXYDensity(log(fData(sqaSpectrum$eset)$ms1Int[!fData(sqaSpectrum$eset)$isNormAnchor]),relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,"cond_5"]))
+posRatios <- apply(getRatios(esetPosRatios,log2=T)[!fData(sqaSpectrum$eset)$isNormAnchor,] ,2,median, na.rm=T )
+
+
+refRatio <-  log2(c(5,7.5,50,2.5))
+plot(refRatio,posRatios)
+abline(lm(posRatios ~ refRatio))
+abline(coef=c(0,1), lty=2)
 
 dev.off()
-
-par(mfrow=c(2,2))
-
-boxplot(abs(sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,]))
-boxplot(log2(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,2:5]))
-plot(log2(c(1.5,0.2,10,0.5)), log2(c(1.5,0.2,10,0.5)) / apply(sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,],2,median,na.rm=T) ,ylab="Correction Factor"  )
-
-boxplot(relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,], ylim=c(0,20))
-
-par(mfrow=c(2,2))
-plot(log2(c(1.5,0.2,10,0.5)), apply(sqaSpectrum$ratio[!fData(sqaSpectrum$eset)$isNormAnchor,],2,median,na.rm=T),ylab="TMT Ratio", xlab="Ratio")
-abline(coef=c(0,1))
-plot(log2(c(1.5,0.2,10,0.5)), apply(relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,],2,median,na.rm=T),ylab="Correction Factor", xlab="Ratio")
-plot(log2( apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,2:5],2,median,na.rm=T) ), apply(relativeCompression[!fData(sqaSpectrum$eset)$isNormAnchor,],2,median,na.rm=T),ylab="Correction Factor", xlab="tmt median int")
-plot(log2(c(1.5,0.2,10,0.5)),log2( apply(sqaSpectrumMedianInt[!fData(sqaSpectrum$eset)$isNormAnchor,2:5],2,median,na.rm=T) ), xlab="Ratio", ylab="tmt median int")
 
 print("DONE")
 
