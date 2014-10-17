@@ -126,9 +126,6 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign){
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
-	print(rownames(expDesign))
-	print(colnames(expMatrix))
-	
 	### re-order and exclude channels 
 	expMatrix <- as.matrix(expMatrix[!allColNA ,rownames(expDesign)])
 	colnames(expMatrix) <- rownames(expDesign)

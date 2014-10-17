@@ -257,7 +257,7 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 	pepStartPos <- regexpr(peptideSeq,proteinSeq)[1]
 	
 	if(pepStartPos < 0){
-		cat("ERROR - getModifProteinCoordinates -:",peptideSeq," not matching current protein sequence (check provided protein sequence db)","\n" )	
+		cat("\nERROR - getModifProteinCoordinates -:",peptideSeq," not matching current protein sequence (check provided protein sequence db)","\n" )	
 		return(pepStartPos)
 	}
 	
@@ -273,13 +273,17 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 }	
 
 ### add ptm coord to eset fData (data frame  listing phospho coordinates and motifX)
-.addPTMCoord <- function(eset,fastaFile,motifLength=4){
-	
-	### read protein db
-	proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+.addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F){
 	
 	ptmCoordDf <- data.frame()
+	
+	### progress bar
+	pbSum <- txtProgressBar(min = 0, max = nrow(eset), style = 3)
+	
 	for(i in 1:nrow(eset)){
+		
+		### increment progressbar
+		if(isProgressBar) setTxtProgressBar(pbSum, i)
 		
 		modifAnnot <-  as.character(fData(eset)$ptm[i])
 		
@@ -295,7 +299,7 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 			
 			if(nchar(modifAnnot) > 0){
 				if(proteinSeq == "NULL" ){
-					cat("ERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
+					cat("\nERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
 					modifCoord <- "Err"
 					motifX <- "Err"
 				}else{
@@ -312,6 +316,10 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 		ptmCoordDf <- rbind(ptmCoordDf,data.frame(modifCoord,motifX))
 		
 	}
+	
+	# close progress bar
+	setTxtProgressBar(pbSum, i)
+	close(pbSum)
 	
 	fData(eset) <- cbind(fData(eset),ptmCoordDf)
 	

@@ -20,7 +20,7 @@ COLORS <- as.character(c(
 )
 
 ### some quality control plots
-.qcPlots <- function(eset,selection=1:6,nbFeatures=500, ...){
+.qcPlots <- function(eset,selection=1:7,nbFeatures=500, ...){
 	
 	if(nrow(eset) < nbFeatures) nbFeatures <- nrow(eset) 
 	
@@ -31,10 +31,16 @@ COLORS <- as.character(c(
 	if(3 %in% selection)plotMSSignalDistributions(log2(exprs(eset)), col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), lwd=1.5, ...)
 	if(4 %in% selection)pairsAnnot(log2(exprs(eset)[sel,order(pData(eset)$condition)]), ...)
 	if(5 %in% selection)hClustHeatMap(eset[sel,], ...)
+	
+	if((6 %in% selection) && ("pMassError" %in% names(fData(eset)))){
+		plotPrecMassErrorDistrib(eset,pMassTolWindow=userOptions$precursorMassFilter)
+	}
+	
 	### retention time normalization plot
-	if((6 %in% selection) && ("rt" %in% sqaMethod) ){
+	if((7 %in% selection) && ("retentionTime" %in% names(fData(eset)))){
 		plotRTNormSummary(getRTNormFactors(eset, minFeaturesPerBin=100))
 	}
+
 	
 	
 } 
@@ -623,26 +629,27 @@ plotROC <- function(qvals
 
 ### Plot Precursor Mass Error Distribution 
 #' Plot Precursor Mass Error Distribution 
-#' @param pMassError vector of precursor mass errors 
-#' @param isDecoy vector TRUE/FALSE 
+#' @param eset ExpressionSet 
 #' @param pMassTolWindow Precursor Mass Error Tolerance Window
 #' @export
 #' @note  No note
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotPrecMassErrorDistrib <- function(pMassError,isDecoy,pMassTolWindow=c(-10,10)){
+plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10)){
 	
 	par(mar=c(5.1,4.1,1.1,4.1))
+	isDec <- isDecoy(fData(eset)$proteinName)
+	pMassError <- fData(eset)$pMassError
 	
 	xRange 	<- range(pMassError,pMassTolWindow)
 	breaks <- seq(xRange[1],xRange[2],length=50)
 	
 	### decoy hist
-	decoyMdHist 	<- hist(pMassError[isDecoy],breaks=breaks,plot=F)
+	decoyMdHist 	<- hist(pMassError[isDec],breaks=breaks,plot=F)
 	
 	### target hist
-	targetMdHist 	<- hist(pMassError[!isDecoy],breaks=breaks,plot=F)
+	targetMdHist 	<- hist(pMassError[!isDec],breaks=breaks,plot=F)
 	
 	yRange <- range(decoyMdHist$counts,targetMdHist$counts)
 	
@@ -650,8 +657,8 @@ plotPrecMassErrorDistrib <- function(pMassError,isDecoy,pMassTolWindow=c(-10,10)
 	plot(decoyMdHist$mids,decoyMdHist$counts,type="l", col="red",ylim=yRange,xlab="mass diff. (ppm)",ylab="PSM Frequnecy",lwd=1.5)
 	grid()
 	lines(decoyMdHist$mids,targetMdHist$counts,lwd=1.5)
-	abline(v=pMassTolWindow[1],col="lightgrey",lwd=1)
-	abline(v=pMassTolWindow[2],col="lightgrey",lwd=1)
+	abline(v=pMassTolWindow[1],col="grey",lwd=2)
+	abline(v=pMassTolWindow[2],col="grey",lwd=2)
 	
 	ratio <- (decoyMdHist$counts+1)/(targetMdHist$counts+1)
 	ratio[ratio > 1] <- 1
@@ -671,16 +678,18 @@ plotPrecMassErrorDistrib <- function(pMassError,isDecoy,pMassTolWindow=c(-10,10)
 
 ### 
 #' Plot precursorMass error v.s score highlighting decoy and displaying user specified user specified precursor mass filter
-#' @param pMassError vector of precursor mass errors 
-#' @param idScore vector of identification scores
-#' @param isDecoy vector TRUE/FALSE 
+#' @param eset ExpressionSet
 #' @param pMassTolWindow Precursor Mass Error Tolerance Window
 #' @export
 #' @note  No note
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotPrecMassErrorVsScore <- function(pMassError, idScore, isDecoy, pMassTolWindow=c(-10,10) ){
+plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ){
+	
+	pMassError <- fData(eset)$pMassError
+	idScore <- fData(eset)$idScore
+	isDec <- isDecoy(fData(eset)$proteinName) 
 	
 	withinTol <- (pMassError >= pMassTolWindow[1]) & (pMassError <= pMassTolWindow[2])
 	
@@ -693,7 +702,7 @@ plotPrecMassErrorVsScore <- function(pMassError, idScore, isDecoy, pMassTolWindo
 	
 	points(pMassError[withinTol], idScore[withinTol], col="black", pch=20 )
 	points(pMassError[!withinTol], idScore[!withinTol], col="grey", pch=20 )
-	points(pMassError[isDecoy], idScore[isDecoy], col="red", pch=20 )
+	points(pMassError[isDec], idScore[isDec], col="red", pch=20 )
 	
 	abline(v=pMassTolWindow[1],col="lightgrey",lwd=1)
 	abline(v=pMassTolWindow[2],col="lightgrey",lwd=1)
@@ -739,7 +748,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if("R" %in% disp){
 			legend(legendPos
 					,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
-					,text.col=c(1,2), box.col=0, cex=2
+					,text.col=c(1,2), box.col="transparent", cex=2
 			)
 		}
 		return(fit)

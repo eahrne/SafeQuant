@@ -14,6 +14,9 @@ proteinSeq4 <- "RKR"
 
 fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
 
+### read protein db
+proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+
 ### INIT END
 
 ### TEST FUNCTIONS
@@ -92,7 +95,7 @@ testGetMotifX <- function(){
 testAddPTMCoord <- function(){
 	
 	cat("--- testAddPTMCoord: --- \n")	
-	eset <- .addPTMCoord(eset,fastaFile,motifLength = 4)
+	eset <- .addPTMCoord(eset,proteinDB,motifLength = 4)
 	stopifnot(sum(nchar(as.character( fData(eset)$motifX[1:2] ) ) > 2) == 2)
 	cat("--- testAddPTMCoord: PASS ALL TEST --- \n")
 	
@@ -140,9 +143,7 @@ testGetPeptides <- function(){
 	
 	### digest whole db
 	if(F){
-		### read protein db
-		proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
-		
+
 		for(i in 1:length(names(proteinDB))){
 			
 			cat(i,"/",length(proteinDB),"\n")

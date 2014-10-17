@@ -42,72 +42,39 @@ tmtInterference[tmpSel] <- 0
 tmtInterference[(tmtInterference > tmtMinInt) |  (tmtInterference < 0)] <- tmtMinInt[(tmtInterference > tmtMinInt) |  (tmtInterference < 0)  ]
 tmtInterference[tmpSel] <- NA
 
-ratioDelta <- (abs(ratioLFQ) - abs(ratioTMT))*sign(ratioLFQ)*sign(ratioTMT)
-
-# plot uncorrected protein ratio correlation
-plotXYDensity(sqaLFQProtein$ratio[,1], sqaTMTProtein$ratio[ gsub("_$","",rownames(sqaLFQProtein$ratio)) ,],xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
-
-# plot uncorrected spectrum  ratios vs. reference ratios
-plotXYDensity(ratioLFQ,ratioTMT,xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
-
-## plot log2 ratio difference vs tmt intensity
-plotXYDensity(log2(apply(exprs(sqaTMTSpectrum$eset),1,min))
-	, ratioDelta
-	, xlab="log2 TMT intensity sum"
-	, ylab="Compression Factor" )
-abline(h=0, lty=2)
-
-boxplot(ratioDelta)
-abline(h=0, lty=2)
-
-# SELECT FOR PROTEINS SIGNIFICANTLY REGULATED IN LFQ
-
-
-selProteins <- unique(c(rownames(sqaLFQProtein$pValue)[sqaLFQProtein$pValue[,1] <= 0.01],rownames(sqaTMTProtein$pValue)[sqaTMTProtein$qValue[,1] <= 0.01]))
-
-selLFQ <- rownames(sqaLFQProtein$pValue) %in% selProteins
-#sqaLFQProteinSel <- .filterSQA(sqaLFQProtein,selLFQ)
-
-
-ratioLFQSEL <- .filterSQA(sqaLFQProtein,selLFQ)$ratio[ as.character(fData(sqaTMTSpectrum$eset)$proteinName) ,]
-
-ratioDeltaSel <- (abs(ratioLFQSEL) - abs(ratioTMT))*sign(ratioLFQSEL)*sign(ratioTMT)
-
-# plot uncorrected spectrum  ratios vs. reference ratios
-plotXYDensity(ratioLFQSEL,ratioTMT,xlab="LFQ log2 Ratio", ylab="TMT log2 Ratio" )
-
-# plot log2 ratio difference vs tmt intensity
-plotXYDensity(log2(apply(exprs(sqaTMTSpectrum$eset),1,sum))
-		, ratioDeltaSel
-		, xlab="log2 TMT intensity sum"
-		, ylab="Compression Factor" )
-abline(h=0, lty=2)
-
-# plot log2 ratio difference vs ms1 intensity
-plotXYDensity(log10(fData(sqaTMTSpectrum$eset)$ms1Int)
-		, ratioDeltaSel
-		, xlab="log10 MS1 intensity"
-		, ylab="Compression Factor" )
-abline(h=0, lty=2)
-
-
-# plot log2 ratio difference vs ms1 interference
-plotXYDensity(fData(sqaTMTSpectrum$eset)$interference
-		, ratioDeltaSel
-		, xlab="MS1 interference"
-		, ylab="Compression Factor" )
-abline(h=0, lty=2)
+#ratioDelta <- (abs(ratioLFQ) - abs(ratioTMT))*sign(ratioLFQ)*sign(ratioTMT)
 
 ## plot minInt vs. interference
-plotXYDensity(log(tmtInterference)[ tmtInterference != tmtMinInt],log(tmtMinInt)[ tmtInterference != tmtMinInt])
+plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & (abs(sqaTMTSpectrum$ratio[,1]) > 2)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & (abs(sqaTMTSpectrum$ratio[,1]) > 2)])
 #abline(h=0, lty=2)
 
+plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 0)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 0)]) 
+# gloally 55% of tmtMinInt is noise
 
-boxplot(ratioDeltaSel)
-abline(h=0, lty=2)
-
-plotVolcano(sqaTMTProtein, adjusted=T)
-plotVolcano(sqaLFQProtein, adjusted=F)
+plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 1)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 1)])
+plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2)])
+plotXYDensity(log2(tmtMinInt)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2.5)], log2(tmtInterference)[ (tmtInterference != tmtMinInt) & !is.na(ratioLFQ) & (abs(ratioLFQ) > 2.5)])
 
 print("DONE")
+
+plot(c(1:10),(c(1:10))/0.3)
+
+plot(c(1:10)-1,(c(1:10) - 1)/0.3)
+
+
+
+tmtMedianPerCondAdjusted <- tmtMedianPerCond - (tmtMinInt * 0.7) 
+
+
+ratioTMTAdjusted <- log2(tmtMedianPerCondAdjusted[,2] / tmtMedianPerCondAdjusted[,1])
+
+plotXYDensity(ratioTMT,ratioTMTAdjusted)
+abline(coef=c(0,1))
+
+
+### HERE
+plotXYDensity(ratioLFQ,ratioTMT)
+plotXYDensity(ratioLFQ,ratioTMTAdjusted)
+
+### DIAGNOSTIC PLOTS
 

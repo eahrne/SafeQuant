@@ -33,20 +33,20 @@ if(T){
 	plotExpDesign(eset)
 	
 	# id plots 
-	isDecoy <- isDecoy(fData(eset)$proteinName)
-	qvals <- getIdLevelQvals(fData(eset)$idScore, isDecoy)
+	isDec <- isDecoy(fData(eset)$proteinName)
+	qvals <- getIdLevelQvals(fData(eset)$idScore, isDec)
 	idScore <- fData(eset)$idScore
 	pMassError <- fData(eset)$pMassError
 	
-	plotScoreDistrib(idScore[!isDecoy]
-			,idScore[isDecoy])
+	plotScoreDistrib(idScore[!isDec]
+			,idScore[isDec])
 	plotIdScoreVsFDR(idScore,qvals,lwd=2)
 	plotROC(qvals,breaks=seq(0,0.2,length=50)
 			,main=paste("Nb. Valid identificaitons: ",sum(qvals < 0.01),"\n( FDR ",0.01,")"))
 	
 	# precursor mass error
-	plotPrecMassErrorDistrib(pMassError,isDecoy,pMassTolWindow=c(-10,10))
-	plotPrecMassErrorVsScore(pMassError, idScore, isDecoy, pMassTolWindow=c(-0.5,0.5) )
+	plotPrecMassErrorDistrib(eset,pMassTolWindow=c(-10,10))
+	plotPrecMassErrorVsScore(eset, pMassTolWindow=c(-0.5,0.5) )
 	
 	# quant QC plots
 	pairsAnnot(exprs(eset))

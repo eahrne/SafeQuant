@@ -7,7 +7,7 @@
 
 
 # TEST FILE
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv
+# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
 
@@ -48,7 +48,7 @@ suppressPackageStartupMessages(library("limma", quiet=T))
 suppressPackageStartupMessages(library(gplots, quiet=T)) # volcano plot
 suppressPackageStartupMessages(library(seqinr, quiet=T))
 
-### PARSE INPUT FILE
+### PARSERS
 
 if(userOptions$verbose) cat("PARSING INPUT FILE \n")	
 
@@ -70,35 +70,18 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisPeptide")){
 	}
 	
 	if(fileType == "ProgenesisProtein"){
+		cat("INFO: PARSING PROGENESIS PROTEIN EXPORT FILE ",userOptions$inputFile, "\n" )
 		eset <- parseProgenesisProteinCsv(file=userOptions$inputFile,expDesign=expDesign)
 		
-		# fdr filter
-		# ac filter
-		# peptides per protein filter
-		# replace missing values
-		# normalize
-		# stat test
-		# (abs. est)
-		
 	}else{ #"ProgenesisPeptide"
+		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
 		sqaMethod <- c("rt","naRep")
 		eset <- parseProgenesisPeptideCsv(file=userOptions$inputFile,expDesign=expDesign)
-		
-		# fdr filter
-		# ac filter
-		# ptm filter
-		# (peptides per protein filter)
-		# mass accuracy filter
-		# replace missing values
-		# normalize
-		# (roll up)
-		# (protein inference)
-		# stat test
-		# (abs. est)
 	}
 	
 # Scaffold Export (TMT data)
 }else if(fileType == "ScaffoldTMT"){
+	cat("INFO: PARSING SCAFFOLD RAW EXPORT FILE ",userOptions$inputFile, "\n" )
 	
 	# get default experimental design
 	# six plex or ten plex ?
@@ -123,51 +106,18 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisPeptide")){
 }else{
 	stop("Unknown File Type", userOptions$inputFile)
 }
-### PARSE INPUT FILE END
+
+# parse .fasta file
+if(!is.na(userOptions$proteinFastaFile)){
+	cat("INFO: PARSING PROTEIN SEQUENCE DB ",userOptions$proteinFastaFile, "\n" )
+	### read protein db
+	proteinDB <- read.fasta(userOptions$proteinFastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+}
+
+### PARSERS END
 
 if(userOptions$verbose)  print(eset)
 if(userOptions$verbose)  print(pData(eset))
-
-# ProgenesisProtein
-
-# fdr filter
-# ac filter
-# peptides per protein filter
-# replace missing values
-# normalize 
-# stat test
-# (abs. est)
-# graphics	
-# tsv export
-
-# ProgenesisPeptide"
-
-# fdr filter
-# ac filter
-# ptm filter
-# (peptides per protein filter)
-# mass accuracy filter
-# replace missing values
-# normalize
-# (roll up, peptide/protein)
-# (protein inference)
-# stat test
-# (abs. est)
-# graphics
-# extract ptm motifs
-# tsv export
-
-# ScaffoldTMT
-
-# ac filter
-# replace missing values
-# normalize
-# peptides per protein filter !!!
-# roll up protein
-# stat test
-# graphics
-# tsv export
-
 if(userOptions$verbose) print(names(fData(eset)))
 
 #### CREATE FEATURE DATA AND FILTER (pre-rollup)
@@ -187,7 +137,6 @@ if("idScore" %in% names(fData(eset))){
 	filter <- cbind(filter,fData(eset)$idQValue > userOptions$fdrCutoff)
 }	
 
-
 if("pMassError" %in% names(fData(eset))){
 ### applicable to Progenesis feature Exports	
 
@@ -200,8 +149,9 @@ if("pMassError" %in% names(fData(eset))){
 if("ptm" %in% names(fData(eset))){
 	
 	# add motif-X and ptm coordinates
-	if(!is.na(userOptions$proteinFastaFile)){
-		eset <- .addPTMCoord(eset,userOptions$proteinFastaFile,motifLength=4)
+	if(exists("proteinDB")){
+		cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
+		eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
 	}
 	filter <- cbind(filter,!(grepl(userOptions$selectedModifName,fData(eset)$ptm,ignore.case=T)))
 }
@@ -236,18 +186,35 @@ if(userOptions$verbose){
 if(userOptions$verbose) print(names(fData(eset)))
 sqa <- safeQuantAnalysis(eset, method=sqaMethod)
 
+# no roll-up
+#	- progenesis protein
+
+# roll-up peptide-ptm level
+#	- progenesis peptide
+
+# roll-up top3
+#	- progenesis peptide
+
+# roll-up protein level
+#	- scaffold  	
+#	- progenesis peptide 
+
+#getIBAQEset
+#	- require protein level eset	
+
+
 ### EXPRESSION ANALYSIS
 
 ### GRAPHICS
 
 pdf(userOptions$pdfFile)
 
-.qcPlots(sqa$eset,selection=1:5 )
-.qcPlots(eset,selection=6 )
+.qcPlots(sqa$eset,selection=1:6 )
+.qcPlots(eset,selection=7 )
 
-cat("CREATED FILE ", userOptions$pdfFile,"\n")
+cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 
-dev.off()
+graphics.off()
 
 ### GRAPHICS END
 
@@ -255,10 +222,9 @@ dev.off()
 
 ### TSV EXPORT
 
-
 write.table(cbind(exprs(eset),fData(sqa$eset)),file=userOptions$tsvFilePath,sep="\t", row.names=F)
 
-cat("CREATED FILE ", userOptions$tsvFilePath,"\n")	
+cat("INFO: CREATED FILE ", userOptions$tsvFilePath,"\n")	
 	
 ### TSV EXPORT END
 

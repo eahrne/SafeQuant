@@ -671,8 +671,7 @@ getIBAQEset <- function(eset
 		, nbMiscleavages = 0
 		, proteaseRegExp=.getProteaseRegExp("trypsin")
 ){
-	
-	
+		
 	# get number of detectable peptides per protein
 	nbPeptides <- vector(length=nrow(eset))
 	i <- 0
