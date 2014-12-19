@@ -163,6 +163,32 @@ testGetNbDetectablePeptides <- function(){
 	
 }
 
+testGetNbMisCleavages <- function(){
+	
+	cat("--- testGetNbMisCleavages: --- \n")	
+	peptide <- c("PEPTIDEK","PERTIDEK","PERKTIDEK","PERTIDE","RRPERPKK")
+	protease <- "trypsin"
+	stopifnot( all.equal(c(0,1,2,1,2),getNbMisCleavages(peptide)))
+	cat("--- testGetNbMisCleavages:  PASS ALL TEST --- \n")	
+	
+}
+
+testGetPeptidePerProtein <- function(){
+	
+	cat("--- testGetPeptidePerProtein: --- \n")
+	stopifnot(getNbPeptidesPerProtein(eset)["prot52"] == 3)
+	cat("--- testGetPeptidePerProtein: PASS ALL TEST --- \n")
+	
+}
+
+testSetPeptidePerProtein <- function(){
+	
+	cat("--- testSetPeptidePerProtein: --- \n")
+	stopifnot("nbPeptides" %in% names(fData(setNbPeptidesPerProtein(eset))))
+	cat("--- testSetPeptidePerProtein: PASS ALL TEST --- \n")
+	
+}
+
 ### TEST FUNCTIONS END
 
 
@@ -179,22 +205,52 @@ testAddPTMCoord()
 testSetFilter()
 testGetPeptides()
 testGetNbDetectablePeptides()
+testGetNbMisCleavages()
+testGetPeptidePerProtein()
+testSetPeptidePerProtein()
+
 ### TESTS END
 
+#qvalueThrs <- 0.01
+#
+#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
+#
+#
+#
+#nbPtmPerPeptideTable <- table(unlist(lapply(fData(esetTmp)$ptm,function(t){
+#					t <- as.character(t)
+#					return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )})))
+#		
+#
+#
+#data.frame(nbPtmPerPeptide,fData(esetTmp)$ptm)
+
+#esetTmp <- addIdQvalues(esetTmp)
+#
+#ptmRegExpr <- "Phospho"
+#
+#eset <- esetTmp
+#
+#esetTmp <- 
+##esetTmp <- addIdQvalues(esetTmp)
+#
+##eset <- .addPTMCoord(eset,read.fasta("/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/s_human_d_201405.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE),motifLength = 4)
+#
+#
+#
+#head(fData(esetTmp))
+#
+#
+#spectraPerProtein <- table(fData(esetTmp)$proteinName) 
 
 
+esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
+getNbPeptidesPerProtein(esetTmp)
+esetTmp <- setNbPeptidesPerProtein(esetTmp)
 
+esetTmpRU <- rollUp(esetTmp)
 
+fData(esetTmpRU)$nbPeptides
 
-
-	
-
-
-	#proteinSeq <- substr(proteinDB[[1]],1,20)
-	
-	#regEx <- "[KR]?{P}"
-	
-
-
-
-
+names(fData(esetTmpRU))
+names(fData(esetTmp))

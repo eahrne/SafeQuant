@@ -29,15 +29,15 @@ testGetNbPlex <- function(){
 
 ################## LFQ ##################
 
-testGetProgenesisCsvIntColIndices <- function(){
+testGetProgenesisCsvExpressionColIndices <- function(){
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices --- \n")
+							  
+	stopifnot(sum(14:17 %in% .getProgenesisCsvExpressionColIndices(progenesisProteinCsvFile1) ) == 4 )
+	stopifnot( sum(20:29 %in% .getProgenesisCsvExpressionColIndices(progenesisProteinCsvFile2) ) == 10 )
 	
-	stopifnot(sum(14:17 %in% .getProgenesisCsvIntColIndices(progenesisProteinCsvFile1) ) == 4 )
-	stopifnot( sum(20:29 %in% .getProgenesisCsvIntColIndices(progenesisProteinCsvFile2) ) == 10 )
-	
-	stopifnot(sum(31:48 %in% .getProgenesisCsvIntColIndices(progenesisPeptideCsvFile1) ) == 18 )
-	stopifnot( sum(22:30 %in% .getProgenesisCsvIntColIndices(progenesisPeptideCsvFile2) ) == 9 )
+	stopifnot(sum(31:48 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile1) ) == 18 )
+	stopifnot( sum(22:30 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile2) ) == 9 )
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
 	
@@ -50,8 +50,8 @@ testGetExpDesignProgenesisCsv <- function(){
 	stopifnot(4 == nrow( getExpDesignProgenesisCsv(progenesisProteinCsvFile1) )) 
 	stopifnot(10 == nrow(getExpDesignProgenesisCsv(progenesisProteinCsvFile2) ))
 	
-	stopifnot(18 == nrow(getExpDesignProgenesisCsv(progenesisPeptideCsvFile1) ))
-	stopifnot(9 == nrow(getExpDesignProgenesisCsv(progenesisPeptideCsvFile2) ))
+	stopifnot(18 == nrow(getExpDesignProgenesisCsv(progenesisFeatureCsvFile1) ))
+	stopifnot(9 == nrow(getExpDesignProgenesisCsv(progenesisFeatureCsvFile2) ))
 	
 	cat(" --- testGetExpDesignProgenesisCsv: PASS ALL TEST  --- \n")
 	
@@ -76,23 +76,23 @@ testParseProgenesisProteinCsv <- function(){
 	cat(" --- testParseProgenesisProteinCsv: PASS ALL TEST  --- \n")
 }
 
-testParseProgenesisPeptideCsv <- function(){
+testParseProgenesisFeatureCsv <- function(){
 	
-	cat(" --- testParseProgenesisPeptideCsv --- \n")
+	cat(" --- testParseProgenesisFeatureCsv --- \n")
 	
-	eset <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	eset <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	stopifnot(496 == nrow(eset))
 	names(fData(eset))
-	stopifnot(12 == ncol(fData(eset)))
+	stopifnot(13 == ncol(fData(eset)))
 	stopifnot(18 == nrow(pData(eset)))
 	
-#	expDesign <- getExpDesignProgenesisCsv(progenesisPeptideCsvFile1)[c(3,4:8),]
-#	eset2 <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=expDesign)
+#	expDesign <- getExpDesignProgenesisCsv(progenesisFeatureCsvFile1)[c(3,4:8),]
+#	eset2 <- parseProgenesisPeptideCsv(file=progenesisFeatureCsvFile1,expDesign=expDesign)
 #	
 #	pData(eset2)
 #	pData(eset)
 	
-	cat(" --- testParseProgenesisPeptideCsv: PASS ALL TEST  --- \n")
+	cat(" --- testParseProgenesisFeatureCsv: PASS ALL TEST  --- \n")
 }
 
 testParseScaffoldRawFile <- function(){
@@ -127,12 +127,13 @@ testGetFileType <- function(){
 	
 	stopifnot(.getFileType(tmt6PlexRawTestFile) == "ScaffoldTMT")
 	stopifnot(.getFileType(tmt10PlexRawTestFile) == "ScaffoldTMT")
-	stopifnot(.getFileType(progenesisPeptideCsvFile1) == "ProgenesisPeptide")
-	stopifnot(.getFileType(progenesisPeptideCsvFile2) == "ProgenesisPeptide")
+	stopifnot(.getFileType(progenesisFeatureCsvFile1) == "ProgenesisFeature")
+	stopifnot(.getFileType(progenesisFeatureCsvFile2) == "ProgenesisFeature")
 	stopifnot(.getFileType(progenesisProteinCsvFile1) == "ProgenesisProtein")
 	stopifnot(.getFileType(progenesisProteinCsvFile2) == "ProgenesisProtein")
 	
 	cat(" --- testGetFileType: PASS ALL TEST --- \n")
+		
 }
 
 
@@ -144,19 +145,11 @@ testGetFileType <- function(){
 testGetSkipLineNb()
 testParseScaffoldRawFile()
 testGetNbPlex()
-testGetProgenesisCsvIntColIndices()
+testGetProgenesisCsvExpressionColIndices()
 testGetExpDesignProgenesisCsv()
 testParseProgenesisProteinCsv()
-testParseProgenesisPeptideCsv()
+testParseProgenesisFeatureCsv()
 testGetFileType()
 
 ### TESTS END
-
-
-
-
-
-
-
-
 

@@ -39,33 +39,33 @@ if(T){
 	pMassError <- fData(eset)$pMassError
 	
 	plotScoreDistrib(idScore[!isDec]
-			,idScore[isDec])
-	plotIdScoreVsFDR(idScore,qvals,lwd=2)
+			,idScore[isDec], main="plotScoreDistrib")
+	plotIdScoreVsFDR(idScore,qvals,lwd=2, main="plotIdScoreVsFDR")
 	plotROC(qvals,breaks=seq(0,0.2,length=50)
-			,main=paste("Nb. Valid identificaitons: ",sum(qvals < 0.01),"\n( FDR ",0.01,")"))
+			,main=paste("plotROC Nb. Valid identificaitons: ",sum(qvals < 0.01),"\n( FDR ",0.01,")"))
 	
 	# precursor mass error
-	plotPrecMassErrorDistrib(eset,pMassTolWindow=c(-10,10))
-	plotPrecMassErrorVsScore(eset, pMassTolWindow=c(-0.5,0.5) )
+	plotPrecMassErrorDistrib(eset,pMassTolWindow=c(-10,10),main="plotPrecMassErrorDistrib")
+	plotPrecMassErrorVsScore(eset, pMassTolWindow=c(-0.5,0.5),main="plotPrecMassErrorVsScore")
 	
 	# quant QC plots
-	pairsAnnot(exprs(eset))
-	pairsAnnot(getSignalPerCondition(eset))
-	plotMSSignalDistributions(exprs(eset),col=COLORS, cex=1, cex.axis=1.5, cex.lab=1.5, ylab="binned count", xlab="AUC")
-	barplotMSSignal(eset,cex.lab=1.5)
+	pairsAnnot(exprs(eset), main="pairsAnnot")
+	pairsAnnot(getSignalPerCondition(eset), main="pairsAnnot")
+	plotMSSignalDistributions(exprs(eset),col=COLORS, cex=1, cex.axis=1.5, cex.lab=1.5, ylab="binned count", xlab="AUC", main="plotMSSignalDistributions")
+	barplotMSSignal(eset,cex.lab=1.5,main="barplotMSSignal")
 	
 	##quant differential abundance related plots
 	
 	### plot volcanos for all case control comparisons
 	plotVolcano(sqa
-			,main= "created from safeQuantAnalysis object"
+			,main= "plotVolcano created from safeQuantAnalysis object"
 			,cex.axis=1.2
 			,cex.lab=1.2
 			,adjust=F
 	)
 	
 	plotVolcano(sqa
-			,main= "created from safeQuantAnalysis object"
+			,main= "plotVolcano created from safeQuantAnalysis object"
 			,cex.axis=1.2
 			,cex.lab=1.2
 			,adjust=T
@@ -76,7 +76,7 @@ if(T){
 					,cv=apply(sqa$cv[c("B","C")],1,max,na.rm=T))
 			,caseCondition="cond B"
 			,controlCondition="cond C"
-			,main= "created from data.frame"
+			,main= "plotVolcano created from data.frame"
 			,cex.axis=1.2
 			,cex.lab=1.2
 	)
@@ -84,43 +84,43 @@ if(T){
 	hClustHeatMap(eset)
 	
 	par(mfrow=c(2,2))
-	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=T,isAdjusted=T,main="UP")
-	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=F,isAdjusted=T,main="DOWN")
-	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=T,isAdjusted=F,main="UP")
-	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=F,isAdjusted=F,main="DOWN")
+	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=T,isAdjusted=T,main="plotNbValidDeFeaturesPerFDR UP")
+	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=F,isAdjusted=T,main="plotNbValidDeFeaturesPerFDR DOWN")
+	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=T,isAdjusted=F,main="plotNbValidDeFeaturesPerFDR UP")
+	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=F,isAdjusted=F,main="plotNbValidDeFeaturesPerFDR DOWN")
 	par(mfrow=c(1,1))
 	
-	plotXYDensity(exprs(eset)[,1],exprs(eset)[,2])
-	plotCalibrationCurve(fit, predictorName="log10(iBAQ)")
+	plotXYDensity(exprs(eset)[,1],exprs(eset)[,2], main="plotXYDensity")
+	plotCalibrationCurve(fit, predictorName="log10(iBAQ)", main="plotCalibrationCurve")
 
-	esetTmp <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)
-	plotRTNormSummary(rtNormFactors)
-	plotRTNorm(rtNormFactors,esetTmp, samples=2)
-	dev.off()
+	plotRTNormSummary(esetTmp, main="plotRTNormSummary")
+	plotRTNorm(rtNormFactors,esetTmp, samples=2, main="plotRTNorm")
 	
+	missinValueBarplot(eset)
 	
+	graphics.off()
 	
 }
 ### TESTS END
 
 
+file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides_proteomeMix_FILTERED.csv"
+
+
+#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+#
+#esetTmp <- parseProgenesisFeatureCsv(file=file,expDesign=getExpDesignProgenesisCsv(file))
+#eset <- esetTmp
+#
+#
+#rollUp(eset)
 
 
 

@@ -35,8 +35,8 @@ plot.safeQuantAnalysis <- function(){}
 # created from Expression set (name of controlCondition is specified), adjust. 
 # normalization
 # replace missing values
-# c("global","naRep","rt")
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep")){
+# c("global","naRep","rt","pairwise")
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	out <- list()
 	class(out) <- "safeQuantAnalysis"
@@ -56,9 +56,6 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep")){
 		exprs(eset)[is.na(exprs(eset)) | (exprs(eset) < 0)  ] <- 0 
 		exprs(eset) <- exprs(eset) + baselineIntensity
 		
-#		bl <- 10000
-#		exprs(eset)[is.na(exprs(eset)) | (exprs(eset) < bl)   ] <-  bl
-#		#exprs(eset) <- exprs(eset) + baselineIntensity
 	}
 		
 	out$eset <- eset # should the ExpressionSet be stored?
@@ -70,16 +67,13 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep")){
 	
 	out$pValue <- out$ratio
 	out$pValue[rownames(out$pValue),] <- NA
-	out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F)
+	out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)
 	
 	out$qValue <- out$ratio
 	out$qValue[rownames(out$qValue),] <- NA
-	out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T)
+	out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
 	
 	out$baselineIntensity <- baselineIntensity
-	
-	#out$qValue <- getAllEBayes(eset,adjust=T)
-	#rownames(out$qValue) <- rownames(eset)
 	
 	return(out)
 	

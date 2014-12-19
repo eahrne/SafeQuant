@@ -12,7 +12,7 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 .getFileType <- function(file){
 	
 	if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
-		return("ProgenesisPeptide")
+		return("ProgenesisFeature")
 	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=0)) )) > 0  ){
 		return("ProgenesisProtein")
 	}else if((grepl("^Identification.Criteria",names(read.csv(file,skip=2, nrows=0))) > 0) &
@@ -25,8 +25,21 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 	}
 }
 
-##  get column indices of intensity data
-.getProgenesisCsvIntColIndices <- function(file){
+###  get column indices of intensity data
+#.getProgenesisCsvIntColIndices <- function(file){
+#	
+#	con <- file(file) 
+#	open(con);
+#	line1 <- readLines(con, n = 1)
+#	close(con)
+#	intStartCol <- grep("Normalized abundance",unlist(strsplit(line1,",")))
+#	intEndCol <- grep("Raw abundance",unlist(strsplit(line1,",")))-1
+#	nbSamples <- intEndCol - intStartCol + 1
+#	return((intStartCol:intEndCol)+nbSamples)
+#}
+
+##  get column indices of spectral count data
+.getProgenesisCsvExpressionColIndices <- function(file, method="auc"){
 	
 	con <- file(file) 
 	open(con);
@@ -35,8 +48,20 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 	intStartCol <- grep("Normalized abundance",unlist(strsplit(line1,",")))
 	intEndCol <- grep("Raw abundance",unlist(strsplit(line1,",")))-1
 	nbSamples <- intEndCol - intStartCol + 1
-	return((intStartCol:intEndCol)+nbSamples)
+	
+	if(method =="auc"){
+		return(return((intStartCol:intEndCol)+nbSamples))
+	}else if(method =="spc"){
+		
+		startCol <- grep("ectral counts",unlist(strsplit(line1,",")))
+		endCol <- startCol+nbSamples-1
+		return((startCol:endCol))
+		
+	}else{
+		stop("Unknown quantification indices\n")
+	}
 }
+
 
 # Get Experimental 	
 #' Parse Experimental Design from Progenesis Csv Export
@@ -49,7 +74,7 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 #' @examples print("No examples")
 getExpDesignProgenesisCsv <- function(file){
 	
-	header <-  read.csv(file,nrows=2, check.names=F)[,.getProgenesisCsvIntColIndices(file)]
+	header <-  read.csv(file,nrows=2, check.names=F)[,.getProgenesisCsvExpressionColIndices(file)]
 	header <- data.frame(header) ## in case only one cond one sample
 	
 	conditionLine <- as.character(unlist(header[1,]))
@@ -86,6 +111,7 @@ getExpDesignProgenesisCsv <- function(file){
 #' Parse Progenesis Protein Csv
 #' @param file path to Progenesis Protein csv file
 #' @param expDesign experimental design data.frame
+#' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
 #' @import Biobase
@@ -94,10 +120,10 @@ getExpDesignProgenesisCsv <- function(file){
 #' @references NA 
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
-parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign){
+parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc"){
 	
 	res <- read.csv(file,skip=2,allowEscapes=T, check.names=F)
-	expMatrix <- as.matrix(res[,.getProgenesisCsvIntColIndices(file)])
+	expMatrix <- as.matrix(res[,.getProgenesisCsvExpressionColIndices(file, method=method)])
 	
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
@@ -136,6 +162,7 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign){
 #' Parse Progenesis Peptide Csv
 #' @param file path to Progenesis Peptide csv file
 #' @param expDesign experimental design data.frame
+#' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
 #' @import Biobase
@@ -144,7 +171,7 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign){
 #' @references NA 
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
-parseProgenesisPeptideCsv <- function(file=file,expDesign=NA){
+parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesisCsv(file), method="auc"){
 	
 	### stop if not all samples labelled with a given condition are assigned as control
 	# Example:
@@ -161,7 +188,7 @@ parseProgenesisPeptideCsv <- function(file=file,expDesign=NA){
 	
 	# read csv file
 	res <- read.csv(file,skip=2,allowEscapes=T,check.names=F)
-	expMatrix <- as.matrix(res[,.getProgenesisCsvIntColIndices(file)])
+	expMatrix <- as.matrix(res[,.getProgenesisCsvExpressionColIndices(file, method=method)])
 		
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
@@ -170,6 +197,13 @@ parseProgenesisPeptideCsv <- function(file=file,expDesign=NA){
 	
 	### Mass filed missing in old Progenesis Feature export
 	if(is.null(res$Mass)){res$Mass <- rep(NA,nrow(expMatrix))}
+	
+	# added
+	ptm <- res[,"Variable modifications ([position] description)"]
+	nbPtmsPerPeptide <- unlist(lapply(ptm,function(t){
+										t <- as.character(t)
+										return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )}))
+	
 	
 #	"#"                                              
 #	[2] "m/z"                                            
@@ -200,11 +234,13 @@ parseProgenesisPeptideCsv <- function(file=file,expDesign=NA){
 			,pMassError=res[,"Mass error (ppm)"]
 			,mz=res[,"m/z"]
 			,retentionTime=res[,"Retention time (min)"]
-			,charge=res$Charge
-			,ptm=res[,"Variable modifications ([position] description)"]
+			,charge=as.numeric(res$Charge)
+			,ptm=ptm
 			,isNormAnchor=rep(T,nrow(expMatrix))
 			,isFiltered=rep(F,nrow(expMatrix))
 	#		,row.names=res$Accession
+			# added
+			,nbPtmsPerPeptide = nbPtmsPerPeptide
 	)
 	
 
@@ -220,14 +256,19 @@ parseProgenesisPeptideCsv <- function(file=file,expDesign=NA){
 	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
 	
 	
-	featureAnnotations <- featureAnnotations[!allColNA,]
+	# discard non peptide annotated rows
+	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
+
+	featureAnnotations <- featureAnnotations[!allColNA & isPep,]
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
 	### re-order and exclude channels  
-	expMatrix <- as.matrix(expMatrix[!allColNA ,rownames(expDesign)])
+	expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])
 	colnames(expMatrix) <- rownames(expDesign)
+	
+	
 	
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 	
@@ -302,7 +343,7 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 			#,pMassError=res$Mass.error..ppm.
 			,mz=((as.numeric(as.character(res$Acquired.Plus.One.Mass)) -1)+res$Charge)/res$Charge
 			#,retentionTime=res$Retention.time..min.
-			,charge=res$Charge
+			,charge=as.numeric(res$Charge)
 			,spectrumName = res$Spectrum.Name
 			#,ptm=res$Variable.modifications...position..description.
 			,isNormAnchor=rep(T,nrow(res))

@@ -114,7 +114,7 @@ testBaselineIntensity <- function(){
 	bl <- round(getBaselineIntensity(allInt,promille=5),2)
 	#hist(allInt)
 	#abline(v=bl,lwd=2)
-	stopifnot(bl == 997.88 )
+	stopifnot(bl == 997.82 )
 	
 	
 	set.seed(1234)
@@ -149,8 +149,8 @@ testRollUp <- function(){
 	
 	cat(" --- testRollUp: PASS ALL TEST  --- \n")
 	
-#	progenesisPeptideCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
-#	d <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile3))
+#	progenesisFeatureCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
+#	d <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile3))
 #	e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide"))
 #	unique(fData(d)$proteinName)
 #	
@@ -214,7 +214,7 @@ testGetIBAQEset <- function(){
 	
 	iBaqEset <- getIBAQEset(eset,proteinDB=proteinDB)
 	stopifnot(round(exprs(iBaqEset))[1,1] == 125)
-	stopifnot(round(exprs(iBaqEset))[2,2] == 39)
+	stopifnot(round(exprs(iBaqEset))[2,2] == 38)
 	
 	cat(" --- testGetIBAQEset: PASS ALL TEST --- \n")
 }
@@ -232,7 +232,7 @@ testNormalize <- function(){
 	cat(" --- testNormalize --- \n")
 	
 	stopifnot(nrow(normalize(eset, method = "global")) == 900)
-	esetTmp <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	stopifnot(nrow(normalize(esetTmp, method = "rt")) == 496)
 	
 	#stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
@@ -243,7 +243,7 @@ testNormalize <- function(){
 testRtNormalize <- function(){
 	
 	cat(" --- testRTNormalize --- \n")
-	esetTmp <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile1))
+	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)
 	stopifnot(nrow(rtNormalize(esetTmp,rtNormFactors)) == 496)
 	cat(" --- testRTNormalize: PASS ALL TEST --- \n")
@@ -288,8 +288,27 @@ testRemoveOutliers()
 
 
 ### @TODO predictAbsoluteAbundance
-
-
-
-
+#eset <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
+#
+#eset$isControl <- rev(eset$isControl)
+#eset$isControl <- rep(F,length(eset$isControl))
+#eset$isControl[4:6] <- T
+#
+#exprs(eset)[,4:6] <- exprs(eset)[,1:3]
+#
+#### 
+#condToNb <- data.frame(row.names=unique(pData(eset)$condition))
+#condToNb[as.character(pData(eset)$condition[pData(eset)$isControl])[1],1] <- 1 
+#condToNb[unique(as.character(pData(eset)$condition[!pData(eset)$isControl])),1] <- 2:nrow(condToNb)
+#nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
+#
+#f <- factor(condToNb[eset$condition,])
+#design <- model.matrix(~f)
+##### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
+#fit <- eBayes(lmFit(eset,design))
+#pvalues <- data.frame(fit$p.value[,2:ncol(fit$p.value)])
+#
+#names(pvalues) <- nbToCond[gsub("^f","",colnames(pvalues)),]
+#
+#head(pvalues)
 

@@ -1,2 +1,17 @@
 load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda")
 ls()
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda")
+ls()
+rownames(esetTMT6Spectrum)
+rown.ames(esetTMT6Spectrum)
+rownnames(esetTMT6Spectrum)
+esetTMT6Spectru
+esetTMT6Spectrum
+head(exprs(esetTMT6Spectrum))
+head(fData(esetTMT6Spectrum))
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/zavolanMouseLFQvsTMT6.rda")
+ls
+ls()
+rownames(esetLFQSpectrum)
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProeinCalMixTMT10.rda")
+ls()

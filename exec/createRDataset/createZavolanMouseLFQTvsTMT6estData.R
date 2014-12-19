@@ -21,9 +21,7 @@ tmtFile <- '/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Quant_Ratios_Test
 expDesignTMTSixPlex <- data.frame(condition=paste("cond",sort(rep(c(1,2),2)),sep="_"),isControl=sort(rep(c(T,F),2),decreasing=T) )
 pdReportFile <- "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/LFQ_vs_TMT/Feature Extractor.txt"
 
-
 peptidesPerProt <- 2
-
 
 fdrCutOff <- 0.01
 pMassErrorTol <- c(-3,8)
@@ -53,7 +51,6 @@ esetTMTSpectrum <- esetTMTSpectrum[fData(esetTMTSpectrum)$peptide %in% sharedPep
 #### ROLL UP
 
 ### TMT
-
 
 ### parse proteome discoverer report file
 # scanNb format "A14-08007.23464X"

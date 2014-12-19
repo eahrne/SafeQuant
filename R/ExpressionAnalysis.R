@@ -35,20 +35,20 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	
 	### phenoData: stores expDesign
 	# display with pData(eset): 
-	#	condition    type
-	#	A_rep_1         A Control
-	#	A_rep_2         A Control
-	#	B_rep_1         B    Case
-	#	B_rep_2         B    Case
-	#	C_rep_1         C    Case
-	#	C_rep_2         C    Case
+	#	condition    isControl
+	#	A_rep_1         A T
+	#	A_rep_2         A T
+	#	B_rep_1         B    F
+	#	B_rep_2         B    F
+	#	C_rep_1         C    F
+	#	C_rep_2         C    F
 	pData <- new("AnnotatedDataFrame", data=expDesign)
 	
 	
 	### featureData:add more data to each feature. E.g: Protein Description, Id score etc.
 	
 	return(ExpressionSet(assayData = expressionMatrix
-					, phenoData =  pData							### yeah this is weid, but gives error if rolling up already 
+					, phenoData =  pData							### yeah this is weird, but gives error if rolling up already 
 					# rolled up eset unless colindices are explicitly specified		
 					, featureData = new("AnnotatedDataFrame", data= featureAnnotations[,1:ncol(featureAnnotations)])  
 			)
@@ -57,7 +57,9 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 
 #' Perform statistical test (mderated t-test), comparing all case to control
 #' @param eset ExpressionSet
+#' @param method c("pairwise","all") 
 #' @param adjust TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method 
+#' log T/F log-transform expression values
 #' @return ExpressionSet object
 #' @export
 #' @import limma affy
@@ -66,33 +68,126 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809} 
 #' @seealso \code{\link[limma]{eBayes}}
 #' @examples print("No examples")
-getAllEBayes <- function(eset=eset, adjust=F){
-	
+#getAllEBayes <- function(eset=eset, adjust=F, log=T, method=""){
+#	
+#	controlCondition <- .getControlCondition(eset)
+#	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
+#	
+#	if(log)(exprs(eset) <- log2(exprs(eset)))
+#	
+#	pvalues <- data.frame(row.names=featureNames(eset))
+#	
+#	for(cC in caseConditions){
+#		
+#		### at least one replicate of one condition requires
+#		selCol <- unlist(pData(eset)$condition %in% c(controlCondition,cC))
+#		if(sum(selCol) > 2 ){
+#			
+#			esetPair <- eset[,selCol]
+#			
+#			f <- factor(as.character(esetPair$condition))
+#			design <- model.matrix(~f)
+#			#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
+#			fit <- eBayes(lmFit(esetPair,design))
+#			
+#			p <- fit$p.value[,2]
+#			
+#			if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg  (1995) method 
+#				p <- p.adjust(p,method="BH")
+#			}
+#			
+#		}else{
+#			p <- rep(NA,nrow(eset))
+#		}
+#		pvalues <- cbind(pvalues,p)
+#	}
+#	
+#	names(pvalues) <- caseConditions
+#	return(pvalues)	
+#	
+#}
+
+getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 	
 	controlCondition <- .getControlCondition(eset)
 	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
 	
-	pvalues <- data.frame(row.names=featureNames(eset))
+	if(log)(exprs(eset) <- log2(exprs(eset)))
 	
-	for(cC in caseConditions){
+	#### NON-PAIR-WISE COMPARISONS
+	if("all" %in% method){ 
+
+		# Example 4,5,6 are control		
+		#		> design
+		#		(Intercept) f2 f3 f4 f5 f6
+		#		1            1  1  0  0  0  0
+		#		2            1  1  0  0  0  0
+		#		3            1  1  0  0  0  0
+		#		4            1  0  0  0  0  0
+		#		5            1  0  0  0  0  0
+		#		6            1  0  0  0  0  0
+		#		7            1  0  1  0  0  0
+		#		8            1  0  1  0  0  0
+		#		9            1  0  1  0  0  0
+		#		10           1  0  0  1  0  0
+		#		11           1  0  0  1  0  0
+		#		12           1  0  0  1  0  0
+		#		13           1  0  0  0  1  0
+		#		14           1  0  0  0  1  0
+		#		15           1  0  0  0  1  0
+		#		16           1  0  0  0  0  1
+		#		17           1  0  0  0  0  1
+		#		18           1  0  0  0  0  1
+		#		attr(,"assign")
+		#		[1] 0 1 1 1 1 1
+		#		attr(,"contrasts")
+		#		attr(,"contrasts")$f
+		#		[1] "contr.treatment"
 		
-		esetPair <- eset[,unlist(pData(eset)$condition %in% c(controlCondition,cC))]
+		condToNb <- data.frame(row.names=unique(pData(eset)$condition))
+		condToNb[as.character(pData(eset)$condition[pData(eset)$isControl])[1],1] <- 1 
+		condToNb[unique(as.character(pData(eset)$condition[!pData(eset)$isControl])),1] <- 2:nrow(condToNb)
+		nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
 		
-		f <- factor(as.character(esetPair$condition))
+		f <- factor(condToNb[eset$condition,])
 		design <- model.matrix(~f)
 		#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
-		fit <- eBayes(lmFit(esetPair,design))
+		fit <- eBayes(lmFit(eset,design))
+		pvalues <- data.frame(fit$p.value[,2:ncol(fit$p.value)])
 		
-		p <- fit$p.value[,2]
+	}else{ 	#### PAIR-WISE COMPARISONS "pairwise" %in% method
+		pvalues <- data.frame(row.names=featureNames(eset))
 		
-		if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg  (1995) method 
-			p <- p.adjust(p,method="BH")
+		for(cC in caseConditions){
+			
+			### at least one replicate of one condition requires
+			selCol <- unlist(pData(eset)$condition %in% c(controlCondition,cC))
+			if(sum(selCol) > 2 ){
+				
+				esetPair <- eset[,selCol]
+				
+				f <- factor(as.character(esetPair$condition))
+				design <- model.matrix(~f)
+				#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
+				fit <- eBayes(lmFit(esetPair,design))
+				
+				p <- fit$p.value[,2]
+				
+			}else{
+				p <- rep(NA,nrow(eset))
+			}
+			pvalues <- cbind(pvalues,p)
 		}
+		names(pvalues) <- caseConditions
+			
+	}
 		
-		pvalues <- cbind(pvalues,p)
+	if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg (1995) method 
+		for(i in 1:ncol(pvalues)){
+			pvalues[,i] <-p.adjust(pvalues[,i],method="BH")
+		}
 	}
 	
-	names(pvalues) <- caseConditions
 	return(pvalues)	
 	
 }
@@ -405,9 +500,10 @@ normalize <- function(eset, method="global"){
 #		exprs(esetNorm) <- 2^exprs(esetNorm)
 #	}
 	
-	if(identical(esetNorm,eset)){
-		warning("No normalization performed")
-	}
+#	if(identical(esetNorm,eset)){
+#		warning("No normalization performed")
+#		print( apply(exprs(esetNorm),2,median,na.rm=T))
+#	}
 	
 	return(esetNorm)
 
@@ -432,7 +528,7 @@ getSignalPerCondition <- function(eset,method="median"){
 		for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
 			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,median))
+				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,median, na.rm=T))
 			}else{
 				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
 			}
@@ -441,7 +537,7 @@ getSignalPerCondition <- function(eset,method="median"){
 		for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
 			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,mean))
+				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,mean, na.rm=T))
 			}else{
 				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
 			}
@@ -451,7 +547,7 @@ getSignalPerCondition <- function(eset,method="median"){
 		for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
 			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,max))
+				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,max, na.rm=T))
 			}else{
 				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
 			}
@@ -460,7 +556,7 @@ getSignalPerCondition <- function(eset,method="median"){
 		for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
 			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,min))
+				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,min, na.rm=T))
 			}else{
 				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
 			}
@@ -469,7 +565,7 @@ getSignalPerCondition <- function(eset,method="median"){
 		for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
 			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,sd))
+				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,sd, na.rm=T))
 			}else{
 				perCondSignal <- cbind(perCondSignal,NA)
 			}
@@ -498,6 +594,9 @@ getSignalPerCondition <- function(eset,method="median"){
 #' @examples print("No examples")
 rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
 	
+	### apply filter
+	eset <- eset[!fData(eset)$isFiltered,] 
+	
 	# find columns matching featureDataColumnName
 	selectedColumns <- names(fData(eset)) %in% featureDataColumnName 
 	if(sum(selectedColumns) == 0){
@@ -513,22 +612,25 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 	nbUniqueIndexTags <- length(uniqueIndexTags)
 	
 	### data frame of rolled up feature data and assay data
-	rolledFData <- data.frame( matrix(ncol=ncol(fData(eset)),nrow=0))
-	names(rolledFData) <- names(fData(eset))
+	rolledFData <- fData(eset)[1:length(uniqueIndexTags),]
+	rolledFData[!is.na(rolledFData)] <- NA
+	rownames(rolledFData) <- uniqueIndexTags
+
 	rolledAssayData <- data.frame( matrix(ncol=ncol(eset),nrow=nbUniqueIndexTags) ,row.names=uniqueIndexTags )
 	names(rolledAssayData) <- colnames(eset)
 	
+	### REMOVE THIS TO GAIN TIME
 	### additional columns to be added to rolledFData
-	nbRolledFeatures <- vector(length=nbUniqueIndexTags)
-	allChargeStates <- rep(NA,nbUniqueIndexTags)
-	allPtms <- rep(NA,nbUniqueIndexTags)
-	allSpectrumNames <- rep(NA,nbUniqueIndexTags)
+#	nbRolledFeatures <- vector(length=nbUniqueIndexTags)
+#	allChargeStates <- rep(NA,nbUniqueIndexTags)
+#	allPtms <- rep(NA,nbUniqueIndexTags)
+#	allSpectrumNames <- rep(NA,nbUniqueIndexTags)
 	
 	### progress bar
 	pbSum <- txtProgressBar(min = 0, max = nbUniqueIndexTags, style = 3)
 	
 	for(i in 1:nbUniqueIndexTags){
-		
+	
 		### increment progress bar
 		if(isProgressBar) setTxtProgressBar(pbSum, i)
 		
@@ -570,25 +672,35 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 			bestIndex <- 1
 			if(!is.null(fDataSubset$idScore)){
 				bestIndex <- order(fDataSubset$idScore, decreasing = T)[1]
+				
+				### idScore replaced by idScore sum of all rows @TODOadd more flexibility here? e.g. top score or sum
+				# only for protein level roll-up
+				# otherwise the rollup score is the best PSM score
+				if("proteinName" == featureDataColumnName){
+					fDataSubset[bestIndex,]$idScore <- sum(fDataSubset$idScore,na.rm=T)
+				}					
 			}
+			
 			rolledFDataSubset <- fDataSubset[bestIndex,]
 			
 		}	
 		
 		# add rolled data
 		rolledAssayData[i,] <- rolledAssayDataSubset
-		rolledFData <- rbind(rolledFData,rolledFDataSubset)
-		nbRolledFeatures[i] <- nbFeat
-		if(!is.null(fDataSubset$charge)){ ### all charge state tag e.g. "2:3:4"
-			allChargeStates[i] <- paste(sort(unique(fDataSubset$charge)),collapse=":")
-		}
-		if(!is.null(fDataSubset$ptm)){ ### all ptms tag e.g. "[5] Phospho (ST):[3] Phospho (ST)|[5] Phospho (ST)"  
-			allPtms[i] <- paste(unique(fDataSubset$ptm),collapse=":")
-		}
-		if(!is.null(fDataSubset$spectrumName)){ ### all spectrum name tag e.g. "07_07Da.55018.55018.3:007_07Da.55013.55013.2:008_07Da.43303.43303.2:006_07Da.54094.5"  
-			allSpectrumNames[i] <- paste(unique(fDataSubset$spectrumName),collapse=":")
-		}
-		
+		rolledFData[i,] <- rolledFDataSubset
+
+		### REMOVE THIS TO GAIN TIME
+#		nbRolledFeatures[i] <- nbFeat
+#		if(!is.null(fDataSubset$charge)){ ### all charge state tag e.g. "2:3:4"
+#			allChargeStates[i] <- paste(sort(unique(fDataSubset$charge)),collapse=":")
+#		}
+#		if(!is.null(fDataSubset$ptm)){ ### all ptms tag e.g. "[5] Phospho (ST):[3] Phospho (ST)|[5] Phospho (ST)"  
+#			allPtms[i] <- paste(unique(fDataSubset$ptm),collapse=":")
+#		}
+#		if(!is.null(fDataSubset$spectrumName)){ ### all spectrum name tag e.g. "07_07Da.55018.55018.3:007_07Da.55013.55013.2:008_07Da.43303.43303.2:006_07Da.54094.5"  
+#			allSpectrumNames[i] <- paste(unique(fDataSubset$spectrumName),collapse=":")
+#		}
+
 	}
 	
 	# close progress bar
@@ -601,7 +713,9 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 	rolledAssayData[rolledAssayData == 0 ] <- NA
 	#names(rolledFData) <- paste("best",names(fData(eset)),sep="_")
 	names(rolledFData) <- names(fData(eset))
-	rolledFData <- cbind(rolledFData,nbRolledFeatures,allChargeStates,allPtms,allSpectrumNames)
+	
+	### REMOVE THIS TO GAIN TIME
+	#rolledFData <- cbind(rolledFData,nbRolledFeatures,allChargeStates,allPtms,allSpectrumNames)
 	# reset anchor
 	#if(!is.null(rolledFData$best_isNormAnchor)){
 	if(!is.null(rolledFData$isNormAnchor)){
@@ -615,6 +729,9 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 		fDataSubset$isFiltered <- F
 	}
 	
+	### set peptides per protein
+	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
+
 	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
 }
 
@@ -671,7 +788,7 @@ getIBAQEset <- function(eset
 		, nbMiscleavages = 0
 		, proteaseRegExp=.getProteaseRegExp("trypsin")
 ){
-		
+	
 	# get number of detectable peptides per protein
 	nbPeptides <- vector(length=nrow(eset))
 	i <- 0
@@ -683,7 +800,7 @@ getIBAQEset <- function(eset
 		if( !is.null(proteinDB[[ac]]) ){
 			nbPep <- getNbDetectablePeptides(getPeptides(proteinDB[[ac]],proteaseRegExp=proteaseRegExp,nbMiscleavages=nbMiscleavages),peptideLength=peptideLength)
 		}else{
-			warning(ac," NOT FOUND IN PROTEIN DATABASE")
+			warning("WARN: ",ac," NOT FOUND IN PROTEIN DATABASE")
 		}
 		nbPeptides[i] <- nbPep
 	}
@@ -751,3 +868,21 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 	
 	return(y)
 }
+
+
+
+#.getBaselineIntensityTMT <- function(refRunInt , zscore = 4){
+#	
+#	refRunInt <- refRunInt[(refRunInt > 0)]   
+#	
+#	refRunIntLog <- log10(refRunInt)
+#	baselineInt <- 10^( mean(refRunIntLog) - (zscore* sd(refRunIntLog)))
+#	
+#	
+#	if(baselineInt < 0 ){
+#		baselineInt <- min(refRunInt, na.rm=T)
+#	}
+#	
+#	return(baselineInt)
+#	
+#}

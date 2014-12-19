@@ -34,8 +34,8 @@ tmt10PlexRawTestFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testDat
 progenesisProteinCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv"
 progenesisProteinCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins2.csv"
 
-progenesisPeptideCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv"
-progenesisPeptideCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides2.csv"
+progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv"
+progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides2.csv"
 
 ### INIT END
 
@@ -63,6 +63,8 @@ ptm[2] <- "[20] Phospho (ST)"
 
 pMassError <- c(rnorm(200,0,1.5),rnorm(700,0,0.5))
 
+charge <- round(runif(length(ptm),1.5,3.7))
+
 peptideName <- paste(peptide,ptm)
 
 proteinDescription <- sort(rep(paste("protDescription",1:(nbFeatures/3),sep=""),3))
@@ -87,6 +89,7 @@ expDesign <- data.frame(condition=c("A","A","B","B","C","C"),isControl=c(F,F,F,F
 
 featureAnnotations <- data.frame(
 		 peptide
+		, charge		 	
 		,proteinName
 		,proteinDescription
 		,idScore

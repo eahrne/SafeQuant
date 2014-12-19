@@ -19,32 +19,183 @@ COLORS <- as.character(c(
 				,rev(colors())) ### if that's not enough
 )
 
+.idOverviewPlots <- function(){
+	######################## OVERVIEW PLOT
+	fdr <-userOptions$fdrCutoff
+	nbPSM <- sum(!fData(esetNorm)$isFiltered,na.rm=T)
+	cex=1
+	par(cex.names=1.5, cex.axis= 1.25, cex.lab= 1.25, mar=c(5.1,3.1,4.1,1.1))
+	
+	plot(0,0,type="n",xlim=c(0,8),ylim=c(-1,1.5), main=paste("\nIDENTIFICATIONS OVERVIEW\n (FDR ",fdr,")",sep=""), axes=F, xlab="", ylab="", cex=cex)
+#text(0.5,2,paste("FDR",fdr),cex=cex, pos=4)
+	xPos <- -0.5
+	yPos <- 1
+	
+	if(fileType != "ProgenesisProtein"){
+		text(xPos,yPos,paste(nbPSM," PSM"),cex=cex, pos=4)
+		yPos <- yPos - 0.5
+				
+	}
+		
+	if(exists("sqaPeptide")){
+		isMod <- nchar(as.character(fData(sqaPeptide$eset)$ptm)) > 0
+		nbPeptides <- sum(!fData(sqaPeptide$eset)$isFiltered,na.rm=T)
+		nbUnModPeptides <- sum(!fData(sqaPeptide$eset[!isMod,])$isFiltered,na.rm=T)
+		nbModPeptides <- sum(!fData(sqaPeptide$eset[isMod,])$isFiltered,na.rm=T)
+		nbProteins <-  length(unique(fData(sqaPeptide$eset)[!fData(sqaPeptide$eset)$isFiltered,]$proteinName))
+		
+		text(xPos,yPos,paste(nbPeptides, " PEPTIDES"),cex=cex, pos=4)
+		yPos <- yPos - 0.25
+		text(xPos+0.5,yPos,paste(nbUnModPeptides," UN-MOD."),cex=cex, pos=4)
+		yPos <- yPos - 0.25
+		text(xPos+0.5,yPos,paste(nbModPeptides," MOD."),cex=cex, pos=4)
+		yPos <- yPos - 0.5
+		
+	
+		
+	}else if("peptide" %in% names(fData(esetNorm))) { ### TMT export
+		text(xPos,yPos,paste(length(unique(fData(esetNorm)$peptide))," PEPTIDES" ),cex=cex, pos=4)
+		yPos <- yPos - 0.5
+	}
+	
+	if(exists("sqaProtein")){
+		nbProteins <- sum(!fData(sqaProtein$eset)$isFiltered,na.rm=T)
+	}
+	text(xPos,yPos,paste(nbProteins," PROTEINS"),cex=cex, pos=4)
+	par(mar=c(5.1,4.1,4.1,2.1))
+	######################## OVERVIEW PLOT END
+	
+	### charge state
+	if("charge" %in% names(fData(esetNorm))){
+		chargeTable <- table(fData(esetNorm)$charge[!fData(esetNorm)$isFiltered] )
+		barplot2(chargeTable, xlab="Charge State", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+			
+	} 
+	if(exists("sqaPeptide")){
+		### mis-cleavage
+		nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide)[!fData(esetNorm)$isFiltered] )
+		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+		
+		if("motifX" %in% names(fData(sqaPeptide$eset))){
+			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm[!fData(sqaPeptide$eset)$isFiltered])
+			bp <- barplot2(motifTable, xlab="Modification" ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
+			mtext(names(motifTable),side=1,at=bp[,1], line=1)
+			
+		}else{
+			### ptm 
+			
+			ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
+			ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
+			ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
+				
+			ptmTable <- table(ptmTag[!fData(sqaPeptide$eset)$isFiltered] )
+			#barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, las=2, grid.col="lightgrey", cex.names=0.7)
+			bp <- barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
+			mtext(names(ptmTable),side=1,at=bp[,1], line=0, cex=0.6, las=2)
+		
+		}
+		
+		if("nbPtmsPerPeptide"  %in% names(fData(sqaPeptide$eset))){
+			### nb. ptms per peptide
+			nbPtmPerPeptideTable <- table(fData(sqaPeptide$eset)$nbPtmsPerPeptide[!fData(sqaPeptide$eset)$isFiltered])
+			barplot2(nbPtmPerPeptideTable, xlab="Nb. PTM per Peptide", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+		}
+		
+	}else if("peptide" %in% names(fData(esetNorm))){
+		### mis-cleavage
+		nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide, protease="trypsin")[!fData(esetNorm)$isFiltered] )
+		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+	
+	}
+	
+	#### peptides per protein
+	if(exists("sqaProtein")){
+		peptidesPerProtein <- fData(sqaProtein$eset)$nbPeptides[!fData(sqaProtein$eset)$isFiltered]
+	}else{
+		peptidesPerProtein <- fData(sqaPeptide$eset)$nbPeptides[!fData(sqaPeptide$eset)$isFiltered]
+		peptidesPerProtein <- peptidesPerProtein[unique(names(peptidesPerProtein))]
+	}
+
+	### discard filtered out proteins
+	peptidesPerProtein <- peptidesPerProtein[peptidesPerProtein > 0]
+	#counts <- max(c(min(peptidesPerProtein,na.rm=T),1),na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),2))
+	xPeptides <- min(peptidesPerProtein,na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),10))
+	yCount <- unlist(lapply(xPeptides,function(t){ 
+						sum(unlist(peptidesPerProtein) == t,na.rm=T) }))
+
+	yCount[yCount == 0] <- NA 
+	
+	plot(xPeptides,yCount,type="n", log="x",xlab="Peptides Per Protein", ylab="Protein Counts")
+	grid()
+	lines(xPeptides,yCount,type="h",col="blue",lwd=2.5)
+
+}
+
+
 ### some quality control plots
 .qcPlots <- function(eset,selection=1:7,nbFeatures=500, ...){
 	
 	if(nrow(eset) < nbFeatures) nbFeatures <- nrow(eset) 
-	
 	sel <- sample(nrow(eset),nbFeatures,replace=F)
 	
-	if(1 %in% selection) plotExpDesign(eset)
-	if(2 %in% selection)barplotMSSignal(eset, ...)
-	if(3 %in% selection)plotMSSignalDistributions(log2(exprs(eset)), col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), lwd=1.5, ...)
-	if(4 %in% selection)pairsAnnot(log2(exprs(eset)[sel,order(pData(eset)$condition)]), ...)
-	if(5 %in% selection)hClustHeatMap(eset[sel,], ...)
+	par(mfrow=c(2,2), mar=c(5.1,4.1,4.1,2.1))
+	if(1 %in% selection) {
+		barplotMSSignal(eset, ...)
+		plotMSSignalDistributions(log2(exprs(eset)), col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), lwd=1.5, ...)
+		boxplot(getAllCV(eset)*100,  col=as.character(.getConditionColors(eset)[pData(eset)$condition,]))
 	
-	if((6 %in% selection) && ("pMassError" %in% names(fData(eset)))){
-		plotPrecMassErrorDistrib(eset,pMassTolWindow=userOptions$precursorMassFilter)
+	}
+	
+	par(mfrow=c(1,1), mar=c(5.1,4.1,4.1,2.1))
+	
+	if(3 %in% selection)pairsAnnot(log2(exprs(eset)[sel,order(pData(eset)$condition)]), ...)
+		
+	if((4 %in% selection) && ("pMassError" %in% names(fData(eset)))){
+			plotPrecMassErrorDistrib(eset,pMassTolWindow=userOptions$precursorMassFilter)
 	}
 	
 	### retention time normalization plot
-	if((7 %in% selection) && ("retentionTime" %in% names(fData(eset)))){
+	if((5 %in% selection) && ("retentionTime" %in% names(fData(eset))) ){
 		plotRTNormSummary(getRTNormFactors(eset, minFeaturesPerBin=100))
 	}
-
 	
+	#if(6 %in% selection) invisible(hClustHeatMap(eset[sel & !fData(eset)$isFiltered,],main=paste("SELECTED NB. FEATURES:", nbFeatures), ...))
 	
 } 
 
+### some quality control plots
+.idPlots <- function(eset,selection=1:7, qvalueThrs=0.01,...){
+	
+	if(!is.null(fData(eset)$idScore)){
+		isDec <- isDecoy(fData(eset)$proteinName)
+		scores <- fData(eset)$idScore
+		qvalues <- fData(eset)$idQValue
+	
+		if(1 %in% selection) {
+			plotScoreDistrib(scores[!isDec],scores[isDec], ...)
+			
+#			### score cutoffs abline
+#			if("protein level"){
+#				cutOff <- min(fData(eset)$idScore[fData(eset)$idQValue < qvalueThrs],na.rm=T )
+#				if(is.finite(cutOff)) abline(v=cutOff, col="blue")
+#			}else{
+#				isMod <- nchar(as.character(fData(eset)$ptm)) > 0
+#				modCutOff <- min(fData(eset[isMod,])$idScore[fData(eset[isMod,])$idQValue < qvalueThrs],na.rm=T )
+#				noModCutOff <- min(fData(eset[!isMod,])$idScore[fData(eset[!isMod,])$idQValue < qvalueThrs],na.rm=T )
+#				if(is.finite(modCutOff)) abline(v=modCutOff, col="blue")
+#				if(is.finite(noModCutOff))abline(v=noModCutOff, "darkgreen")
+#				legend("right",c("unmod. cutoff","mod. cutoff"),col=c("blue","darkgreen"), lty=1)
+#			}
+					
+		}
+		
+		if(2 %in% selection) plotIdScoreVsFDR(scores,qvalues, ...)
+		if(3 %in% selection) plotROC(qvalues,...)
+	}
+	
+	
+	
+} 
 
 .getConditionColors <- function(eset){
 	return(data.frame(colors=as.character(COLORS[1:length(levels(pData(eset)$condition))]), row.names=levels(pData(eset)$condition)))	
@@ -115,6 +266,48 @@ COLORS <- as.character(c(
 	
 }
 
+.errorBar <- function(x, y, upper, lower=upper, length=0.1,...){
+	if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+		stop("vectors must be same length")
+	arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+
+.outerLegend <- function(...) {
+	opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
+			mar=c(0.5, 0.5, 0.5, 1), new=TRUE)
+	on.exit(par(opar))
+	plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+	legend(...)
+}
+
+.correlationPlot <- function(d, textCol="black", labels=colnames(d) ){
+	
+		
+	corrplot(cor(d,use="complete")^2
+			, type = "upper"
+			, col = colorRampPalette(c("white","white","white","lightblue","blue"))(100)
+			, cl.lim = c(0, 1)
+			, tl.col = textCol
+			#, method="circle"
+			, method="pie"
+			, addgrid.col="white" 
+	)
+	legend("bottomleft"
+			, labels
+			, fill=unique(textCol)
+			, box.col="white"
+	)
+}
+
+.allpValueHist <- function(sqa, col=as.character(.getConditionColors(sqa$eset)[names(sqa$pValue ),])){
+	
+	i <- 1
+	for(cond in names(sqa$pValue ) ){
+		hist(sqa$pValue[,cond],breaks=seq(0,1,length=50), main=cond, xlab="pValue",col=col[i])
+		i <- i +1 
+	}
+}
+
 #import gplots
 #' Plots volcano, data points colored by max cv of the 2 compared conditions
 #' @param obj safeQuantAnalysis object or data.frame
@@ -128,12 +321,16 @@ COLORS <- as.character(c(
 #' @references NA
 #' @examples print("No examples")
 plotVolcano <- function(obj
-		,ratioCutOffAbsLog2=0
-		,absLog10pValueCutOff=2
+		,ratioThrs=1
+		,pValueThreshold=0.01
 		,adjusted = T
 		
 		,...
 ){
+	
+	ratioCutOffAbsLog2 <- abs(log2(ratioThrs))
+	absLog10pValueCutOff <- abs(log10(pValueThreshold))
+	
 	### plot volcanos for all case control comparisons
 	if(class(obj) == "safeQuantAnalysis"){
 		
@@ -244,22 +441,27 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 #' @references NA
 #' @examples print("No examples")
 pairsAnnot<-
-		function(data, diagText=c(),...) {
+		function(data,textCol=rep(1,ncol(data)), diagText=c(),...) {
+	
+	### cex as a function of numbers of columns
+	cex <- 0.8
+	if(ncol(data) < 6){
+		cex <- 2
+	}else if(ncol(data) < 9){
+		cex <- 1.4
+	}
+	else if(ncol(data) < 12){
+		cex <- 1
+	}
+	
+	count <- 1
 	
 	if(ncol(data) < 2 ){
 		cat("ERROR: pairsAnnot, min 2 data columns required \n")
 		return(-1)
 	}
 	
-	### re-format column names
-	names(data) <- gsub("normInt_","", names(data))
-	### hack
-#	if( regexpr("Condition", names(data)[1]) == -1 ){
-#		names(data) <- gsub("\\.[1-9]{1,2}$","", names(data), perl=T)
-#	}
-#	
-	count <- 1
-	
+
 	panel.lm <-
 			function (x, y, col = par("col"), bg = NA, pch = par("pch"),
 					#	cex = 1, col.lm = "red", lwd=par("lwd"), ...)
@@ -292,27 +494,115 @@ pairsAnnot<-
 		txt = round(r2, digits)
 		txt = bquote(R^2*"" == .(txt))
 		
-		text(0.5, 0.5, txt)
+		text(0.5, 0.5, txt,cex=cex)
 		
 	}
 	
 	#panel.txt <- function(x, y, labels, cex, font,digits=2, ...){
 	panel.txt <- function(x, y, labels, font,digits=2,...){
-		
+
 		txt = colnames(data)[count]
-		#text(0.5, 0.6, txt, cex=1.5)
-		text(0.5, 0.6, txt)
+		text(0.5, 0.6, txt, cex=cex, col=textCol[count])
 		
-		if(length(diagText) > 0){
-			txt = round(diagText[count], digits)
-			txt = bquote(gf == .(txt))
-			text(0.5, 0.4, txt)
-			#text(0.5, 0.4, txt, cex=1.5)
-		}
 		count <<-count+1
 	}
 	
-	pairs(data,lower.panel=panel.sse,upper.panel=panel.lm, text.panel=panel.txt,...)
+	pairs(data,lower.panel=panel.sse,upper.panel=panel.lm, text.panel=panel.txt,col=col,...)
+}
+
+#' Plot Percentage of Features with with missing values
+#' @param eset ExpressionSet
+#' @export
+#' @import 
+#' @note  No note
+#' @details No details
+#' @references NA
+#' @examples print("No examples")
+missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), cex.axis=1.25, cex.lab=1.25, ...){
+	
+	#par(mar=c(7.1,4.1,4.1,2.1))
+	
+	d <- apply(exprs(eset),2, function(t){ (sum(is.na(t)) / length(t))*100 } )
+	ylim <- c(0,range(d)[2])
+	if(max(d,na.rm=T) == 0) ylim <- c(0,100)
+	
+	bp <- barplot2( d
+			, las=2
+			, ylab="% Missing Values"
+			, col=col
+			, cex.axis = cex.axis
+			, cex.lab=cex.lab
+			, ylim=ylim
+			, xaxt="n"
+			, plot.grid=T
+			, grid.col="lightgrey"		
+			,...
+	)
+
+	mtext(names(d),side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
+	#par(mar=c(5.1,4.1,4.1,2.1))
+	
+}
+
+### 
+#' Barplot of ms-signal per column
+#' @param matrix matrix of ms-signals
+#' @method "sum" or "median" 
+#' @param color color
+#' @export
+#' @import 
+#' @note  No note
+#' @details No details
+#' @references NA
+#' @examples print("No examples")
+barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="median",cex.lab=1.25, cex.axis=1.25,...){
+	
+	if(method == "median"){
+		profile <- apply(exprs(eset),2,median,na.rm=T)
+		ylab <- "Normalized Median MS-Signal"
+	}else{
+		profile <- apply(exprs(eset),2,sum,na.rm=T)
+		ylab <- "Normalized Summed MS-Signal"
+	}
+	profile <- profile/max(profile)
+	
+	bp <- barplot2(profile,las=2, col=col,ylab=ylab, xaxt="n"
+			, plot.grid=T
+			, grid.col="lightgrey"		
+			,...)
+	mtext(names(profile),side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
+	
+}
+
+#' C.V. boxplot 
+#' @param eset ExpressionSet
+#' @export
+#' @import 
+#' @note  No note
+#' @details No details
+#' @references NA
+#' @examples print("No examples")
+cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pData(eset)$condition),]), cex.names=0.9,cex.axis=1.25,cex.lab=1.25,...){
+	
+	cv <- getAllCV(eset)
+	### avoid crach when not enough repliocates
+	if(sum(!is.na(cv)) > 0){
+		boxplot(cv*100,yaxt="n",xaxt="n",...)
+
+		grid(nx=NA, ny=NULL) #grid over boxplot
+		par(new=TRUE)
+		
+		boxplot(cv*100,  col=col,las=2, ylab="C.V. (%)"
+				, cex.names=cex.names
+				, cex.axis=cex.axis
+				, cex.lab=cex.lab
+				, textcolor=0
+				, ...)
+		
+	}
+	
+
+	
 }
 
 #' Plot ms.signal distributions
@@ -324,10 +614,9 @@ pairsAnnot<-
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="binned count", xlab="MS-signal",... ){
+plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="Frequnecy", xlab="MS-Signal",... ){
 	
-	
-	
+
 	### create a sms-signal histogram per column,
 	breaks <- seq(min(d,na.rm=T),max(d,na.rm=T),length=40)
 	mids <-  hist(d[,1],breaks=breaks,plot=F)$mids
@@ -340,6 +629,7 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 	}
 	names(countPerCol) <-  colnames(d)
 	
+	#par(mar = c(5, 4, 4.1, 7.5))
 	### plot histogram trend lines
 	plot(mids,mids,ylim=range(countPerCol)
 			, type="n"
@@ -351,43 +641,14 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 	for(i in 1:ncol(countPerCol)){
 		lines(mids,countPerCol[,i],col=col[i],...)
 	}
-	legend("topleft", names(countPerCol),lty=1 , col=col)
+	#.outerLegend("right", names(countPerCol),lty=1 , col=col, bg="white")
+	#par(mar = c(5, 4.1, 4.1, 2.1))
+	
+	#legend("topleft", names(countPerCol),lty=1 , col=col)
 	
 }
 
-### 
-#' Barplot of ms-signal sums per column
-#' @param matrix matrix of ms-signals
-#' @param color color
-#' @export
-#' @import 
-#' @note  No note
-#' @details No details
-#' @references NA
-#' @examples print("No examples")
-barplotMSSignal <- function(eset, cex.lab=1,...){
-	
-	### handle 0 and negavtive values
-	exprs(eset)[exprs(eset) <= 0] <- NA
-	
-	#d <- log10(exprs(eset))
-	colors<-as.vector(unlist(.getConditionColors(eset))[pData(eset)$condition])
-	
-	mp <- barplot( apply(exprs(eset),2,FUN=function(t){return(sum(t,na.rm=TRUE) )}),
-			, xaxt = "n"
-			, las=2
-			, col=colors
-			,names=names(exprs(eset))
-			, ...
-	)
-	
-	### 45 degree labels
-	axis(1, labels = FALSE,tick=F)
-	#text(mp , par("usr")[3] -0.5, srt = 45, adj = 1.2,
-	text(mp , par("usr")[3], srt=45, adj = 1,
-			labels = colnames(exprs(eset)), xpd = TRUE, ,cex=cex.lab)	
-	
-}
+
 
 ### 
 #' Hierc. clustering heat map, cluster by mms signal, display log2 ratios to control median
@@ -478,19 +739,19 @@ hClustHeatMap <- function(eset
 #' @references NA
 #' @examples print("No examples")
 plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1.5),pvalRange=c(0,0.3)
-	,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
+		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
 	
 	if(isAdjusted){
 		pvaluesPerCond <- sqa$qValue
-		xlab= "qValue"
+		xlab= "False Discovery Rate (qValue)"
 	}else{
 		pvaluesPerCond <- sqa$pValue
 		xlab= "pValue"
 	}
-
+	
 	ratiosPerCond <- sqa$ratio
 	conditionColors <- .getConditionColors(sqa$eset)
-
+	
 	pvalCutOffs <- seq(pvalRange[1],pvalRange[2], length.out=10)
 	conditions <- names(pvaluesPerCond)
 	
@@ -503,7 +764,7 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 		
 		pvals <- pvaluesPerCond[cond]	
 		ratios <- ratiosPerCond[cond]
-			
+		
 		#iterate over all cutoffs
 		nbPassingCutOffs <- c()
 		for(qCutOff in pvalCutOffs){
@@ -525,13 +786,14 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 	plot(0,0, ylim=c(0,max(nbPassingCutOffsPerCond)), xlim= c(min(pvalCutOffs) , max(pvalCutOffs)), type="n",ylab=ylab,xlab=xlab,  ...)
 	grid()
 	for(cond in conditions){
-		lines(pvalCutOffs,nbPassingCutOffsPerCond[,cond], col= as.character(conditionColors[cond ,]), lwd=1.6)
+		lines(pvalCutOffs,nbPassingCutOffsPerCond[,cond], col= as.character(conditionColors[cond ,]), lwd=2)
 	}
+	abline(v=pvalCutOff,col="grey",lwd=1.5)
 	if(isLegend){
 		legend("topleft", conditions, fill=as.character(conditionColors[conditions,]), cex=0.6)
 	}
 	
-	abline(v=pvalCutOff,col="grey",lwd=1.5)
+
 }
 
 
@@ -615,10 +877,10 @@ plotROC <- function(qvals
 	}else{  ### breaks override xlim
 		xlim <- c(min(breaks),max(breaks))
 	}
-
+	
 	validIds = c()
 	for(fdr in breaks){
-		validIds = c(validIds,sum(qvals < fdr))
+		validIds = c(validIds,sum(qvals < fdr, na.rm=T))
 	}
 	
 	plot(breaks,sort(validIds), ylab=ylab,xlab=xlab, xlim=xlim,type="l",col=col,lwd=lwd,...)
@@ -636,9 +898,15 @@ plotROC <- function(qvals
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10)){
+plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10), ...){
 	
-	par(mar=c(5.1,4.1,1.1,4.1))
+#	par(mar = c(5, 4, 4.1, 3.5))
+#	plot(rnorm(50), rnorm(50), col=c("steelblue", "indianred"), pch=20)
+#	outerLegend("right", legend=c("Foo", "Bar"), pch=20, 
+#			col=c("steelblue", "indianred"),
+#			horiz=F, bty='n', cex=0.8)
+	
+	#par(mar=c(5.1,4.1,4.1,4.1))
 	isDec <- isDecoy(fData(eset)$proteinName)
 	pMassError <- fData(eset)$pMassError
 	
@@ -654,7 +922,7 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10)){
 	yRange <- range(decoyMdHist$counts,targetMdHist$counts)
 	
 	### plot histogram contours
-	plot(decoyMdHist$mids,decoyMdHist$counts,type="l", col="red",ylim=yRange,xlab="mass diff. (ppm)",ylab="PSM Frequnecy",lwd=1.5)
+	plot(decoyMdHist$mids,decoyMdHist$counts,type="l", col="red",ylim=yRange,xlab="mass diff. (ppm)",ylab="PSM Frequnecy",lwd=1.5, ...)
 	grid()
 	lines(decoyMdHist$mids,targetMdHist$counts,lwd=1.5)
 	abline(v=pMassTolWindow[1],col="grey",lwd=2)
@@ -667,12 +935,14 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10)){
 	lines(decoyMdHist$mids,ratio,lwd=1.5,col="blue",lty=2)
 	
 	### add ratio ratio line
-	axis(4,at=seq(0,yRange[2],length=5), labels=seq(0,1,length=5),col="blue", col.ticks="blue")
-	mtext("decoy-target PSM count ratio ",side=4, col="blue",line=2.5)
+	#axis(4,at=seq(0,yRange[2],length=5), labels=seq(0,1,length=5),col="blue", col.ticks="blue")
+	axis(4,col="blue", col.ticks="blue", labels=NA, at=seq(0,yRange[2],length=5))
+	mtext(seq(0,1,length=5),side=4,at=seq(0,yRange[2],length=5),col="blue", line=0.5)
+	mtext("decoy-target PSM count ratio ",side=4, col="blue",line=1.5)
 	
-	legend("left",c("target","decoy"),  fill= c("black","red"),bg="white")
+	legend("left",c("target","decoy"),  fill= c("black","red"))
 	
-	par(mar=c(5.1,4.1,4.1,2.1))
+	#par(mar=c(5.1,4.1,4.1,2.1))
 	
 }
 
@@ -685,7 +955,7 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10)){
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ){
+plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 	
 	pMassError <- fData(eset)$pMassError
 	idScore <- fData(eset)$idScore
@@ -696,7 +966,9 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ){
 	plot(pMassError, idScore 
 			, type="n"		
 			#, col = isDecoy+1
-			,ylab="score", xlab="mass diff. (ppm)", xlim=range(c(pMassTolWindow,pMassError)))
+			,ylab="score", xlab="mass diff. (ppm)", xlim=range(c(pMassTolWindow,pMassError))
+			,...
+	)
 	
 	grid()
 	
@@ -744,7 +1016,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 			abline(coef=c(0,1),lty=2)
 			abline(fit)
 		}
-	
+		
 		if("R" %in% disp){
 			legend(legendPos
 					,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
@@ -771,14 +1043,15 @@ plotCalibrationCurve <- function(fit
 		,xlab="Conc. (CPC) "
 		,ylab="Pred. Conc."
 		,predictorName = paste("log10(",names(coef(fit))[2],")",sep="")
-		,text=F,...){
+		,text=F,...
+		,main=""){
 	x <- predict(fit) + fit$residuals 						
 	y <- predict(fit)		
 	
 	
 	### some extra margin for axis labels
 	par(mar=c(5.5,5.5,4.1,2.1))
-	plot(10^x, 10^y,log="xy",xlab="",ylab="",... )
+	plot(10^x, 10^y,log="xy",xlab="",ylab="",main=main,... )
 	
 	if(text){
 		text(10^x, 10^y,rownames(fit$qr$qr))
@@ -808,11 +1081,11 @@ plotCalibrationCurve <- function(fit
 		
 		df <- data.frame(cpc =  x,signal = y)
 		medianFoldError <- median(abs(getLoocvFoldError(df)[,1]),na.rm=T)
-	
+		
 		legend("topleft"
 				,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2))))
-							,paste("Median Fold Error = ",round(medianFoldError,2))
-						)
+						,paste("Median Fold Error = ",round(medianFoldError,2))
+				)
 				#,text.col=c(1,2)
 				,box.lwd=0
 				,box.col="white"
@@ -834,14 +1107,22 @@ plotCalibrationCurve <- function(fit
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
 #' @examples print("No examples")
-plotRTNormSummary <- function(rtNormFactors,ylim=range(rtNormFactors), col = 1:ncol(rtNormFactors),condNames=paste("Cond",1:length(unique(col))),...){
+plotRTNormSummary <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,1]),...){
 	
+	rtNormFactors <- getRTNormFactors(eset, minFeaturesPerBin=100)
+	ylim <- range(rtNormFactors,na.rm=T)
+	runNames <- names(rtNormFactors)
+	
+	parDef <- par()
+	par(mar = c(5, 4, 4.1, 7.5))
 	plot(rownames(rtNormFactors),rtNormFactors[,1], type="n", ylab="log2(Ratio)",xlab="Retention Time (min)",ylim=ylim, ...)
 	for(i in 1:ncol(rtNormFactors)){
-		lines(rownames(rtNormFactors),rtNormFactors[,i], col=as.character(col[i]), ...   )
+		lines(rownames(rtNormFactors),rtNormFactors[,i], col=col[i], ...   )
 	}
 	abline(h=0, lty=2)
-	legend("bottom",condNames,lty=1, col=unique(col), lwd=1.5)
+	.outerLegend("right", runNames, lty=1, col=col, lwd=2, bg="white")
+	#.outerLegend("right", runNames, lty=1, col=col, lwd=1.5)
+	par(parDef)
 }
 
 #' Plot all retention time profile overalying ratios
@@ -855,7 +1136,7 @@ plotRTNormSummary <- function(rtNormFactors,ylim=range(rtNormFactors), col = 1:n
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
 #' @examples print("No examples")
-plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors), ...){
+plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors),main="", ...){
 	
 	### select for anchor proteins
 	eset <- eset[fData(eset)$isNormAnchor,]
@@ -870,17 +1151,8 @@ plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors), ...){
 				, col="lightgrey"
 				, xlab="Retention Time (min)"
 				, ylab="log2(Ratio)"
-				, main=names(rtNormFactors)[samplesNb], ...)
+				, main=paste(main,names(rtNormFactors)[samplesNb]), ...)
 		lines(as.numeric(rownames(rtNormFactors)),as.vector(unlist(rtNormFactors[,samplesNb])), ... )
 		abline(h=0,lty=2,...)
 	}
-}
-
-
-## Data in a data.frame
-
-.errorBar <- function(x, y, upper, lower=upper, length=0.1,...){
-	if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
-		stop("vectors must be same length")
-	arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
 }

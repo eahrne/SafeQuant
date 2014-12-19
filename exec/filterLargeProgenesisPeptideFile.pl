@@ -30,18 +30,14 @@ while ( my $line = <IN> ) {
 	my @fields = split ",", $line;
 	
 	if($c == 2){
-		
-		#print "@fields\n";
-		
-		
+
 		print OUT $line."\n";
 		
 		### get peptide sequnece column number
 		while( !($fields[$peptideColNb] =~ "Sequence") ){
 			$peptideColNb++;
 		}
-		
-				
+					
 	}elsif($c > 2){
 		print OUT $line."\n" if (defined $fields[$peptideColNb] && length($fields[$peptideColNb]) > 2) ;
 		

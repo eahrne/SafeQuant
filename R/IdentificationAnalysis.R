@@ -82,14 +82,14 @@ addIdQvalues <- function(eset=eset){
 		sel <- !fData(eset)$isFiltered
 	}
 	
-	# init vector to be addde
-	idQValue <- rep(NA,nrow(eset))
+	# init vector to be added
+	idQValue <- rep(1,nrow(eset))
 	
 	# if ptm column exist seperate calculate qvals sepearately for mof and nomd features
 	if(!is.null(fData(eset)$ptm)){
 		
-		
 		isMod <- nchar(as.character(fData(eset)$ptm)) > 0
+		
 		# get qvalues for modified features
 		if(sum(isMod  & sel ) > 0){
 			idQValue[isMod & sel ] <- getIdLevelQvals(fData(eset)$idScore[isMod & sel],isDecoy(fData(eset)$proteinName[isMod & sel]))
@@ -120,6 +120,7 @@ addIdQvalues <- function(eset=eset){
 #' @references NA 
 #' @examples print("No examples")
 isCon <- function(ac){
+	ac <- as.character(ac)
 	return(regexpr("\\Wcon_",ac,ignore.case=TRUE, perl=TRUE) > -1 | regexpr("^con_",ac,ignore.case=TRUE, perl=TRUE) > -1 | regexpr("_con",ac,ignore.case=TRUE, perl=TRUE) > -1 )
 }
 
@@ -220,7 +221,7 @@ getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){
 		return(motifX)
 	
 	}else{
-		return("N/A")
+		return(NA)
 	}
 	
 	
@@ -292,16 +293,16 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 			peptide <- as.character(fData(eset)$peptide[i])
 			proteinAC <- as.character(fData(eset)$proteinName[i])
 			
-			modifCoord <- ""
-			motifX <- ""
+			modifCoord <- NA
+			motifX <- NA
 			
 			proteinSeq <- proteinDB[proteinAC]
 			
 			if(nchar(modifAnnot) > 0){
 				if(proteinSeq == "NULL" ){
 					cat("\nERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
-					modifCoord <- "Err"
-					motifX <- "Err"
+#					modifCoord <- "Err"
+#					motifX <- "Err"
 				}else{
 					modifCoord <- paste(getModifProteinCoordinates(modifAnnot,peptide,proteinSeq),collapse=",")
 					motifX <- paste(getMotifX(modifAnnot,peptide, proteinSeq,motifLength),collapse=",")
@@ -339,3 +340,91 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 	}
 	
 }
+
+
+#' Get number of mis-cleavages perp peptide
+#' @param peptide character vector
+#' @param protease regular expression
+#' @return vector ofintegers
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+getNbMisCleavages <-function(peptide, protease="trypsin"){
+	
+	return(
+			unlist(lapply(peptide,function(t){
+								cTermRegExp <- paste(.getProteaseRegExp(protease),"$",sep="")	
+								### discard 1 if cTerm matching regExp
+								
+								#	print(gregexpr(.getProteaseRegExp(protease),t,perl=T)[[1]])
+								
+								return((sum(gregexpr(.getProteaseRegExp(protease),t,perl=T)[[1]] > -1 )) - grepl(cTermRegExp,t,perl=T))
+								
+							}))
+	)
+}
+
+#' Get number of peptides per protein
+#' @param eset ExpressionSet
+#' @return table
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+getNbPeptidesPerProtein <- function(eset){
+	
+	sel <- !fData(eset)$isFiltered
+	return(sort(table(unique(data.frame(fData(eset[sel,])$proteinName,fData(eset[sel,])$peptide))[,1]),decreasing=T))
+}
+
+#' Set nbPeptides coulmn of featureData
+#' @param eset ExpressionSet
+#' @return eset
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+setNbPeptidesPerProtein <- function(eset){
+	fData(eset)$nbPeptides	<- getNbPeptidesPerProtein(eset)[as.character(fData(eset)$proteinName)]
+	return(eset)
+}
+
+
+.getUniquePtmMotifs <- function(eset){
+	
+	#ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm),"\\|")))
+	
+	eset <- eset[!fData(eset)$isFiltered,]
+	
+	### has to be done this way as sometimes the matching AC is not found in the database...
+	motifXTag <- c()
+	ptmTag <- c()
+	for(i in 1:nrow(eset)){
+		
+		ptms <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\|")))
+		mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
+		
+		ptmTag <- c(ptmTag,ptms)
+		
+		#if(length(ptms) > 0){
+			if(length(ptms) == length(mX) ){
+				motifXTag <- c(motifXTag,mX)
+				
+			}else{
+				motifXTag <- c(motifXTag,rep(NA,length(ptms)))
+			}
+		#}
+	}
+	
+	#motifXTag <- motifXTag[!is.na(motifXTag) & grepl(ptmRegExpr,ptmTag,ignore.case =T) & grepl("\\*",motifXTag) ]
+	
+	sel <- !is.na(motifXTag) & grepl("\\*",motifXTag)
+	
+	return(unique(data.frame(ptm = ptmTag[sel], motif = motifXTag[sel])))
+}
+
+

@@ -3,50 +3,6 @@
 # Author: erikahrne
 ###############################################################################
 
-### VERBOSE	
-#	-v verbose 
-
-## I/O
-#	-i inputFile
-#	-o outputdir
-#	-l resultFilesLabel
-
-# FILTER (--F)
-#	--FP FProteinAccessionSelection
-#	--FM FModificationSelection (LFQ PEP ONLY)
-#   --FF FFdrCutOff  (LFQ ONLY)
-#	--FD FDeltaMassTolerancePrecursor (LFQ PEP ONLY)
-#	--FC FCoefficientOfVarianceMax
-#  	--FN FNumberOfPeptidesPerProteinMin # protein script specific
-
-# STATISTICS (--S)
-
-#	--SA SAnchorProtein  
-#	--SP SPvalueInclude
-#		(present Moderated t-statistic p-values from eBayes)
-
-# EXPERIMENTAL DESIGN (--E)
-
-#	--EX EXperimentalDesign
-
-# PDF-REPORT (--P)
-#	--PR PRatioCutOff
-#	--PQ PQvalueCutOff
-#	--PS PSelectedGraphics
-
-# TSV-REPORT (--T)
-#	--TF	TFastaFile
-#	--TP	TProtease
-
-# ADDITIONAL-REPORTS (--A)
-#	--AR	ARDataFile
-#	--AI	AIbaq
-#	--AT	ATopX
-
-
-## TEST
-# -t
-
 
 ### LOAD EXT LIBRARIES
 suppressPackageStartupMessages(library(optparse))
@@ -59,14 +15,18 @@ option_list <- list(
 		make_option(c("-i", "--inputFile"), type="character", default="",
 				help="I/O: Progenesis csv input file (REQUIRED)",
 		),	
-		make_option(c("-o", "--outputDir"), type="character", default="",
+		make_option(c("-o", "--outputDir"), type="character", default="./",
 				help="I/O:  Results Output Directory [default ./]",
 		),
 		
-		make_option(c("-l", "--resultsFileLabel"), type="character", default="analysisResults",
-				help="I/O: .pdf & .tsv file labels (prefix) [default %default]", 
+		make_option(c("-l", "--resultsFileLabel"), type="character", default="SQ_Results",
+				help="I/O: results file directory [default %default]", 
 		),
 
+		make_option(c("-f", "--fastaFile"), type="character", default="",
+				help="I/O:  Protein DB .fasta file [default ./]",
+		),
+		
 ### I/O END
 		
 # FILTER (--F)
@@ -75,7 +35,7 @@ option_list <- list(
 				metavar="Protein Accession Reg. expr."),
 		
 		#### peptide script specfic
-		make_option(c("--FModificationSelection"), type="character", default=".",
+		make_option(c("--FModificationSelection"), type="character", default="",
 				help="FILTER (LFQ PEP ONLY): --FM Only keep Peptides with modifications matching Regular Expression [default %default]
 				 (all features kept). Peptide script ONLY",
 				metavar="modification name Reg. expr."),
@@ -102,6 +62,13 @@ option_list <- list(
 				Protein script ONLY.",
 				metavar="Number of peptides"),
 		
+		#### protein script specfic
+		make_option(c("--FSitesPerPeptide"), type="integer", default=9999,
+				help="FILTER: --FS Max Nb. Modifications Per Peptide [default Inf]
+						Peptide script ONLY.",
+				metavar="Max Number of PTM sites Per Petptide"),
+		
+		
 # FILTER (--F) END	
 		
 # STATISTICS (--S)
@@ -114,6 +81,10 @@ option_list <- list(
 	
 	make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
 			help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
+	
+	make_option(c("--SNonPairWiseStatTest"), action="store_true", default=FALSE,
+			help="STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values [default %default]"),
+	
 # STATISTICS (--S) END
 
 # EXPERIMENTAL DESIGN (--E)
@@ -125,6 +96,11 @@ option_list <- list(
 					->  condition2: channel 4,5,6
 					Note: for 10-plex default is "1,4,7,10:2,5,8:3,6,9"
 					[default %default]'), 
+	
+	make_option(c("--EProteinQuantOff"), action="store_false", default=TRUE,
+			help='EXPERIMENTAL DESIGN: --EP Disable Protein Level Quantification [default %default]'),
+
+	
 # EXPERIMENTAL DESIGN (--E) END
 
 # PDF-REPORT (--P) 
@@ -149,12 +125,12 @@ option_list <- list(
 					[default (all plots) %default]"),		
 # PDF-REPORT (--P) END
 
-# TSV-REPORT (--T)
-	
-	make_option(c("--TFastaFile"), type="character", default="",
-			help="TSV-REPORT (LFQ PEP): -TF Protein Fasta File used to extract Modification Site Coordinates [default None]",
-			metavar=".fasta file path"),	
-# TSV-REPORT (--T) END
+## TSV-REPORT (--T)
+#	
+#	make_option(c("--TFastaFile"), type="character", default="",
+#			help="TSV-REPORT (LFQ PEP): -TF Protein Fasta File used to extract Modification Site Coordinates [default None]",
+#			metavar=".fasta file path"),	
+## TSV-REPORT (--T) END
 
 # ADDITIONAL-REPORTS (--A)
 	make_option(c("--ARDataFile"), action="store_true", default=FALSE,
@@ -220,26 +196,29 @@ getUserOptions <- function(version=version){
 		q(status=-1)
 	}
 	
+	#I/O: resultsFileLabel
+	userOptions$resultsFileLabel <- cmdOpt$resultsFileLabel
+	
 	#I/O: outputDir
 	userOptions$outputDir <- cmdOpt$outputDir
 	if(!file.exists(userOptions$outputDir) & userOptions$outputDir != "" ){
 		cat("ERROR. No such directory",userOptions$outputDir,"\n")
 		q(status=-1)
-	}else if(substr(userOptions$outputDir,nchar(userOptions$outputDir),nchar(userOptions$outputDir)) != "/"){
-		if(userOptions$verbose){
-			cat("added slash to outputdir","\n")
-		}
-		if(!(userOptions$outputDir== "")){
-			userOptions$outputDir <- paste(userOptions$outputDir,"/", sep="")
-		}
+	}else{
+		userOptions$outputDir <- file.path(userOptions$outputDir, userOptions$resultsFileLabel)
 	}
 	
-	#I/O: resultsFileLabel
-	userOptions$resultsFileLabel <- cmdOpt$resultsFileLabel
+	userOptions$proteinFastaFile <- NA
+	if(nchar(cmdOpt$fastaFile) > 0 ){
+		### check if file exists
+		if(file.exists(cmdOpt$fastaFile)){
+			userOptions$proteinFastaFile <- cmdOpt$fastaFile
+		}else{
+			cat("ERROR. File does not exist",cmdOpt$fastaFile,"\n")
+			q(status=-1)
+		}				
+	}
 	
-	#I/O: set export file paths
-	userOptions$pdfFilePath <- paste(userOptions$outputDir,userOptions$resultsFileLabel,".pdf",sep="")
-	userOptions$tsvFilePath <- paste(userOptions$outputDir,userOptions$resultsFileLabel,".tsv",sep="")
 	
 # I/O END
 	
@@ -260,7 +239,7 @@ getUserOptions <- function(version=version){
 	
 	#FILTER: precursorMassFilter
 	### check input format precursorMassFilter
-	if(is.na(cmdOpt$FDeltaMassTolerancePrecursor) | regexpr("^\\[\\-*[0-9]{1,}\\,\\-*[0-9]{1,}\\]*$",as.character(cmdOpt$FDeltaMassTolerancePrecursor)) == -1 ){
+	if(is.na(cmdOpt$FDeltaMassTolerancePrecursor) | regexpr("^\\[\\-*[0-9\\.]{1,}\\,\\-*[0-9\\.]{1,}\\]*$",as.character(cmdOpt$FDeltaMassTolerancePrecursor)) == -1 ){
 		cat("ERROR. invalid precursorMassFilter ",userOptions$precursorMassFilter,"\n") 
 		q(status=-1)
 	}
@@ -268,7 +247,7 @@ getUserOptions <- function(version=version){
 	userOptions$precursorMassFilter <- gsub("(\\[)","",cmdOpt$FDeltaMassTolerancePrecursor)
 	userOptions$precursorMassFilter <- gsub("(\\])","",userOptions$precursorMassFilter)
 	userOptions$precursorMassFilter <- sort(as.numeric(unlist(strsplit(userOptions$precursorMassFilter,","))))
-	
+
 	#FILTER: cvCutOff
 	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
 	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
@@ -279,7 +258,14 @@ getUserOptions <- function(version=version){
 	#FILTER: minNbPeptidesPerProt
 	userOptions$minNbPeptidesPerProt <- cmdOpt$FNumberOfPeptidesPerProteinMin
 	if(is.na(userOptions$minNbPeptidesPerProt) | userOptions$minNbPeptidesPerProt < 0 ){
-		print(paste("ERROR. peptidesForQuantCutoff must be >= 0. You specified ", userOptions$minNbPeptidesPerProt))
+		print(paste("ERROR. FNumberOfPeptidesPerProteinMin must be >= 0. You specified ", userOptions$minNbPeptidesPerProt))
+		q(status=-1)
+	}
+	
+	#FILTER: minNbPeptidesPerProt
+	userOptions$maxNbPtmsPerPeptide <- cmdOpt$FSitesPerPeptide
+	if(is.na(userOptions$maxNbPtmsPerPeptide) | userOptions$maxNbPtmsPerPeptide < 0 ){
+		print(paste("ERROR. FSitesPerPeptide must be >= 0. You specified ", userOptions$maxNbPtmsPerPeptide))
 		q(status=-1)
 	}
 	
@@ -293,6 +279,9 @@ getUserOptions <- function(version=version){
 	#STATISTICS: eBayes
 	userOptions$eBayes <- cmdOpt$SPvalueInclude
 	
+	#STATISTICS: SNonPairWiseStatTest
+	userOptions$SNonPairWiseStatTest <- cmdOpt$SNonPairWiseStatTest
+	
 # STATISTICS END	
 	
 # EXPERIMENTAL DESIGN
@@ -300,6 +289,9 @@ getUserOptions <- function(version=version){
 	#EXPERIMENTAL DESIGN: EXperimentalDesign
 	userOptions$expDesignTag <- cmdOpt$EXperimentalDesign
 	
+	userOptions$proteinQuant <- cmdOpt$EProteinQuant
+	#userOptions$proteinQuant <- userOptions$selectedModifName != "."
+		
 # EXPERIMENTAL DESIGN END
 
 # PDF-REPORT (--P)
@@ -330,21 +322,21 @@ getUserOptions <- function(version=version){
 # PDF-REPORT (--P) END
 
 # TSV-REPORT (--T)
-	
-	# TSV-REPORT: proteinFastaFile
-	userOptions$proteinFastaFile <- NA
-	if(nchar(cmdOpt$TFastaFile) > 0 ){
-		### check if file exists
-		if(file.exists(cmdOpt$TFastaFile)){
-			userOptions$proteinFastaFile <- cmdOpt$TFastaFile
-		}else{
-			cat("ERROR. File does not exist",cmdOpt$TFastaFile,"\n")
-			q(status=-1)
-		}				
-	}
-
-	# TSV-REPORT: proteaseTarget	(deprecated)
-	userOptions$protease <- cmdOpt$TProtease	
+#	
+#	# TSV-REPORT: proteinFastaFile
+#	userOptions$proteinFastaFile <- NA
+#	if(nchar(cmdOpt$TFastaFile) > 0 ){
+#		### check if file exists
+#		if(file.exists(cmdOpt$TFastaFile)){
+#			userOptions$proteinFastaFile <- cmdOpt$TFastaFile
+#		}else{
+#			cat("ERROR. File does not exist",cmdOpt$TFastaFile,"\n")
+#			q(status=-1)
+#		}				
+#	}
+#
+#	# TSV-REPORT: proteaseTarget	(deprecated)
+#	userOptions$protease <- cmdOpt$TProtease	
 
 # TSV-REPORT (--T) END
 
@@ -352,17 +344,15 @@ getUserOptions <- function(version=version){
 
 	#ADDITIONAL-REPORTS iBaqTsvFile
 	userOptions$iBAQ <- cmdOpt$AIbaq
-	userOptions$iBAQFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_iBAQ.tsv",sep="")
+#	userOptions$iBAQFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_iBAQ.tsv",sep="")
 
     #ADDITIONAL-REPORTS top3TsvFile
 	userOptions$top3 <- cmdOpt$ATop3
-	userOptions$top3File <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_top3.tsv",sep="")
+#	userOptions$top3File <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_top3.tsv",sep="")
 
 	#ADDITIONAL-REPORTS rDataFile, isSaveRObject	
 	userOptions$isSaveRObject <- cmdOpt$ARDataFile
-	if(userOptions$isSaveRObject){
-		userOptions$rDataFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,".rData",sep="")
-	}
+	#userOptions$rDataFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,".rData",sep="")
 	
 	
 # ADDITIONAL-REPORTS (--A) END
@@ -420,6 +410,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	}
 	
 	expDesign <- data.frame(row.names=sampleOrder,condition=rep(NA,length(sampleOrder)), isControl=rep(FALSE,length(sampleOrder))  )
+
 	
 	condNb <- 1
 	for(cond in unlist(strsplit(tag,":"))){
@@ -431,6 +422,8 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	}       
 	
 	expDesign[ expDesign[,1] == "Condition 1" ,]$isControl <- T
+	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
+
 	
 	### get original sample names
 	rownames(expDesign) <- rownames(expDesignDefault)[as.numeric(rownames(expDesign))]
