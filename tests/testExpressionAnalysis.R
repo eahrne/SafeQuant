@@ -246,6 +246,10 @@ testRtNormalize <- function(){
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)
 	stopifnot(nrow(rtNormalize(esetTmp,rtNormFactors)) == 496)
+	
+	# Stop if rtNormFactors doesn't cover all retention times.
+	#rtNormalize(esetTmp,rtNormFactors[1:2,])
+	
 	cat(" --- testRTNormalize: PASS ALL TEST --- \n")
 }
 

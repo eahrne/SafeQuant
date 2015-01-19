@@ -105,6 +105,25 @@ if(T){
 }
 ### TESTS END
 
+#pdf("/Users/erikahrne/tmp/tmp.pdf")
+##hClustHeatMapOLD(esetTmp)
+#### what if no replicates?
+#hClustHeatMap(esetTmp)
+#
+#hClustHeatMap(esetTmp)
+#
+#esetTmpSub <- esetTmp[,c(1,4,7)]
+#
+#hClustHeatMap(esetTmpSub)
+#
+#levels(as.factor(as.character(pData(esetTmpSub)$condition)))
+#
+#levels(pData(esetTmpSub)$condition)
+#
+#head(exprs(esetTmpSub))
+#
+#
+#dev.off()
 
 file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides_proteomeMix_FILTERED.csv"
 

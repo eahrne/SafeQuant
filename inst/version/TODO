@@ -1,0 +1,10 @@
+- Troubleshoot getAllCV and getCV
+- Create dependencies installation script
+- Update R version on TPP server
+- PDF export
+ 	- Protein level Hierarchical CLustering
+ 		# - Ratio Profile hierarchical clustering 
+ 		
+- TSV export
+	- norm median intensities
+	- specify whether intensities are raw/norm 		

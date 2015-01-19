@@ -91,9 +91,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature")){
 		# user specified
 		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,expDesign)		
 	}
-	
-	#print(expDesign)
-	
+
 	if(fileType == "ProgenesisProtein"){
 		cat("INFO: PARSING PROGENESIS PROTEIN EXPORT FILE ",userOptions$inputFile, "\n" )
 		eset <- parseProgenesisProteinCsv(file=userOptions$inputFile,expDesign=expDesign)
@@ -222,6 +220,12 @@ if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
 
 ### normalize eset
 #cat("INFO: NORMALIZING DATA USING '",normMethod ,"' METHOD \n",sep="")
+
+### if user has specified anchor proteins -> always use global method 
+if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
+	cat("INFO: 'GLOBAL' Normalization always used in combination with SAnchorProtein option \n")	
+	normMethod <- "global"
+}
 esetNorm <- normalize(eset,method=normMethod)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
@@ -336,8 +340,6 @@ par(parDefault)
 rowSelEsetNorm <- sample(nrow(esetNorm),min(c(500,nrow(esetNorm))) ,replace=F)
 rowSelEset <- sample(nrow(eset),min(c(1000,nrow(eset))) ,replace=F)
 
-invisible(hClustHeatMap(esetNorm[rowSelEsetNorm,],main=paste(length(rowSelEsetNorm),"selected features")))
-
 ### CORRELATION PLOTS
 ### COR OR PAIRS PLOT. IF FEWER THAN X SAMPLES 
 if(ncol(esetNorm) < 8){
@@ -370,12 +372,12 @@ cvBoxplot(esetNorm)
 par(parDefault)
 
 ### retention time plot
-if("rt" %in% normMethod ) plotRTNormSummary(eset[rowSelEset,],lwd=2)
+if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
 
 ### QUANT. QC PLOTS END
 
 par(mfrow=c(1,2))
-if(userOptions$eBayes | (exists("sqaPeptide") & exists("sqaProtein"))) par(mfrow=c(2,2))
+#if(userOptions$eBayes | (exists("sqaPeptide") & exists("sqaProtein"))) par(mfrow=c(2,2))
 
 ### QUANT. STAT. PLOTS 
 
@@ -405,9 +407,7 @@ if(exists("sqaProtein")){
 			,main="UP REGULATION"
 	)
 
-}
-
-if(exists("sqaPeptide")){
+}else if(exists("sqaPeptide")){
 	
 	plotNbValidDeFeaturesPerFDR(sqaPeptide,
 			upRegulated=F
@@ -457,9 +457,7 @@ if(userOptions$eBayes){
 				,ylab="Protein Counts"
 				,main="UP REGULATION"
 		)
-	}
-	
-	if(exists("sqaPeptide")){
+	}else if(exists("sqaPeptide")){
 		
 		plotNbValidDeFeaturesPerFDR(sqaPeptide,
 				upRegulated=F
@@ -482,23 +480,28 @@ if(userOptions$eBayes){
 				,ylab="Peptide Counts"
 				,main="UP REGULATION"
 		)
-		
 	}
 } 
 
 par(parDefault)
 
-if(exists("sqaProtein")) plotVolcano(sqaProtein
+if(exists("sqaProtein")){
+	hClustHeatMap(sqaProtein$eset,main="Protein Level")
+	
+	plotVolcano(sqaProtein
 			, main="Protein Level" 
 			, ratioThrs= userOptions$ratioCutOff
 			, pValueThreshold= userOptions$deFdrCutoff
 			, adjusted = T)
-
-if(exists("sqaPeptide")) plotVolcano(sqaPeptide
+}else if(exists("sqaPeptide")){
+	hClustHeatMap(sqaPeptide$eset,main="Peptide Level")
+	
+	plotVolcano(sqaPeptide
 			, main="Peptide Level" 
 			, ratioThrs= userOptions$ratioCutOff
 			, pValueThreshold= userOptions$deFdrCutoff
 			, adjusted = T)
+} 
 
 if(userOptions$eBayes){
 	
@@ -515,9 +518,7 @@ if(userOptions$eBayes){
 		.allpValueHist(sqaProtein)
 		par(parDefault)
 		
-	} 
-		
-	if(exists("sqaPeptide")){
+	}else  if(exists("sqaPeptide")){
 		par(mfrow=c(2,2))
 		if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
 		.allpValueHist(sqaPeptide)

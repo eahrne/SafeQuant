@@ -336,27 +336,34 @@ plotVolcano <- function(obj
 		
 		# ensure the same range on all volcano plots
 		xlim <- range(obj$ratio, na.rm=T)
+		
 		if(adjusted){
 			ylim <- range(abs(log10(obj$qValue)),na.rm=T)
 		}else{
 			ylim <- range(abs(log10(obj$pValue)),na.rm=T)
 		}
 		# ensure same scale on color legend
-		cvMax <- max(obj$cv,na.rm=T)
-		controlCondition <- .getControlCondition(obj$eset)
+		cvMax <- max(as.vector(unlist(obj$cv)),na.rm=T)
 		
+		### avoid crash if no pValues (when no replicates)
+		if(sum(!is.finite(c(ylim,cvMax))) > 0 ){
+			cvMax <- 100
+			ylim <- c(0,1)
+		}
+		
+		controlCondition <- .getControlCondition(obj$eset)
 		for(caseCondition in colnames(obj$pValue)){
 			
 			### create data.frame listing all data points (ratio,pvalue,cv)
 			if(adjusted){
 				
-				d <- data.frame( ratio=as.vector(unlist(obj$ratio[caseCondition]))
-						,qValue=as.vector(unlist(obj$qValue[caseCondition]))
+				d <- data.frame( ratio=obj$ratio[,caseCondition]
+						,qValue=obj$qValue[,caseCondition]
 						,cv=apply(obj$cv[c(caseCondition,controlCondition)],1,max,na.rm=T)
 				)
 			}else{
-				d <- data.frame( ratio=as.vector(unlist(obj$ratio[caseCondition]))
-						,pValue=as.vector(unlist(obj$pValue[caseCondition]))
+				d <- data.frame( ratio=obj$ratio[caseCondition]
+						,pValue=obj$pValue[caseCondition]
 						,cv=apply(obj$cv[c(caseCondition,controlCondition)],1,max,na.rm=T)
 				)
 			}
@@ -555,14 +562,14 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="median",cex.lab=1.25, cex.axis=1.25,...){
+barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="sum",cex.lab=1.25, cex.axis=1.25,...){
 	
 	if(method == "median"){
 		profile <- apply(exprs(eset),2,median,na.rm=T)
-		ylab <- "Normalized Median MS-Signal"
+		ylab <- "Median MS-Signal (Scaled)"
 	}else{
 		profile <- apply(exprs(eset),2,sum,na.rm=T)
-		ylab <- "Normalized Summed MS-Signal"
+		ylab <- "Summed MS-Signal (Scaled)"
 	}
 	profile <- profile/max(profile)
 	
@@ -662,32 +669,101 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
+#hClustHeatMapOLD <- function(eset
+#		,conditionColors =.getConditionColors(eset)
+#		,selIndices = 1:nrow(eset)
+#		,breaks=seq(-2,2,length=20)
+#		,...
+#){
+#	
+#	d <- log2(exprs(eset)[selIndices,])
+#	### BI-CLUSTERING HEAT MAP 
+#	#@TODO does it make sense to display ratios and cluster by intensity profile correlation. Does it make a difference if we cluster by ratio profile?
+#	
+#	feature.cor = cor(t(d), use="pairwise.complete.obs", method="pearson")
+#	feature.cor.dist = as.dist(1-feature.cor)
+#	feature.cor.dist[is.na(feature.cor.dist)] <- 0
+#	feature.tree = hclust(feature.cor.dist, method='median')
+#	
+#	msrun.cor.pearson = cor(d, use="pairwise.complete.obs", method="pearson")
+#	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
+#	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
+#	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
+#	msrun.tree = hclust(msrun.cor.pearson.dist,method='median')
+#	
+#	### sample colors
+#	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
+#	
+#	### log2 ratios to median of control condition
+#	log2RatioPerMsRun <- d - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
+#	
+#	labRow <- rownames(log2RatioPerMsRun)
+#	
+#	### do not display feature names if too many
+#	if(nrow(log2RatioPerMsRun) > 50){
+#		labRow <- rep("",(nrow(log2RatioPerMsRun)))
+#	}
+#	
+#	hm <- heatmap.2(as.matrix(log2RatioPerMsRun)
+#			, col=colorRampPalette(c(colors()[142],"black",colors()[128]))
+#			, scale="none"
+#			, key=TRUE
+#			, symkey=FALSE
+#			, trace="none"
+#			, cexRow=0.5
+#			, cexCol = 0.7
+#			,ColSideColors=samplecolors
+#			,labRow = labRow
+#			,Rowv=as.dendrogram(feature.tree)
+#			,Colv=as.dendrogram(msrun.tree)
+#			,dendrogram="column"
+#			,density.info="density"
+#			#,KeyValueName="Prob. Response"
+#			,breaks=breaks
+#			, ...
+#	)
+#	
+#	legend("left",levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
+#	
+#	#return(hm)
+#	
+#}
+
+### 
+#' Hierc. clustering heat map, cluster by and display log2 ratios to control median
+#' @param eset ExpressionSet
+#' @param conditionColors data.frame of colors per condition
+#' @param selIndices indices of selected 
+#' @return heatmap.2 obj
+#' @export
+#' @import ExpressionSet gplots
+#' @note  No note
+#' @details No details
+#' @references NA
+#' @examples print("No examples")
 hClustHeatMap <- function(eset
 		,conditionColors =.getConditionColors(eset)
-		,selIndices = 1:nrow(eset)
 		,breaks=seq(-2,2,length=20)
 		,...
 ){
 	
-	d <- log2(exprs(eset)[selIndices,])
-	### BI-CLUSTERING HEAT MAP
-	
-	feature.cor = cor(t(d), use="pairwise.complete.obs", method="pearson")
+	#d <- log2(exprs(eset))
+	### log2 ratios to median of control condition
+	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
+
+	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
 	feature.cor.dist = as.dist(1-feature.cor)
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-	feature.tree = hclust(feature.cor.dist, method='median')
+	feature.tree = hclust(feature.cor.dist)
 	
-	msrun.cor.pearson = cor(d, use="pairwise.complete.obs", method="pearson")
+	msrun.cor.pearson = cor(log2RatioPerMsRun, use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
 	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
-	msrun.tree = hclust(msrun.cor.pearson.dist,method='median')
+	msrun.tree = hclust(msrun.cor.pearson.dist)
 	
 	### sample colors
 	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
-	
-	### log2 ratios to median of control condition
-	log2RatioPerMsRun <- d - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 	
 	labRow <- rownames(log2RatioPerMsRun)
 	
@@ -717,7 +793,7 @@ hClustHeatMap <- function(eset
 	
 	legend("left",levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 	
-	return(hm)
+	#return(hm)
 	
 }
 

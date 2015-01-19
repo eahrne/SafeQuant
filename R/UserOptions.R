@@ -40,7 +40,6 @@ option_list <- list(
 				 (all features kept). Peptide script ONLY",
 				metavar="modification name Reg. expr."),
 		
-		
 		make_option(c("--FFdrCutoff"), type="double", default=0.01,
 				help="FILTER (LFQ ONLY): --FF Identification level False Discovery Rate Cutoff.  [0-1] [default %default]",
 				metavar="Peptide/Protein FDR cutoff"),
@@ -99,7 +98,6 @@ option_list <- list(
 	
 	make_option(c("--EProteinQuantOff"), action="store_false", default=TRUE,
 			help='EXPERIMENTAL DESIGN: --EP Disable Protein Level Quantification [default %default]'),
-
 	
 # EXPERIMENTAL DESIGN (--E) END
 

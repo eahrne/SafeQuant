@@ -330,7 +330,7 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
 		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered
 		if(sum(sel) == 0){
-			return(stop("Invalid Anhcor Protein Selection"))
+			return(stop("Invalid Anchor Protein Selection"))
 		}
 		eset <- eset[sel,]
 	}
@@ -366,6 +366,7 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 				rtBins <- ((min(rtBins)-1):(max(rtBins)+1))
 				match <- roundedRT %in% rtBins
 			}
+			# median or sum?
 			rtNFac[as.character(rt),1] <- median(ratio[match],na.rm=T)
 		}
 		
@@ -397,7 +398,11 @@ rtNormalize <- function(eset,rtNormFactors){
 	
 	
 	roundedRT <-  round(fData(eset)$retentionTime)
-	
+
+	if(sum(!(as.character(roundedRT) %in% row.names(rtNormFactors))) > 0){
+		stop("ERROR: Missing R.T. Norm Factors.")
+	}
+		
 	for(i in 1:ncol(eset)){
 		# normalize 
 		exprs(eset)[,i]  <- 2^(log2(exprs(eset)[,i]) - rtNormFactors[as.character(roundedRT),i])
@@ -407,7 +412,7 @@ rtNormalize <- function(eset,rtNormFactors){
 }
 
 
-#' Get normalization factors. calculated as median signal per run (column) over median of first run. 
+#' Get normalization factors. calculated as summed/median signal per run (column) over summed/median of first run. 
 #' @param eset ExpressionSet
 #' @return vector of normalization factors
 #' @export
@@ -416,7 +421,7 @@ rtNormalize <- function(eset,rtNormFactors){
 #' @keywords normalization
 #' @references NA 
 #' @examples print("No examples")
-getGlobalNormFactors <- function(eset, method="median"){
+getGlobalNormFactors <- function(eset, method="sum"){
 	
 	sel <- rep(T,nrow(eset))
 	
@@ -424,14 +429,14 @@ getGlobalNormFactors <- function(eset, method="median"){
 	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
 		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered
 		if(sum(sel) == 0){
-			stop("Error: Invalid Anhcor Protein Selection")
+			stop("Error: Invalid Anchor Protein Selection")
 		}
 	}
 	
-	if(method == "median"){
+	if(method == "sum"){
+		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=sum, na.rm=T)
+	}else if(method == "median"){
 		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=median, na.rm=T)
-	}else if(method == "mean"){
-		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=mean, na.rm=T)
 	}else{
 		stop("Error: Unknown Global Normalization Method", method)		
 	}
@@ -521,7 +526,9 @@ normalize <- function(eset, method="global"){
 #' @examples print("No examples")
 getSignalPerCondition <- function(eset,method="median"){
 	
-	conditionNames <- levels(pData(eset)$condition)
+	#conditionNames <- levels(pData(eset)$condition)
+	conditionNames <- unique(as.character(pData(eset)$condition))
+	
 	perCondSignal <- data.frame(row.names=rownames(eset))
 	
 	if(method=="median"){

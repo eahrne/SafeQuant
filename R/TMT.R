@@ -106,8 +106,9 @@ purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix){
 		correctedSpectrumIntensities <- t(solve(impurityMatrix) %*% tmtData[i,])
 		tmtDataCorrected[i,1:ncol(impurityMatrix)] <- correctedSpectrumIntensities
 	}
-	
-	tmtDataCorrected[tmtDataCorrected <0] <- 0
+	#tmtDataCorrected[tmtDataCorrected <0] <- 0
+	### if negative intensity upon correction then do not correct.
+	tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
 	
 	return(tmtDataCorrected)
 }

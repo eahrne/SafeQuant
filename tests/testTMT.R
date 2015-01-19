@@ -112,7 +112,7 @@ tmt10PlexRawTestFile <- paste(testDir,"/TMT_10-Plex_Scaffold_Raw_Export_Example.
 
 testGetImpuritiesMatrix()
 testPurityCorrectTMT()
-#testGetIntSumPerProtein()
+testGetIntSumPerProtein()
 testCreateExpDesign()
 
 #comparePurityCorrectionToMsnbase()
