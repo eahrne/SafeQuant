@@ -33,16 +33,6 @@ testPurityCorrectTMT <- function(){
 	
 }
 
-#testGetIntSumPerProtein <- function(){
-#	
-#	cat(" --- testGetIntSumPerProtein --- \n")
-#	SCAFFOLDOUTDATA <- parseScaffoldRawFile(tmt6PlexRawTestFile)
-#	UNGROUPEDRAWINTDATA <- SCAFFOLDOUTDATA[,10:15]
-#	proteinSummary <- getIntSumPerProtein(UNGROUPEDRAWINTDATA,SCAFFOLDOUTDATA$Accession.Numbers,SCAFFOLDOUTDATA$Peptide.Sequence)
-#	stopifnot(proteinSummary$peptidesPerProtein[3] == 43) 
-#	cat(" --- testGetIntSumPerProtein: PASS ALL TEST --- \n")	
-#}
-
 testCreateExpDesign <- function(){
 	
 	cat(" --- testCreateExpDesign --- \n")
@@ -112,7 +102,6 @@ tmt10PlexRawTestFile <- paste(testDir,"/TMT_10-Plex_Scaffold_Raw_Export_Example.
 
 testGetImpuritiesMatrix()
 testPurityCorrectTMT()
-testGetIntSumPerProtein()
 testCreateExpDesign()
 
 #comparePurityCorrectionToMsnbase()

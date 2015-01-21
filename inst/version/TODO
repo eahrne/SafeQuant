@@ -8,3 +8,7 @@
 - TSV export
 	- norm median intensities
 	- specify whether intensities are raw/norm 		
+	
+# BUG
+# rt normalization failure
+./safeQuant.R -i /Volumes/pcf01\$/Schmidt_Group/tmp/peptides_FILTERED.csv	

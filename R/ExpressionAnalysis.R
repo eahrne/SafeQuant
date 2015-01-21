@@ -327,13 +327,14 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 	}
 	
 	### check if isNormAnchor and isFiltered columns are defiend, if -> get normalization factors from nonFiltered anchor proteins
-	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
-		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered
-		if(sum(sel) == 0){
-			return(stop("Invalid Anchor Protein Selection"))
-		}
-		eset <- eset[sel,]
-	}
+#	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
+#		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered
+#		if(sum(sel) == 0){
+#			return(stop("Invalid Anchor Protein Selection"))
+#		}
+#		eset <- eset[sel,]
+#	}
+	# No big difference if using all features. Avoids down stream bug when applying norm factors
 	
 	### make sure minFeaturesPerBin is not > tot. nb. features
 	minFeaturesPerBin <- min(c(minFeaturesPerBin,nrow(eset)))

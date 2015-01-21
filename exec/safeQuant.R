@@ -99,6 +99,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature")){
 	}else{ #"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
 		normMethod <- c("rt")
+		#normMethod <- c("global")
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
 	

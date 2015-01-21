@@ -85,7 +85,7 @@ testGlobalNormalize <- function(){
 	pData(eset) <- cbind(pData(eset),globalNormFactors)
 	esetNorm <- globalNormalize(eset,globalNormFactors)
 	
-	stopifnot(all.equal(as.vector(unlist(apply(exprs(esetNorm),2,median))),as.vector(rev(unlist(apply(exprs(esetNorm),2,median))))))
+	stopifnot(all.equal(as.vector(unlist(apply(exprs(esetNorm),2,sum))),as.vector(rev(unlist(apply(exprs(esetNorm),2,sum))))))
 	
 	stopifnot(pData(esetNorm)$normFactor[1] == 1)
 	stopifnot(pData(esetNorm)$normFactor[2] != 1)
@@ -281,7 +281,18 @@ testGetLoocvFoldError()
 
 testRemoveOutliers()
 
+# BUG FIX
+
+#file <-  "/Volumes/pcf01$/Schmidt_Group/tmp/peptides_FILTERED.csv"
+#
+#expDesign <- getExpDesignProgenesisCsv(file)
+#eset <- parseProgenesisFeatureCsv(file=file,expDesign=expDesign)
+#
+#normalize(eset, method="rt")
+#globalNormFactors <- getGlobalNormFactors(eset)
+
 ### @TODO add tests for getRTNormFactors and rtNormalize
+
 
 # @TODO testGetLoocvFoldError()
 

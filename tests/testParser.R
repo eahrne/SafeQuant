@@ -34,10 +34,8 @@ testGetProgenesisCsvExpressionColIndices <- function(){
 	cat(" --- testGetProgenesisCsvProteinIntColIndices --- \n")
 							  
 	stopifnot(sum(14:17 %in% .getProgenesisCsvExpressionColIndices(progenesisProteinCsvFile1) ) == 4 )
-	stopifnot( sum(20:29 %in% .getProgenesisCsvExpressionColIndices(progenesisProteinCsvFile2) ) == 10 )
-	
+		
 	stopifnot(sum(31:48 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile1) ) == 18 )
-	stopifnot( sum(22:30 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile2) ) == 9 )
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
 	
@@ -48,10 +46,8 @@ testGetExpDesignProgenesisCsv <- function(){
 	cat(" --- testGetExpDesignProgenesisCsv --- \n")
 	
 	stopifnot(4 == nrow( getExpDesignProgenesisCsv(progenesisProteinCsvFile1) )) 
-	stopifnot(10 == nrow(getExpDesignProgenesisCsv(progenesisProteinCsvFile2) ))
-	
+
 	stopifnot(18 == nrow(getExpDesignProgenesisCsv(progenesisFeatureCsvFile1) ))
-	stopifnot(9 == nrow(getExpDesignProgenesisCsv(progenesisFeatureCsvFile2) ))
 	
 	cat(" --- testGetExpDesignProgenesisCsv: PASS ALL TEST  --- \n")
 	
@@ -128,9 +124,7 @@ testGetFileType <- function(){
 	stopifnot(.getFileType(tmt6PlexRawTestFile) == "ScaffoldTMT")
 	stopifnot(.getFileType(tmt10PlexRawTestFile) == "ScaffoldTMT")
 	stopifnot(.getFileType(progenesisFeatureCsvFile1) == "ProgenesisFeature")
-	stopifnot(.getFileType(progenesisFeatureCsvFile2) == "ProgenesisFeature")
 	stopifnot(.getFileType(progenesisProteinCsvFile1) == "ProgenesisProtein")
-	stopifnot(.getFileType(progenesisProteinCsvFile2) == "ProgenesisProtein")
 	
 	cat(" --- testGetFileType: PASS ALL TEST --- \n")
 		
