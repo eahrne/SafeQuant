@@ -48,7 +48,7 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	#normalizationFactors <- NA
 	### normalize
-	eset <- normalize(eset, method=method)
+	eset <- sqNormalize(eset, method=method)
 	
 	baselineIntensity <- NA
 	# replace missing values
