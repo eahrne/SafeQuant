@@ -8,6 +8,9 @@
 - TSV export
 	- norm median intensities
 	- specify whether intensities are raw/norm 		
+
+- peptide length filter
+- automatic mass accuracy filter
 	
 # BUG
 # rt normalization failure

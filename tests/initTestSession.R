@@ -4,6 +4,11 @@
 ###############################################################################
 
 ### load / source
+library("affy")
+library("limma")
+library(gplots) # volcano plot
+library(seqinr)
+library(optparse)
 
 ##@TEMP
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
@@ -17,10 +22,7 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
 #install.packages("/Users/erikahrne/dev/R/workspace/SafeQuant/", repos = NULL, type="source")
 #library(SafeQuant)
 
-library("affy")
-library("limma")
-library(gplots) # volcano plot
-library(seqinr)
+
 
 
 ### INIT

@@ -226,16 +226,16 @@ testGetLoocvFoldError <- function(){
 	cat(" --- testGetLoocvFoldError: PASS ALL TEST --- \n")
 }
 
-testNormalize <- function(){
+testSqNormalize <- function(){
 	
-	cat(" --- testNormalize --- \n")
+	cat(" --- testSqNormalize --- \n")
 	
-	stopifnot(nrow(normalize(eset, method = "global")) == 900)
+	stopifnot(nrow(sqNormalize(eset, method = "global")) == 900)
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-	stopifnot(nrow(normalize(esetTmp, method = "rt")) == 496)
+	stopifnot(nrow(sqNormalize(esetTmp, method = "rt")) == 496)
 	
 	#stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
-	cat(" --- testNormalize: PASS ALL TEST --- \n")
+	cat(" --- testSqNormalize: PASS ALL TEST --- \n")
 }
 	
 
@@ -269,7 +269,7 @@ testGetAllEBayes()
 testGetRatios()
 testGetAllCV()
 testGlobalNormalize()
-#testNormalize()
+#testNormalise()
 testRtNormalize()
 testGetSignalPerCondition()
 testBaselineIntensity()

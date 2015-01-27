@@ -444,7 +444,7 @@ globalNormalize <- function(eset,globalNormFactors){
 #' @references NA 
 #' @seealso getGlobalNormFactors, getRTNormFactors
 #' @examples print("No examples")
-normalize <- function(eset, method="global"){
+sqNormalize <- function(eset, method="global"){
 	
 	esetNorm <- eset
 	

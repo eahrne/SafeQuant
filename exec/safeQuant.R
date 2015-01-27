@@ -23,6 +23,13 @@
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
+suppressPackageStartupMessages(library("affy", quiet=T))
+suppressPackageStartupMessages(library("limma", quiet=T))
+suppressPackageStartupMessages(library(gplots, quiet=T))
+suppressPackageStartupMessages(library(seqinr, quiet=T))
+suppressPackageStartupMessages(library(corrplot, quiet=T))
+suppressPackageStartupMessages(library(optparse, quiet=T))
+
 if(F){
 	library("SafeQuant")
 }else{ # FOR DEVELOPMENT
@@ -30,7 +37,7 @@ if(F){
 		sqDirPath <- "/Users/erikahrne/dev/R/workspace/"
 	}else{
 		#@TEMP TPP
-		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
+		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/"
 	}
 	
 	#@TEMP
@@ -62,14 +69,7 @@ if(!userOptions$verbose){
 
 if(userOptions$verbose) print(userOptions)
 
-if(userOptions$verbose) cat("LOADING DEPENDENCIES \n")	
 
-suppressPackageStartupMessages(library("affy", quiet=T))
-suppressPackageStartupMessages(library("limma", quiet=T))
-suppressPackageStartupMessages(library(gplots, quiet=T))
-suppressPackageStartupMessages(library(seqinr, quiet=T))
-suppressPackageStartupMessages(library(corrplot, quiet=T))
-suppressPackageStartupMessages(library(optparse))
 
 ############################################################### PARSING ############################################################### 
 
@@ -227,7 +227,7 @@ if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
 	cat("INFO: 'GLOBAL' Normalization always used in combination with SAnchorProtein option \n")	
 	normMethod <- "global"
 }
-esetNorm <- normalize(eset,method=normMethod)
+esetNorm <- sqNormalize(eset,method=normMethod)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
 exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
