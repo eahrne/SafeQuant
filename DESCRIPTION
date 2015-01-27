@@ -10,9 +10,10 @@ Description: SafeQuant allows for statistical validation of differentially
     using LC-MS. SafeQuant is compatible with label free quantitative data
     processed using Progenesis or TMT data processed using Scaffold Quant.
 Imports:
-    limma,
-    seqinr,
     affy,
+    limma,
     gplots,
-    RSVGTipsDevice
-License: GPL-3
+    seqinr,
+    corrplot,
+    optparse
+License: NA

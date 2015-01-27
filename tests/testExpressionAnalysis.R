@@ -208,7 +208,6 @@ testGetIBAQEset <- function(){
 	
 	cat(" --- testGetIBAQEset --- \n")
 	
-	fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
 	# read protein fasta
 	proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 	

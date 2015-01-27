@@ -3,8 +3,6 @@
 # Author: erikahrne
 ###############################################################################
 
-
-
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/testExpressionAnalysis.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/testGraphics.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/testIdentificationAnalysis.R")

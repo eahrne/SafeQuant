@@ -3,12 +3,15 @@
 \alias{parseProgenesisProteinCsv}
 \title{Parse Progenesis Protein Csv}
 \usage{
-parseProgenesisProteinCsv(file = file, expDesign = expDesign)
+parseProgenesisProteinCsv(file = file, expDesign = expDesign,
+  method = "auc")
 }
 \arguments{
 \item{file}{path to Progenesis Protein csv file}
 
 \item{expDesign}{experimental design data.frame}
+
+\item{method}{auc (area under curve) or spc (spectral count)}
 }
 \value{
 ExpressionSet object

@@ -3,15 +3,10 @@
 \alias{plotPrecMassErrorVsScore}
 \title{Plot precursorMass error v.s score highlighting decoy and displaying user specified user specified precursor mass filter}
 \usage{
-plotPrecMassErrorVsScore(pMassError, idScore, isDecoy, pMassTolWindow = c(-10,
-  10))
+plotPrecMassErrorVsScore(eset, pMassTolWindow = c(-10, 10), ...)
 }
 \arguments{
-\item{pMassError}{vector of precursor mass errors}
-
-\item{idScore}{vector of identification scores}
-
-\item{isDecoy}{vector TRUE/FALSE}
+\item{eset}{ExpressionSet}
 
 \item{pMassTolWindow}{Precursor Mass Error Tolerance Window}
 }

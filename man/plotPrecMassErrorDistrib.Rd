@@ -3,12 +3,10 @@
 \alias{plotPrecMassErrorDistrib}
 \title{Plot Precursor Mass Error Distribution}
 \usage{
-plotPrecMassErrorDistrib(pMassError, isDecoy, pMassTolWindow = c(-10, 10))
+plotPrecMassErrorDistrib(eset, pMassTolWindow = c(-10, 10), ...)
 }
 \arguments{
-\item{pMassError}{vector of precursor mass errors}
-
-\item{isDecoy}{vector TRUE/FALSE}
+\item{eset}{ExpressionSet}
 
 \item{pMassTolWindow}{Precursor Mass Error Tolerance Window}
 }

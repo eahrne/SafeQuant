@@ -125,8 +125,8 @@ if(T){
 #
 #dev.off()
 
-file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides_proteomeMix_FILTERED.csv"
-
+#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides_proteomeMix_FILTERED.csv"
+#
 
 #esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 

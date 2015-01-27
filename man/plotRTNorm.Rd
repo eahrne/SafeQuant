@@ -3,7 +3,8 @@
 \alias{plotRTNorm}
 \title{Plot all retention time profile overalying ratios}
 \usage{
-plotRTNorm(rtNormFactors, eset, samples = 1:ncol(rtNormFactors), ...)
+plotRTNorm(rtNormFactors, eset, samples = 1:ncol(rtNormFactors), main = "",
+  ...)
 }
 \arguments{
 \item{rtNormFactors}{data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors}

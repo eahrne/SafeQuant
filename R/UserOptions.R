@@ -4,10 +4,9 @@
 ###############################################################################
 
 
-### LOAD EXT LIBRARIES
-suppressPackageStartupMessages(library(optparse))
-### LOAD EXT LIBRARIES END
+
 ### CMD OPTIONS
+#' @export
 option_list <- list(
 		
 		
@@ -165,6 +164,7 @@ option_list <- list(
 #' Read User Specified Command Line Options
 #' @param version Safequant version number
 #' @return user options list
+#' @import  optparse
 #' @export
 #' @note  No note
 #' @details No details
@@ -367,8 +367,7 @@ getUserOptions <- function(version=version){
 }
 
 
-userInputTag <- "1,2,3:4,5,6"
-
+#userInputTag <- "1,2,3:4,5,6"
 # tag: 1,2:3:4,5,6 
 #condition isControl
 #1 Condition 1      TRUE

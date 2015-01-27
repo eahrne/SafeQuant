@@ -4,7 +4,7 @@
 \title{Plot ms.signal distributions}
 \usage{
 plotMSSignalDistributions(d, col = 1:100, cex.axis = 1, cex.lab = 1,
-  ylab = "binned count", xlab = "MS-signal", ...)
+  ylab = "Frequnecy", xlab = "MS-Signal", ...)
 }
 \arguments{
 \item{matrix}{matrix of ms-signals}

@@ -6,24 +6,8 @@
 ### @TODO 
 parseCSV <- function(file=file,expDesign=expDesign){}
 
-################################## LFQ ##################################
 
-### get file type
-.getFileType <- function(file){
-	
-	if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
-		return("ProgenesisFeature")
-	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=0)) )) > 0  ){
-		return("ProgenesisProtein")
-	}else if((grepl("^Identification.Criteria",names(read.csv(file,skip=2, nrows=0))) > 0) &
-			(grepl("^Experiment",names(read.csv(file,skip=1, nrows=0))) > 0)){
-		return("ScaffoldTMT")
-	}else if(F){ 
-		return("GenericCSV") 
-	}else{
-		return("Unknown")	
-	}
-}
+################################## LFQ ##################################
 
 ###  get column indices of intensity data
 #.getProgenesisCsvIntColIndices <- function(file){
@@ -39,6 +23,7 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 #}
 
 ##  get column indices of spectral count data
+#' @export
 .getProgenesisCsvExpressionColIndices <- function(file, method="auc"){
 	
 	con <- file(file) 
@@ -114,7 +99,6 @@ getExpDesignProgenesisCsv <- function(file){
 #' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
-#' @import Biobase
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -165,7 +149,7 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 #' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
-#' @import Biobase
+#' @import affy
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -281,13 +265,57 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 ################################## TMT ##################################
 
+### get line number from which Scaffold file should be read
+#' @export
+.getSkipLineNb <- function(fileName){
+	
+	conn<-file(fileName,open="r")
+	suppressWarnings(linn<-readLines(conn))
+	skip <- 1
+	while(regexpr("Bio Sample",as.character(linn[skip])) == -1 ){
+		skip <- skip +1 
+	}
+	close(conn)
+	
+	return(skip-1)
+}
+
+### 6-plex or 10-plex
+#' @export
+.getNbPlex <- function(fileName){
+	
+	### parse data
+	res <- read.csv(fileName,sep="\t",skip=.getSkipLineNb(fileName),nrows=1)
+	return(length(grep("^Normalized",names(res))))
+}
+
+
+### get file type
+#' @export
+.getFileType <- function(file){
+	
+	if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
+		return("ProgenesisFeature")
+	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=0)) )) > 0  ){
+		return("ProgenesisProtein")
+	}else if((grepl("^Identification.Criteria",names(read.csv(file,skip=2, nrows=0))) > 0) &
+			(grepl("^Experiment",names(read.csv(file,skip=1, nrows=0))) > 0)){
+		return("ScaffoldTMT")
+	}else if(F){ 
+		return("GenericCSV") 
+	}else{
+		return("Unknown")	
+	}
+}
+
+
 #' Parse scaffold output .xls file (RAW export)
 #' @param file path to Scaffold file
 #' @param expDesign experimental design data.frame
 #' @param keepFirstAcOnly TRUE/FALSE If multiple ACs in Accession.Numbers filed. Then keep the first one only
 #' @return ExpressionSet object
 #' @export
-#' @import Biobase
+#' @import affy
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -362,28 +390,6 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 }
 
-
-### get line number from which Scaffold file should be read
-.getSkipLineNb <- function(fileName){
-	
-	conn<-file(fileName,open="r")
-	suppressWarnings(linn<-readLines(conn))
-	skip <- 1
-	while(regexpr("Bio Sample",as.character(linn[skip])) == -1 ){
-		skip <- skip +1 
-	}
-	close(conn)
-	
-	return(skip-1)
-}
-
-### 6-plex or 10-plex
-.getNbPlex <- function(fileName){
-	
-	### parse data
-	res <- read.csv(fileName,sep="\t",skip=.getSkipLineNb(fileName),nrows=1)
-	return(length(grep("^Normalized",names(res))))
-}
 
 
 ################################## TMT END ##############################

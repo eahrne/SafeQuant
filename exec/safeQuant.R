@@ -1,11 +1,16 @@
 #!/usr/bin/Rscript
 
-#  Run Safequant
-# Identification FDR calulcation: Calculate fdr and filter before moving on to the next level, spectrum, peptide, protein 
-# If not large proteins are very much favored
-# TEST
-#"/Volumes/pcf01\$/Schmidt_Group/ProjectSQ/DBumann/DanielaMariaRemus_5/20130711-143152_DR1/Progenesis/Bumann_DMR_rpoE-phoP-mCherry_191113/proteins.csv"
-#"/Volumes/pcf01\$/Schmidt_Group/ProjectSQ/DBumann/DanielaMariaRemus_5/20130711-143152_DR1/Progenesis/Bumann_DMR_rpoE-phoP-mCherry_191113/peptides.csv"
+###
+# 0) Update SHEBANG ('#!/usr/bin/Rscript') to match location of your R installation
+# 1) INSTALL SafeQuant
+#	- or SET sqDirPath 
+# 2) INSTALL PACKAGES
+#	affy
+#	limma
+#	gplots
+#	seqinr
+#	corrplot
+#	optparse
 
 # Author: erikahrne
 ###############################################################################
@@ -17,33 +22,27 @@
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
 
 ############################################################### INIT ############################################################### 
-
+#### DEPENDANCIES
 if(F){
-	### 
 	library("SafeQuant")
-}else if(file.exists("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-	#### DEPENDANCIES
+}else{ # FOR DEVELOPMENT
+	if(file.exists("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")){
+		sqDirPath <- "/Users/erikahrne/dev/R/workspace/"
+	}else{
+		#@TEMP TPP
+		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
+	}
 	
 	#@TEMP
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Graphics.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
-	source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
-}else{
-	#@TEMP TPP
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/UserOptions.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/ExpressionAnalysis.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/SafeQuantAnalysis.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/Graphics.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/IdentificationAnalysis.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/Parser.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/TMT.R")
-	source("/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/UserOptions.R")
-	
+	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/ExpressionAnalysis.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/SafeQuantAnalysis.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/Graphics.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/IdentificationAnalysis.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/Parser.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/TMT.R",sep=""))
+	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
+			
 }
 
 VERSION <- 2.01
@@ -67,9 +66,10 @@ if(userOptions$verbose) cat("LOADING DEPENDENCIES \n")
 
 suppressPackageStartupMessages(library("affy", quiet=T))
 suppressPackageStartupMessages(library("limma", quiet=T))
-suppressPackageStartupMessages(library(gplots, quiet=T)) # volcano plot
+suppressPackageStartupMessages(library(gplots, quiet=T))
 suppressPackageStartupMessages(library(seqinr, quiet=T))
 suppressPackageStartupMessages(library(corrplot, quiet=T))
+suppressPackageStartupMessages(library(optparse))
 
 ############################################################### PARSING ############################################################### 
 
@@ -554,11 +554,13 @@ if(exists("sqaPeptide")){
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio
-	names(ratio) <- paste("log2ratio",names(ratio),sep="_")
+	
+	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
+
 	pValue <- sqaPeptide$pValue
-	names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaPeptide$qValue
-	names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(length(names(qValue)) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	out <- cbind(
 			fData(sqaPeptide$eset)[,selFDataCol]
@@ -585,11 +587,11 @@ if(exists("sqaProtein")){
 	cv <- sqaProtein$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaProtein$ratio
-	names(ratio) <- paste("log2ratio",names(ratio),sep="_")
+	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
 	pValue <- sqaProtein$pValue
-	names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaProtein$qValue
-	names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(length(names(qValue)) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	out <- cbind(
 			fData(sqaProtein$eset)[,selFDataCol]

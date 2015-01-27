@@ -37,6 +37,9 @@ progenesisProteinCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/te
 progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv"
 progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides2.csv"
 
+fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
+
+
 ### INIT END
 
 ## CREATE TEST DATA

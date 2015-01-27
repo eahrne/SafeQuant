@@ -3,6 +3,7 @@
 # Author: erikahrne
 ###############################################################################
 
+#' @export
 .filterSQA <- function(sqa,filter=NA ){
 	
 	sqa$eset <- sqa$eset[filter,]
@@ -36,6 +37,7 @@ plot.safeQuantAnalysis <- function(){}
 # normalization
 # replace missing values
 # c("global","naRep","rt","pairwise")
+#' @export
 safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	out <- list()
@@ -67,12 +69,19 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	out$pValue <- out$ratio
 	out$pValue[rownames(out$pValue),] <- NA
-	out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)
 	
+	### we need at least two conditions
+	if(length(unique(pData(eset)$condition)) > 1){
+		out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
+	}
+		
 	out$qValue <- out$ratio
 	out$qValue[rownames(out$qValue),] <- NA
-	out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
 	
+	### we need at least two runs
+	if(length(unique(pData(eset)$condition)) > 1){
+		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
+	}
 	out$baselineIntensity <- baselineIntensity
 	
 	return(out)
@@ -80,8 +89,10 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 }
 
 ### generic method export
+#' @export
 export <- function(x, ...)  UseMethod("export")
 
+#' @export
 export.default <- function(x, ...)
 	stop("No method implemented for this class of object")
 
@@ -89,7 +100,7 @@ export.default <- function(x, ...)
 #' @param sqa safeQuantAnalysis object
 #' @param nbRows Number of rows to export. Features are ordred by increasing minimal p.value
 #' @export
-#' @import Biobase limma affy 
+#' @import limma affy 
 #' @note  No note
 #' @details NA
 #' @references NA
@@ -125,7 +136,7 @@ export.safeQuantAnalysis <- function(sqa,nbRows=nrow(sqa$pValue), file=NA){
 #' Print content of safeQuantAnalysis object
 #' @param sqa safeQuantAnalysis object
 #' @export
-#' @import Biobase limma affy 
+#' @import limma affy 
 #' @note  No note
 #' @details NA
 #' @references NA

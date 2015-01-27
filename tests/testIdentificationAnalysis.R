@@ -12,8 +12,6 @@ proteinSeq2 <- "MVKKSRRRGAAQWAAVRAQAGLTATDENEDDLGLPPSPGDSSYYQDQVDEFHEARSRAVLAKGW
 proteinSeq3 <- "MSERMRPVVVDLPTSASSSMKVNG"	
 proteinSeq4 <- "RKR"
 
-fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
-
 ### read protein db
 proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 
@@ -244,13 +242,13 @@ testSetPeptidePerProtein()
 #spectraPerProtein <- table(fData(esetTmp)$proteinName) 
 
 
-esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-getNbPeptidesPerProtein(esetTmp)
-esetTmp <- setNbPeptidesPerProtein(esetTmp)
-
-esetTmpRU <- rollUp(esetTmp)
-
-fData(esetTmpRU)$nbPeptides
-
-names(fData(esetTmpRU))
-names(fData(esetTmp))
+#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
+#getNbPeptidesPerProtein(esetTmp)
+#esetTmp <- setNbPeptidesPerProtein(esetTmp)
+#
+#esetTmpRU <- rollUp(esetTmp)
+#
+#fData(esetTmpRU)$nbPeptides
+#
+#names(fData(esetTmpRU))
+#names(fData(esetTmp))

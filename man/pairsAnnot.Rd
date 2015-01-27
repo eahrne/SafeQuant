@@ -3,7 +3,7 @@
 \alias{pairsAnnot}
 \title{Plot lower triangle Pearsons R^2. Diagonal text, upper triangle all against all scatter plots with lm abline}
 \usage{
-pairsAnnot(data, diagText = c(), ...)
+pairsAnnot(data, textCol = rep(1, ncol(data)), diagText = c(), ...)
 }
 \arguments{
 \item{data}{data.frame}

@@ -3,9 +3,9 @@
 \alias{plotRTNormSummary}
 \title{Plot all retention time normalization profiles}
 \usage{
-plotRTNormSummary(rtNormFactors, ylim = range(rtNormFactors),
-  col = 1:ncol(rtNormFactors), condNames = paste("Cond",
-  1:length(unique(col))), ...)
+plotRTNormSummary(eset,
+  col = as.character(.getConditionColors(eset)[pData(eset)$condition, 1]),
+  ...)
 }
 \arguments{
 \item{rtNormFactors}{data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors}

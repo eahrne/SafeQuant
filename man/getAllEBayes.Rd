@@ -3,12 +3,15 @@
 \alias{getAllEBayes}
 \title{Perform statistical test (mderated t-test), comparing all case to control}
 \usage{
-getAllEBayes(eset = eset, adjust = F)
+getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise")
 }
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{adjust}{TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method}
+\item{method}{c("pairwise","all")}
+
+\item{adjust}{TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method
+log T/F log-transform expression values}
 }
 \value{
 ExpressionSet object

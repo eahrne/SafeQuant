@@ -13,7 +13,7 @@ testExport <-function(){
 	
 	cat("--- testExport: --- \n")
 	sqa <- safeQuantAnalysis(eset)
-	export(sqa,file="/Users/erikahrne/tmp/tmp.csv")
+	export(sqa,file="~/tmp/tmp.csv")
 	cat("--- testExport: PASS ALL TEST --- \n")
 	
 }
@@ -52,34 +52,6 @@ testSafequantAnalysis <- function(){
 
 ### TESTS
 
-testExport() 
+#testExport() 
 testSafequantAnalysis()
-
-#e <- combine(eset[1:10,],eset[20:900,])
-#exprs(e)
-
-
-### TESTS END
-
-
-#load("/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20141125-134856_TMTexp20/Scaffold/Erik//SQ/SQ_SQ.rData")
-#ls()
-#
-#
-#pValuesAll <- getAllEBayes(esetNorm,method="all")
-#pValuesPair <-  getAllEBayes(esetNorm,method="pairwise")
-#
-#pValuesAllAdj <- getAllEBayes(esetNorm,method="all",adjust=T)
-#pValuesPairAdj <-  getAllEBayes(esetNorm,method="pairwise",adjust=T)
-#
-#plot(pValuesAll[,1],pValuesPair[,1],log="xy")
-#
-#plot(pValuesAll[,1],pValuesAll[,2],log="xy")
-#
-#plot(pValuesPair[,1],pValuesPairAdj[,1],log="xy")
-#
-#plot(pValuesAll[,1],pValuesAllAdj[,1],log="xy")
-
-
-#names(pValuesAll)
 

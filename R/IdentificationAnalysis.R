@@ -3,13 +3,124 @@
 # Author: erikahrne
 ###############################################################################
 
+# set filter, filer = data.frame all TRUE/FALSE 
+#' @export
+.setFilter <- function(eset=eset, filter=filter){
+	
+	fData(eset)$isFiltered <- apply(filter,1,function(f){ return(sum(f,na.rm=T) > 0 ) })
+	return(eset)
+}	
+
+### add ptm coord to eset fData (data frame  listing phospho coordinates and motifX)
+#' @export
+.addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F){
+	
+	ptmCoordDf <- data.frame()
+	
+	### progress bar
+	pbSum <- txtProgressBar(min = 0, max = nrow(eset), style = 3)
+	
+	for(i in 1:nrow(eset)){
+		
+		### increment progressbar
+		if(isProgressBar) setTxtProgressBar(pbSum, i)
+		
+		modifAnnot <-  as.character(fData(eset)$ptm[i])
+		
+		### if peptide is modified
+		if(nchar(modifAnnot) > 0 ){
+			peptide <- as.character(fData(eset)$peptide[i])
+			proteinAC <- as.character(fData(eset)$proteinName[i])
+			
+			modifCoord <- NA
+			motifX <- NA
+			
+			proteinSeq <- proteinDB[proteinAC]
+			
+			if(nchar(modifAnnot) > 0){
+				if(proteinSeq == "NULL" ){
+					cat("\nERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
+#					modifCoord <- "Err"
+#					motifX <- "Err"
+				}else{
+					modifCoord <- paste(getModifProteinCoordinates(modifAnnot,peptide,proteinSeq),collapse=",")
+					motifX <- paste(getMotifX(modifAnnot,peptide, proteinSeq,motifLength),collapse=",")
+				}
+			}
+			
+		}else{
+			modifCoord <- ""
+			motifX <- ""
+		}
+		
+		ptmCoordDf <- rbind(ptmCoordDf,data.frame(modifCoord,motifX))
+		
+	}
+	
+	# close progress bar
+	setTxtProgressBar(pbSum, i)
+	close(pbSum)
+	
+	fData(eset) <- cbind(fData(eset),ptmCoordDf)
+	
+	return(eset)
+	
+}
+
+### more to be added
+#' @export
+.getProteaseRegExp <- function(protease="trypsin"){
+	
+	if(protease == "trypsin"){
+		return("[KR](?!P)")
+	}else if(protease == "lys-c"){
+		return("K(?!P)")
+	}else{
+		stop("Unknown Protease:", protease )
+	}
+	
+}
+
+#' @export
+.getUniquePtmMotifs <- function(eset){
+	
+	#ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm),"\\|")))
+	
+	eset <- eset[!fData(eset)$isFiltered,]
+	
+	### has to be done this way as sometimes the matching AC is not found in the database...
+	motifXTag <- c()
+	ptmTag <- c()
+	for(i in 1:nrow(eset)){
+		
+		ptms <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\|")))
+		mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
+		
+		ptmTag <- c(ptmTag,ptms)
+		
+		#if(length(ptms) > 0){
+		if(length(ptms) == length(mX) ){
+			motifXTag <- c(motifXTag,mX)
+			
+		}else{
+			motifXTag <- c(motifXTag,rep(NA,length(ptms)))
+		}
+		#}
+	}
+	
+	#motifXTag <- motifXTag[!is.na(motifXTag) & grepl(ptmRegExpr,ptmTag,ignore.case =T) & grepl("\\*",motifXTag) ]
+	
+	sel <- !is.na(motifXTag) & grepl("\\*",motifXTag)
+	
+	return(unique(data.frame(ptm = ptmTag[sel], motif = motifXTag[sel])))
+}
+
 ### Detectable/Identifiable peptide lengths (600 - 4000 Da -> 600/110 - 4000/110 ->) 5 - 36 AA's
 #' Get number peptides passing defined length criteria
 #' @param peptides list of peptides 
 #' @param vector of two integers defining peptide length range
 #' @return integer corresponding to number of detectable peptides
 #' @export
-#' @import
 #' @note  No note
 #' @details No details
 #' @examples print("No examples")
@@ -22,7 +133,6 @@ getNbDetectablePeptides <- function(peptides, peptideLength=c(5,36)){
 #' @param proteinSeq protein sequence 
 #' @return vector of peptides
 #' @export
-#' @import
 #' @note  No note
 #' @details No details
 #' @examples print("No examples")
@@ -68,8 +178,8 @@ getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),
 #' @param eset ExpressionSet
 #' @return ExpressionSet object
 #' @details if ptm column is part if the ExpressionSet q-values are calculated seperately for modified and non-modified features
+#' @import affy
 #' @export
-#' @import Biobase
 #' @note  No note
 #' @details No details
 #' @seealso \code{\link{getIdLevelQvals}}
@@ -266,82 +376,6 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 	
 }
 
-# set filter, filer = data.frame all TRUE/FALSE 
-.setFilter <- function(eset=eset, filter=filter){
-	
-	fData(eset)$isFiltered <- apply(filter,1,function(f){ return(sum(f,na.rm=T) > 0 ) })
-	return(eset)
-}	
-
-### add ptm coord to eset fData (data frame  listing phospho coordinates and motifX)
-.addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F){
-	
-	ptmCoordDf <- data.frame()
-	
-	### progress bar
-	pbSum <- txtProgressBar(min = 0, max = nrow(eset), style = 3)
-	
-	for(i in 1:nrow(eset)){
-		
-		### increment progressbar
-		if(isProgressBar) setTxtProgressBar(pbSum, i)
-		
-		modifAnnot <-  as.character(fData(eset)$ptm[i])
-		
-		### if peptide is modified
-		if(nchar(modifAnnot) > 0 ){
-			peptide <- as.character(fData(eset)$peptide[i])
-			proteinAC <- as.character(fData(eset)$proteinName[i])
-			
-			modifCoord <- NA
-			motifX <- NA
-			
-			proteinSeq <- proteinDB[proteinAC]
-			
-			if(nchar(modifAnnot) > 0){
-				if(proteinSeq == "NULL" ){
-					cat("\nERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
-#					modifCoord <- "Err"
-#					motifX <- "Err"
-				}else{
-					modifCoord <- paste(getModifProteinCoordinates(modifAnnot,peptide,proteinSeq),collapse=",")
-					motifX <- paste(getMotifX(modifAnnot,peptide, proteinSeq,motifLength),collapse=",")
-				}
-			}
-			
-		}else{
-			modifCoord <- ""
-			motifX <- ""
-		}
-		
-		ptmCoordDf <- rbind(ptmCoordDf,data.frame(modifCoord,motifX))
-		
-	}
-	
-	# close progress bar
-	setTxtProgressBar(pbSum, i)
-	close(pbSum)
-	
-	fData(eset) <- cbind(fData(eset),ptmCoordDf)
-	
-	return(eset)
-	
-}
-
-### more to be added
-.getProteaseRegExp <- function(protease="trypsin"){
-	
-	if(protease == "trypsin"){
-		return("[KR](?!P)")
-	}else if(protease == "lys-c"){
-		return("K(?!P)")
-	}else{
-		stop("Unknown Protease:", protease )
-	}
-	
-}
-
-
 #' Get number of mis-cleavages perp peptide
 #' @param peptide character vector
 #' @param protease regular expression
@@ -394,37 +428,5 @@ setNbPeptidesPerProtein <- function(eset){
 }
 
 
-.getUniquePtmMotifs <- function(eset){
-	
-	#ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm),"\\|")))
-	
-	eset <- eset[!fData(eset)$isFiltered,]
-	
-	### has to be done this way as sometimes the matching AC is not found in the database...
-	motifXTag <- c()
-	ptmTag <- c()
-	for(i in 1:nrow(eset)){
-		
-		ptms <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\|")))
-		mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
-		
-		ptmTag <- c(ptmTag,ptms)
-		
-		#if(length(ptms) > 0){
-			if(length(ptms) == length(mX) ){
-				motifXTag <- c(motifXTag,mX)
-				
-			}else{
-				motifXTag <- c(motifXTag,rep(NA,length(ptms)))
-			}
-		#}
-	}
-	
-	#motifXTag <- motifXTag[!is.na(motifXTag) & grepl(ptmRegExpr,ptmTag,ignore.case =T) & grepl("\\*",motifXTag) ]
-	
-	sel <- !is.na(motifXTag) & grepl("\\*",motifXTag)
-	
-	return(unique(data.frame(ptm = ptmTag[sel], motif = motifXTag[sel])))
-}
 
 

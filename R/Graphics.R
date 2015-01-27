@@ -4,6 +4,7 @@
 ###############################################################################
 
 ### SET COLOR VECTOR
+#' @export
 COLORS <- as.character(c(
 				"red"
 				,"darkgreen"
@@ -19,6 +20,7 @@ COLORS <- as.character(c(
 				,rev(colors())) ### if that's not enough
 )
 
+#' @export
 .idOverviewPlots <- function(){
 	######################## OVERVIEW PLOT
 	fdr <-userOptions$fdrCutoff
@@ -133,6 +135,7 @@ COLORS <- as.character(c(
 
 
 ### some quality control plots
+#' @export
 .qcPlots <- function(eset,selection=1:7,nbFeatures=500, ...){
 	
 	if(nrow(eset) < nbFeatures) nbFeatures <- nrow(eset) 
@@ -164,6 +167,7 @@ COLORS <- as.character(c(
 } 
 
 ### some quality control plots
+#' @export
 .idPlots <- function(eset,selection=1:7, qvalueThrs=0.01,...){
 	
 	if(!is.null(fData(eset)$idScore)){
@@ -197,11 +201,13 @@ COLORS <- as.character(c(
 	
 } 
 
+#' @export
 .getConditionColors <- function(eset){
 	return(data.frame(colors=as.character(COLORS[1:length(levels(pData(eset)$condition))]), row.names=levels(pData(eset)$condition)))	
 }
 
 ### color strip for volcano plot
+#' @export
 .cvColorstrip <- function(colors, maxCV = maxCV  )
 {
 	bottom <- 1	
@@ -221,6 +227,7 @@ COLORS <- as.character(c(
 }
 
 ### called from plotVolcano. Creates volcano plot form data.frame input
+#' @export
 .plotVolcano <- function(d
 		, ratioCutOffAbsLog2=0
 		, absLog10pValueCutOff=2
@@ -266,12 +273,14 @@ COLORS <- as.character(c(
 	
 }
 
+#' @export
 .errorBar <- function(x, y, upper, lower=upper, length=0.1,...){
 	if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
 		stop("vectors must be same length")
 	arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
 }
 
+#' @export
 .outerLegend <- function(...) {
 	opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
 			mar=c(0.5, 0.5, 0.5, 1), new=TRUE)
@@ -280,6 +289,8 @@ COLORS <- as.character(c(
 	legend(...)
 }
 
+#' @export
+#' @import corrplot
 .correlationPlot <- function(d, textCol="black", labels=colnames(d) ){
 	
 		
@@ -299,6 +310,7 @@ COLORS <- as.character(c(
 	)
 }
 
+#' @export
 .allpValueHist <- function(sqa, col=as.character(.getConditionColors(sqa$eset)[names(sqa$pValue ),])){
 	
 	i <- 1
@@ -308,14 +320,13 @@ COLORS <- as.character(c(
 	}
 }
 
-#import gplots
 #' Plots volcano, data points colored by max cv of the 2 compared conditions
 #' @param obj safeQuantAnalysis object or data.frame
 #' @param ratioCutOffAbsLog2 ratio abline 
 #' @param absLog10pValueCutOff pValue abline
 #' @param  adjusted TRUE/FALSE plot qValues or pValues on y-axis
+#' @import affy gplots
 #' @export
-#' @import Biobase gplots
 #' @note  No note
 #' @details data.frame input object should contain 3 columns (ratio,qValue,cv)
 #' @references NA
@@ -334,6 +345,11 @@ plotVolcano <- function(obj
 	### plot volcanos for all case control comparisons
 	if(class(obj) == "safeQuantAnalysis"){
 		
+		### need at least two condiotions
+		if(length(unique(pData(obj$eset)$condition)) == 1){
+			return(warning("INFO: Only one condition no plotVolcano \n"))
+		}
+				
 		# ensure the same range on all volcano plots
 		xlim <- range(obj$ratio, na.rm=T)
 		
@@ -359,12 +375,12 @@ plotVolcano <- function(obj
 				
 				d <- data.frame( ratio=obj$ratio[,caseCondition]
 						,qValue=obj$qValue[,caseCondition]
-						,cv=apply(obj$cv[c(caseCondition,controlCondition)],1,max,na.rm=T)
+						,cv=apply(obj$cv[,c(caseCondition,controlCondition)],1,max,na.rm=T)
 				)
 			}else{
-				d <- data.frame( ratio=obj$ratio[caseCondition]
-						,pValue=obj$pValue[caseCondition]
-						,cv=apply(obj$cv[c(caseCondition,controlCondition)],1,max,na.rm=T)
+				d <- data.frame( ratio=obj$ratio[,caseCondition]
+						,pValue=obj$pValue[,caseCondition]
+						,cv=apply(obj$cv[,c(caseCondition,controlCondition)],1,max,na.rm=T)
 				)
 			}
 			
@@ -393,8 +409,8 @@ plotVolcano <- function(obj
 
 #' Display experimental design, high-lighting the control condition 
 #' @param eset ExpressionSet
+#' @import affy 
 #' @export
-#' @import Biobase 
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -441,14 +457,19 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 
 #' Plot lower triangle Pearsons R^2. Diagonal text, upper triangle all against all scatter plots with lm abline
 #' @param data data.frame
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
 pairsAnnot<-
 		function(data,textCol=rep(1,ncol(data)), diagText=c(),...) {
+	
+	### we need at least two samples
+	if(ncol(data.frame(data)) < 2 ){
+		return(warning("INFO: Only one sample no pairsAnnot \n"))
+	}
+	
 	
 	### cex as a function of numbers of columns
 	cex <- 0.8
@@ -462,12 +483,6 @@ pairsAnnot<-
 	}
 	
 	count <- 1
-	
-	if(ncol(data) < 2 ){
-		cat("ERROR: pairsAnnot, min 2 data columns required \n")
-		return(-1)
-	}
-	
 
 	panel.lm <-
 			function (x, y, col = par("col"), bg = NA, pch = par("pch"),
@@ -515,12 +530,14 @@ pairsAnnot<-
 	}
 	
 	pairs(data,lower.panel=panel.sse,upper.panel=panel.lm, text.panel=panel.txt,col=col,...)
+
+	
 }
 
 #' Plot Percentage of Features with with missing values
 #' @param eset ExpressionSet
+#' @import affy
 #' @export
-#' @import 
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -554,10 +571,9 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 ### 
 #' Barplot of ms-signal per column
 #' @param matrix matrix of ms-signals
-#' @method "sum" or "median" 
 #' @param color color
+#' @import affy
 #' @export
-#' @import 
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -583,9 +599,8 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 
 #' C.V. boxplot 
 #' @param eset ExpressionSet
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -615,9 +630,8 @@ cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pDa
 #' Plot ms.signal distributions
 #' @param matrix matrix of ms-signals
 #' @param color color
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -656,87 +670,11 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 }
 
 
-
-### 
-#' Hierc. clustering heat map, cluster by mms signal, display log2 ratios to control median
+#' Hierarchical clustering heat map, cluster by and display log2 ratios to control median
 #' @param eset ExpressionSet
 #' @param conditionColors data.frame of colors per condition
-#' @param selIndices indices of selected 
-#' @return heatmap.2 obj
+#' @import gplots
 #' @export
-#' @import ExpressionSet gplots
-#' @note  No note
-#' @details No details
-#' @references NA
-#' @examples print("No examples")
-#hClustHeatMapOLD <- function(eset
-#		,conditionColors =.getConditionColors(eset)
-#		,selIndices = 1:nrow(eset)
-#		,breaks=seq(-2,2,length=20)
-#		,...
-#){
-#	
-#	d <- log2(exprs(eset)[selIndices,])
-#	### BI-CLUSTERING HEAT MAP 
-#	#@TODO does it make sense to display ratios and cluster by intensity profile correlation. Does it make a difference if we cluster by ratio profile?
-#	
-#	feature.cor = cor(t(d), use="pairwise.complete.obs", method="pearson")
-#	feature.cor.dist = as.dist(1-feature.cor)
-#	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-#	feature.tree = hclust(feature.cor.dist, method='median')
-#	
-#	msrun.cor.pearson = cor(d, use="pairwise.complete.obs", method="pearson")
-#	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
-#	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
-#	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
-#	msrun.tree = hclust(msrun.cor.pearson.dist,method='median')
-#	
-#	### sample colors
-#	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
-#	
-#	### log2 ratios to median of control condition
-#	log2RatioPerMsRun <- d - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
-#	
-#	labRow <- rownames(log2RatioPerMsRun)
-#	
-#	### do not display feature names if too many
-#	if(nrow(log2RatioPerMsRun) > 50){
-#		labRow <- rep("",(nrow(log2RatioPerMsRun)))
-#	}
-#	
-#	hm <- heatmap.2(as.matrix(log2RatioPerMsRun)
-#			, col=colorRampPalette(c(colors()[142],"black",colors()[128]))
-#			, scale="none"
-#			, key=TRUE
-#			, symkey=FALSE
-#			, trace="none"
-#			, cexRow=0.5
-#			, cexCol = 0.7
-#			,ColSideColors=samplecolors
-#			,labRow = labRow
-#			,Rowv=as.dendrogram(feature.tree)
-#			,Colv=as.dendrogram(msrun.tree)
-#			,dendrogram="column"
-#			,density.info="density"
-#			#,KeyValueName="Prob. Response"
-#			,breaks=breaks
-#			, ...
-#	)
-#	
-#	legend("left",levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
-#	
-#	#return(hm)
-#	
-#}
-
-### 
-#' Hierc. clustering heat map, cluster by and display log2 ratios to control median
-#' @param eset ExpressionSet
-#' @param conditionColors data.frame of colors per condition
-#' @param selIndices indices of selected 
-#' @return heatmap.2 obj
-#' @export
-#' @import ExpressionSet gplots
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -746,6 +684,11 @@ hClustHeatMap <- function(eset
 		,breaks=seq(-2,2,length=20)
 		,...
 ){
+	
+	### we need at least two conditions
+	if(ncol(eset) == 1){
+			return(cat("INFO: Only one condition no hClustHeatMap \n"))
+	}
 	
 	#d <- log2(exprs(eset))
 	### log2 ratios to median of control condition
@@ -793,8 +736,6 @@ hClustHeatMap <- function(eset
 	
 	legend("left",levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 	
-	#return(hm)
-	
 }
 
 
@@ -808,14 +749,18 @@ hClustHeatMap <- function(eset
 #' @param pvalRange pValue/qValue range
 #' @param isLegend TRUE/FALSE display legend
 #' @param isAdjusted TRUE/FALSE qValues/pValue on x-axis
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
 plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1.5),pvalRange=c(0,0.3)
 		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
+	
+	### we need at least two conditions
+	if(length(unique(pData(eset)$condition)) == 1){
+		return(cat("INFO: Only one condition no plotNbValidDeFeaturesPerFDR \n"))
+	}
 	
 	if(isAdjusted){
 		pvaluesPerCond <- sqa$qValue
@@ -878,8 +823,8 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 #' Plot identifications target decoy distribution
 #' @param targetScores
 #' @param decoyScores
-#' @export
 #' @note  No note
+#' @export
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -1062,9 +1007,8 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' Scatter plot with density coloring
 #' @param x number vector
 #' @param y number vector
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @references NA
 #' @examples print("No examples")
 plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R"),  ...){
@@ -1109,9 +1053,8 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 #' Plot calibration Curve
 #' @param fit simple log-linear model
 #' @param dispElements c("formula","lowess","stats")
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @references NA
 #' @examples print("No examples")
 plotCalibrationCurve <- function(fit
@@ -1176,9 +1119,8 @@ plotCalibrationCurve <- function(fit
 #' Plot all retention time normalization profiles
 #' @param rtNormFactors data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors
 #' @param condNames  vector of condition names
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
@@ -1205,9 +1147,8 @@ plotRTNormSummary <- function(eset, col = as.character(.getConditionColors(eset)
 #' @param rtNormFactors data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors
 #' @param eset  ExprsssionSet
 #' @param samples specify samples (sample numbers) to be plotted
-#' @export
-#' @import 
 #' @note  No note
+#' @export
 #' @details No details
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 

@@ -6,7 +6,7 @@
 plotCalibrationCurve(fit, dispElements = c("formula", "lowess", "stats"),
   xlab = "Conc. (CPC) ", ylab = "Pred. Conc.",
   predictorName = paste("log10(", names(coef(fit))[2], ")", sep = ""),
-  text = F, ...)
+  text = F, ..., main = "")
 }
 \arguments{
 \item{fit}{simple log-linear model}

@@ -32,8 +32,15 @@ library(seqinr)
 #skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2b_WB_dilution_series_26112014_Transition Results_plus_background_forErik_final_4.csv"
 #skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final.csv"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25.csv"
-pdfFile <- "/Users/erikahrne/tmp/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25_LOW.pdf"
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25.csv"
+#pdfFile <- "/Users/erikahrne/tmp/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25_LOW.pdf"
+
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25.csv"
+#pdfFile <- "/Users/erikahrne/tmp/test.pdf"
+
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1a-3_WB_dilution_series_23012015_Transition Results_2_for_Ricky.csv"
+pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
+#pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -64,13 +71,15 @@ if(F){
 	concentration <- repConc[as.character(concentration),]
 }
 if(T){
-	concentration <- gsub("B14\\-11...\\_NRX..\\_WB_GFPl_1:" ,"",as.character(skylineData$Replicate.Name))
+	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B14.*","",concentration)
+	concentration <- gsub("B15.*","",concentration)
+	concentration <- gsub("_.*","",concentration)
 	concentration <- 1/as.numeric(concentration)
 	concentration[is.na(concentration)] <- 0
 	
-	repConc <- data.frame( rev(c(32.8237447,6.556882596	,1.349742604,	0.280552107	,0.088978381,0)),row.names=sort(unique(concentration)))
+	repConc <- data.frame( rev(c(40.86970737,8.135769725	,1.58482937,	0.383470541	,0.161746873,0)),row.names=sort(unique(concentration)))
 	concentration <- repConc[as.character(concentration),]
 	
 }

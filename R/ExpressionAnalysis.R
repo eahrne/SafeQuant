@@ -1,14 +1,17 @@
 
+#' @export
 .log2Exprs <- function(eset){
 	exprs(eset) <- log2(exprs(eset))
 	return(eset)
 }
 
+#' @export
 .exp2Exprs <- function(eset){
 	exprs(eset) <- 2^(exprs(eset))
 	return(eset)
 }
 
+#' @export
 .getControlCondition <-function(eset){
 	return(unique(as.character(pData(eset)$condition[pData(eset)$isControl]))[1])
 }
@@ -18,12 +21,12 @@
 #' @param expDesign experimental design data.frame
 #' @param featureAnnotations data.frame including e.g: Protein Description, Id score etc.
 #' @return ExpressionSet object
+#' @import affy
 #' @export
-#' @import Biobase
 #' @note  No note
 #' @details No details
 #' @references NA 
-#' @seealso \code{\link[Biobase]{ExpressionSet}}
+#' @seealso \code{\link[affy]{ExpressionSet}}
 #' @examples print("No examples")
 createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations){
 	
@@ -55,6 +58,7 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	)
 }
 
+
 #' Perform statistical test (mderated t-test), comparing all case to control
 #' @param eset ExpressionSet
 #' @param method c("pairwise","all") 
@@ -68,45 +72,6 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809} 
 #' @seealso \code{\link[limma]{eBayes}}
 #' @examples print("No examples")
-#getAllEBayes <- function(eset=eset, adjust=F, log=T, method=""){
-#	
-#	controlCondition <- .getControlCondition(eset)
-#	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
-#	
-#	if(log)(exprs(eset) <- log2(exprs(eset)))
-#	
-#	pvalues <- data.frame(row.names=featureNames(eset))
-#	
-#	for(cC in caseConditions){
-#		
-#		### at least one replicate of one condition requires
-#		selCol <- unlist(pData(eset)$condition %in% c(controlCondition,cC))
-#		if(sum(selCol) > 2 ){
-#			
-#			esetPair <- eset[,selCol]
-#			
-#			f <- factor(as.character(esetPair$condition))
-#			design <- model.matrix(~f)
-#			#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
-#			fit <- eBayes(lmFit(esetPair,design))
-#			
-#			p <- fit$p.value[,2]
-#			
-#			if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg  (1995) method 
-#				p <- p.adjust(p,method="BH")
-#			}
-#			
-#		}else{
-#			p <- rep(NA,nrow(eset))
-#		}
-#		pvalues <- cbind(pvalues,p)
-#	}
-#	
-#	names(pvalues) <- caseConditions
-#	return(pvalues)	
-#	
-#}
-
 getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 	
 	controlCondition <- .getControlCondition(eset)
@@ -197,7 +162,7 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 #' @param method median or mean
 #' @return ExpressionSet object
 #' @export
-#' @import Biobase 
+#' @import affy 
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -248,8 +213,8 @@ getRatios <- function(eset, method="median", log2=T){
 #' Calculate Coefficiant of Variance per feature (Relative standard Deviation) per Condition
 #' @param eset ExpressionSet
 #' @return data.frame of CVs per condition
+#' @import affy 
 #' @export
-#' @import Biobase 
 #' @note  No note
 #' @details CV = sd / mean 
 #' @references NA
@@ -313,8 +278,8 @@ getCV <- function(data){
 #' @param eset ExpressionSet
 #' @param minFeaturesPerBin  minumum number of features per bin. If nb. features are < minFeaturesPerBin -> include neighbouring bins.
 #' @return data.frame normalization factors per retention time bin (minute)
-#' @export
 #' @import limma affy
+#' @export
 #' @note  No note
 #' @details No details
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
@@ -383,7 +348,7 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 #' @param eset ExpressionSet
 #' @param rtNormFactors  obtained using getRTNormFactors
 #' @return data.frame normalization factors per retention time bin (minute)
-#' @export ExpressionSet
+#' @export
 #' @import limma affy
 #' @note  No note
 #' @details Normalize for variations in elelctrospray ionization current.
@@ -593,9 +558,9 @@ getSignalPerCondition <- function(eset,method="median"){
 #' @param method "sum", "mean" or "top3" 
 #' @param isProgressBar TRUE/FALSE display progress bar
 #' @return ExpressionSet object
-#' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
 #' @export
-#' @import Biobase
+#' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
+#' @import affy
 #' @note  No note
 #' @references No references
 #' @seealso \code{\link{topX}}
@@ -660,16 +625,16 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 			### roll up method
 			### sum
 			if(method =="sum"){
-				rolledAssayDataSubset <- apply(aDataSubset,2,sum,na.rm=T)
+				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,sum,na.rm=T)
 			}else if(method=="mean") {
 				### mean
-				rolledAssayDataSubset <- apply(aDataSubset,2,mean,na.rm=T)
+				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,mean,na.rm=T)
 			}else if(method== "top3"){
 				### top3
-				rolledAssayDataSubset <- getTopX(aDataSubset,topX=3)
+				rolledAssayDataSubset <- getTopX(data.frame(aDataSubset),topX=3)
 			}else if(method== "top1"){
 				### top1 TEST OPTION
-				rolledAssayDataSubset <- getTopX(aDataSubset,topX=1)
+				rolledAssayDataSubset <- getTopX(data.frame(aDataSubset),topX=1)
 			}else{
 				stop("Unknown roll up method ", method, "\n")
 			}
@@ -747,9 +712,8 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 #' @param entryData data.frame listing feature intensities of one entry 
 #' Typically rows corresponds to Peptide entries of one protein
 #' @param topX best X flyers
-#' @return vector of topX intensities per column (sample) 
+#' @return vector of topX intensities per column (sample)
 #' @export
-#' @import  
 #' @note  No note
 #' @details No details
 #' @references Absolute quantification of proteins by LCMSE: A virtue of parallel MS acquisition, Silva (2006), \url{http://www.ncbi.nlm.nih.gov/pubmed/16219938}, 
@@ -784,7 +748,6 @@ getTopX <- function(entryData,topX=3){
 #' @param proteaseRegExp protease Reg Exp cleavage rule
 #' @return ExpressionSet
 #' @export
-#' @import  
 #' @note  No note
 #' @details No details
 #' @references Global quantification of mammalian gene expression control, Schwanhausser (2011), \url{http://www.ncbi.nlm.nih.gov/pubmed/21593866}, 
@@ -828,7 +791,7 @@ getIBAQEset <- function(eset
 ### require colnames "signal", "cpc"
 #' Leave-One-Out Cross Validate Qunatification Model
 #' @param data.frame  of two columns 1) "signal" - ms metric 2) "cpc" absolute quantity
-#' @return data.frame of fold errors per (left-out) protein 
+#' @return data.frame of fold errors per (left-out) protein
 #' @export
 #' @note  No note
 #' @details No details
@@ -859,6 +822,7 @@ getLoocvFoldError <- function(df){
 
 #' Set value to NA if it deviatves with more than 1.5 * IQR from lower/upper quantile
 #' @param vector numeric
+#' @param a logical indicating whether missing values should be removed.
 #' @return vector numeric
 #' @export
 #' @note  No note
@@ -876,21 +840,3 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 	
 	return(y)
 }
-
-
-
-#.getBaselineIntensityTMT <- function(refRunInt , zscore = 4){
-#	
-#	refRunInt <- refRunInt[(refRunInt > 0)]   
-#	
-#	refRunIntLog <- log10(refRunInt)
-#	baselineInt <- 10^( mean(refRunIntLog) - (zscore* sd(refRunIntLog)))
-#	
-#	
-#	if(baselineInt < 0 ){
-#		baselineInt <- min(refRunInt, na.rm=T)
-#	}
-#	
-#	return(baselineInt)
-#	
-#}

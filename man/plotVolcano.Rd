@@ -3,8 +3,7 @@
 \alias{plotVolcano}
 \title{Plots volcano, data points colored by max cv of the 2 compared conditions}
 \usage{
-plotVolcano(obj, ratioCutOffAbsLog2 = 0, absLog10pValueCutOff = 2,
-  adjusted = T, ...)
+plotVolcano(obj, ratioThrs = 1, pValueThreshold = 0.01, adjusted = T, ...)
 }
 \arguments{
 \item{obj}{safeQuantAnalysis object or data.frame}

@@ -1,15 +1,10 @@
-# TODO: Add comment
-# 
-# Author: erikahrne
-###############################################################################
-
 
 #' S3 class object describing a calibration curve and storing some figures of merit
 #' @param eset ExpressionSet
 #' @param method to calculate Limit of Detection / Limit of Quantification. c("blank","low") 
 #' @return calibrationCurve object
 #' @export
-#' @import ExpressionSet
+#' @import affy
 #' @note  No note
 #' @details No details
 #' @references Statistical characterization of multiple-reaction monitoring mass spectrometry (MRM-MS) assays for quantitative proteomics, Mani et al. (2012), \url{http://www.ncbi.nlm.nih.gov/pubmed/23176545} 
@@ -79,7 +74,7 @@ createCalibrationCurve <- function(eset,method="blank"){
 	
 }
 
-
+#' @export
 plot.calibrationCurve <- function(calibCurve, pch=19, lwd=2,cex.axis=1.5,cex.lab=1.5,cex=1.5,cex.main=1.5,xlab="Concentration",ylab="Area Under Curve",...){
 	
 	### include lod if out of range

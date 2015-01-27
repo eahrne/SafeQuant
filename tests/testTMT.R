@@ -3,10 +3,7 @@
 # Author: erikahrne
 ###############################################################################
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
+source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### test functions
 
@@ -91,10 +88,6 @@ tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
 
 ### CREATE TEST DATA END
 
-testDir <- dirname(sys.frame(1)$ofile)
-testDir <- gsub("tests\\/tmp","inst/tests/",testDir)
-tmt6PlexRawTestFile <- paste(testDir,"/TMT_6-Plex_Scaffold_Raw_Export_Example.xls",sep="")
-tmt10PlexRawTestFile <- paste(testDir,"/TMT_10-Plex_Scaffold_Raw_Export_Example.xls",sep="")
 
 ### INIT END
 
