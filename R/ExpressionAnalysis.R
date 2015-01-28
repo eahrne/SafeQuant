@@ -801,6 +801,9 @@ getIBAQEset <- function(eset
 #' @examples print("No examples")
 getLoocvFoldError <- function(df){
 	
+	ok <- is.finite(df[,1]) & is.finite(df[,2])
+	df <- df[ok,]
+	
 	foldError <- vector(length=nrow(df))
 	
 	for (i in 1:nrow(df)) {

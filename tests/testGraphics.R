@@ -91,7 +91,7 @@ if(T){
 	par(mfrow=c(1,1))
 	
 	plotXYDensity(exprs(eset)[,1],exprs(eset)[,2], main="plotXYDensity")
-	plotCalibrationCurve(fit, predictorName="log10(iBAQ)", main="plotCalibrationCurve")
+	plotAbsEstCalibrationCurve(absEstSimDataFit, predictorName="log10(iBAQ)", main="plotCalibrationCurve")
 
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)

@@ -222,7 +222,7 @@ testGetLoocvFoldError <- function(){
 	
 	cat(" --- testGetLoocvFoldError --- \n")
 	#plotCalibrationCurve(fit)
-	stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
+	stopifnot(  round(sum(getLoocvFoldError(absEstSimData))) == -8)
 	cat(" --- testGetLoocvFoldError: PASS ALL TEST --- \n")
 }
 
@@ -234,7 +234,6 @@ testSqNormalize <- function(){
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	stopifnot(nrow(sqNormalize(esetTmp, method = "rt")) == 496)
 	
-	#stopifnot(  round(sum(getLoocvFoldError(df))) == -8)
 	cat(" --- testSqNormalize: PASS ALL TEST --- \n")
 }
 	

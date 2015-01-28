@@ -23,14 +23,16 @@
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
-suppressPackageStartupMessages(library("affy", quiet=T))
-suppressPackageStartupMessages(library("limma", quiet=T))
-suppressPackageStartupMessages(library(gplots, quiet=T))
-suppressPackageStartupMessages(library(seqinr, quiet=T))
-suppressPackageStartupMessages(library(corrplot, quiet=T))
-suppressPackageStartupMessages(library(optparse, quiet=T))
+suppressWarnings(suppressPackageStartupMessages(library("affy", quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library("limma", quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(gplots, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(seqinr, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 
-if(F){
+# check if SafeQuant is installed
+if("SafeQuant" %in%  installed.packages()[,1]){
+	cat("Loading SafeQuant Library \n")
 	library("SafeQuant")
 }else{ # FOR DEVELOPMENT
 	if(file.exists("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")){

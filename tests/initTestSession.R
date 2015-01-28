@@ -111,9 +111,9 @@ sqa <- safeQuantAnalysis(eset)
 cpc <- rep(2^(1:5),10)
 set.seed(1234)
 signal <- rnorm(length(cpc),cpc,cpc/10)
-df <- data.frame(cpc =  log10(cpc),signal = log10(signal))
-fit <- lm(cpc ~ signal, data=df )
+absEstSimData <- data.frame(cpc =  log10(cpc),signal = log10(signal))
+absEstSimDataFit <- lm(cpc ~ signal, data=absEstSimData )
 
 
-data(proteomeMixLFQ,package="SafeQuant")
-data(proteomeMixTMT6,package="SafeQuant")
+#data(proteomeMixLFQ,package="SafeQuant")
+#data(proteomeMixTMT6,package="SafeQuant")

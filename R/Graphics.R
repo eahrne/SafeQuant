@@ -1050,19 +1050,28 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 	
 }
 
-#' Plot calibration Curve
+#' Plot absolut Estimation calibration Curve
 #' @param fit simple log-linear model
 #' @param dispElements c("formula","lowess","stats")
+#' @param cex.lab= expansion factor for axis labels
+#' @param cex.axis= expansion factor for axis 
+#' @param cex.text= expansion factor for legend
+#' @param cex.dot= expansion factor for plotted dots
 #' @note  No note
 #' @export
 #' @references NA
 #' @examples print("No examples")
-plotCalibrationCurve <- function(fit
+plotAbsEstCalibrationCurve <- function(fit
 		,dispElements = c("formula","lowess","stats")
 		,xlab="Conc. (CPC) "
-		,ylab="Pred. Conc."
+		,ylab="Pred. Conc. (CPC) "
 		,predictorName = paste("log10(",names(coef(fit))[2],")",sep="")
-		,text=F,...
+		,text=F
+		,cex.lab=1
+		,cex.axis=1
+		,cex.text=1
+		,cex.dot=1
+		,...
 		,main=""){
 	x <- predict(fit) + fit$residuals 						
 	y <- predict(fit)		
@@ -1070,7 +1079,7 @@ plotCalibrationCurve <- function(fit
 	
 	### some extra margin for axis labels
 	par(mar=c(5.5,5.5,4.1,2.1))
-	plot(10^x, 10^y,log="xy",xlab="",ylab="",main=main,... )
+	plot(10^x, 10^y,log="xy",xlab="",ylab="",main=main,cex.axis=cex.axis,cex=cex.dot,... )
 	
 	if(text){
 		text(10^x, 10^y,rownames(fit$qr$qr))
@@ -1079,14 +1088,15 @@ plotCalibrationCurve <- function(fit
 	
 	abline(coef=c(0,1),lty=2)
 	### add axis labels
-	mtext(side=1,xlab,las=1, line=4, ...)
-	mtext(side=2,ylab,las=3, line=4, ...)
+	mtext(side=1,xlab,las=1, line=4,cex=cex.lab, ...)
+	mtext(side=2,ylab,las=3, line=4,cex=cex.lab, ...)
 	
 	if( "formula" %in% dispElements){
 		legend("bottomright"
 				,paste("log10(",ylab,")"," = ", signif(coef(fit)[1],2)," + ",signif(coef(fit)[2],2)," * ",predictorName ,sep="")		
 				,box.lwd=0
 				,box.col="white"
+				,cex=cex.text
 				,...
 		)
 	}
@@ -1108,6 +1118,7 @@ plotCalibrationCurve <- function(fit
 				#,text.col=c(1,2)
 				,box.lwd=0
 				,box.col="white"
+				,cex=cex.text
 				,...
 		)
 	}
