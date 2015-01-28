@@ -227,8 +227,6 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 			,nbPtmsPerPeptide = nbPtmsPerPeptide
 	)
 	
-
-	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	## @TODO what if "X001_Yewtivya" "001_Yewtivya"
@@ -239,20 +237,23 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
 	
-	
 	# discard non peptide annotated rows
 	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
-
-	featureAnnotations <- featureAnnotations[!allColNA & isPep,]
+	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
+
+
 	### re-order and exclude channels  
-	expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])
+	if(ncol(expMatrix) > 1){
+		expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])
+	}else{ # to avoid crash when only one run
+		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
+	}
+
 	colnames(expMatrix) <- rownames(expDesign)
-	
-	
 	
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 	

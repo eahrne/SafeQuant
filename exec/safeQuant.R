@@ -352,9 +352,9 @@ if(ncol(esetNorm) < 8){
 }
 ### COR OR PAIRS PLOT. IF FEWER THAN X CONDITIONS 
 if(length(unique(pData(esetNorm)$condition)) < 8){
-	pairsAnnot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,unique(pData(esetNorm)$condition) ],textCol=as.character(CONDITIONCOLORS[unique(pData(esetNorm)$condition),]))
+	pairsAnnot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,as.character(unique(pData(esetNorm)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(esetNorm)$condition)),]))
 }else{
-	.correlationPlot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,unique(pData(esetNorm)$condition) ],textCol=as.character(CONDITIONCOLORS[unique(pData(esetNorm)$condition),]))
+	.correlationPlot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,as.character(unique(pData(esetNorm)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(esetNorm)$condition)),]))
 }
 
 par(parDefault)

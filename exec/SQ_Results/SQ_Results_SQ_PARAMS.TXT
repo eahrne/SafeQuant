@@ -1,6 +1,6 @@
 param	value
 verbose	FALSE
-inputFile	../inst/testData/new/peptides1_FILTERED.csv
+inputFile	/Volumes/pcf01$/Schmidt_Group/ProjectSQ/CArriemerlou/ChristophSchmutz_54/20131220-114201_Yewtivya/Progenesis/Cecile-CS-Yewtivya-HCD-Features.csv
 resultsFileLabel	SQ_Results
 outputDir	.//SQ_Results
 proteinFastaFile	NA

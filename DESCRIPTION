@@ -1,14 +1,11 @@
 Package: SafeQuant
 Type: Package
-Title: Proteomics Data Analysis
+Title: SafeQuant: Proteomics Data Analysis
 Version: 2.0.1
 Date: 2014-04-24
 Author: Erik Ahrne
 Maintainer: Erik Ahrne <erik.ahrne@unibas.ch>
-Description: SafeQuant allows for statistical validation of differentially
-    abundant proteins/peptides across two or more sample conditions analyzed
-    using LC-MS. SafeQuant is compatible with label free quantitative data
-    processed using Progenesis or TMT data processed using Scaffold Quant.
+Description: The SafeQuant library includes a range of methods for analysis of Proteomics "Quant data". More documentation to come.
 Imports:
     affy,
     limma,
