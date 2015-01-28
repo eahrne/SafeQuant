@@ -1,4 +1,5 @@
 --- Introduction
+
 The SafeQuant library includes a range of methods for analysis of Proteomics "Quant data".
 More documentation to come.
 
