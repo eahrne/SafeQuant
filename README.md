@@ -1,6 +1,6 @@
 --- Introduction
 
-The SafeQuant Package includes a range of methods for analysis of Proteomics "Quant data".
+The SafeQuant Package includes methods for analysis of Proteomics "Quant data".
 More documentation to come.
 
 1) Install Dependencies
