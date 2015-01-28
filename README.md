@@ -1,43 +1,39 @@
-
-
 --- Introduction
 The SafeQuant library includes a range of methods for analysis of Proteomics "Quant data".
 More documentation to come.
 
 1) Install Dependencies
-	A) Install CRAN library dependencies (open R)
-		R> install.packages(c("seqinr","gplots","corrplot","optparse"))
+ A) Install CRAN library dependencies (open R)
+	R> install.packages(c("seqinr","gplots","corrplot","optparse"))
 
-
-	B) Install BioConductor library dependencies (open R)
-		R> source("http://bioconductor.org/biocLite.R")
-		R> biocLite(c("limma","affy"))
+ B) Install BioConductor library dependencies (open R)
+	R> source("http://bioconductor.org/biocLite.R")
+	R> biocLite(c("limma","affy"))
 
 2) Install SafeQuant from sources
-	A) Download Zip from github
-	https://github.com/eahrne/SafeQuant
+ A) Download Zip from github
+ https://github.com/eahrne/SafeQuant
 
-	B) Unzip SafeQuant-v.X.XX-pack.zip
+ B) Unzip SafeQuant-v.X.XX-pack.zip
 		
-	B) Install SafeQuant (open R)
-	Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
-	The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
-
+ C) Install SafeQuant (open R)
+ Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
+ The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
 	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant-v.X.XX-pack",type="source", repos=NULL)
 
 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)    
-	A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.01-pack\exec\safeQuant.R ) 
-		This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
-	B) open terminal
-	# To display help options
+ A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.01-pack\exec\safeQuant.R ) 
+ This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
+ B) open terminal
+ 	# To display help options
 	> Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
-	# To run (with minimal arguments)
+ 	# To run (with minimal arguments)
 	>Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\proteins.csv" -o "c:\Program Files\SafeQuant\out"
 
 X) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQunat analysis.
 This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.01-pack\exec\filterLargeProgenesisPeptideFile.pl) 
-	A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
-	b) open terminal
+ A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
+ B) open terminal
 	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 	# this will create a new veriosn of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
 
