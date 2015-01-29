@@ -564,9 +564,13 @@ if(exists("sqaPeptide")){
 	qValue <- sqaPeptide$qValue
 	if(length(names(qValue)) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
+	medianSignalDf <- getSignalPerCondition(sqaPeptide$eset)
+	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
+	
 	out <- cbind(
 			fData(sqaPeptide$eset)[,selFDataCol]
 			, exprs(sqaPeptide$eset)
+			, medianSignalDf
 			, cv
 			, ratio	
 			, pValue
