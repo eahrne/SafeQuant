@@ -2,10 +2,10 @@ Package: SafeQuant
 Type: Package
 Title: SafeQuant: Proteomics Data Analysis
 Version: 2.0.1
-Date: 2014-04-24
+Date: 2015-01-28
 Author: Erik Ahrne
 Maintainer: Erik Ahrne <erik.ahrne@unibas.ch>
-Description: The SafeQuant Package includes a range of methods for analysis of Proteomics Quant. data. More documentation to come.
+Description: The SafeQuant Package includes methods for analysis of Proteomics Quant. data. More documentation to come.
 Imports:
     affy,
     limma,

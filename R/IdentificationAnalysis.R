@@ -39,7 +39,7 @@
 			
 			if(nchar(modifAnnot) > 0){
 				if(proteinSeq == "NULL" ){
-					cat("\nERROR  ",proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
+					warning(proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
 #					modifCoord <- "Err"
 #					motifX <- "Err"
 				}else{
@@ -81,13 +81,13 @@
 	
 }
 
+# Get unique PTM morifs
 #' @export
+#' @details returns a dataframe lising all unique motifs and the corresponding ptm. multiple entries will be created  for multiply modified peptides
 .getUniquePtmMotifs <- function(eset){
 	
-	#ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm),"\\|")))
-	
-	eset <- eset[!fData(eset)$isFiltered,]
-	
+	eset <- eset[!fData(eset)$isFiltered & (nchar(as.character(fData(eset)$ptm)) > 0),]
+		
 	### has to be done this way as sometimes the matching AC is not found in the database...
 	motifXTag <- c()
 	ptmTag <- c()
@@ -108,10 +108,7 @@
 		#}
 	}
 	
-	#motifXTag <- motifXTag[!is.na(motifXTag) & grepl(ptmRegExpr,ptmTag,ignore.case =T) & grepl("\\*",motifXTag) ]
-	
 	sel <- !is.na(motifXTag) & grepl("\\*",motifXTag)
-	
 	return(unique(data.frame(ptm = ptmTag[sel], motif = motifXTag[sel])))
 }
 

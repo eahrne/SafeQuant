@@ -631,10 +631,10 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,mean,na.rm=T)
 			}else if(method== "top3"){
 				### top3
-				rolledAssayDataSubset <- getTopX(data.frame(aDataSubset),topX=3)
+				rolledAssayDataSubset <- getTopX(aDataSubset,topX=3)
 			}else if(method== "top1"){
 				### top1 TEST OPTION
-				rolledAssayDataSubset <- getTopX(data.frame(aDataSubset),topX=1)
+				rolledAssayDataSubset <- getTopX(aDataSubset,topX=1)
 			}else{
 				stop("Unknown roll up method ", method, "\n")
 			}
@@ -729,6 +729,7 @@ getTopX <- function(entryData,topX=3){
 		o <- order(apply(entryData,1,sum,na.rm=T),decreasing=T)[1:topX]
 		
 		if(topX==1){
+			
 			return(entryData[o,])
 		}
 		return(apply(entryData[o,],2,mean,na.rm=T))

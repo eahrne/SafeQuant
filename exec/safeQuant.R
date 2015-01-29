@@ -595,9 +595,13 @@ if(exists("sqaProtein")){
 	qValue <- sqaProtein$qValue
 	if(length(names(qValue)) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
+	medianSignalDf <- getSignalPerCondition(sqaProtein$eset)
+	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
+	
 	out <- cbind(
 			fData(sqaProtein$eset)[,selFDataCol]
 			, exprs(sqaProtein$eset)
+			, medianSignalDf
 			, cv
 			, ratio	
 			, pValue
@@ -605,16 +609,29 @@ if(exists("sqaProtein")){
 	
 	# add median top3
 	if(exists("esetTop3")){
-		tmpOut <- getSignalPerCondition(esetTop3)
-		names(tmpOut) <- paste("top3",names(tmpOut),sep="_")
+		
+		tmpOut <- medianSignalDf
+	 	tmpOut[!is.na(tmpOut)] <- NA
+		selProts <- intersect(rownames(tmpOut),rownames(esetTop3))
+		tmpOut[selProts,] <- getSignalPerCondition(esetTop3)[selProts,]
+		
+		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
+		names(tmpOut) <- gsub("medianInt","top3",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
 	}
 	
 	# add iBAQ	
 	if(exists("esetIBAQ")){
-		tmpOut <- exprs(esetIBAQ)
-		names(tmpOut) <- paste("iBAQ",names(tmpOut),sep="_")
+		
+		tmpOut <- medianSignalDf
+		tmpOut[!is.na(tmpOut)] <- NA
+		selProts <- intersect(rownames(tmpOut),rownames(esetIBAQ))
+		tmpOut[selProts,] <- getSignalPerCondition(esetIBAQ)[selProts,]
+		
+		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
+		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
+		
 	}
 	
 	write.table(out

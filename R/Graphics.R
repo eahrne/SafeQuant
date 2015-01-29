@@ -22,6 +22,7 @@ COLORS <- as.character(c(
 
 #' @export
 .idOverviewPlots <- function(){
+	
 	######################## OVERVIEW PLOT
 	fdr <-userOptions$fdrCutoff
 	nbPSM <- sum(!fData(esetNorm)$isFiltered,na.rm=T)
@@ -74,18 +75,23 @@ COLORS <- as.character(c(
 			
 	} 
 	if(exists("sqaPeptide")){
+		
 		### mis-cleavage
 		nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide)[!fData(esetNorm)$isFiltered] )
 		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 		
-		if("motifX" %in% names(fData(sqaPeptide$eset))){
-			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm[!fData(sqaPeptide$eset)$isFiltered])
-			bp <- barplot2(motifTable, xlab="Modification" ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
-			mtext(names(motifTable),side=1,at=bp[,1], line=1)
-			
+		### don't plot if many (more than 10) NA motifs (NA motid due to wrongly specified fasta)
+		if("motifX" %in% names(fData(sqaPeptide$eset)) & (sum(is.na(fData(sqaPeptide$eset)$motifX)) > 10 ) ){ 
+
+			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm)
+			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found
+				bp <- barplot2(motifTable, xlab="Modification" ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
+				mtext(names(motifTable),side=1,at=bp[,1], line=1)
+			}	
+					
 		}else{
 			### ptm 
-			
+						
 			ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
 			ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
 			ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
