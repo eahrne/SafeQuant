@@ -552,7 +552,12 @@ if(exists("sqaPeptide")){
 	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
 						,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures", "isNormAnchor") 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 
-					
+	
+	### add modif coord
+	if("motifX" %in% names(fData(sqaPeptide$eset))){
+		selFDataCol <- c(selFDataCol,"motifX","modifCoord")
+	}
+	
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio

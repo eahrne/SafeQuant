@@ -3,5 +3,5 @@
 # Author: erikahrne
 ###############################################################################
 
-install.packages("affy")
+install.packages(c("gplots","seqinr","optparse"))
 

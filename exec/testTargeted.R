@@ -5,6 +5,10 @@
 ### load / source
 
 ##@TEMP
+library("affy")
+library("limma")
+library(gplots) # volcano plot
+library(seqinr)
 
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Targeted.R")
 
@@ -14,17 +18,12 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Graphics.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
 
 
 
 #install.packages("/Users/erikahrne/dev/R/workspace/SafeQuant/", repos = NULL, type="source")
 #library(SafeQuant)
 
-library("affy")
-library("limma")
-library(gplots) # volcano plot
-library(seqinr)
 
 ### INIT
 
@@ -38,9 +37,13 @@ library(seqinr)
 #skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_26112014_Transition Results_for_Erik_final_blank25.csv"
 #pdfFile <- "/Users/erikahrne/tmp/test.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1a-3_WB_dilution_series_23012015_Transition Results_2_for_Ricky.csv"
-pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1a-3_WB_dilution_series_23012015_Transition Results_2_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
 #pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
+
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1b_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
+pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -70,7 +73,7 @@ if(F){
 	repConc <- data.frame( rev(c(36.61394259,6.915043504,1.307507019,0.279922881,0.090591176,0)),row.names=sort(unique(concentration)))
 	concentration <- repConc[as.character(concentration),]
 }
-if(T){
+if(F){
 	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("_WB.*","",concentration)
@@ -83,6 +86,25 @@ if(T){
 	concentration <- repConc[as.character(concentration),]
 	
 }
+
+if(T){
+	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("_WB.*","",concentration)
+	concentration <- gsub("B15.*","",concentration)
+	concentration <- gsub("_.*","",concentration)
+	concentration <- 1/as.numeric(concentration)
+	concentration[is.na(concentration)] <- 0
+	
+	repConc <- data.frame( rev(c(44.04073768,8.979139215	,1.808429451,	0.473803353	,0.125285855,0)),row.names=sort(unique(concentration)))
+	concentration <- repConc[as.character(concentration),]
+	
+}
+
+			
+
+
+
 
 data.frame(concentration,skylineData$Replicate.Name)
 
@@ -162,8 +184,8 @@ for(peptide in unique(fData(esetCalibCurve)$Peptide.Sequence)){
 	idx <- sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))[2]
 	#print(length(sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))))
 	
-	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
-	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
+	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
+	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
 }
 
 graphics.off()
@@ -174,5 +196,5 @@ graphics.off()
 #
 #exprs(esetCalib)
 
-
+print("DONE")
 

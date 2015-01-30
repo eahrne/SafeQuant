@@ -12,10 +12,6 @@
 
 - default output dir to input dir
 	
-
-	
-	
-	
 # BUG
 ### rt normalization failure
 ###./safeQuant.R -i /Volumes/pcf01\$/Schmidt_Group/tmp/peptides_FILTERED.csv	
