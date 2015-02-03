@@ -181,6 +181,11 @@ if("ptm" %in% names(fData(eset))){
 
 }
 
+if("peptide" %in% names(fData(eset))){
+	filter <- cbind(filter
+			, peptideLength =nchar(as.character(fData(eset)$peptide)) < userOptions$minPeptideLength )
+}
+
 if(!("nbPeptides" %in% names(fData(eset)))){
 	### set nb peptides per protein
 	eset <- setNbPeptidesPerProtein(eset)
@@ -280,14 +285,14 @@ if((fileType == "ProgenesisProtein")){
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName)
 	
-	if(userOptions$top3){
+	if(userOptions$top3 & userOptions$proteinQuant){
 		cat("INFO: ROLL-UP TOP3\n")
 		esetTop3 <-  rollUp(esetPeptide,featureDataColumnName= c("proteinName"),isProgressBar=T, method="top3")
 	}
 }
 
 ### IBAQ
-if(userOptions$iBAQ){
+if(userOptions$iBAQ & userOptions$proteinQuant){
 	cat("INFO: CALCULATING IBAQ VALUES\n")
 	if(exists("proteinDB")){
 		esetIBAQ <-  getIBAQEset(sqaProtein$eset, proteinDB=proteinDB)

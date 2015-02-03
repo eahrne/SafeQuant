@@ -33,10 +33,10 @@ option_list <- list(
 				help="FILTER: --FP Filter features by Accession Regular Expression [default %default] (all features kept)",
 				metavar="Protein Accession Reg. expr."),
 		
-		#### peptide script specfic
+		#### peptide analysis specfic
 		make_option(c("--FModificationSelection"), type="character", default="",
 				help="FILTER (LFQ PEP ONLY): --FM Only keep Peptides with modifications matching Regular Expression [default %default]
-				 (all features kept). Peptide script ONLY",
+				 (all features kept). Peptide analysis ONLY",
 				metavar="modification name Reg. expr."),
 		
 		make_option(c("--FFdrCutoff"), type="double", default=0.01,
@@ -48,23 +48,29 @@ option_list <- list(
 				test for differential expression [default %default]",
 				metavar="Coefficent of Variance cutoff"),
 		
-		#### peptide script specfic
+		#### peptide analysis specfic
 		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="[-10,10]",
 				help="FILTER (LFQ PEP ONLY): --FD Precursor mass Error Range filter [default %default ppm].
-				Peptide script ONLY",
+				Peptide analysis ONLY",
 				metavar="Mass Range [x,y]"),
 		
-		#### protein script specfic
+		#### protein analysis specfic
 		make_option(c("--FNumberOfPeptidesPerProteinMin"), type="integer", default=1,
 				help="FILTER: --FN Only include those proteins with at least x identified peptides [default %default]
-				Protein script ONLY.",
+				Protein analysis ONLY.",
 				metavar="Number of peptides"),
 		
-		#### protein script specfic
-		make_option(c("--FSitesPerPeptide"), type="integer", default=9999,
+		#### peptide analysis specfic
+		make_option(c("--FSitesPerPeptide"), type="integer", default=99999,
 				help="FILTER: --FS Max Nb. Modifications Per Peptide [default Inf]
-						Peptide script ONLY.",
+						Peptide analysis ONLY.",
 				metavar="Max Number of PTM sites Per Petptide"),
+		
+		#### peptide analysis specfic
+		make_option(c("--FLengthPeptide"), type="integer", default=1,
+				help="FILTER: --FL Min Peptide Length (Nb. AA's) [default Inf]
+						Peptide analysis ONLY.",
+				metavar="Min Peptide Length (>=)"),
 		
 		
 # FILTER (--F) END	
@@ -151,10 +157,10 @@ option_list <- list(
 	
 # ADDITIONAL-REPORTS (--A) END
 
-# TEST (peptide script specific)
+# TEST (peptide analysis specific)
 	make_option(c("-t", "--test"), action="store_true", default=FALSE,
 			help="TEST: test option, include first 2000 entries only [default %default]
-			Peptide script ONLY."),
+			Peptide analysis ONLY."),
 # TEST END
 	make_option(c("-v", "--verbose"), action="store_true", default=FALSE,
 			help="Print extra output [default %default]")
@@ -260,10 +266,17 @@ getUserOptions <- function(version=version){
 		q(status=-1)
 	}
 	
-	#FILTER: minNbPeptidesPerProt
+	#FILTER: maxNbPTMsPerPeptide
 	userOptions$maxNbPtmsPerPeptide <- cmdOpt$FSitesPerPeptide
 	if(is.na(userOptions$maxNbPtmsPerPeptide) | userOptions$maxNbPtmsPerPeptide < 0 ){
 		print(paste("ERROR. FSitesPerPeptide must be >= 0. You specified ", userOptions$maxNbPtmsPerPeptide))
+		q(status=-1)
+	}
+	
+	#FILTER: maxNbPTMsPerPeptide
+	userOptions$minPeptideLength <- cmdOpt$FLengthPeptide
+	if(is.na(userOptions$minPeptideLength) | userOptions$minPeptideLength < 0 ){
+		print(paste("ERROR. FLengthPeptide must be >= 0. You specified ", userOptions$minPeptideLength))
 		q(status=-1)
 	}
 	
@@ -358,7 +371,7 @@ getUserOptions <- function(version=version){
 
 # TEST
 
-	### test run to define parameters (peptide script specific)
+	### test run to define parameters (peptide analysis specific)
 	userOptions$test <- cmdOpt$test
 
 # TEST END

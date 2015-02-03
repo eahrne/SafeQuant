@@ -10,6 +10,8 @@
 - peptide length filter
 - automatic mass accuracy filter
 
+- peptide length distribution plot
+
 - default output dir to input dir
 	
 # BUG
