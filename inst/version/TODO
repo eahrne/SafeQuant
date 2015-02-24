@@ -7,14 +7,16 @@
 	- norm median intensities
 	- specify whether intensities are raw/norm 		
 
-- peptide length filter
 - automatic mass accuracy filter
 
 - peptide length distribution plot
 
 - default output dir to input dir
 	
-# BUG
+- multiple issues (GRAPHICS) if only one identified protein.
+
+### SOLVED
+### - peptide length filter
 ### rt normalization failure
 ###./safeQuant.R -i /Volumes/pcf01\$/Schmidt_Group/tmp/peptides_FILTERED.csv	
 

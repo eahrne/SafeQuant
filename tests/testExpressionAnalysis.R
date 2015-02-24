@@ -141,6 +141,8 @@ testRollUp <- function(){
 	rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"),isProgressBar=F)
 	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
 	
+	print(exprs(rollUpEset2))
+	
 	stopifnot(sum(exprs(rollUpEset2)) == sum(exprs(rollUpEset1))  ) ### test sum
 	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))  ) ### test mean
 	
@@ -279,49 +281,45 @@ testGetLoocvFoldError()
 
 testRemoveOutliers()
 
-# BUG FIX
+### FOR vs APPLY
+if(F){
+	
+	forDist <- c()
+	applyDist <- c()
+	
+	for(t in 1:50){
+		x <- 10000
+		
+		t1 <-Sys.time()
+		b <- c()
+		a <- lapply(1:x,function(i){
+					
+					b	<<- c(b,i)
+					
+				})
+		t2 <-Sys.time()
+		print(length(b))
+		tDiffApply <- t2-t1
+		
+		t1 <-Sys.time()
+		b <- c()
+		for(i in 1:x){
+			b	<- c(b,i)
+		}
+		print(length(b))
+		t2 <-Sys.time()
+		
+		tDiffFor <- t2-t1
+		
+		print(length(b))
+		
+		forDist <- c(forDist,tDiffFor)
+		applyDist <- c(applyDist,tDiffApply)
+	}
+	
+	boxplot(forDist,applyDist)
+	
+}
 
-#file <-  "/Volumes/pcf01$/Schmidt_Group/tmp/peptides_FILTERED.csv"
-#
-#expDesign <- getExpDesignProgenesisCsv(file)
-#eset <- parseProgenesisFeatureCsv(file=file,expDesign=expDesign)
-#
-#normalize(eset, method="rt")
-#globalNormFactors <- getGlobalNormFactors(eset)
 
-### @TODO add tests for getRTNormFactors and rtNormalize
-
-
-# @TODO testGetLoocvFoldError()
-
-### TESTS END
-#
-#e <- combine(eset[1:10,],eset[1:10,])
-#exprs(e)
-
-
-### @TODO predictAbsoluteAbundance
-#eset <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-#
-#eset$isControl <- rev(eset$isControl)
-#eset$isControl <- rep(F,length(eset$isControl))
-#eset$isControl[4:6] <- T
-#
-#exprs(eset)[,4:6] <- exprs(eset)[,1:3]
-#
-#### 
-#condToNb <- data.frame(row.names=unique(pData(eset)$condition))
-#condToNb[as.character(pData(eset)$condition[pData(eset)$isControl])[1],1] <- 1 
-#condToNb[unique(as.character(pData(eset)$condition[!pData(eset)$isControl])),1] <- 2:nrow(condToNb)
-#nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
-#
-#f <- factor(condToNb[eset$condition,])
-#design <- model.matrix(~f)
-##### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
-#fit <- eBayes(lmFit(eset,design))
-#pvalues <- data.frame(fit$p.value[,2:ncol(fit$p.value)])
-#
-#names(pvalues) <- nbToCond[gsub("^f","",colnames(pvalues)),]
-#
-#head(pvalues)
 

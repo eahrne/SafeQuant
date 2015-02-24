@@ -20,7 +20,6 @@ library("limma")
 
 scaffoldRawDataFile <- "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/Ratio_Pilot_6plex_250714/Scaffold/Raw Data Report for Copy_of_TMT-6-ratio-pilot-Bart-human-290714.xls"
 pdReportFile <- "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/Ratio_Pilot_6plex_250714/Proteome_Discoverer/A14-07151_Ratio-01.txt"
-
 contaminantsFile <-  "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/Ratio_Pilot_6plex_250714/Scaffold/Human_Contaminants_290714.txt"
 
 ### READ DATA

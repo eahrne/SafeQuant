@@ -41,9 +41,9 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 #pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
 #pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1b_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
-#pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
-pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
+pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
+#pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -87,7 +87,7 @@ if(F){
 	
 }
 
-if(T){
+if(F){
 	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("_WB.*","",concentration)
@@ -100,7 +100,34 @@ if(T){
 	concentration <- repConc[as.character(concentration),]
 	
 }
-
+if(F){
+	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("_WB.*","",concentration)
+	concentration <- gsub("B15.*","",concentration)
+	concentration <- gsub("_.*","",concentration)
+	concentration <- 1/as.numeric(concentration)
+	concentration[is.na(concentration)] <- 0
+	
+	
+	repConc <- data.frame( rev(c(60.12596389,11.96540801,2.528777488,0.674501451,0.237164719,0)),row.names=sort(unique(concentration)))
+	concentration <- repConc[as.character(concentration),]
+	
+}
+if(T){
+	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("_WB.*","",concentration)
+	concentration <- gsub("B15.*","",concentration)
+	concentration <- gsub("_.*","",concentration)
+	concentration <- 1/as.numeric(concentration)
+	concentration[is.na(concentration)] <- 0
+	
+	
+	repConc <- data.frame( rev(c(54.75326809,11.02882383,2.285353853,0.501467796,0.152991801,0)),row.names=sort(unique(concentration)))
+	concentration <- repConc[as.character(concentration),]
+	
+}
 			
 
 
@@ -184,8 +211,8 @@ for(peptide in unique(fData(esetCalibCurve)$Peptide.Sequence)){
 	idx <- sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))[2]
 	#print(length(sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))))
 	
-	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
-	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
+	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
+	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
 }
 
 graphics.off()

@@ -844,3 +844,5 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 	
 	return(y)
 }
+
+

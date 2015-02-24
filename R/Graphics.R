@@ -676,7 +676,7 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 }
 
 
-#' Hierarchical clustering heat map, cluster by and display log2 ratios to control median
+#' Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median
 #' @param eset ExpressionSet
 #' @param conditionColors data.frame of colors per condition
 #' @import gplots
@@ -700,20 +700,22 @@ hClustHeatMap <- function(eset
 	### log2 ratios to median of control condition
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 
+	 
+	log2RatioPerMsRun
 	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
 	feature.cor.dist = as.dist(1-feature.cor)
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-	feature.tree = hclust(feature.cor.dist)
+	feature.tree = hclust(feature.cor.dist, method="ward")
 	
-	msrun.cor.pearson = cor(log2RatioPerMsRun, use="pairwise.complete.obs", method="pearson")
+	### clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not
+	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
 	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
-	msrun.tree = hclust(msrun.cor.pearson.dist)
+	msrun.tree = hclust(msrun.cor.pearson.dist, method="ward")
 	
 	### sample colors
 	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
-	
 	labRow <- rownames(log2RatioPerMsRun)
 	
 	### do not display feature names if too many
