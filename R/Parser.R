@@ -126,7 +126,8 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 			proteinName=res$Accession
 			,proteinDescription=res$Description
 			,idScore=res[,"Confidence score"]
-			,nbPeptides=res[,"Peptides used for quantitation"]
+		#	,nbPeptides=res[,"Peptides used for quantitation"] ### old Progenesis 
+			,nbPeptides=res[,which(names(res) == "Unique peptides" | names(res) == "Peptides used for quantitation")[1]] # Progensis QI
 			,isNormAnchor=rep(T,nrow(expMatrix))
 			,isFiltered=rep(F,nrow(expMatrix))
 			,row.names=res$Accession)

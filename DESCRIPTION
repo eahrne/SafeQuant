@@ -12,5 +12,6 @@ Imports:
     gplots,
     seqinr,
     corrplot,
-    optparse
+    optparse,
+    data.table
 License: NA

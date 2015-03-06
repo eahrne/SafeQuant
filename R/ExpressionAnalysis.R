@@ -565,7 +565,9 @@ getSignalPerCondition <- function(eset,method="median"){
 #' @references No references
 #' @seealso \code{\link{topX}}
 #' @examples print("No examples")
-rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
+
+rollUpOLD <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
+#rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
 	
 	### apply filter
 	eset <- eset[!fData(eset)$isFiltered,] 
@@ -693,13 +695,13 @@ rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"
 	#if(!is.null(rolledFData$best_isNormAnchor)){
 	if(!is.null(rolledFData$isNormAnchor)){
 		#	names(rolledFData)[names(rolledFData) == "best_isNormAnchor"] <- "isNormAnchor"
-		fDataSubset$isNormAnchor <- T
+		rolledFData$isNormAnchor <- T
 	}
 	# reset filter
 	#if(!is.null(rolledFData$best_isFiltered)){
 	if(!is.null(rolledFData$isFiltered)){
 		#names(rolledFData)[names(rolledFData) == "best_isFiltered"] <- "isFiltered"
-		fDataSubset$isFiltered <- F
+		rolledFData$isFiltered <- F
 	}
 	
 	### set peptides per protein
@@ -846,3 +848,74 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 }
 
 
+#' Roll up feature intensites per unique colum combination
+#' @param eset ExpressionSet
+#' @param featureDataColumnName vector of column names e.g. peptide or proteinName
+#' @param method "sum", "mean" or "top3" 
+#' @return ExpressionSet object
+#' @export
+#' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
+#' @import affy data.table
+#' @note  No note
+#' @references No references
+#' @seealso \code{\link{topX}}
+#' @examples print("No examples")
+rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinName") ){
+	
+	selectedColumns <- names(fData(eset)) %in% featureDataColumnName
+	allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
+								return(paste(as.vector(unlist(t)),collapse="_"))
+							})))
+	
+	DT <- data.table(
+			idx = allIndexTags
+			,exprs(eset)
+			,fData(eset)	
+	)
+	setkey(DT,idx)		
+	
+	if(method =="sum"){
+		rDT <- DT[, lapply(.SD, sum, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
+		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+			
+	}else if(method =="mean"){
+		rDT <- DT[, lapply(.SD, mean, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
+		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+	}else if(method =="top3"){
+		rDT <- DT[, lapply(.SD, getTopX, topX=3), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
+		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+	}else if(method =="top1"){
+		rDT <- DT[, lapply(.SD, getTopX, topX=1), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
+		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+	}
+	
+	## return first entry per column
+	getFirstEntry <- function(x){return(x[1])}
+	## allColumns but idx,intensity data and idScore
+	selCol <- which(!(names(DT)  %in%  c(colnames(exprs(eset)),"idx","idScore")))
+	rolledFData <- data.frame(DT[, lapply(.SD, getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:length(selCol)]
+	
+	# idScore
+	if("idScore" %in% names(DT) ){
+		iDT <- DT[, max(idScore,na.rm=T), by=idx ]
+		rolledFData <- cbind(rolledFData,idScore = iDT[,V1])
+	}
+
+	
+	rolledAssayData <- as.matrix(rolledAssayData)
+	rolledAssayData[rolledAssayData == 0 ] <- NA
+	#names(rolledFData) <- names(fData(eset))
+	
+	if(!is.null(rolledFData$isNormAnchor)){
+		rolledFData$isNormAnchor <- T
+	}
+	# reset filter
+	if(!is.null(rolledFData$isFiltered)){
+		rolledFData$isFiltered <- F
+	}
+	
+	### set peptides per protein
+	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
+	
+	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
+}

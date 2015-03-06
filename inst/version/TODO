@@ -15,6 +15,10 @@
 	
 - multiple issues (GRAPHICS) if only one identified protein.
 
+- hCLust feature limit when --EQ option
+
+- use "plyr" and ddply
+
 ### SOLVED
 ### - peptide length filter
 ### rt normalization failure

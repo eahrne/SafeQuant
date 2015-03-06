@@ -2,7 +2,7 @@
 % Please edit documentation in R/Graphics.R
 \name{hClustHeatMap}
 \alias{hClustHeatMap}
-\title{Hierarchical clustering heat map, cluster by and display log2 ratios to control median}
+\title{Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median}
 \usage{
 hClustHeatMap(eset, conditionColors = .getConditionColors(eset),
   breaks = seq(-2, 2, length = 20), ...)
@@ -13,7 +13,7 @@ hClustHeatMap(eset, conditionColors = .getConditionColors(eset),
 \item{conditionColors}{data.frame of colors per condition}
 }
 \description{
-Hierarchical clustering heat map, cluster by and display log2 ratios to control median
+Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median
 }
 \details{
 No details

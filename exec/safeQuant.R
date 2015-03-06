@@ -29,6 +29,7 @@ suppressWarnings(suppressPackageStartupMessages(library(gplots, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(seqinr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 
 # check if SafeQuant is installed
 if("SafeQuant" %in%  installed.packages()[,1]){
@@ -173,7 +174,7 @@ if("ptm" %in% names(fData(eset))){
 	# add motif-X and ptm coordinates
 	if(exists("proteinDB")){
 		cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
-		eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
+		eset <- .addPTMCoord(eset,proteinDB,motifLength=4)
 	}
 	filter <- cbind(filter
 					, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))
@@ -257,14 +258,20 @@ if((fileType == "ProgenesisProtein")){
 	# roll-up protein level
 	cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered |  isDecoy(fData(esetNorm)$proteinName)
-	sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName"),isProgressBar=T), method=statMethod)
+	sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod)
+	
 	fData(sqaProtein$eset)$isFiltered <- fData(sqaProtein$eset)$isFiltered | isDecoy(fData(sqaProtein$eset)$proteinName)
 	
 }else{
 	
 	# roll-up peptide level
 	cat("INFO: ROLL-UP PEPTIDE LEVEL\n")
-	esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)
+	
+	
+	esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"))
+	#print(system.time(esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)))
+	#esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)
+
 	# fdr filter
 	# replace qValues by rollUp level qValues ()
 	esetPeptide <- addIdQvalues(esetPeptide)
@@ -273,7 +280,7 @@ if((fileType == "ProgenesisProtein")){
 	
 	if(userOptions$proteinQuant){
 		cat("INFO: ROLL-UP PROTEIN LEVEL\n")
-		esetProtein <- rollUp(esetPeptide,featureDataColumnName= c("proteinName"),isProgressBar=T)
+		esetProtein <- rollUp(esetPeptide,featureDataColumnName= c("proteinName"))
 		esetProtein <- addIdQvalues(esetProtein)
 		fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName)
 		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
@@ -287,7 +294,7 @@ if((fileType == "ProgenesisProtein")){
 	
 	if(userOptions$top3 & userOptions$proteinQuant){
 		cat("INFO: ROLL-UP TOP3\n")
-		esetTop3 <-  rollUp(esetPeptide,featureDataColumnName= c("proteinName"),isProgressBar=T, method="top3")
+		esetTop3 <-  rollUp(esetPeptide,featureDataColumnName= c("proteinName"), method="top3")
 	}
 }
 

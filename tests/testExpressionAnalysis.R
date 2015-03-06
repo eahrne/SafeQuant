@@ -132,33 +132,31 @@ testRollUp <- function(){
 	
 	cat(" --- testRollUp --- \n")
 	
-	rollUpEset1 <- rollUp(eset,featureDataColumnName= c("proteinName"), method=c("sum"),isProgressBar=F)
+	rollUpEset1 <- rollUp(eset,featureDataColumnName= c("proteinName"), method=c("sum"))
 	stopifnot( length( unique( fData(eset)$proteinName ) ) == nrow(rollUpEset1)) 
 	
-	rollUpEset2 <- rollUp(eset ,featureDataColumnName= c("ptm"), method=c("sum"),isProgressBar=F)
+	rollUpEset2 <- rollUp(eset ,featureDataColumnName= c("ptm"), method=c("sum"))
 	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
 	
-	rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"),isProgressBar=F)
-	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
+	rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"))
+	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset3)) 
 	
 	print(exprs(rollUpEset2))
 	
 	stopifnot(sum(exprs(rollUpEset2)) == sum(exprs(rollUpEset1))  ) ### test sum
 	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))  ) ### test mean
 	
-	rollUpEset4 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"),isProgressBar=F)
+	rollUpEset4 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))
 	stopifnot(sum(exprs(rollUpEset3)) != sum(exprs(rollUpEset4))  ) ### test top 3
 	
 	cat(" --- testRollUp: PASS ALL TEST  --- \n")
 	
-#	progenesisFeatureCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
+#	progenesisFeatureCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
 #	d <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile3))
-#	e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide"))
-#	unique(fData(d)$proteinName)
+#	system.time(e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide")))
+#	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))
 #	
-#	sqa <- safeQuantAnalysis(e)
-#	
-#	sqa$baselineIntensity
+
 	
 	
 }
@@ -193,9 +191,9 @@ testTopX <- function(){
 	# 1 col
 	stopifnot(sum(getTopX(entryData1) == getTopX(entryData1[,1])) == 3)
 	
-	top1 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"),isProgressBar=F)),1,sum)
-	top3 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"),isProgressBar=F)),1,sum)
-	meanInt <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("mean"),isProgressBar=F)),1,sum)
+	top1 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"))),1,sum)
+	top3 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))),1,sum)
+	meanInt <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("mean"))),1,sum)
 	
 	stopifnot(sum(top1 >=  top3 ) == length(top3))
 	stopifnot(sum(top1) > sum(top3))
@@ -282,6 +280,21 @@ testGetLoocvFoldError()
 testRemoveOutliers()
 
 ### FOR vs APPLY
+
+#### create index tags by concatinating selected coulm entries
+#allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
+#							return(paste(as.vector(unlist(t)),collapse="_"))
+#						})))
+
+
+
+
+
+
+
+
+
+
 if(F){
 	
 	forDist <- c()

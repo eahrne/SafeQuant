@@ -469,7 +469,7 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 #' @references NA
 #' @examples print("No examples")
 pairsAnnot<-
-		function(data,textCol=rep(1,ncol(data)), diagText=c(),...) {
+		function(data,textCol=rep(1,ncol(data)), diagText=c(),col= rgb(0,100,0,50,maxColorValue=255),...) {
 	
 	### we need at least two samples
 	if(ncol(data.frame(data)) < 2 ){
@@ -495,7 +495,7 @@ pairsAnnot<-
 					#	cex = 1, col.lm = "red", lwd=par("lwd"), ...)
 					col.lm = "red", lwd=par("lwd"))
 	{
-		points(x, y, pch = 20, col = rgb(0,100,0,50,maxColorValue=255), bg = bg)
+		points(x, y, pch = 20, col =col, bg = bg)
 		
 		ok = is.finite(x) & is.finite(y)
 		if (any(ok)){

@@ -41,9 +41,17 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 #pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
 #pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
-pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX3b_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
 #pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
+
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX1b_WB_dilution_series_23012015_Transition Results_2nd_bio_repl_for_Ricky.csv"
+pdfFile <- "/Users/erikahrne/tmp/NRX1b_low.pdf"
+#pdfFile <- "/Users/erikahrne/tmp/NRX1b_blank.pdf"
+
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/PSD-95_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/PSD_low.pdf"
+#pdfFile <- "/Users/erikahrne/tmp/PSD_blank.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -53,84 +61,26 @@ head(skylineData)
 str(skylineData)
 
 ### HACK replace concentration 
-if(F){
-	concentration <- gsub("B14\\-110..\\_NRX1b\\_1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B14.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-	
-	repConc <- data.frame( rev(c(52.23909835,10.4558762,2.116880375,0.472364548,0.149315246,0)),row.names=unique(concentration))
-	concentration <- repConc[as.character(concentration),]
-}
-if(F){
-	concentration <- gsub("B14\\-110..\\_NRX..\\_1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B14.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-	
-	repConc <- data.frame( rev(c(36.61394259,6.915043504,1.307507019,0.279922881,0.090591176,0)),row.names=sort(unique(concentration)))
-	concentration <- repConc[as.character(concentration),]
-}
-if(F){
-	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B15.*","",concentration)
-	concentration <- gsub("_.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-	
-	repConc <- data.frame( rev(c(40.86970737,8.135769725	,1.58482937,	0.383470541	,0.161746873,0)),row.names=sort(unique(concentration)))
-	concentration <- repConc[as.character(concentration),]
-	
-}
-
-if(F){
-	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B15.*","",concentration)
-	concentration <- gsub("_.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-	
-	repConc <- data.frame( rev(c(44.04073768,8.979139215	,1.808429451,	0.473803353	,0.125285855,0)),row.names=sort(unique(concentration)))
-	concentration <- repConc[as.character(concentration),]
-	
-}
-if(F){
-	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B15.*","",concentration)
-	concentration <- gsub("_.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-	
-	
-	repConc <- data.frame( rev(c(60.12596389,11.96540801,2.528777488,0.674501451,0.237164719,0)),row.names=sort(unique(concentration)))
-	concentration <- repConc[as.character(concentration),]
-	
-}
 if(T){
 	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("B15\\-01..._.*:" ,"",as.character(skylineData$Replicate.Name))
+	concentration <- gsub("B15\\-0...._.*:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("_WB.*","",concentration)
 	concentration <- gsub("B15.*","",concentration)
 	concentration <- gsub("_.*","",concentration)
 	concentration <- 1/as.numeric(concentration)
 	concentration[is.na(concentration)] <- 0
+		
+	#repConc <- data.frame( rev(c(79.55384267,16.04907907,3.352755873,0.71222776,0.278683489,0)),row.names=sort(unique(concentration)))
+	repConc <- data.frame( rev(c(44.83400211,7.501087658,1.618360625,0.383313997,0.133995894,0)),row.names=sort(unique(concentration)))
 	
-	
-	repConc <- data.frame( rev(c(54.75326809,11.02882383,2.285353853,0.501467796,0.152991801,0)),row.names=sort(unique(concentration)))
 	concentration <- repConc[as.character(concentration),]
+		
+	rev(sort(unique(concentration)))
+	
+	data.frame(concentration,skylineData$Replicate.Name)
 	
 }
-			
-
-
+	
 
 
 data.frame(concentration,skylineData$Replicate.Name)

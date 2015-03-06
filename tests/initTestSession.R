@@ -9,6 +9,8 @@ library("limma")
 library(gplots) # volcano plot
 library(seqinr)
 library(optparse)
+library(data.table)
+
 
 ##@TEMP
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
@@ -31,15 +33,15 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
 
 #testDir <- dirname(sys.frame(1)$ofile)
 #testDir <- gsub("tests\\/tmp","inst/tests/",testDir)
-tmt6PlexRawTestFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new//TMT_6-Plex_Scaffold_Raw_Export_Example.xls"
-tmt10PlexRawTestFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new//TMT_10-Plex_Scaffold_Raw_Export_Example.xls"
-progenesisProteinCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv"
-progenesisProteinCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins2.csv"
+tmt6PlexRawTestFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014//TMT_6-Plex_Scaffold_Raw_Export_Example.xls"
+tmt10PlexRawTestFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014//TMT_10-Plex_Scaffold_Raw_Export_Example.xls"
+progenesisProteinCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/proteins1.csv"
+progenesisProteinCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/proteins2.csv"
 
-progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv"
-progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides2.csv"
+progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides1_FILTERED.csv"
+progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
 
-fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/sp_mouse_160512.decoy.fasta"
+fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
 
 
 ### INIT END
