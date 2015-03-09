@@ -41,6 +41,8 @@ progenesisProteinCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/te
 progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides1_FILTERED.csv"
 progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
 
+progenesisPeptideMeasurementFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide measurements_all.csv"
+
 fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
 
 

@@ -14,8 +14,8 @@ option_list <- list(
 		make_option(c("-i", "--inputFile"), type="character", default="",
 				help="I/O: Progenesis csv input file (REQUIRED)",
 		),	
-		make_option(c("-o", "--outputDir"), type="character", default="./",
-				help="I/O:  Results Output Directory [default ./]",
+		make_option(c("-o", "--outputDir"), type="character", default=NA,
+				help="I/O:  Results Output Directory [default FOLDER OF INPUTFILE]",
 		),
 		
 		make_option(c("-l", "--resultsFileLabel"), type="character", default="SQ_Results",
@@ -116,16 +116,16 @@ option_list <- list(
 			High-lighting features with a qval < specified value. [0-1] [default %default]",
 			metavar="Differential expression qvalue cutOff"),	
 	
-	make_option(c("--PSelectedGraphics"), type="character", default="",
-			help="PDF-REPORT: --PS Excluded Graphics: give letter for each plot to exclude ex: --PS iv 
-					(creates all plots but intensity density plots & volcano plot)
-					experimental design (e)
-					peptide feature score distrib related plots (f)
-					intensity distibution plots (i)
-					volcano plots (v)
-					hierarchical clustering plots (h)
-					differential expression fdr plot (d)	
-					[default (all plots) %default]"),		
+#	make_option(c("--PSelectedGraphics"), type="character", default="",
+#			help="PDF-REPORT: --PS Excluded Graphics: give letter for each plot to exclude ex: --PS iv 
+#					(creates all plots but intensity density plots & volcano plot)
+#					experimental design (e)
+#					peptide feature score distrib related plots (f)
+#					intensity distibution plots (i)
+#					volcano plots (v)
+#					hierarchical clustering plots (h)
+#					differential expression fdr plot (d)	
+#					[default (all plots) %default]"),		
 # PDF-REPORT (--P) END
 
 ## TSV-REPORT (--T)
@@ -205,6 +205,9 @@ getUserOptions <- function(version=version){
 	
 	#I/O: outputDir
 	userOptions$outputDir <- cmdOpt$outputDir
+	if(is.na(userOptions$outputDir)){ # see default
+		userOptions$outputDir <- dirname(userOptions$inputFile) 
+	}
 	if(!file.exists(userOptions$outputDir) & userOptions$outputDir != "" ){
 		cat("ERROR. No such directory",userOptions$outputDir,"\n")
 		q(status=-1)

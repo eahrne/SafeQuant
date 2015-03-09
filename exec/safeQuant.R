@@ -72,8 +72,6 @@ if(!userOptions$verbose){
 
 if(userOptions$verbose) print(userOptions)
 
-
-
 ############################################################### PARSING ############################################################### 
 
 if(userOptions$verbose) cat("PARSING INPUT FILE \n")	
@@ -84,7 +82,7 @@ fileType <- .getFileType(userOptions$inputFile)
 normMethod <- c("global")
 
 ### Progenesis Export
-if(fileType %in% c("ProgenesisProtein","ProgenesisFeature")){
+if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide")){
 	
 	# default
 	expDesign <- getExpDesignProgenesisCsv(userOptions$inputFile)
@@ -99,7 +97,16 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature")){
 		cat("INFO: PARSING PROGENESIS PROTEIN EXPORT FILE ",userOptions$inputFile, "\n" )
 		eset <- parseProgenesisProteinCsv(file=userOptions$inputFile,expDesign=expDesign)
 		
-	}else{ #"ProgenesisFeature"
+	}else if(fileType == "ProgenesisPeptide"){
+		
+		#"ProgenesisFeature"
+		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
+		normMethod <- c("rt")
+		#normMethod <- c("global")
+		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
+		
+	}else{ 	#"ProgenesisFeature"
+	
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
 		normMethod <- c("rt")
 		#normMethod <- c("global")
@@ -162,7 +169,6 @@ filter <- data.frame(
 
 if("pMassError" %in% names(fData(eset))){
 	### applicable to Progenesis feature Exports	
-	
 	filter <- cbind(filter, pMassError=
 					(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
 					| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
@@ -311,6 +317,7 @@ if(userOptions$iBAQ & userOptions$proteinQuant){
 ### EXPRESSION ANALYSIS END
 
 ############################################################### EXPORTS ############################################################### 
+cat("INFO: PREPARING EXPORTS","\n")
 
 #### SET WORKING DIR
 
@@ -338,20 +345,20 @@ plotExpDesign(esetNorm, version=VERSION)
 # layout.show(l)
 
 ### IDENTIFICATION PLOTS
+if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
 #if(fileType == "ProgenesisProtein") layout(rbind(c(1, 1), c(2, 3)) )
 if(fileType == "ProgenesisProtein") par(mfrow=c(2,2))
 if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
-if(fileType == "ProgenesisFeature") par(mfrow=c(2,3))
+if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,3))
 .idOverviewPlots()
-if(fileType == "ProgenesisFeature")par(mfrow=c(2,2))
+if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
 if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
 if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
 par(parDefault)
 ### IDENTIFICATIONS PLOTS END
-
 ### QUANT. QC PLOTS 
-
+if(userOptions$verbose) cat("INFO: QUANT QC. PLOTS \n")
 rowSelEsetNorm <- sample(nrow(esetNorm),min(c(500,nrow(esetNorm))) ,replace=F)
 rowSelEset <- sample(nrow(eset),min(c(1000,nrow(eset))) ,replace=F)
 
@@ -397,7 +404,7 @@ par(mfrow=c(1,2))
 ### QUANT. STAT. PLOTS 
 
 ### VAILD FEATURES VS. pValue/qValue
-
+if(userOptions$verbose) cat("INFO: QUANT RES. PLOTS \n")
 if(exists("sqaProtein")){
 	
 	plotNbValidDeFeaturesPerFDR(sqaProtein,
@@ -499,7 +506,7 @@ if(userOptions$eBayes){
 } 
 
 par(parDefault)
-
+if(userOptions$verbose) cat("INFO: HEAT MAP \n")
 if(exists("sqaProtein")){
 	hClustHeatMap(sqaProtein$eset,main="Protein Level")
 	

@@ -28,7 +28,7 @@ COLORS <- as.character(c(
 	nbPSM <- sum(!fData(esetNorm)$isFiltered,na.rm=T)
 	cex=1
 	par(cex.names=1.5, cex.axis= 1.25, cex.lab= 1.25, mar=c(5.1,3.1,4.1,1.1))
-	
+	if(userOptions$verbose) cat("IDENTIFICATIONS OVERVIEW PLOT \n")
 	plot(0,0,type="n",xlim=c(0,8),ylim=c(-1,1.5), main=paste("\nIDENTIFICATIONS OVERVIEW\n (FDR ",fdr,")",sep=""), axes=F, xlab="", ylab="", cex=cex)
 #text(0.5,2,paste("FDR",fdr),cex=cex, pos=4)
 	xPos <- -0.5
@@ -70,19 +70,23 @@ COLORS <- as.character(c(
 	
 	### charge state
 	if("charge" %in% names(fData(esetNorm))){
+		if(userOptions$verbose) cat("CHARGE STATE PLOT \n")
 		chargeTable <- table(fData(esetNorm)$charge[!fData(esetNorm)$isFiltered] )
 		barplot2(chargeTable, xlab="Charge State", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 			
 	} 
 	if(exists("sqaPeptide")){
-		
+		if(userOptions$verbose) cat("INFO: NB. MIS-CLEAVAGES PLOT \n")
 		### mis-cleavage
-		nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide)[!fData(esetNorm)$isFiltered] )
-		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
-		
+		sel <- !fData(esetNorm)$isFiltered
+		nbRows <- sum(sel,na.rm=T)
+		nbSel <-min(c(nbRows,500))
+		nbMCTable <- (table(getNbMisCleavages(fData(esetNorm)$peptide[sel][sample(nbRows,nbSel)] ))/nbSel)*100
+		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts (%)", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+			
 		### don't plot if many (more than 10) NA motifs (NA motid due to wrongly specified fasta)
 		if("motifX" %in% names(fData(sqaPeptide$eset)) & (sum(is.na(fData(sqaPeptide$eset)$motifX)) < 10 ) ){ 
-
+			if(userOptions$verbose) cat("INFO: MOTIF-X PLOT \n")
 			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm)
 			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found
 				bp <- barplot2(motifTable, ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
@@ -91,7 +95,7 @@ COLORS <- as.character(c(
 					
 		}else{
 			### ptm 
-						
+			if(userOptions$verbose) cat("PTM PLOT \n")			
 			ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
 			ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
 			ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
@@ -104,28 +108,39 @@ COLORS <- as.character(c(
 		}
 		
 		if("nbPtmsPerPeptide"  %in% names(fData(sqaPeptide$eset))){
+			if(userOptions$verbose) cat("INFO: NB.PTMS PER PEPTIDE PLOT \n")	
 			### nb. ptms per peptide
 			nbPtmPerPeptideTable <- table(fData(sqaPeptide$eset)$nbPtmsPerPeptide[!fData(sqaPeptide$eset)$isFiltered])
 			barplot2(nbPtmPerPeptideTable, xlab="Nb. PTM per Peptide", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 		}
 		
 	}else if("peptide" %in% names(fData(esetNorm))){
+		if(userOptions$verbose) cat("INFO: NB. MIS-CLEAVAGES PLOT 2 \n")	
 		### mis-cleavage
-		nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide, protease="trypsin")[!fData(esetNorm)$isFiltered] )
-		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+		#nbMCTable <- table(getNbMisCleavages(fData(esetNorm)$peptide, protease="trypsin")[!fData(esetNorm)$isFiltered] )
+		#barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
+		### mis-cleavage
+		sel <- !fData(esetNorm)$isFiltered
+		nbRows <- sum(sel,na.rm=T)
+		nbSel <-min(c(nbRows,500))
+		nbMCTable <- (table(getNbMisCleavages(fData(esetNorm)$peptide[sel][sample(nbRows,nbSel)] ))/nbSel)*100
+		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts (%)", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 	
 	}
 	
 	#### peptides per protein
+	if(userOptions$verbose) cat("PEPTIDES PER PROTEIN PLOT\n")	
 	if(exists("sqaProtein")){
 		peptidesPerProtein <- fData(sqaProtein$eset)$nbPeptides[!fData(sqaProtein$eset)$isFiltered]
 	}else{
 		peptidesPerProtein <- fData(sqaPeptide$eset)$nbPeptides[!fData(sqaPeptide$eset)$isFiltered]
 		peptidesPerProtein <- peptidesPerProtein[unique(names(peptidesPerProtein))]
 	}
-
+		
 	### discard filtered out proteins
 	peptidesPerProtein <- peptidesPerProtein[peptidesPerProtein > 0]
+
+	
 	#counts <- max(c(min(peptidesPerProtein,na.rm=T),1),na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),2))
 	xPeptides <- min(peptidesPerProtein,na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),10))
 	yCount <- unlist(lapply(xPeptides,function(t){ 

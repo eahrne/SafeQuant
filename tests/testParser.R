@@ -32,9 +32,9 @@ testGetNbPlex <- function(){
 testGetProgenesisCsvExpressionColIndices <- function(){
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices --- \n")
-							  
+	
 	stopifnot(sum(14:17 %in% .getProgenesisCsvExpressionColIndices(progenesisProteinCsvFile1) ) == 4 )
-		
+	
 	stopifnot(sum(31:48 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile1) ) == 18 )
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
@@ -46,7 +46,7 @@ testGetExpDesignProgenesisCsv <- function(){
 	cat(" --- testGetExpDesignProgenesisCsv --- \n")
 	
 	stopifnot(4 == nrow( getExpDesignProgenesisCsv(progenesisProteinCsvFile1) )) 
-
+	
 	stopifnot(18 == nrow(getExpDesignProgenesisCsv(progenesisFeatureCsvFile1) ))
 	
 	cat(" --- testGetExpDesignProgenesisCsv: PASS ALL TEST  --- \n")
@@ -125,9 +125,19 @@ testGetFileType <- function(){
 	stopifnot(.getFileType(tmt10PlexRawTestFile) == "ScaffoldTMT")
 	stopifnot(.getFileType(progenesisFeatureCsvFile1) == "ProgenesisFeature")
 	stopifnot(.getFileType(progenesisProteinCsvFile1) == "ProgenesisProtein")
+	stopifnot(.getFileType(progenesisPeptideMeasurementFile1) == "ProgenesisPeptide")
 	
 	cat(" --- testGetFileType: PASS ALL TEST --- \n")
-		
+	
+}
+
+testParseProgenesisPeptideMeasurementCsv <- function(){
+	
+	cat(" --- testParseProgenesisPeptideMeasurementCsv --- \n")
+	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+	stopifnot(ncol(exprs(eset)) == 1)
+	stopifnot(nrow(exprs(eset)) == 13035)
+	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")
 }
 
 
@@ -143,7 +153,12 @@ testGetProgenesisCsvExpressionColIndices()
 testGetExpDesignProgenesisCsv()
 testParseProgenesisProteinCsv()
 testParseProgenesisFeatureCsv()
+testParseProgenesisPeptideMeasurementCsv()
 testGetFileType()
 
 ### TESTS END
+
+
+
+
 

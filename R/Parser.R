@@ -144,8 +144,8 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 }
 
-#' Parse Progenesis Peptide Csv
-#' @param file path to Progenesis Peptide csv file
+#' Parse Progenesis Feature Csv Export
+#' @param file path to Progenesis Feature csv file
 #' @param expDesign experimental design data.frame
 #' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
@@ -260,6 +260,131 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 }
 
+#' Parse Progenesis Peptide Measurement Csv Export
+#' @param file path to Progenesis Peptide Measurement csv file
+#' @param expDesign experimental design data.frame
+#' @param method auc (area under curve) or spc (spectral count)
+#' @return ExpressionSet object
+#' @export
+#' @import affy
+#' @note  No note
+#' @details No details
+#' @references NA 
+#' @seealso \code{\link[Biobase]{ExpressionSet}}
+#' @examples print("No examples")
+parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc" ){
+	
+	### stop if not all samples labelled with a given condition are assigned as control
+	# Example:
+	#	condition isControl
+	#	A11.09066 Condition 1      TRUE
+	#	A11.09067 Condition 1     FALSE
+	#	A11.09068 Condition 1     FALSE
+	#	A11.09070 Condition 2     FALSE
+	#	A11.09071 Condition 2     FALSE
+	#	A11.09072 Condition 2     FALSE
+	if(length(unique(expDesign$condition))  == length(unique(expDesign[!expDesign$isControl,]$condition))){
+		stop("Invalid Exp. Design")
+	}
+	
+	# read csv file
+	res <- read.csv(file,skip=2,allowEscapes=T,check.names=F)
+	#	[1] "#"                                     
+#	[2] "Retention time (min)"                  
+#	[3] "Charge"                                
+#	[4] "m/z"                                   
+#	[5] "Measured mass"                         
+#	[6] "Mass error (u)"                        
+#	[7] "Mass error (ppm)"                      
+#	[8] "Score"                                 
+#	[9] "Sequence"                              
+#	[10] "Modifications"                         
+#	[11] "Accession"                             
+#	[12] "All accessions (for this sequence)"    
+#	[13] "Grouped accessions (for this sequence)"
+#	[14] "Shared accessions (for this sequence)" 
+#	[15] "Description"                           
+#	[16] "Use in quantitation"                   
+#	[17] "A15-02164"                             
+#	[18] "A15-02164"                             
+#	[19] "A15-02164"                             
+#	[20] "Mass"    
+	
+	expMatrix <- as.matrix(res[,.getProgenesisCsvExpressionColIndices(file, method=method)])
+	
+	# set 0 features to NA
+	expMatrix[expMatrix == 0] <- NA
+	# discard features where all intensities are NA (i.e. 0)
+	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
+	
+	### Mass filed missing in old Progenesis Feature export
+	if(is.null(res$Mass)){res$Mass <- rep(NA,nrow(expMatrix))}
+	
+	# added
+	ptm <- res[,"Modifications"]
+	nbPtmsPerPeptide <- unlist(lapply(ptm,function(t){
+						t <- as.character(t)
+						return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )}))
+	
+	if("All accessions (for this sequence)"  %in% names(res)){
+		protein <- res[,"All accessions (for this sequence)"]
+	}else{
+		cat("WARN: All accessions per Peptide were not exported \n")
+		protein <- res[,"Accession"]
+	}
+	
+	suppressWarnings(score <- as.numeric(as.character(res$Score)))
+	### non scored entries are assigned a score of zero
+	score[is.na(score)] <- 0
+	
+	featureAnnotations <- data.frame(
+			proteinName=protein
+			,proteinDescription=res$Description
+			,peptide=res$Sequence
+			,idScore= score
+			,mass=res[,"Measured mass"]
+			,pMassError=res[,"Mass error (ppm)"]
+			,mz=res[,"m/z"]
+			,retentionTime=res[,"Retention time (min)"]
+			,charge=as.numeric(res$Charge)
+			,ptm=ptm
+			,isNormAnchor=rep(T,nrow(expMatrix))
+			,isFiltered=rep(F,nrow(expMatrix))
+			#		,row.names=res$Accession
+			# added
+			,nbPtmsPerPeptide = nbPtmsPerPeptide
+	)
+	
+	### strip off added .1  A11.03216.1 -> A11.03216
+	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
+	## @TODO what if "X001_Yewtivya" "001_Yewtivya"
+	#grepl("X[0-9]",colnames(expMatrix))
+	
+	### re-order and exclude channels  
+	#expMatrix <- expMatrix[,rownames(expDesign)]
+	
+	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
+	
+
+
+	# discard non peptide annotated rows
+	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
+	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
+	
+	### strip off added .1  A11.03216.1 -> A11.03216
+	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
+		
+	### re-order and exclude channels  
+	if(ncol(expMatrix) > 1){
+		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,rownames(expDesign)])
+	}else{ # to avoid crash when only one run
+		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
+	}
+	
+	colnames(expMatrix) <- rownames(expDesign)
+	
+	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
+}
 
 
 
@@ -296,7 +421,9 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @export
 .getFileType <- function(file){
 	
-	if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
+	if( sum(grepl("Modifications",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
+		return("ProgenesisPeptide")
+	}else if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
 		return("ProgenesisFeature")
 	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=0)) )) > 0  ){
 		return("ProgenesisProtein")

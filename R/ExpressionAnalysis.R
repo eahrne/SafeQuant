@@ -825,7 +825,6 @@ getLoocvFoldError <- function(df){
 	
 }
 
-
 #' Set value to NA if it deviatves with more than 1.5 * IQR from lower/upper quantile
 #' @param vector numeric
 #' @param a logical indicating whether missing values should be removed.
@@ -861,6 +860,9 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 #' @seealso \code{\link{topX}}
 #' @examples print("No examples")
 rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinName") ){
+	
+	### apply filter
+	eset <- eset[!fData(eset)$isFiltered,] 
 	
 	selectedColumns <- names(fData(eset)) %in% featureDataColumnName
 	allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
