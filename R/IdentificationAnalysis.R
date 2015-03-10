@@ -81,9 +81,8 @@
 	
 }
 
-# Get unique PTM morifs
+# @details returns a dataframe lising all unique motifs and the corresponding ptm. multiple entries will be created  for multiply modified peptides
 #' @export
-#' @details returns a dataframe lising all unique motifs and the corresponding ptm. multiple entries will be created  for multiply modified peptides
 .getUniquePtmMotifs <- function(eset){
 	
 	eset <- eset[!fData(eset)$isFiltered & (nchar(as.character(fData(eset)$ptm)) > 0),]
