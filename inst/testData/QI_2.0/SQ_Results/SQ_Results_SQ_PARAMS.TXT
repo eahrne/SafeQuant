@@ -1,6 +1,6 @@
 param	value
 verbose	FALSE
-inputFile	../inst/testData/QI_2.0/peptide measurements_all.csv
+inputFile	../inst/testData/QI_2.0/peptide_measurements2.csv
 resultsFileLabel	SQ_Results
 outputDir	../inst/testData/QI_2.0/SQ_Results
 proteinFastaFile	NA
@@ -16,7 +16,7 @@ minPeptideLength	1
 normAC	.
 eBayes	FALSE
 SNonPairWiseStatTest	FALSE
-expDesignTag	NA
+expDesignTag	1,2:3:4:5
 proteinQuant	TRUE
 ratioCutOff	1
 deFdrCutoff	0.01
