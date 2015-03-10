@@ -6,7 +6,7 @@ More documentation to come.
 1) Install Dependencies
 
 	A) Install CRAN library dependencies (open R)
-	R> install.packages(c("seqinr","gplots","corrplot","optparse"))
+	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
 
 	B) Install BioConductor library dependencies (open R)
 	R> source("http://bioconductor.org/biocLite.R")
@@ -35,7 +35,9 @@ More documentation to come.
  	# To run (with minimal arguments)
 	>Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\proteins.csv" -o "c:\Program Files\SafeQuant\out"
 
-X) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQunat analysis.
+Tips
+
+I) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQuant analysis.
 This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.01-pack\exec\filterLargeProgenesisPeptideFile.pl) 
 
 	A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
@@ -43,6 +45,9 @@ This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C
 	B) open terminal
 	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 	# this will create a new veriosn of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
+
+II) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports.
+    - When Exporting check the "All accessions (for this sequence)" check box.
 
 --- Publications
 

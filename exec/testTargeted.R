@@ -45,13 +45,13 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 #pdfFile <- "/Users/erikahrne/tmp/test_low.pdf"
 #pdfFile <- "/Users/erikahrne/tmp/test_blank.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2a-3_WB_dilution_series_23012015_Transition Results_Dietmar_for_Ricky_2.csv"
-#pdfFile <- "/Users/erikahrne/tmp/NRX2a_low.pdf"
-pdfFile <- "/Users/erikahrne/tmp/NRX2a.pdf"
+#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2b_WB_dilution_series_23012015_Transition Results_Dietmar_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/NRX2b_low.pdf"
+##pdfFile <- "/Users/erikahrne/tmp/NRX2b.pdf"
 
-#skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/PSD-95_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
-#pdfFile <- "/Users/erikahrne/tmp/PSD_low.pdf"
-#pdfFile <- "/Users/erikahrne/tmp/PSD_blank.pdf"
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/N-CAD_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/N-CAD_low.pdf"
+pdfFile <- "/Users/erikahrne/tmp/N-CAD.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -64,6 +64,8 @@ str(skylineData)
 if(T){
 	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
 	concentration <- gsub("B15\\-0...._.*:" ,"",as.character(skylineData$Replicate.Name))
+	#concentration <- gsub("B15\\-[0-9]*" ,"",as.character(skylineData$Replicate.Name))
+	#concentration <- gsub("^_" ,"",concentration)
 	concentration <- gsub("_WB.*","",concentration)
 	concentration <- gsub("B15.*","",concentration)
 	concentration <- gsub("_.*","",concentration)
@@ -71,8 +73,8 @@ if(T){
 	concentration[is.na(concentration)] <- 0
 		
 	#repConc <- data.frame( rev(c(79.55384267,16.04907907,3.352755873,0.71222776,0.278683489,0)),row.names=sort(unique(concentration)))
-	repConc <- data.frame( rev(c(103.8238977,20.60206185,4.374615527,0.921044446,0.269562665,0)),row.names=sort(unique(concentration)))
-	
+	repConc <- data.frame( rev(c(66.13756614,13.10757716, 2.691514731, 0.608765369, 0.233948282,0)),row.names=sort(unique(concentration)))
+		
 	concentration <- repConc[as.character(concentration),]
 		
 	rev(sort(unique(concentration)))
