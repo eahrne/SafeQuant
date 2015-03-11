@@ -49,9 +49,9 @@ option_list <- list(
 				metavar="Coefficent of Variance cutoff"),
 		
 		#### peptide analysis specfic
-		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="[-10,10]",
-				help="FILTER (LFQ PEP ONLY): --FD Precursor mass Error Range filter [default %default ppm].
-				Peptide analysis ONLY",
+		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="AUTO SET",
+				help="FILTER (LFQ PEP ONLY): --FD Precursor mass Error Range filter (ppm) [default %default].
+				Peptide imports ONLY",
 				metavar="Mass Range [x,y]"),
 		
 		#### protein analysis specfic
@@ -245,16 +245,23 @@ getUserOptions <- function(version=version){
 	}
 	
 	#FILTER: precursorMassFilter
-	### check input format precursorMassFilter
-	if(is.na(cmdOpt$FDeltaMassTolerancePrecursor) | regexpr("^\\[\\-*[0-9\\.]{1,}\\,\\-*[0-9\\.]{1,}\\]*$",as.character(cmdOpt$FDeltaMassTolerancePrecursor)) == -1 ){
-		cat("ERROR. invalid precursorMassFilter ",userOptions$precursorMassFilter,"\n") 
-		q(status=-1)
+	if(cmdOpt$FDeltaMassTolerancePrecursor == "AUTO SET" ){
+		userOptions$precursorMassFilter <- NA
+	}else{
+		### set by user -> add lower and upper mass bound to vector
+		userOptions$precursorMassFilter <- gsub("(\\[)","",cmdOpt$FDeltaMassTolerancePrecursor)
+		userOptions$precursorMassFilter <- gsub("(\\])","",userOptions$precursorMassFilter)
+		userOptions$precursorMassFilter <- sort(as.numeric(unlist(strsplit(userOptions$precursorMassFilter,","))))
+		
+		### check input format precursorMassFilter 
+		if((length(userOptions$precursorMassFilter) != 2) | sum(is.na(userOptions$precursorMassFilter)) > 0 ){
+			cat("ERROR. Invalid FDeltaMassTolerancePrecursor", userOptions$minNbPeptidesPerProt, "\n")
+			q(status=-1)
+		}
 	}
-	### add lower and upper mass bound to vector
-	userOptions$precursorMassFilter <- gsub("(\\[)","",cmdOpt$FDeltaMassTolerancePrecursor)
-	userOptions$precursorMassFilter <- gsub("(\\])","",userOptions$precursorMassFilter)
-	userOptions$precursorMassFilter <- sort(as.numeric(unlist(strsplit(userOptions$precursorMassFilter,","))))
-
+	
+	
+	
 	#FILTER: cvCutOff
 	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
 	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
@@ -325,12 +332,12 @@ getUserOptions <- function(version=version){
 	}
 
 	# PDF-REPORT: PSelectedGraphics
-	userOptions$isDispExpDesign <- !regexpr("e",cmdOpt$PSelectedGraphics) > -1
-	userOptions$isFdrPlots <- !regexpr("f",cmdOpt$PSelectedGraphics) > -1
-	userOptions$isIntensityDistributionPlots <- !regexpr("i",cmdOpt$PSelectedGraphics) > -1
-	userOptions$isVolcanoPlots <- !regexpr("v",cmdOpt$PSelectedGraphics) > -1
-	userOptions$isHClustPlot <- !regexpr("h",cmdOpt$PSelectedGraphics) > -1
-	userOptions$isDeFdrPlot <- !regexpr("d",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isDispExpDesign <- !regexpr("e",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isFdrPlots <- !regexpr("f",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isIntensityDistributionPlots <- !regexpr("i",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isVolcanoPlots <- !regexpr("v",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isHClustPlot <- !regexpr("h",cmdOpt$PSelectedGraphics) > -1
+#	userOptions$isDeFdrPlot <- !regexpr("d",cmdOpt$PSelectedGraphics) > -1
 
 
 # PDF-REPORT (--P) END

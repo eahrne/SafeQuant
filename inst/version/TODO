@@ -12,7 +12,7 @@
 	
 - multiple issues (GRAPHICS) if only one identified protein.
 
-- hCLust feature limit when --EQ option
+- hCLust feature limit when --EP option
 
 - use "plyr" and ddply
 

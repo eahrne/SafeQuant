@@ -169,6 +169,8 @@ filter <- data.frame(
 
 if("pMassError" %in% names(fData(eset))){
 	### applicable to Progenesis feature Exports	
+	# automatically get precursor limits, X * sd of 50% top scoring
+	userOptions$precursorMassFilter <- getMeanCenteredRange(fData(eset)$pMassError[fData(eset)$idScore > quantile(fData(eset)$idScore)[3]],nbSd = 3)
 	filter <- cbind(filter, pMassError=
 					(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
 					| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
@@ -378,10 +380,11 @@ if(length(unique(pData(esetNorm)$condition)) < 8){
 
 par(parDefault)
 
-if(fileType == "ProgenesisFeature"){
+if("pMassError" %in% names(fData(eset))){
 	
 	par(mfrow=c(2,1), mar=c(4.5,6.1,4.1,6.1))
 	plotPrecMassErrorDistrib(eset, pMassTolWindow=userOptions$precursorMassFilter)
+	
 	plotPrecMassErrorVsScore(eset[rowSelEset,], pMassTolWindow=userOptions$precursorMassFilter)
 	par(parDefault)
 }
@@ -516,8 +519,11 @@ if(exists("sqaProtein")){
 			, pValueThreshold= userOptions$deFdrCutoff
 			, adjusted = T)
 }else if(exists("sqaPeptide")){
-	hClustHeatMap(sqaPeptide$eset,main="Peptide Level")
 	
+	
+	### max 10000 features, otherwise very slow clustering
+	hClustHeatMap(sqaPeptide$eset[sample(nrow(sqaPeptide$eset),min(c(nrow(sqaPeptide$eset),10000))),],main="Peptide Level")
+		
 	plotVolcano(sqaPeptide
 			, main="Peptide Level" 
 			, ratioThrs= userOptions$ratioCutOff

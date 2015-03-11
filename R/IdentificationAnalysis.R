@@ -424,5 +424,17 @@ setNbPeptidesPerProtein <- function(eset){
 }
 
 
+#' Get modification coordinates on protein
+#' @param d numeric vector
+#' @param nbSd range spanning number of sd frmo mean
+#' @return vector range boundries
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+getMeanCenteredRange <- function(d,nbSd=4){
+	return(c(mean(d,na.rm=T) - nbSd*sd(d,na.rm=T),mean(d,na.rm=T) + nbSd*sd(d,na.rm=T)))
+}
 
 

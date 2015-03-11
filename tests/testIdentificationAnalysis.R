@@ -187,6 +187,18 @@ testSetPeptidePerProtein <- function(){
 	
 }
 
+testGetMeanCenteredRange <- function(){
+	
+	cat("--- testGetMeanCenteredRange: --- \n")
+	stopifnot( round(mean(getMeanCenteredRange(fData(eset)$pMassError)),3) == round(mean(fData(eset)$pMassError),3) )
+	cat("--- testGetMeanCenteredRange: PASS ALL TEST --- \n")
+	
+	hist(pMassError)
+	abline(v=getMeanCenteredRange(pMassError,nbSd = 1))
+	abline(v=getMeanCenteredRange(pMassError,nbSd = 5))
+	
+}
+
 ### TEST FUNCTIONS END
 
 
@@ -206,49 +218,16 @@ testGetNbDetectablePeptides()
 testGetNbMisCleavages()
 testGetPeptidePerProtein()
 testSetPeptidePerProtein()
+testGetMeanCenteredRange()
 
 ### TESTS END
 
-#qvalueThrs <- 0.01
-#
-#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-#
-#
-#
-#nbPtmPerPeptideTable <- table(unlist(lapply(fData(esetTmp)$ptm,function(t){
-#					t <- as.character(t)
-#					return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )})))
-#		
-#
-#
-#data.frame(nbPtmPerPeptide,fData(esetTmp)$ptm)
-
-#esetTmp <- addIdQvalues(esetTmp)
-#
-#ptmRegExpr <- "Phospho"
-#
-#eset <- esetTmp
-#
-#esetTmp <- 
-##esetTmp <- addIdQvalues(esetTmp)
-#
-##eset <- .addPTMCoord(eset,read.fasta("/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/s_human_d_201405.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE),motifLength = 4)
-#
-#
-#
-#head(fData(esetTmp))
-#
-#
-#spectraPerProtein <- table(fData(esetTmp)$proteinName) 
 
 
-#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-#getNbPeptidesPerProtein(esetTmp)
-#esetTmp <- setNbPeptidesPerProtein(esetTmp)
-#
-#esetTmpRU <- rollUp(esetTmp)
-#
-#fData(esetTmpRU)$nbPeptides
-#
-#names(fData(esetTmpRU))
-#names(fData(esetTmp))
+
+
+
+
+
+
+
