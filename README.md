@@ -47,7 +47,7 @@ This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C
 	# this will create a new veriosn of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
 
 II) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports. 
-    - File -> Export Peptide Measurements.  This option is available once the you reached the "Resolve Conflicts" Step in Progenesis QI
+    - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI
     - When choosing properties to be included in the exported file check the "All accessions (for this sequence)" check box.
 
 --- Publications

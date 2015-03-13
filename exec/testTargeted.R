@@ -49,9 +49,9 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 #pdfFile <- "/Users/erikahrne/tmp/NRX2b_low.pdf"
 ##pdfFile <- "/Users/erikahrne/tmp/NRX2b.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/N-CAD_WB_dilution_series_23012015_Transition Results_for_Ricky.csv"
-#pdfFile <- "/Users/erikahrne/tmp/N-CAD_low.pdf"
-pdfFile <- "/Users/erikahrne/tmp/N-CAD.pdf"
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2a-3_WB_dilution_series_23012015_Transition Results_Dietmar_2nd_bio_repl_for_Ricky.csv"
+#pdfFile <- "/Users/erikahrne/tmp/NRX2a-3-WB-2_low.pdf"
+pdfFile <- "/Users/erikahrne/tmp/NRX2a-3-WB-2.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -73,8 +73,12 @@ if(T){
 	concentration[is.na(concentration)] <- 0
 		
 	#repConc <- data.frame( rev(c(79.55384267,16.04907907,3.352755873,0.71222776,0.278683489,0)),row.names=sort(unique(concentration)))
-	repConc <- data.frame( rev(c(66.13756614,13.10757716, 2.691514731, 0.608765369, 0.233948282,0)),row.names=sort(unique(concentration)))
+	repConc <- data.frame( rev(c(96.90870004, 18.97629862, 	3.717686244,	0.744646584, 0.267046082,0)),row.names=sort(unique(concentration)))
 		
+	
+	
+	
+	
 	concentration <- repConc[as.character(concentration),]
 		
 	rev(sort(unique(concentration)))

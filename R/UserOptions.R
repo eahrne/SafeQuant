@@ -12,7 +12,8 @@ option_list <- list(
 		
 ### I/O
 		make_option(c("-i", "--inputFile"), type="character", default="",
-				help="I/O: Progenesis csv input file (REQUIRED)",
+				help="I/O:  Input file: Progenesis (Feature,Protein or Peptide) .csv,
+			or Scaffold Q+ (Raw Export, for TMT quant) .xls (REQUIRED)",
 		),	
 		make_option(c("-o", "--outputDir"), type="character", default=NA,
 				help="I/O:  Results Output Directory [default FOLDER OF INPUTFILE]",
@@ -139,13 +140,13 @@ option_list <- list(
 	make_option(c("--ARDataFile"), action="store_true", default=FALSE,
 		help="ADDITIONAL-REPORTS: --AR Save R objects in 'label'.RData file [default %default]"),
 
-	make_option(c("--AProtease"), type="character", default="KR",
-			help="ADDITIONAL-REPORTS: --TP protease [default (trypsin) %default]
-					1) trypsin
-					2) lys-c
-			
-					Option considered for iBAQ normalization", 
-	),
+#	make_option(c("--AProtease"), type="character", default="KR",
+#			help="ADDITIONAL-REPORTS: --TP protease [default (trypsin) %default]
+#					1) trypsin
+#					2) lys-c
+#			
+#					Option considered for iBAQ normalization", 
+#	),
 
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS (LFQ PROT): --AI creates .tsv output file

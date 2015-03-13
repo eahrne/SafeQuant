@@ -7,16 +7,16 @@ proteinFastaFile	NA
 selectedProteinName	.
 selectedModifName	
 fdrCutoff	0.01
-precursorMassFilter1	-10
-precursorMassFilter2	10
+precursorMassFilter1	-1.25830681238948
+precursorMassFilter2	1.67670110694035
 cvCutOff	Inf
-minNbPeptidesPerProt	1
+minNbPeptidesPerProt	2
 maxNbPtmsPerPeptide	99999
 minPeptideLength	1
 normAC	.
 eBayes	FALSE
 SNonPairWiseStatTest	FALSE
-expDesignTag	1,2:3:4:5
+expDesignTag	NA
 proteinQuant	TRUE
 ratioCutOff	1
 deFdrCutoff	0.01

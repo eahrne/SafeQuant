@@ -6,21 +6,25 @@
 	- norm median intensities
 	- specify whether intensities are raw/norm 		
 
-- automatic mass accuracy filter
-
 - peptide length distribution plot
 	
 - multiple issues (GRAPHICS) if only one identified protein.
 
-- hCLust feature limit when --EP option
-
 - use "plyr" and ddply
 
+- write manual
+	- protein level LFQ
+	- Phospho (PTM) LFQ
+	- TMT
+
 ### SOLVED
+### - automatic mass accuracy filter
 ### - default output dir to input dir
+### - hCLust feature limit when --EP option
 ### - peptide length filter
 ### rt normalization failure
 ###./safeQuant.R -i /Volumes/pcf01\$/Schmidt_Group/tmp/peptides_FILTERED.csv	
+
 
 ### - PDF export
 ### 	- Protein level Hierarchical CLustering

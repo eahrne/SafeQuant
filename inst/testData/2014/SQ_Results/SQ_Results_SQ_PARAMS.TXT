@@ -1,14 +1,14 @@
 param	value
 verbose	FALSE
-inputFile	../inst/testData/2014/peptides1_FILTERED.csv
+inputFile	../inst/testData/2014/peptides2_FILTERED.csv
 resultsFileLabel	SQ_Results
 outputDir	../inst/testData/2014/SQ_Results
 proteinFastaFile	NA
 selectedProteinName	.
 selectedModifName	
 fdrCutoff	0.01
-precursorMassFilter1	-10
-precursorMassFilter2	10
+precursorMassFilter1	-0.265798879495917
+precursorMassFilter2	9.51113331654177
 cvCutOff	Inf
 minNbPeptidesPerProt	1
 maxNbPtmsPerPeptide	99999
@@ -21,7 +21,7 @@ proteinQuant	TRUE
 ratioCutOff	1
 deFdrCutoff	0.01
 iBAQ	FALSE
-top3	FALSE
+top3	TRUE
 isSaveRObject	FALSE
 test	FALSE
 pdfFilePath	../inst/testData/2014/SQ_Results/SQ_Results.pdf
