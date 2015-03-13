@@ -50,7 +50,7 @@ II) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" 
     - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI
     - When choosing properties to be included in the exported file check the "All accessions (for this sequence)" check box.
 
-For some UseCases check:
+--- Use Case Manual
 /SafeQuant/inst/manuals/SafeQuant_UseCases.docx
 
 --- Publications
