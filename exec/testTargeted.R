@@ -49,9 +49,9 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 #pdfFile <- "/Users/erikahrne/tmp/NRX2b_low.pdf"
 ##pdfFile <- "/Users/erikahrne/tmp/NRX2b.pdf"
 
-skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2a-3_WB_dilution_series_23012015_Transition Results_Dietmar_2nd_bio_repl_for_Ricky.csv"
-#pdfFile <- "/Users/erikahrne/tmp/NRX2a-3-WB-2_low.pdf"
-pdfFile <- "/Users/erikahrne/tmp/NRX2a-3-WB-2.pdf"
+skylineExportFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/targetedMS/NRX2b_WB_dilution_series_23012015_Transition Results_Dietmar_2nd_bio_repl_for_Ricky.csv"
+pdfFile <- "/Users/erikahrne/tmp/NRX2b_WB-2_low.pdf"
+#pdfFile <- "/Users/erikahrne/tmp/NRX2b_WB-2.pdf"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -73,12 +73,8 @@ if(T){
 	concentration[is.na(concentration)] <- 0
 		
 	#repConc <- data.frame( rev(c(79.55384267,16.04907907,3.352755873,0.71222776,0.278683489,0)),row.names=sort(unique(concentration)))
-	repConc <- data.frame( rev(c(96.90870004, 18.97629862, 	3.717686244,	0.744646584, 0.267046082,0)),row.names=sort(unique(concentration)))
-		
-	
-	
-	
-	
+	repConc <- data.frame( rev(c(96.9087000,18.9762986,  3.7176862,  0.7446466,  0.2670461,0)),row.names=sort(unique(concentration)))
+
 	concentration <- repConc[as.character(concentration),]
 		
 	rev(sort(unique(concentration)))
@@ -167,8 +163,8 @@ for(peptide in unique(fData(esetCalibCurve)$Peptide.Sequence)){
 	idx <- sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))[2]
 	#print(length(sort(unique(fData(esetCalibCurve)$dilutionCurveId[fData(esetCalibCurve)$Peptide.Sequence %in% peptide]))))
 	
-	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
-	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
+	#plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="blank"), xlab="Concentration (fmol/ul)")
+	plot(createCalibrationCurve(esetCalibCurve[as.character(fData(esetCalibCurve)$dilutionCurveId) == idx, ],method="low"), xlab="Concentration (fmol/ul)")
 }
 
 graphics.off()
