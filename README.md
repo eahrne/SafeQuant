@@ -52,7 +52,7 @@ II) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" 
 
 --- Use Case Manual
 
-/SafeQuant/inst/manuals/SafeQuant_UseCases.docx
+/SafeQuant/inst/manuals/SafeQuant_UseCases.txt
 
 --- Publications
 
