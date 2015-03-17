@@ -26,7 +26,7 @@ More documentation to come.
 
 2 option 2) Install SafeQuant from sources using "devtools"
 
-    R> install.packages(c("devtools")
+    R> install.packages("devtools")
     R> library(devtools)
     R> install_github("SafeQuant", username = "eahrne", ref="v.2.01-pack")
     
