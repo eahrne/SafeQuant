@@ -30,7 +30,7 @@ More documentation to come.
     R> library(devtools)
     R> install_github("SafeQuant", username = "eahrne", ref="v.2.01-pack")
     
-    Look up the "ref" argument at https://github.com/eahrne/SafeQuant
+    Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
 
 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 
