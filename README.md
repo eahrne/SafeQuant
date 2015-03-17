@@ -12,7 +12,7 @@ More documentation to come.
 	R> source("http://bioconductor.org/biocLite.R")
 	R> biocLite(c("limma","affy"))
 
-2) Install SafeQuant from sources
+2 option 1) Install SafeQuant from sources
 
 	A) Download Zip from github
 	https://github.com/eahrne/SafeQuant
@@ -23,6 +23,14 @@ More documentation to come.
 	Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
 	The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
 	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant-v.X.XX-pack",type="source", repos=NULL)
+
+2 option 2) Install SafeQuant from sources using "devtools"
+
+    R> install.packages(c("devtools")
+    R> library(devtools)
+    R> install_github("SafeQuant", username = "eahrne", ref="v.2.01-pack")
+    
+    Look up the "ref" argument at https://github.com/eahrne/SafeQuant
 
 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 

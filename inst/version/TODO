@@ -12,12 +12,15 @@
 
 - use "plyr" and ddply
 
-- write manual
-	- protein level LFQ
-	- Phospho (PTM) LFQ
-	- TMT
+
 
 ### SOLVED
+
+### - write manual
+### 	- protein level LFQ
+### 	- Phospho (PTM) LFQ
+### 	- TMT
+
 ### - automatic mass accuracy filter
 ### - default output dir to input dir
 ### - hCLust feature limit when --EP option
