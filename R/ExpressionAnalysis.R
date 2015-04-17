@@ -770,11 +770,15 @@ getIBAQEset <- function(eset
 		
 		ac <- as.character(fData(eset)$proteinName[i])
 		
+		### keep first listed entry sp|P04049|RAF1_HUMAN;sp|P15056|BRAF_HUMAN  -> sp|P04049|RAF1_HUMAN
+		#ac <- gsub("\\;.*","",ac)
+		
 		nbPep <- NA
 		if( !is.null(proteinDB[[ac]]) ){
 			nbPep <- getNbDetectablePeptides(getPeptides(proteinDB[[ac]],proteaseRegExp=proteaseRegExp,nbMiscleavages=nbMiscleavages),peptideLength=peptideLength)
 		}else{
 			warning("WARN: ",ac," NOT FOUND IN PROTEIN DATABASE")
+			#cat("WARN: ",ac," NOT FOUND IN PROTEIN DATABASE\n")
 		}
 		nbPeptides[i] <- nbPep
 	}
@@ -895,7 +899,8 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	getFirstEntry <- function(x){return(x[1])}
 	## allColumns but idx,intensity data and idScore
 	selCol <- which(!(names(DT)  %in%  c(colnames(exprs(eset)),"idx","idScore")))
-	rolledFData <- data.frame(DT[, lapply(.SD, getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:length(selCol)]
+	
+	rolledFData <- data.frame(DT[, lapply(.SD, getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:(length(selCol)+1)]
 	
 	# idScore
 	if("idScore" %in% names(DT) ){

@@ -101,15 +101,15 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		normMethod <- c("rt")
-		#normMethod <- c("global")
+		#normMethod <- c("rt")
+		normMethod <- c("global")
 		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
 		
 	}else{ 	#"ProgenesisFeature"
 	
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
-		normMethod <- c("rt")
-		#normMethod <- c("global")
+		#normMethod <- c("rt")
+		normMethod <- c("global")
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
 	

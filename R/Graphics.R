@@ -1096,8 +1096,8 @@ plotAbsEstCalibrationCurve <- function(fit
 		,cex.dot=1
 		,...
 		,main=""){
-	x <- predict(fit) + fit$residuals 						
-	y <- predict(fit)		
+	x <- predict(fit) +  fit$residuals 
+	y <- predict(fit) 			
 	
 	
 	### some extra margin for axis labels
