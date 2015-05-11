@@ -253,10 +253,62 @@ testRtNormalize <- function(){
 
 testRemoveOutliers <- function(){
 	
-	cat(" --- removeOutliers --- \n")
+	cat(" --- testRemoveOutliers --- \n")
 	set.seed(1234)
 	stopifnot(sum(is.na(removeOutliers(c(-10,  rnorm(100), 10)))) == 2)
-	cat(" --- removeOutliers: PASS ALL TEST --- \n")
+	cat(" --- testRemoveOutliers: PASS ALL TEST --- \n")
+}
+
+testPerFeatureNormalization <- function(){
+	
+	cat(" --- testPerFeatureNormalization: --- \n")
+	
+	normFactors <- exprs(eset)[1:10,1:3]
+	colnames(normFactors) <- c("A","B","C")
+	rownames(normFactors) <- fData(eset)[1:10,]$proteinName
+	normFactors[is.finite(normFactors)] <- 1
+	eNorm <-  perFeatureNormalization(eset,normFactors)
+	
+	stopifnot(exprs(eNorm)[1,1] == (exprs(eset)[1,1]-1))
+	stopifnot(exprs(eNorm)[1,2] == (exprs(eset)[1,2]-1))
+	stopifnot(exprs(eNorm)[13,2] == (exprs(eset)[13,2]))
+	
+	normFactors[,2] <- 200
+	eNorm <-  perFeatureNormalization(eset,normFactors)
+	stopifnot(exprs(eNorm)[1,1] == (exprs(eset)[1,1]-1))
+	stopifnot(exprs(eNorm)[1,3] ==  (exprs(eset)[1,3]-200))
+	stopifnot(exprs(eNorm)[1,4] ==  (exprs(eset)[1,4]-200))
+	stopifnot(exprs(eNorm)[1,5] ==  (exprs(eset)[1,5]-1))
+	
+	normFactors[,3] <- 0
+	eNorm <-  perFeatureNormalization(eset,normFactors)
+	stopifnot(exprs(eNorm)[1,5] == exprs(eset)[1,5])
+	stopifnot(exprs(eNorm)[2,6] == exprs(eset)[2,6])
+	
+	normFactors[3,] <- 1000 
+	eNorm <-  perFeatureNormalization(eset,normFactors)
+	stopifnot(all.equal(exprs(eNorm)[3,] , (exprs(eset)[3,]-1000)))
+	stopifnot(all.equal(exprs(eNorm)[20:50,] , exprs(eset)[20:50,]))
+	
+	# re-order normFactors columns
+	eNorm <-  perFeatureNormalization(eset,normFactors[,rev(colnames(normFactors))])
+	stopifnot(all.equal(exprs(eNorm)[3,] , (exprs(eset)[3,]-1000)))
+	stopifnot(all.equal(exprs(eNorm)[20:50,] , exprs(eset)[20:50,]))
+	
+	cat(" --- testPerFeatureNormalization: PASS ALL TEST --- \n")
+	
+	
+	
+	
+	
+	
+	
+	#coveredPeptideSel <- fData(eset)$proteinName %in% rownames(normFactors)
+	#exprs(eset)[coveredPeptideSel,]	<- exprs(eset)[coveredPeptideSel, ] - normFactors[as.character(fData(eset)[coveredPeptideSel,]$proteinName),pData(eset)$condition]
+	
+	
+	
+	
 }
 
 
@@ -278,7 +330,7 @@ testGetIBAQEset()
 testGetLoocvFoldError()
 
 testRemoveOutliers()
-
+testPerFeatureNormalization()
 ### FOR vs APPLY
 
 #### create index tags by concatinating selected coulm entries
@@ -292,47 +344,6 @@ testRemoveOutliers()
 
 
 
-
-
-
-if(F){
-	
-	forDist <- c()
-	applyDist <- c()
-	
-	for(t in 1:50){
-		x <- 10000
-		
-		t1 <-Sys.time()
-		b <- c()
-		a <- lapply(1:x,function(i){
-					
-					b	<<- c(b,i)
-					
-				})
-		t2 <-Sys.time()
-		print(length(b))
-		tDiffApply <- t2-t1
-		
-		t1 <-Sys.time()
-		b <- c()
-		for(i in 1:x){
-			b	<- c(b,i)
-		}
-		print(length(b))
-		t2 <-Sys.time()
-		
-		tDiffFor <- t2-t1
-		
-		print(length(b))
-		
-		forDist <- c(forDist,tDiffFor)
-		applyDist <- c(applyDist,tDiffApply)
-	}
-	
-	boxplot(forDist,applyDist)
-	
-}
 
 
 

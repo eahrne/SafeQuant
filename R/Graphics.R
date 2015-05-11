@@ -781,7 +781,7 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
 	
 	### we need at least two conditions
-	if(length(unique(pData(eset)$condition)) == 1){
+	if(length(unique(pData(sqa$eset)$condition)) == 1){
 		return(cat("INFO: Only one condition no plotNbValidDeFeaturesPerFDR \n"))
 	}
 	

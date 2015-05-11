@@ -33,7 +33,7 @@ cselection(eset,m,crange=nbClusterRange,repeats=5,visu=TRUE)
 #The average minimum centroid distance for the given range of cluster
 Dmin(eset,m,crange=nbClusterRange,repeats=rounds,visu=TRUE)
 
-if(T){
+if(F){
 	### various evaluation indices
 #Calculates the values of several fuzzy validity measures. The values of the indexes can be independently used in order to evaluate and compare clustering partitions or even to determine the number
 #of clusters existing in a data set.

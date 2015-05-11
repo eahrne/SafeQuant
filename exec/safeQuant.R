@@ -102,14 +102,14 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
 		#normMethod <- c("rt")
-		normMethod <- c("global")
+		#normMethod <- c("global")
 		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
 		
 	}else{ 	#"ProgenesisFeature"
 	
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
 		#normMethod <- c("rt")
-		normMethod <- c("global")
+		#normMethod <- c("global")
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
 	
@@ -135,6 +135,21 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	}
 	
 	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+}else if(fileType == "MaxQuantProteinGroup"){
+
+	
+	# get user specified experimental design
+	if(!is.na(userOptions$expDesignTag)){
+		# user specified
+		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,data.frame(condition=paste("Condition",1:1000),isControl=c(F,1000)) )
+	}else{
+		stop("Please Specify Experimental Design")
+	}
+	
+	
+	eset <- parseMaxQuantProteinGroupTxt(userOptions$inputFile,expDesign=expDesign, method="auc")
+	
+	
 }else if(fileType == "GenericCSV"){
 	
 }else{
@@ -182,7 +197,7 @@ if("ptm" %in% names(fData(eset))){
 	# add motif-X and ptm coordinates
 	if(exists("proteinDB")){
 		cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
-		eset <- .addPTMCoord(eset,proteinDB,motifLength=4)
+		eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
 	}
 	filter <- cbind(filter
 					, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))
@@ -246,6 +261,7 @@ if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
 esetNorm <- sqNormalize(eset,method=normMethod)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
+print(baselineIntensity)
 exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
 
@@ -257,7 +273,7 @@ exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
 ### ProgenesisFeature -> ROLL-UP PEPTIDE (ROLL-UP PROTEIN UNLESS USER SPECIFIED )
 ### ScaffoldTMT -> ROLL-UP PROTEIN
 
-if((fileType == "ProgenesisProtein")){
+if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered  | isDecoy(fData(esetNorm)$proteinName)
 	sqaProtein <- safeQuantAnalysis(esetNorm, method=statMethod)

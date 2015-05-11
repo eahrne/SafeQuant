@@ -142,11 +142,19 @@ testGetPeptides <- function(){
 	### digest whole db
 	if(F){
 
+		digestedDB <- list()
+		
 		for(i in 1:length(names(proteinDB))){
+		#for(i in 1:100){
 			
 			cat(i,"/",length(proteinDB),"\n")
 			ac <- names(proteinDB)[i]
-			getPeptides(proteinDB[[ac]])
+			
+			for(peptide in getPeptides(proteinDB[[ac]])){
+				
+				digestedDB[[peptide]] <- c(digestedDB[[peptide]],ac)
+				
+			}
 			
 		}
 	}
@@ -221,6 +229,8 @@ testSetPeptidePerProtein()
 testGetMeanCenteredRange()
 
 ### TESTS END
+
+
 
 
 

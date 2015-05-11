@@ -337,6 +337,15 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	### non scored entries are assigned a score of zero
 	score[is.na(score)] <- 0
 	
+	# sort protein accessions
+#	protein <- as.character(protein)
+#	protein <- as.vector(unlist(lapply(protein, function(prot){
+#								
+#								prot <- paste(sort(as.vector(unlist(strsplit(prot,";")))),collapse=";")
+#								return(prot)
+#								
+#							}  )))
+	
 	featureAnnotations <- data.frame(
 			proteinName=protein
 			,proteinDescription=res$Description
@@ -365,8 +374,6 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
 	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
 	
-
-
 	# discard non peptide annotated rows
 	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
 	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
@@ -421,15 +428,19 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 #' @export
 .getFileType <- function(file){
 	
-	if( sum(grepl("Modifications",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
+	if( sum(grepl("Modifications",names(read.csv(file,skip=2, nrows=1))))  > 0 ){
 		return("ProgenesisPeptide")
-	}else if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=0))))  > 0 ){
+	}else if( sum(grepl("Retention.time..min",names(read.csv(file,skip=2, nrows=1))))  > 0 ){
 		return("ProgenesisFeature")
-	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=0)) )) > 0  ){
+	}else if(sum( grepl("Peptide.count",names(read.csv(file,skip=2, nrows=1)) )) > 0  ){
 		return("ProgenesisProtein")
-	}else if((grepl("^Identification.Criteria",names(read.csv(file,skip=2, nrows=0))) > 0) &
+	}else if((grepl("^Identification.Criteria",names(read.csv(file,skip=2, nrows=1))) > 0) &
 			(grepl("^Experiment",names(read.csv(file,skip=1, nrows=0))) > 0)){
 		return("ScaffoldTMT")
+	}else if(sum(grepl("^LFQ",names(read.csv(file,allowEscapes=T, check.names=F,sep="\t",nrows=1)))) > 0
+			& 	sum(grepl("Fasta headers",names(read.csv(file,allowEscapes=T, check.names=F,sep="\t",nrows=1)))) > 0
+			){ 
+		return("MaxQuantProteinGroup") 
 	}else if(F){ 
 		return("GenericCSV") 
 	}else{
@@ -519,6 +530,128 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 }
 
+### maxQuant protein group parser
+
+#' Parse MaxQuant Protein Group Txt
+#' @param file path to MaxQuant Protein txt file
+#' @param expDesign experimental design data.frame
+#' @param method auc (area under curve) or spc (spectral count)
+#' @return ExpressionSet object
+#' @export
+#' @note  No note
+#' @details No details
+#' @references NA 
+#' @seealso \code{\link[Biobase]{ExpressionSet}}
+#' @examples print("No examples")
+parseMaxQuantProteinGroupTxt <- function(file=file,expDesign=expDesign, method="auc"){
+	
+	res <- read.csv(file,allowEscapes=T, check.names=F,sep="\t")
+	
+	### get
+	if(method == "auc"){
+		expMatrix <- as.matrix(res[,grepl("^LFQ",names(res))])
+	}else if(method == "spc"){
+		expMatrix <- as.matrix(res[,grepl("^MS\\/MS Count",names(res))])
+	}else{
+		stop("Unknown parsing method:", method )
+	}
+	
+	# set 0 features to NA
+	expMatrix[expMatrix == 0] <- NA
+	# rename runs 1:X
+	colnames(expMatrix) <- 1:ncol(expMatrix)
+	# discard features where all intensities are NA (i.e. 0)
+	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
+	
+#	names(res)
+#	[1] "Protein IDs"                         
+#	[2] "Majority protein IDs"                
+#	[3] "Peptide counts (all)"                
+#	[4] "Peptide counts (razor+unique)"       
+#	[5] "Peptide counts (unique)"             
+#	[6] "Protein names"                       
+#	[7] "Gene names"                          
+#	[8] "Fasta headers"                       
+#	[9] "Number of proteins"                  
+#	[10] "Peptides"                            
+#	[11] "Razor + unique peptides"             
+#	[12] "Unique peptides"                     
+#	[13] "Peptides 43"                         
+#	[14] "Peptides 44"                         
+#	[15] "Peptides 45"                         
+#	[33] "Razor + unique peptides 43"          
+#	[34] "Razor + unique peptides 44"          
+#	[35] "Razor + unique peptides 45"          
+#	[53] "Unique peptides 43"                  
+#	[54] "Unique peptides 44"                  
+#	[55] "Unique peptides 45"                  
+#	[73] "Sequence coverage [%]"               
+#	[74] "Unique + razor sequence coverage [%]"
+#	[75] "Unique sequence coverage [%]"        
+#	[76] "Mol. weight [kDa]"                   
+#	[77] "Sequence length"                     
+#	[78] "Sequence lengths"                    
+#	[79] "Q-value"                             
+#	[80] "Sequence coverage 43 [%]"            
+#	[81] "Sequence coverage 44 [%]"            
+#	[82] "Sequence coverage 45 [%]"            
+#	[100] "Intensity"                           
+#	[101] "Intensity 43"                        
+#	[102] "Intensity 44"                        
+#	[103] "Intensity 45"                        
+#	[121] "LFQ intensity 43"                    
+#	[122] "LFQ intensity 44"                    
+#	[123] "LFQ intensity 45"                    
+#	[141] "MS/MS Count 43"                      
+#	[142] "MS/MS Count 44"                      
+#	[143] "MS/MS Count 45"                      
+#	[161] "MS/MS Count"                         
+#	[162] "Only identified by site"             
+#	[163] "Reverse"                             
+#	[164] "Potential contaminant"               
+#	[165] "id"                                  
+#	[166] "Peptide IDs"                         
+#	[167] "Peptide is razor"                    
+#	[168] "Mod. peptide IDs"                    
+#	[169] "Evidence IDs"                        
+#	[170] "MS/MS IDs"                           
+#	[171] "Best MS/MS"                          
+#	[172] "Oxidation (M) site IDs"              
+#	[173] "Oxidation (M) site positions"      
+	
+	row.names(expMatrix) <- res[,"Protein IDs"]
+	
+	if( !all(rownames(expDesign) %in% colnames(expMatrix)) ){
+		print(expDesign)
+		stop("Invalid ExpDesign")
+	}
+	
+	featureAnnotations <- data.frame(
+			proteinName=res[,"Protein IDs"]
+			,proteinDescription=res[,"Fasta headers"]
+			,idScore=res[,"Q-value"]
+			#	,nbPeptides=res[,"Peptides used for quantitation"] ### old Progenesis 
+			,isDecoy=res[,"Reverse"] == "+"
+			,nbPeptides=res[,"Peptides"] # Progensis QI
+			,isNormAnchor=rep(T,nrow(expMatrix))
+			,isFiltered=res[,"Reverse"] == "+"
+			,row.names=res[,"Protein IDs"])
+	
+	featureAnnotations <- featureAnnotations[!allColNA,]
+	
+
+	### re-order and exclude channels 
+	expMatrix <- as.matrix(expMatrix[!allColNA ,rownames(expDesign)])
+	colnames(expMatrix) <- rownames(expDesign)
+	
+	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
+}
+
+
 
 
 ################################## TMT END ##############################
+
+
+
+

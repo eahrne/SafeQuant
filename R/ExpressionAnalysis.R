@@ -32,7 +32,6 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	
 	### make sure that only one unique condition is specified as control
 	if(length(unique(as.character(expDesign$condition[expDesign$isControl])) ) > 1){
-		print(pData(eset))
 		stop("Invalid experimental design")	
 	}
 	
@@ -925,4 +924,36 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
 	
 	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
+}
+
+#' Per Feature Normalization
+#' @param eset ExpressionSet
+#' @param matrix normalization factors (logged) (row names are proteins)
+#' @return ExpressionSet object
+#' @export
+#' @details Example Usage: Normalize phospho peptide signals for Protein Changes 
+#' @note  No note
+#' @references No references
+#' @seealso \code{\link{topX}}
+#' @examples print("No examples")
+perFeatureNormalization <- function(eset,normFactors){
+	
+	coveredPeptideSel <- fData(eset)$proteinName %in% rownames(normFactors)
+	
+	if(sum(coveredPeptideSel) == 0){
+		warning("No shared entries between target data and normalisation data")
+		return(eset)
+	}
+	
+	# make sure target data and norm data have same dimensions
+	if( !all(colnames(normFactors) %in% pData(eset)$condition) ){
+		stop("Invalid norm factors")
+	}
+	
+	# normalise log ratios
+	exprs(eset)[coveredPeptideSel,]	<- exprs(eset)[coveredPeptideSel, ] - normFactors[as.character(fData(eset)[coveredPeptideSel,]$proteinName),pData(eset)$condition]
+
+	
+	return(eset)	
+	
 }

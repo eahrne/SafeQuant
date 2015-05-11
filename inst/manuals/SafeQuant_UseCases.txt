@@ -30,6 +30,7 @@ mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_me
 
 LFQ Protein Relative Quantification
 
+### TO BE REVIEWED
 Compatible with Feature, Protein and Peptide Measurement Progenesis .csv exports. If using Progenesis QI 2.0 or later we recommend using Peptide Measurement Progenesis exports. 
 To export:
 - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI.
