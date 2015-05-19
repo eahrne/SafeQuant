@@ -22,3 +22,12 @@ load("/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20141125-1
 ls()
 load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProeinCalMixTMT10.rda")
 ls()
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP.rData")
+ls()
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_short.rData")
+ls()
+pData(esetTechRep1)
+pData(esetTechRep1)
+esetTechRep1
+pData(esetTechRep1)
+123*3600

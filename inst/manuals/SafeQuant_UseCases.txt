@@ -34,7 +34,7 @@ LFQ Protein Relative Quantification
 Compatible with Feature, Protein and Peptide Measurement Progenesis .csv exports. If using Progenesis QI 2.0 or later we recommend using Peptide Measurement Progenesis exports. 
 To export:
 - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI.
-    - When choosing properties to be included in the exported file check the "All accessions (for this sequence)" check box.
+    - When choosing properties to be included in the exported file check the "Grouped accessions (for this sequence)" check box.
 
 
 ### LFQ Phospho Relative Quantification ###

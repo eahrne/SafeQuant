@@ -181,24 +181,22 @@ testParseMaxQuantProteinGroupTxt <- function(){
 
 
 ### TESTS
-
-testGetSkipLineNb()
-testParseScaffoldRawFile()
-testGetNbPlex()
-testGetProgenesisCsvExpressionColIndices()
-testGetExpDesignProgenesisCsv()
-testParseProgenesisProteinCsv()
-testParseProgenesisFeatureCsv()
-testParseProgenesisPeptideMeasurementCsv()
-testParseMaxQuantProteinGroupTxt()
-testGetFileType()
-
+if(F){
+	testGetSkipLineNb()
+	testParseScaffoldRawFile()
+	testGetNbPlex()
+	testGetProgenesisCsvExpressionColIndices()
+	testGetExpDesignProgenesisCsv()
+	testParseProgenesisProteinCsv()
+	testParseProgenesisFeatureCsv()
+	testParseProgenesisPeptideMeasurementCsv()
+	testParseMaxQuantProteinGroupTxt()
+	testGetFileType()
+}
 ### TESTS END
 
 # OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN TAKES IT ALL)
-# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! 
-
-# EXAMPLE: Peptide Measurement Output
+# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! # EXAMPLE: Peptide Measurement Output
 # Accession	sp|O43707|ACTN4_HUMAN
 # All accessions (for this sequence)	sp|O43707|ACTN4_HUMAN;sp|P12814|ACTN1_HUMAN;sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
 # Grouped accessions (for this sequence)	sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
@@ -255,67 +253,69 @@ testGetFileType()
 library(dplyr)
 library(data.table)
 
-res <- read.csv(progenesisPeptideMeasurementFile1,skip=2,allowEscapes=T,check.names=F)
-names(res)[1] <- "Feature"
-res$Score <- as.numeric(as.character(res$Score))
+#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
+#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements2.csv"
+file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements3.csv"
 
-proteinDT <-  data.table(res, key = "Accession")
+### 
+
+#	Feature	Score	Sequence	Accession				All accessions (for this sequence)	Grouped accessions (for this sequence)	Shared accessions (for this sequence)
+#	1770	62.91	AALSALESFLK	sp|P78527|PRKDC_HUMAN	sp|P78527|PRKDC_HUMAN		
+
+# A "Grouped accessions (for this sequence)" never appears in the "Accession" column as ProteinScore(GroupedProtein) <= ProteinScore(Accession)
+# allGrouped <-  as.vector(unlist(lapply(resDT$"Grouped accessions (for this sequence)",function(t){strsplit(as.character(t),";")})))
+# sum(allGrouped %in% as.character(resDT$Accession))
+
+# OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN/PROTEIN GROUP TAKES IT ALL)
+# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! 
+
+res <- read.csv(file,skip=2,allowEscapes=T,check.names=F)
 
 
-# 1) Score all proteins
-proteinDT <- proteinDT[, list(sumScore = sum(score,na.rm=T),peptides = paste(sort(unique(peptide)),collapse=";")  ), by = key(proteinDT)]
-#proteinDT <- proteinDT[, list(sumScore = sum(score,na.rm=T),peptides = paste(sort(unique(peptide)),collapse=";")  ), by = key(proteinDT)]
 
-# create some duplicates 
-#dup <- proteinDT[1:100,]
-#dup$protein <- paste("duplicate",1:100)
+#names(resDT)[14] <- "SharedAccessions"
+#resDT$SharedAccessions <- as.character(resDT$SharedAccessions)
+#bestProteinPerFeatureIdx <-resDT[, list(  selectedResDTIndex  = resDTIndex[order(proteinScore,decreasing=T)[1]], altAccessions= paste(unique(unlist(strsplit(SharedAccessions, ";"))),collapse=";") ), by = key(resDT)]
+#bestProteinPerFeatureIdx <-resDT[, list( tmpAC =  Accession[order(proteinScore,decreasing=T)[1]],selectedResDTIndex  = resDTIndex[order(proteinScore,decreasing=T)[1]], altAccessions= paste(unique(unlist(strsplit(SharedAccessions, ";"))),collapse=";") ), by = key(resDT)]
+
+
+
+# DONE
+
+#resDT[resDT$Feature == 2,]
+#featureDT[featureDT$Feature == 2,]
 #
-#proteinDT <- rbind(proteinDT,dup) 
+#rownames(bestProteinPerFeatureIdx) <- bestProteinPerFeatureIdx$selectedResDTIndex
+#featureDT <- cbind(resDT[bestProteinPerFeatureIdx$selectedResDTIndex,],altAccessions=bestProteinPerFeatureIdx[bestProteinPerFeatureIdx$selectedResDTIndex,]$altAccessions,tmpAC= bestProteinPerFeatureIdx[bestProteinPerFeatureIdx$selectedResDTIndex,]$tmpAC)
+#data.frame(featureDT$tmpAC,featureDT$Accession)
+#
+#featureDT[featureDT$Accession %in% leadingACTrueGroup,]
+#resDT[resDT$Accession %in% leadingACTrueGroup,]
+#
+#
+#names(bestProteinPerFeatureIdx)
+#
+#bestProteinPerFeatureIdx$altAccessions[10852]
 
-proteinGroupDT <- proteinDT
-setkey(proteinGroupDT,"protein","peptides")  
-key(proteinGroupDT)
 
 
-proteinGroupDT <- proteinGroupDT[, list(peptides=peptides[1],sumScore = sumScore[1],proteinGroup = paste(sort(unique(protein)),collapse=";")  ), by = key(proteinGroupDT)]
 
 
-proteinGroupDT$proteinGroup
+
+method="auc"
+#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
+#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements2.csv"
+#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements3.csv"
+file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements4.csv"
+expDesign= getExpDesignProgenesisCsv(file)
 
 
-t <- table(proteinDT$peptides)
 
-names(proteinDT)
 
-head(data.frame(proteinDT)[,2:3]) 
 
-length(unique(proteinDT$peptides))
 
-nrow(proteinDT)
+#eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+#stopifnot(ncol(exprs(eset)) == 1)
+#stopifnot(nrow(exprs(eset)) == 13035)
 
-head(t)
-
-##################### DPLYR	
-	
-# with data.table back end	
-DD <- group_by(as.data.table(res), Feature)
-system.time( test2 <- summarise(DD
-					#,sum = sum(Score,na.rm=T)
-					,max = max(Score,na.rm=T)
-					,peptide = Sequence[order(Score,decreasing=T)[1]]
-					#,peptide = Score[order(Score,decreasing=T)[1]]
-			))	
-
-	
-#################### DATA.TABLE
-three <- data.table(res, key = c("Feature"))
-system.time(test4 <- three[, list(max = max(Score),peptide = Sequence[order(Score,decreasing=T)[1]] ), by = key(three)])
-	
-test2$max[test2$peptide == "AALSALESFLK"] 
-test4$max[test4$peptide == "AALSALESFLK"]
-
-test2$max[test2$peptide == "LAGANPAVITCDELLLGHEK"] 
-test4$max[test4$peptide == "LAGANPAVITCDELLLGHEK"]
-
-test2$max[test2$peptide == "HNLEIIK"] 
-test4$max[test4$peptide == "HNLEIIK"]
+print("DONE")

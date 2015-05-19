@@ -261,7 +261,6 @@ if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
 esetNorm <- sqNormalize(eset,method=normMethod)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
-print(baselineIntensity)
 exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
 
