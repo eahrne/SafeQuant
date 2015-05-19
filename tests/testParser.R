@@ -139,14 +139,12 @@ testParseProgenesisPeptideMeasurementCsv <- function(){
 	cat(" --- testParseProgenesisPeptideMeasurementCsv --- \n")
 	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
 	stopifnot(ncol(exprs(eset)) == 1)
-	stopifnot(nrow(exprs(eset)) == 13035)
+	stopifnot(nrow(exprs(eset)) == 11078)
+	
+	stopifnot(sum(grepl(";",fData(eset)$proteinName)) == 2)
+	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
+	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")
-	
-	
-	peptideMultipleUnsorted <- "AAIDWFDGK"
-	fData(eset)[fData(eset)$peptide == 	peptideMultipleUnsorted,]
-	
-	which(fData(eset)$peptide == 	peptideMultipleUnsorted)
 	
 	### sort protein accessions
 #	fData(eset)$proteinName <- as.character(fData(eset)$proteinName)
@@ -181,141 +179,16 @@ testParseMaxQuantProteinGroupTxt <- function(){
 
 
 ### TESTS
-if(F){
-	testGetSkipLineNb()
-	testParseScaffoldRawFile()
-	testGetNbPlex()
-	testGetProgenesisCsvExpressionColIndices()
-	testGetExpDesignProgenesisCsv()
-	testParseProgenesisProteinCsv()
-	testParseProgenesisFeatureCsv()
-	testParseProgenesisPeptideMeasurementCsv()
-	testParseMaxQuantProteinGroupTxt()
-	testGetFileType()
-}
+
+testGetSkipLineNb()
+testParseScaffoldRawFile()
+testGetNbPlex()
+testGetProgenesisCsvExpressionColIndices()
+testGetExpDesignProgenesisCsv()
+testParseProgenesisProteinCsv()
+testParseProgenesisFeatureCsv()
+testParseProgenesisPeptideMeasurementCsv()
+testParseMaxQuantProteinGroupTxt()
+testGetFileType()
 ### TESTS END
 
-# OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN TAKES IT ALL)
-# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! # EXAMPLE: Peptide Measurement Output
-# Accession	sp|O43707|ACTN4_HUMAN
-# All accessions (for this sequence)	sp|O43707|ACTN4_HUMAN;sp|P12814|ACTN1_HUMAN;sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
-# Grouped accessions (for this sequence)	sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
-# Shared accessions (for this sequence)	sp|P12814|ACTN1_HUMAN
-			
-# PROTEIN GROUP: TWO PROTEINS SHARING A SET OF PEPTIDES
-# EXAMPLE - A GROUP
-# Protein X: PEP-A,PEP-B
-# Protein Y: PEP-A,PEP-B
-
-# EXAMPLE: SHARED SUBSET - ONE PROTEIN HAS SPECIFIC PEPTIDE(S)
-# Protein X: PEP-A,PEP-B, PEP-C
-# Protein Y: PEP-A,PEP-B
-# Here all petides should be assigned to Protein X and Protein Y listed as "SUBSET" Protein
-
-# EXAMPLE - SHARED SUBSET - BOTH PROTEINS HAVE SPECIFIC PEPTIDE(S)
-# Protein X: PEP-A,PEP-B, PEP-C, PEP-D
-# Protein Y: PEP-A,PEP-B, PEP-E
-# If Score(X) > score(Y)
-# -> PEP-A,PEP-B, PEP-C, PEP-D Assigned to Protein X  
-# -> PEP-E Assigned to Protein Y
-
-
-# EXAMPLE - SHARED SUBSET - AT LEAST TWO PROTEINS HAVE SPECIFIC PEPTIDE(S)
-# Protein X: PEP-A,PEP-B, PEP-C, PEP-D
-# Protein Y: PEP-A,PEP-B, PEP-E
-# Protein Z: PEP-A,PEP-B, PEP-C, PEP-D
-# GROUP Protein X and Protein Z
-# -> PEP-A,PEP-B, PEP-C, PEP-D Assigned to GROUP Protein X;  Protein Z
-# -> PEP-E Assigned to Protein Y
-
-
-# EXAMPLE - SHARED SUBSET - AT LEAST TWO PROTEINS HAVE SPECIFIC PEPTIDE(S)
-# Protein X: PEP-A,PEP-B, PEP-C, PEP-D
-# Protein Y: PEP-A,PEP-B, PEP-E
-# Protein Z: PEP-A,PEP-B, PEP-E, PEP-F 
-# GROUP Protein X and Protein Z
-# If ((Score(X) > score(Y)) &  (Score(X) > score(Z)))
-# -> PEP-A,PEP-B, PEP-C, PEP-D Assigned to Protein X  
-# -> PEP-E, PEP-F Assigned to Protein Z
-
-
-### EXAMPLE PROTEIN LISTED AS GROUPED AND NOT GROUPE
-#SEQUENCE 	VILLGDGGVGK	
-#Accession sp|P51151|RAB9A_HUMAN
-#Grouped accessions sp|Q9NP90|RAB9B_HUMAN
-#
-#SEQUENCE	DATNVAAAFEEAVR	
-#Accession sp|P51151|RAB9A_HUMAN
-#Grouped accessions 
-#
-# Here all peptides mapped to sp|Q9NP90|RAB9B_HUMAN also map to sp|P51151|RAB9A_HUMAN, while additional peptides are mapped to sp|P51151|RAB9A_HUMAN 
-
-library(dplyr)
-library(data.table)
-
-#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
-#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements2.csv"
-file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements3.csv"
-
-### 
-
-#	Feature	Score	Sequence	Accession				All accessions (for this sequence)	Grouped accessions (for this sequence)	Shared accessions (for this sequence)
-#	1770	62.91	AALSALESFLK	sp|P78527|PRKDC_HUMAN	sp|P78527|PRKDC_HUMAN		
-
-# A "Grouped accessions (for this sequence)" never appears in the "Accession" column as ProteinScore(GroupedProtein) <= ProteinScore(Accession)
-# allGrouped <-  as.vector(unlist(lapply(resDT$"Grouped accessions (for this sequence)",function(t){strsplit(as.character(t),";")})))
-# sum(allGrouped %in% as.character(resDT$Accession))
-
-# OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN/PROTEIN GROUP TAKES IT ALL)
-# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! 
-
-res <- read.csv(file,skip=2,allowEscapes=T,check.names=F)
-
-
-
-#names(resDT)[14] <- "SharedAccessions"
-#resDT$SharedAccessions <- as.character(resDT$SharedAccessions)
-#bestProteinPerFeatureIdx <-resDT[, list(  selectedResDTIndex  = resDTIndex[order(proteinScore,decreasing=T)[1]], altAccessions= paste(unique(unlist(strsplit(SharedAccessions, ";"))),collapse=";") ), by = key(resDT)]
-#bestProteinPerFeatureIdx <-resDT[, list( tmpAC =  Accession[order(proteinScore,decreasing=T)[1]],selectedResDTIndex  = resDTIndex[order(proteinScore,decreasing=T)[1]], altAccessions= paste(unique(unlist(strsplit(SharedAccessions, ";"))),collapse=";") ), by = key(resDT)]
-
-
-
-# DONE
-
-#resDT[resDT$Feature == 2,]
-#featureDT[featureDT$Feature == 2,]
-#
-#rownames(bestProteinPerFeatureIdx) <- bestProteinPerFeatureIdx$selectedResDTIndex
-#featureDT <- cbind(resDT[bestProteinPerFeatureIdx$selectedResDTIndex,],altAccessions=bestProteinPerFeatureIdx[bestProteinPerFeatureIdx$selectedResDTIndex,]$altAccessions,tmpAC= bestProteinPerFeatureIdx[bestProteinPerFeatureIdx$selectedResDTIndex,]$tmpAC)
-#data.frame(featureDT$tmpAC,featureDT$Accession)
-#
-#featureDT[featureDT$Accession %in% leadingACTrueGroup,]
-#resDT[resDT$Accession %in% leadingACTrueGroup,]
-#
-#
-#names(bestProteinPerFeatureIdx)
-#
-#bestProteinPerFeatureIdx$altAccessions[10852]
-
-
-
-
-
-
-method="auc"
-#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
-#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements2.csv"
-#file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements3.csv"
-file = "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements4.csv"
-expDesign= getExpDesignProgenesisCsv(file)
-
-
-
-
-
-
-#eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
-#stopifnot(ncol(exprs(eset)) == 1)
-#stopifnot(nrow(exprs(eset)) == 13035)
-
-print("DONE")

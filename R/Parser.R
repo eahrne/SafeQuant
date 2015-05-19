@@ -314,6 +314,26 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
 	################################## PROTEIN INFERENCE ################################## 
 	
+	# OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN TAKES IT ALL)
+	# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! # EXAMPLE: Peptide Measurement Output
+	# Accession	sp|O43707|ACTN4_HUMAN
+	# All accessions (for this sequence)	sp|O43707|ACTN4_HUMAN;sp|P12814|ACTN1_HUMAN;sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
+	# Grouped accessions (for this sequence)	sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
+	# Shared accessions (for this sequence)	sp|P12814|ACTN1_HUMAN
+		
+		### 
+		
+	#	Feature	Score	Sequence	Accession				All accessions (for this sequence)	Grouped accessions (for this sequence)	Shared accessions (for this sequence)
+	#	1770	62.91	AALSALESFLK	sp|P78527|PRKDC_HUMAN	sp|P78527|PRKDC_HUMAN		
+		
+	# A "Grouped accessions (for this sequence)" never appears in the "Accession" column as ProteinScore(GroupedProtein) <= ProteinScore(Accession)
+	# allGrouped <-  as.vector(unlist(lapply(resDT$"Grouped accessions (for this sequence)",function(t){strsplit(as.character(t),";")})))
+	# sum(allGrouped %in% as.character(resDT$Accession))
+		
+	# OCCAMS RAZOR IMPLEMENTATION (HIGHEST SCORING PROTEIN/PROTEIN GROUP TAKES IT ALL)
+	# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! 
+	
+	
 	cat("INFO: ASSIGNING PEPTIDES TO PROTENS APPLYING OCCAM'S RAZOR \n" )	
 	
 #Check that file includes column "Grouped accessions (for this sequence)"
