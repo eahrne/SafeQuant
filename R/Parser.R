@@ -289,28 +289,28 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 		stop("Invalid Exp. Design")
 	}
 	
-# read csv file
+	# read csv file
 	res <- read.csv(file,skip=2,allowEscapes=T,check.names=F)
-#	[1] "#"                                     
-#	[2] "Retention time (min)"                  
-#	[3] "Charge"                                
-#	[4] "m/z"                                   
-#	[5] "Measured mass"                         
-#	[6] "Mass error (u)"                        
-#	[7] "Mass error (ppm)"                      
-#	[8] "Score"                                 
-#	[9] "Sequence"                              
-#	[10] "Modifications"                         
-#	[11] "Accession"                             
-#	[12] "All accessions (for this sequence)"    
-#	[13] "Grouped accessions (for this sequence)"
-#	[14] "Shared accessions (for this sequence)" 
-#	[15] "Description"                           
-#	[16] "Use in quantitation"                   
-#	[17] "A15-02164"                             
-#	[18] "A15-02164"                             
-#	[19] "A15-02164"                             
-#	[20] "Mass"    
+	#	[1] "#"                                     
+	#	[2] "Retention time (min)"                  
+	#	[3] "Charge"                                
+	#	[4] "m/z"                                   
+	#	[5] "Measured mass"                         
+	#	[6] "Mass error (u)"                        
+	#	[7] "Mass error (ppm)"                      
+	#	[8] "Score"                                 
+	#	[9] "Sequence"                              
+	#	[10] "Modifications"                         
+	#	[11] "Accession"                             
+	#	[12] "All accessions (for this sequence)"    
+	#	[13] "Grouped accessions (for this sequence)"
+	#	[14] "Shared accessions (for this sequence)" 
+	#	[15] "Description"                           
+	#	[16] "Use in quantitation"                   
+	#	[17] "A15-02164"                             
+	#	[18] "A15-02164"                             
+	#	[19] "A15-02164"                             
+	#	[20] "Mass"    
 	
 	################################## PROTEIN INFERENCE ################################## 
 	
@@ -336,7 +336,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
 	cat("INFO: ASSIGNING PEPTIDES TO PROTENS APPLYING OCCAM'S RAZOR \n" )	
 	
-#Check that file includes column "Grouped accessions (for this sequence)"
+	#Check that file includes column "Grouped accessions (for this sequence)"
 	if(!("Grouped accessions (for this sequence)" %in% names(res))) stop("Column \"Grouped accessions (for this sequence)\" missing in file ",file)
 	names(res)[1] <- "Feature"
 	res$Score <- as.numeric(as.character(res$Score))
@@ -345,11 +345,11 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	resDT$"Grouped accessions (for this sequence)" <- as.character(resDT$"Grouped accessions (for this sequence)")
 	resDT$Accession <- as.character(resDT$Accession)
 	
-# 1) FIND PROTEIN GROUPS.  A PROTEIN GROUP IS A SET OF PROTEINS THAT A) SHARE THE EXACT SAME PEPTIDES.
-# B) All proteins of the group ONLY map to this set of peptides
-# In the Progensis Export "Peptide Measurments", the column "Grouped accessions (for this sequence)"
-# is defined according to Condition A) only.
-# "leading" refers to column "Accession" 
+	# 1) FIND PROTEIN GROUPS.  A PROTEIN GROUP IS A SET OF PROTEINS THAT A) SHARE THE EXACT SAME PEPTIDES.
+	# B) All proteins of the group ONLY map to this set of peptides
+	# In the Progensis Export "Peptide Measurments", the column "Grouped accessions (for this sequence)"
+	# is defined according to Condition A) only.
+	# "leading" refers to column "Accession" 
 	isGroup <- nchar(resDT$"Grouped accessions (for this sequence)") > 0
 	groupedAccessions <- unique(resDT$Accession[isGroup])
 	nonGroupedAccessions <- unique(resDT$Accession[!isGroup])
@@ -397,11 +397,11 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	#@TODO add alternative/subset accessions 
 	# 6) Roll-up on peptide level concatenating all proteins matching a given peptide 
 	# create peptide to protein dict
-	#	setkey(resDT,"Sequence")
-	#	peptideDT <- resDT[, list(allAccessions = paste(unique(Accession),collapse=";")), by = key(resDT)] # could also include groups..
-	#	rownames(peptideDT) <- peptideDT$Sequence 
-	#	# get allProteins of a given peptide
-	#	featureDT <- cbind(featureDT,peptideDT[as.character(featureDT$Sequence),]) 
+	setkey(resDT,"Sequence")
+	peptideDT <- resDT[, list(allAccessions = paste(unique(Accession),collapse=";")), by = key(resDT)] # could also include groups..
+	rownames(peptideDT) <- peptideDT$Sequence 
+	# get allProteins of a given peptide
+	featureDT <- cbind(featureDT,peptideDT[as.character(featureDT$Sequence),]) 
 		
 	################################## PROTEIN INFERENCE END ################################## 
 	
@@ -440,7 +440,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 			#		,row.names=res$Accession
 			# added
 			,nbPtmsPerPeptide = nbPtmsPerPeptide
-			#,allAccessions = featureDT$allAccessions 	#@TODO add alternative/subset accessions 
+			,allAccessions = featureDT$allAccessions 	#@TODO add alternative/subset accessions 
 	)
 	
 	# discard non peptide annotated rows

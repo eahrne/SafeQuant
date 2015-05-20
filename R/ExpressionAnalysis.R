@@ -901,6 +901,11 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	
 	rolledFData <- data.frame(DT[, lapply(.SD, getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:(length(selCol)+1)]
 	
+	### concatenate allAccessions
+	if("allAccessions" %in% names(DT)){
+		rolledFData$allAccession <- DT[, list( allAccessionsTMP  = paste(unique(unlist(strsplit(paste(allAccessions,collapse=";"),";"))),collapse=";") ), by = key(DT)]$allAccessionsTMP	
+	}
+		
 	# idScore
 	if("idScore" %in% names(DT) ){
 		iDT <- DT[, max(idScore,na.rm=T), by=idx ]

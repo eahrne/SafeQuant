@@ -598,6 +598,11 @@ if(exists("sqaPeptide")){
 		selFDataCol <- c(selFDataCol,"motifX","modifCoord")
 	}
 	
+	### add allAccessions
+	if("allAccessions" %in% names(fData(sqaPeptide$eset))){
+		selFDataCol <- c(selFDataCol,"allAccessions")
+	}
+	
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio
@@ -634,6 +639,11 @@ if(exists("sqaProtein")){
 	
 	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides","isNormAnchor")
 	selFDataCol <- selFDataCol[selFDataCol %in%  names(fData(sqaProtein$eset))] 
+	
+	### add allAccessions
+	if("allAccessions" %in% names(fData(sqaProtein$eset))){
+		selFDataCol <- c(selFDataCol,"allAccessions")
+	}
 	
 	cv <- sqaProtein$cv
 	names(cv) <- paste("cv",names(cv),sep="_")

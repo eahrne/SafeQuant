@@ -156,11 +156,11 @@ testRollUp <- function(){
 #	system.time(e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide")))
 #	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))
 #	
+	esetTmp <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+	rollUpEsetProteinAllAccessions <- rollUp(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
+	stopifnot(fData(rollUpEsetProteinAllAccessions)$allAccessionsTMP[68] == "sp|E9PAV3|NACAM_HUMAN;sp|Q9BZK3|NACP1_HUMAN")
 
-	
-	
 }
-
 
 testTopX <- function(){
 	
