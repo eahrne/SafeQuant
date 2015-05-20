@@ -26,6 +26,18 @@ test.getConditionColors <- function(){
 
 test.getConditionColors()
 
+testPlotNbIdentificationsVsRT <- function(){
+	
+	file <- progenesisPeptideMeasurementFile1
+	#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements5_MRuegg.csv"
+	
+	cat("--- testPlotNbIdentificationsVsRT: --- \n")
+	esetTmp <- parseProgenesisPeptideMeasurementCsv(file,expDesign= getExpDesignProgenesisCsv(file))
+	plotNbIdentificationsVsRT(esetTmp)
+	cat("--- testPlotNbIdentificationsVsRT: PASS ALL TEST --- \n")
+	
+}
+
 if(T){
 	
 	pdf("/Users/erikahrne/tmp/tmp.pdf")
@@ -105,41 +117,16 @@ if(T){
 }
 ### TESTS END
 
-#pdf("/Users/erikahrne/tmp/tmp.pdf")
-##hClustHeatMapOLD(esetTmp)
-#### what if no replicates?
-#hClustHeatMap(esetTmp)
-#
-#hClustHeatMap(esetTmp)
-#
-#esetTmpSub <- esetTmp[,c(1,4,7)]
-#
-#hClustHeatMap(esetTmpSub)
-#
-#levels(as.factor(as.character(pData(esetTmpSub)$condition)))
-#
-#levels(pData(esetTmpSub)$condition)
-#
-#head(exprs(esetTmpSub))
-#
-#
-#dev.off()
-
-#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides_proteomeMix_FILTERED.csv"
-#
-
-#esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 
 
 
 
 
-#
-#esetTmp <- parseProgenesisFeatureCsv(file=file,expDesign=getExpDesignProgenesisCsv(file))
-#eset <- esetTmp
-#
-#
-#rollUp(eset)
+
+
+
+
+
 
 
 

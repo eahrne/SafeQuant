@@ -14,12 +14,9 @@
 
 - speed up parsing. update/get rid off .getProgenesisCsvExpressionColIndices()
 
-- graphic showing number of peptides per r.t. (ideally uniform distribution)
-	- alt. show cumulative as a function of r.t 
 
-- protein inference 
- 	- cannot use "peptide measurement exports" as feature are mapped to peptides. The same feature is listed multiple times
- 
+
+
 ### SOLVED
 
 ### - write manual
@@ -38,3 +35,9 @@
 ### - PDF export
 ### 	- Protein level Hierarchical CLustering
 ### 		 - Ratio Profile hierarchical clustering 
+
+### - protein inference 
+### 	- cannot use "peptide measurement exports" as feature are mapped to peptides. The same feature is listed multiple times
+ 
+### - graphic showing number of peptides per r.t. (ideally uniform distribution)
+###	- alt. show cumulative as a function of r.t 

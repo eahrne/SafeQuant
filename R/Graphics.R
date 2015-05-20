@@ -139,18 +139,19 @@ COLORS <- as.character(c(
 		
 	### discard filtered out proteins
 	peptidesPerProtein <- peptidesPerProtein[peptidesPerProtein > 0]
-
-	
 	#counts <- max(c(min(peptidesPerProtein,na.rm=T),1),na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),2))
 	xPeptides <- min(peptidesPerProtein,na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),10))
 	yCount <- unlist(lapply(xPeptides,function(t){ 
 						sum(unlist(peptidesPerProtein) == t,na.rm=T) }))
 
 	yCount[yCount == 0] <- NA 
-	
 	plot(xPeptides,yCount,type="n", log="x",xlab="Peptides Per Protein", ylab="Protein Counts")
 	grid()
 	lines(xPeptides,yCount,type="h",col="blue",lwd=2.5)
+	
+	### Id's ves Retention Time
+	if("retentionTime"  %in% names(fData(sqaPeptide$eset))) plotNbIdentificationsVsRT(sqaPeptide$eset)
+	
 
 }
 
@@ -1207,3 +1208,17 @@ plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors),main="",
 		abline(h=0,lty=2,...)
 	}
 }
+
+
+#' Plot the number of identified Features per Reteintion Time minute.
+#' @param eset ExpressionSet
+#' @note  No note
+#' @export
+#' @references NA
+#' @examples print("No examples")
+plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blue", lwd=2, ...){
+	rtTable <- table(round(fData(eset)$retentionTime))
+	plot(as.numeric(names(rtTable)),rtTable[names(rtTable)], type="h", xlab="Retention Time (min)"
+			, ylab="# Identified Features", cex.axis=cex.axis,cex.lab=cex.lab, col=col, lwd=lwd,...)
+}
+
