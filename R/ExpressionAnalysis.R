@@ -479,7 +479,6 @@ sqNormalize <- function(eset, method="global"){
 
 }
 
-
 #' Summarize replicate signal per condition (min)
 #' @param data data.frame of replicate signals
 #' @param method median (default), mean, max, min, sd

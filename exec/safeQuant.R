@@ -55,7 +55,7 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 			
 }
 
-VERSION <- 2.01
+VERSION <- 2.1
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
