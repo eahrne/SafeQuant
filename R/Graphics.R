@@ -215,8 +215,8 @@ COLORS <- as.character(c(
 					
 		}
 		
-		if(2 %in% selection) plotIdScoreVsFDR(scores,qvalues, ...)
-		if(3 %in% selection) plotROC(qvalues,...)
+		if(2 %in% selection) plotIdScoreVsFDR(scores,qvalues,qvalueThrs, ...)
+		if(3 %in% selection) plotROC(qvalues,qvalueThrs,...)
 	}
 	
 	
@@ -892,14 +892,16 @@ plotScoreDistrib <-function(targetScores,decoyScores,xlab="Identification Score"
 #' Plot FDR vs. identification score
 #' @param idScore vector of identification scores 
 #' @param qvals vector of q-valres
+#' @param qvalueThrs threshold indicated by horizontal line
 #' @export
 #' @note  No note
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotIdScoreVsFDR <-function(idScore,qvals, ylab="False Discovery Rate", xlab="Identification Score",...){
-	plot(sort(idScore),rev(sort(qvals)),type="l",ylab=ylab,xlab=xlab, ... )
+plotIdScoreVsFDR <-function(idScore,qvals,qvalueThrs=0.01, ylab="False Discovery Rate", xlab="Identification Score",lwd=1.5,...){
+	plot(sort(idScore),rev(sort(qvals)),type="l",ylab=ylab,xlab=xlab,lwd=lwd, ... )
 	grid()
+	abline(h=qvalueThrs,lwd=lwd,col="grey")
 }
 
 
@@ -907,6 +909,7 @@ plotIdScoreVsFDR <-function(idScore,qvals, ylab="False Discovery Rate", xlab="Id
 ### plot identification scores ROC-curve, fdr vs. # valid identifications 
 #' Plot Number of Identifications vs. FDR 
 #' @param qvals vector of q-values
+#' @param qvalueThrs threshold indicated by vertical line
 #' @param breaks see breaks for hist function
 #' @export
 #' @note  No note
@@ -914,6 +917,7 @@ plotIdScoreVsFDR <-function(idScore,qvals, ylab="False Discovery Rate", xlab="Id
 #' @references NA
 #' @examples print("No examples")
 plotROC <- function(qvals
+		,qvalueThrs=0.01
 		,xlab="False Discovery Rate"
 		,ylab="# Valid Identifications"
 		,xlim=c(0,0.1)
@@ -935,6 +939,7 @@ plotROC <- function(qvals
 	
 	plot(breaks,sort(validIds), ylab=ylab,xlab=xlab, xlim=xlim,type="l",col=col,lwd=lwd,...)
 	grid()
+	abline(v=qvalueThrs,lwd=lwd,col="grey")
 }
 
 

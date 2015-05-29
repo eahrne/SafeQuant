@@ -4,12 +4,14 @@
 \alias{plotROC}
 \title{Plot Number of Identifications vs. FDR}
 \usage{
-plotROC(qvals, xlab = "False Discovery Rate",
-  ylab = "# Valid Identifications", xlim = c(0, 1), breaks = 100,
+plotROC(qvals, qvalueThrs = 0.01, xlab = "False Discovery Rate",
+  ylab = "# Valid Identifications", xlim = c(0, 0.1), breaks = 100,
   col = "blue", lwd = 1.5, ...)
 }
 \arguments{
 \item{qvals}{vector of q-values}
+
+\item{qvalueThrs}{threshold indicated by vertical line}
 
 \item{breaks}{see breaks for hist function}
 }

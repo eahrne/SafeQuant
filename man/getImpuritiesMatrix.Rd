@@ -4,7 +4,7 @@
 \alias{getImpuritiesMatrix}
 \title{Get Thermo TMT impurity matrix}
 \usage{
-getImpuritiesMatrix(plexNb = 6)
+getImpuritiesMatrix(plexNb = 6, test = F)
 }
 \arguments{
 \item{plexNb}{integer, 6 or 10 plex}

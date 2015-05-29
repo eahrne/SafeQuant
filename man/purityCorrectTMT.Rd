@@ -4,10 +4,13 @@
 \alias{purityCorrectTMT}
 \title{Correct channel intensities based on Reporter ion Isotopic Distributions}
 \usage{
-purityCorrectTMT(tmtData, impurityMatrix = impurityMatrix)
+purityCorrectTMT(tmtData, impurityMatrix = impurityMatrix,
+  invalidReplace = "allNA")
 }
 \arguments{
 \item{tmtData}{data.frame containing tmt channel intensities}
+
+\item{method}{to deal with NA and negative values c("","allZero","allNA","allOrg")}
 }
 \value{
 data.frame of corrected tmt intensities

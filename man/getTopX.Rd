@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExpressionAnalysis.R
 \name{getTopX}
 \alias{getTopX}
-\title{Calculate Mean of X most intense features}
+\title{Roll up feature intensites per unique colum combination}
 \usage{
 getTopX(entryData, topX = 3)
 }
@@ -11,24 +11,42 @@ getTopX(entryData, topX = 3)
 Typically rows corresponds to Peptide entries of one protein}
 
 \item{topX}{best X flyers}
+
+\item{eset}{ExpressionSet}
+
+\item{featureDataColumnName}{vector of column names e.g. peptide or proteinName}
+
+\item{method}{"sum", "mean" or "top3"}
+
+\item{isProgressBar}{TRUE/FALSE display progress bar}
 }
 \value{
+ExpressionSet object
+
 vector of topX intensities per column (sample)
 }
 \description{
-Calculate Mean of X most intense features
+Roll up feature intensites per unique colum combination
 }
 \details{
-No details
+featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
 }
 \note{
+No note
+
 No note
 }
 \examples{
 print("No examples")
+Calculate Mean of X most intense features
 }
 \references{
+No references
+
 Absolute quantification of proteins by LCMSE: A virtue of parallel MS acquisition, Silva (2006), \url{http://www.ncbi.nlm.nih.gov/pubmed/16219938},
 Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Ahrne (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23794183}
+}
+\seealso{
+\code{\link{topX}}
 }
 

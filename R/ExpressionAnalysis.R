@@ -551,163 +551,163 @@ getSignalPerCondition <- function(eset,method="median"){
 	return(perCondSignal)
 }
 
-#' Roll up feature intensites per unique colum combination
-#' @param eset ExpressionSet
-#' @param featureDataColumnName vector of column names e.g. peptide or proteinName
-#' @param method "sum", "mean" or "top3" 
-#' @param isProgressBar TRUE/FALSE display progress bar
-#' @return ExpressionSet object
-#' @export
-#' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
-#' @import affy
-#' @note  No note
-#' @references No references
-#' @seealso \code{\link{topX}}
-#' @examples print("No examples")
-
-rollUpOLD <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
-#rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
-	
-	### apply filter
-	eset <- eset[!fData(eset)$isFiltered,] 
-	
-	# find columns matching featureDataColumnName
-	selectedColumns <- names(fData(eset)) %in% featureDataColumnName 
-	if(sum(selectedColumns) == 0){
-		stop("Unknown featureDataColumnName ",featureDataColumnName,"\n")
-	}
-	
-	### create index tags by concatinating selected coulm entries
-	allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
-								return(paste(as.vector(unlist(t)),collapse="_"))
-							})))
-	
-	uniqueIndexTags <- unique(allIndexTags)
-	nbUniqueIndexTags <- length(uniqueIndexTags)
-	
-	### data frame of rolled up feature data and assay data
-	rolledFData <- fData(eset)[1:length(uniqueIndexTags),]
-	rolledFData[!is.na(rolledFData)] <- NA
-	rownames(rolledFData) <- uniqueIndexTags
-
-	rolledAssayData <- data.frame( matrix(ncol=ncol(eset),nrow=nbUniqueIndexTags) ,row.names=uniqueIndexTags )
-	names(rolledAssayData) <- colnames(eset)
-	
-	### REMOVE THIS TO GAIN TIME
-	### additional columns to be added to rolledFData
-#	nbRolledFeatures <- vector(length=nbUniqueIndexTags)
-#	allChargeStates <- rep(NA,nbUniqueIndexTags)
-#	allPtms <- rep(NA,nbUniqueIndexTags)
-#	allSpectrumNames <- rep(NA,nbUniqueIndexTags)
-	
-	### progress bar
-	pbSum <- txtProgressBar(min = 0, max = nbUniqueIndexTags, style = 3)
-	
-	for(i in 1:nbUniqueIndexTags){
-	
-		### increment progress bar
-		if(isProgressBar) setTxtProgressBar(pbSum, i)
-		
-		matchIndices <- which(allIndexTags %in% uniqueIndexTags[i])
-		
-		### assay data
-		aDataSubset <- exprs(eset)[matchIndices,]
-		
-		# feature data
-		fDataSubset <- fData(eset)[matchIndices,]
-		nbFeat <- length(matchIndices)
-		
-		rolledAssayDataSubset <- aDataSubset
-		rolledFDataSubset <- fDataSubset
-		
-		### more than one matching rows
-		if(nbFeat>1){
-			
-			### roll up method
-			### sum
-			if(method =="sum"){
-				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,sum,na.rm=T)
-			}else if(method=="mean") {
-				### mean
-				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,mean,na.rm=T)
-			}else if(method== "top3"){
-				### top3
-				rolledAssayDataSubset <- getTopX(aDataSubset,topX=3)
-			}else if(method== "top1"){
-				### top1 TEST OPTION
-				rolledAssayDataSubset <- getTopX(aDataSubset,topX=1)
-			}else{
-				stop("Unknown roll up method ", method, "\n")
-			}
-			
-			#@TODO How to best rollUp id scores? Currently taking highest score per roll-up group
-			# keep feature data of best feature (order by idScore)
-			# if no idScore keep first one
-			bestIndex <- 1
-			if(!is.null(fDataSubset$idScore)){
-				bestIndex <- order(fDataSubset$idScore, decreasing = T)[1]
-				
-				### idScore replaced by idScore sum of all rows @TODOadd more flexibility here? e.g. top score or sum
-				# only for protein level roll-up
-				# otherwise the rollup score is the best PSM score
-				if("proteinName" == featureDataColumnName){
-					fDataSubset[bestIndex,]$idScore <- sum(fDataSubset$idScore,na.rm=T)
-				}					
-			}
-			
-			rolledFDataSubset <- fDataSubset[bestIndex,]
-			
-		}	
-		
-		# add rolled data
-		rolledAssayData[i,] <- rolledAssayDataSubset
-		rolledFData[i,] <- rolledFDataSubset
-
-		### REMOVE THIS TO GAIN TIME
-#		nbRolledFeatures[i] <- nbFeat
-#		if(!is.null(fDataSubset$charge)){ ### all charge state tag e.g. "2:3:4"
-#			allChargeStates[i] <- paste(sort(unique(fDataSubset$charge)),collapse=":")
-#		}
-#		if(!is.null(fDataSubset$ptm)){ ### all ptms tag e.g. "[5] Phospho (ST):[3] Phospho (ST)|[5] Phospho (ST)"  
-#			allPtms[i] <- paste(unique(fDataSubset$ptm),collapse=":")
-#		}
-#		if(!is.null(fDataSubset$spectrumName)){ ### all spectrum name tag e.g. "07_07Da.55018.55018.3:007_07Da.55013.55013.2:008_07Da.43303.43303.2:006_07Da.54094.5"  
-#			allSpectrumNames[i] <- paste(unique(fDataSubset$spectrumName),collapse=":")
-#		}
-
-	}
-	
-	# close progress bar
-	setTxtProgressBar(pbSum, i)
-	close(pbSum)
-	
-	### format rolledFData and add rolled up summary columns
-	rownames(rolledFData) <- rownames(rolledAssayData)
-	rolledAssayData <- as.matrix(rolledAssayData)
-	rolledAssayData[rolledAssayData == 0 ] <- NA
-	#names(rolledFData) <- paste("best",names(fData(eset)),sep="_")
-	names(rolledFData) <- names(fData(eset))
-	
-	### REMOVE THIS TO GAIN TIME
-	#rolledFData <- cbind(rolledFData,nbRolledFeatures,allChargeStates,allPtms,allSpectrumNames)
-	# reset anchor
-	#if(!is.null(rolledFData$best_isNormAnchor)){
-	if(!is.null(rolledFData$isNormAnchor)){
-		#	names(rolledFData)[names(rolledFData) == "best_isNormAnchor"] <- "isNormAnchor"
-		rolledFData$isNormAnchor <- T
-	}
-	# reset filter
-	#if(!is.null(rolledFData$best_isFiltered)){
-	if(!is.null(rolledFData$isFiltered)){
-		#names(rolledFData)[names(rolledFData) == "best_isFiltered"] <- "isFiltered"
-		rolledFData$isFiltered <- F
-	}
-	
-	### set peptides per protein
-	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
-
-	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
-}
+##' Roll up feature intensites per unique colum combination
+##' @param eset ExpressionSet
+##' @param featureDataColumnName vector of column names e.g. peptide or proteinName
+##' @param method "sum", "mean" or "top3" 
+##' @param isProgressBar TRUE/FALSE display progress bar
+##' @return ExpressionSet object
+##' @export
+##' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
+##' @import affy
+##' @note  No note
+##' @references No references
+##' @seealso \code{\link{topX}}
+##' @examples print("No examples")
+#
+#rollUpOLD <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
+##rollUp <- function(eset=eset,featureDataColumnName= c("peptide"), method=c("sum"),isProgressBar=F ){
+#	
+#	### apply filter
+#	eset <- eset[!fData(eset)$isFiltered,] 
+#	
+#	# find columns matching featureDataColumnName
+#	selectedColumns <- names(fData(eset)) %in% featureDataColumnName 
+#	if(sum(selectedColumns) == 0){
+#		stop("Unknown featureDataColumnName ",featureDataColumnName,"\n")
+#	}
+#	
+#	### create index tags by concatinating selected coulm entries
+#	allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
+#								return(paste(as.vector(unlist(t)),collapse="_"))
+#							})))
+#	
+#	uniqueIndexTags <- unique(allIndexTags)
+#	nbUniqueIndexTags <- length(uniqueIndexTags)
+#	
+#	### data frame of rolled up feature data and assay data
+#	rolledFData <- fData(eset)[1:length(uniqueIndexTags),]
+#	rolledFData[!is.na(rolledFData)] <- NA
+#	rownames(rolledFData) <- uniqueIndexTags
+#
+#	rolledAssayData <- data.frame( matrix(ncol=ncol(eset),nrow=nbUniqueIndexTags) ,row.names=uniqueIndexTags )
+#	names(rolledAssayData) <- colnames(eset)
+#	
+#	### REMOVE THIS TO GAIN TIME
+#	### additional columns to be added to rolledFData
+##	nbRolledFeatures <- vector(length=nbUniqueIndexTags)
+##	allChargeStates <- rep(NA,nbUniqueIndexTags)
+##	allPtms <- rep(NA,nbUniqueIndexTags)
+##	allSpectrumNames <- rep(NA,nbUniqueIndexTags)
+#	
+#	### progress bar
+#	pbSum <- txtProgressBar(min = 0, max = nbUniqueIndexTags, style = 3)
+#	
+#	for(i in 1:nbUniqueIndexTags){
+#	
+#		### increment progress bar
+#		if(isProgressBar) setTxtProgressBar(pbSum, i)
+#		
+#		matchIndices <- which(allIndexTags %in% uniqueIndexTags[i])
+#		
+#		### assay data
+#		aDataSubset <- exprs(eset)[matchIndices,]
+#		
+#		# feature data
+#		fDataSubset <- fData(eset)[matchIndices,]
+#		nbFeat <- length(matchIndices)
+#		
+#		rolledAssayDataSubset <- aDataSubset
+#		rolledFDataSubset <- fDataSubset
+#		
+#		### more than one matching rows
+#		if(nbFeat>1){
+#			
+#			### roll up method
+#			### sum
+#			if(method =="sum"){
+#				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,sum,na.rm=T)
+#			}else if(method=="mean") {
+#				### mean
+#				rolledAssayDataSubset <- apply(data.frame(aDataSubset),2,mean,na.rm=T)
+#			}else if(method== "top3"){
+#				### top3
+#				rolledAssayDataSubset <- getTopX(aDataSubset,topX=3)
+#			}else if(method== "top1"){
+#				### top1 TEST OPTION
+#				rolledAssayDataSubset <- getTopX(aDataSubset,topX=1)
+#			}else{
+#				stop("Unknown roll up method ", method, "\n")
+#			}
+#			
+#			#@TODO How to best rollUp id scores? Currently taking highest score per roll-up group
+#			# keep feature data of best feature (order by idScore)
+#			# if no idScore keep first one
+#			bestIndex <- 1
+#			if(!is.null(fDataSubset$idScore)){
+#				bestIndex <- order(fDataSubset$idScore, decreasing = T)[1]
+#				
+#				### idScore replaced by idScore sum of all rows @TODOadd more flexibility here? e.g. top score or sum
+#				# only for protein level roll-up
+#				# otherwise the rollup score is the best PSM score
+#				if("proteinName" == featureDataColumnName){
+#					fDataSubset[bestIndex,]$idScore <- sum(fDataSubset$idScore,na.rm=T)
+#				}					
+#			}
+#			
+#			rolledFDataSubset <- fDataSubset[bestIndex,]
+#			
+#		}	
+#		
+#		# add rolled data
+#		rolledAssayData[i,] <- rolledAssayDataSubset
+#		rolledFData[i,] <- rolledFDataSubset
+#
+#		### REMOVE THIS TO GAIN TIME
+##		nbRolledFeatures[i] <- nbFeat
+##		if(!is.null(fDataSubset$charge)){ ### all charge state tag e.g. "2:3:4"
+##			allChargeStates[i] <- paste(sort(unique(fDataSubset$charge)),collapse=":")
+##		}
+##		if(!is.null(fDataSubset$ptm)){ ### all ptms tag e.g. "[5] Phospho (ST):[3] Phospho (ST)|[5] Phospho (ST)"  
+##			allPtms[i] <- paste(unique(fDataSubset$ptm),collapse=":")
+##		}
+##		if(!is.null(fDataSubset$spectrumName)){ ### all spectrum name tag e.g. "07_07Da.55018.55018.3:007_07Da.55013.55013.2:008_07Da.43303.43303.2:006_07Da.54094.5"  
+##			allSpectrumNames[i] <- paste(unique(fDataSubset$spectrumName),collapse=":")
+##		}
+#
+#	}
+#	
+#	# close progress bar
+#	setTxtProgressBar(pbSum, i)
+#	close(pbSum)
+#	
+#	### format rolledFData and add rolled up summary columns
+#	rownames(rolledFData) <- rownames(rolledAssayData)
+#	rolledAssayData <- as.matrix(rolledAssayData)
+#	rolledAssayData[rolledAssayData == 0 ] <- NA
+#	#names(rolledFData) <- paste("best",names(fData(eset)),sep="_")
+#	names(rolledFData) <- names(fData(eset))
+#	
+#	### REMOVE THIS TO GAIN TIME
+#	#rolledFData <- cbind(rolledFData,nbRolledFeatures,allChargeStates,allPtms,allSpectrumNames)
+#	# reset anchor
+#	#if(!is.null(rolledFData$best_isNormAnchor)){
+#	if(!is.null(rolledFData$isNormAnchor)){
+#		#	names(rolledFData)[names(rolledFData) == "best_isNormAnchor"] <- "isNormAnchor"
+#		rolledFData$isNormAnchor <- T
+#	}
+#	# reset filter
+#	#if(!is.null(rolledFData$best_isFiltered)){
+#	if(!is.null(rolledFData$isFiltered)){
+#		#names(rolledFData)[names(rolledFData) == "best_isFiltered"] <- "isFiltered"
+#		rolledFData$isFiltered <- F
+#	}
+#	
+#	### set peptides per protein
+#	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
+#
+#	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
+#}
 
 #' Calculate Mean of X most intense features
 #' @param entryData data.frame listing feature intensities of one entry 

@@ -4,9 +4,9 @@
 \alias{plotNbValidDeFeaturesPerFDR}
 \title{Plot Total Number of diffrentially Abundant Features (applying ratio cutoff) vs. qValue/pValue for all conditions}
 \usage{
-plotNbValidDeFeaturesPerFDR(sqa, upRegulated = T,
-  log2RatioCufOff = log2(1.5), pvalRange = c(0, 0.3), pvalCutOff = 1,
-  isLegend = T, isAdjusted = T, ylab = "Nb. Features", ...)
+plotNbValidDeFeaturesPerFDR(sqa, upRegulated = T, log2RatioCufOff = log2(1),
+  pvalRange = c(0, 0.3), pvalCutOff = 1, isLegend = T, isAdjusted = T,
+  ylab = "Nb. Features", ...)
 }
 \arguments{
 \item{sqa}{SafeQuantAnalysis Object}

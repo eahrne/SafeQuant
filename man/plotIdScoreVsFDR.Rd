@@ -4,13 +4,16 @@
 \alias{plotIdScoreVsFDR}
 \title{Plot FDR vs. identification score}
 \usage{
-plotIdScoreVsFDR(idScore, qvals, ylab = "False Discovery Rate",
-  xlab = "Identification Score", ...)
+plotIdScoreVsFDR(idScore, qvals, qvalueThrs = 0.01,
+  ylab = "False Discovery Rate", xlab = "Identification Score", lwd = 1.5,
+  ...)
 }
 \arguments{
 \item{idScore}{vector of identification scores}
 
 \item{qvals}{vector of q-valres}
+
+\item{qvalueThrs}{threshold indicated by horizontal line}
 }
 \description{
 Plot FDR vs. identification score

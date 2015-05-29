@@ -145,10 +145,8 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	}else{
 		stop("Please Specify Experimental Design")
 	}
-	
-	
+
 	eset <- parseMaxQuantProteinGroupTxt(userOptions$inputFile,expDesign=expDesign, method="auc")
-	
 	
 }else if(fileType == "GenericCSV"){
 	
@@ -207,7 +205,12 @@ if("ptm" %in% names(fData(eset))){
 
 if("peptide" %in% names(fData(eset))){
 	filter <- cbind(filter
-			, peptideLength =nchar(as.character(fData(eset)$peptide)) < userOptions$minPeptideLength )
+			, peptideLength =nchar(as.character(fData(eset)$peptide)) < userOptions$minPeptideLength 
+			, charge =  fData(eset)$charge == 1 # discard singly charged
+	)
+	
+	
+	
 }
 
 if(!("nbPeptides" %in% names(fData(eset)))){
@@ -360,8 +363,8 @@ if(exists("sqaProtein")){
 	lab <- "Peptide"
 }
 ### only disp. a subset for some plots
-rowSelEset <- sample(nrow(eset),min(c(2000,nrow(eset))) ,replace=F)
-rowSelSqaDisp <- sample(nrow(sqaDisp$eset),min(c(2000,nrow(sqaDisp$eset))) ,replace=F)
+rowSelEset <- 1:nrow(eset) %in% sample(nrow(eset),min(c(2000,nrow(eset))) ,replace=F)
+rowSelSqaDisp <- 1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),min(c(2000,nrow(sqaDisp$eset))) ,replace=F)
 
 pdf(userOptions$pdfFile)
 parDefault <- par()
@@ -415,19 +418,16 @@ par(parDefault)
 ### CORRELATION PLOTS
 ### COR OR PAIRS PLOT. IF FEWER THAN X SAMPLES 
 
-#rowSelEsetNorm <- sample(nrow(esetNorm),min(c(500,nrow(esetNorm))) ,replace=F)
-
-
 if(ncol(sqaDisp$eset) < 8){
-	pairsAnnot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp,],textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
+	pairsAnnot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered ,],textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
 }else{
-	.correlationPlot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp,], labels=as.character(unique(pData(sqaDisp$eset)$condition)), textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
+	.correlationPlot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered,], labels=as.character(unique(pData(sqaDisp$eset)$condition)), textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
 }
 ### COR OR PAIRS PLOT. IF FEWER THAN X CONDITIONS 
 if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
-	pairsAnnot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
+	pairsAnnot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
 }else{
-	.correlationPlot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
+	.correlationPlot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
 }
 
 par(parDefault)
@@ -441,7 +441,7 @@ par(mfrow=c(1,2))
 
 par(parDefault)
 if(userOptions$verbose) cat("INFO: HEAT MAP \n")
-hClustHeatMap(sqaDisp$eset[sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000))),],main= paste(lab,"Level"))
+hClustHeatMap(sqaDisp$eset[(1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000)))) &  !fData(sqaDisp$eset)$isFiltered,],main= paste(lab,"Level"))
 
 ### QUANT. STAT. PLOTS 
 
