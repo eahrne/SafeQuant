@@ -11,6 +11,7 @@
 #	seqinr
 #	corrplot
 #	optparse
+#	data.table
 
 # Author: erikahrne
 ###############################################################################
