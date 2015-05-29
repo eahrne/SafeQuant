@@ -3,17 +3,17 @@
 # Author: erikahrne
 ###############################################################################
 
-myRatioBoxplot <- function(eset, sampleNb=nrow(eset),xlab="Reference Ratio",ylab="TMT Ratio", ...){
-	
-	ratios <-  2^getRatios(eset)
-	sampleNb <- min(c(nrow(eset),sampleNb))
-	sampleIndices <- sample(1:nrow(ratios),sampleNb,replace=F)
-	par(mar=c(5.1,5.1,4.1,2.1))
-	boxplot(ratios[sampleIndices,c(2,4,1,3)],log="y", ylim=c(0.1,25),names=c("0.2:1","0.5:1","1.5:1","10:1"),lwd=2, col=COLORS[2:5],..., cex.lab=1.5,cex.axis=1.5, xlab=xlab,ylab=ylab)
-	abline(h=c(0.2,0.5,1.5,10), col=COLORS[2:5],lty=2)
-	abline(h=1,lty=1)
-	par(mfrow=c(1,1))
-}
+#myRatioBoxplot <- function(eset, sampleNb=nrow(eset),xlab="Reference Ratio",ylab="TMT Ratio", ...){
+#	
+#	ratios <-  2^getRatios(eset)
+#	sampleNb <- min(c(nrow(eset),sampleNb))
+#	sampleIndices <- sample(1:nrow(ratios),sampleNb,replace=F)
+#	par(mar=c(5.1,5.1,4.1,2.1))
+#	boxplot(ratios[sampleIndices,c(2,4,1,3)],log="y", ylim=c(0.1,25),names=c("0.2:1","0.5:1","1.5:1","10:1"),lwd=2, col=COLORS[2:5],..., cex.lab=1.5,cex.axis=1.5, xlab=xlab,ylab=ylab)
+#	abline(h=c(0.2,0.5,1.5,10), col=COLORS[2:5],lty=2)
+#	abline(h=1,lty=1)
+#	#par(mfrow=c(1,1))
+#}
 
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
 source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")

@@ -214,7 +214,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 			proteinName=res$Protein
 			,proteinDescription=res$Description
 			,peptide=res$Sequence
-			,idScore=res$Score
+			,idScore=as.numeric(as.character(res$Score))
 			,mass=res$Mass
 			,pMassError=res[,"Mass error (ppm)"]
 			,mz=res[,"m/z"]
@@ -238,10 +238,13 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
 	
+	#@TODO 
+	#allColNA <- rep(F,length(allColNA))
+
 	# discard non peptide annotated rows
-	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
+	isPep <- !is.na(featureAnnotations$idScore) 
 	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
-	
+		
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
@@ -376,9 +379,9 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 # A) Roll-up on feature level, keeping the best scoring peptide
 	featureDTTmp <- resDT[, list( peptide  = Sequence[order(Score,decreasing=T)[1]]), by = key(resDT)]
 # B) list all featureNB_peptides to be kept
-	keptFeataurePeptides <- unique(paste(featureDTTmp$Feature,as.character(featureDTTmp$peptide),sep=""))
+	keptFeaturePeptides <- unique(paste(featureDTTmp$Feature,as.character(featureDTTmp$peptide),sep=""))
 # C) filter resDT keeping only these featureNB_peptides
-	resDT <- resDT[paste(resDT$Feature,as.character(resDT$Sequence),sep="") %in% keptFeataurePeptides,]
+	resDT <- resDT[paste(resDT$Feature,as.character(resDT$Sequence),sep="") %in% keptFeaturePeptides,]
 	
 # 3)  Score all proteins
 	setkey(resDT,"Accession")
@@ -444,7 +447,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	)
 	
 	# discard non peptide annotated rows
-	isPep <- nchar(as.character(featureAnnotations$peptide)) > 0 
+	isPep <- score > 0  
 	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
@@ -668,14 +671,7 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	expMatrix <- as.matrix(res[, 10:(10+(nbPlex-1)) ])
 	
 	if(isPurityCorrect){
-		
-#		expMatrix <- log2(expMatrix)
-#		expMatrix[!is.finite(expMatrix)] <- NA
-		
 		expMatrix <- purityCorrectTMT(expMatrix,getImpuritiesMatrix(nbPlex))
-		
-		
-		# expMatrix <- 2^(expMatrix)
 	}
 	
 	### re-order and exclude channels  
@@ -684,6 +680,7 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
+	
 	# discard features where all intensities are NA (i.e. 0)
 	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
 	
@@ -712,9 +709,6 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
-	
-	
-	
 	
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
 }

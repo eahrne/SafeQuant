@@ -27,7 +27,9 @@ ls()
 load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_short.rData")
 ls()
 pData(esetTechRep1)
-pData(esetTechRep1)
 esetTechRep1
 pData(esetTechRep1)
 123*3600
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/impurityCorrectionMethodEvaluation.rData")
+eset
+pData(eset)

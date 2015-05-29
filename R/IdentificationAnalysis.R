@@ -191,7 +191,7 @@ addIdQvalues <- function(eset=eset){
 	# init vector to be added
 	idQValue <- rep(1,nrow(eset))
 	
-	# if ptm column exist seperate calculate qvals sepearately for mof and nomd features
+	# if ptm column exist seperate calculate qvals sepearately for modif and nomd features
 	if(!is.null(fData(eset)$ptm)){
 		
 		isMod <- nchar(as.character(fData(eset)$ptm)) > 0
@@ -310,6 +310,7 @@ getScoreCutOff <- function(scores,isDecoy,fdrCutOff = 0.01){
 getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){
 	
 	modifPos <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq)
+	
 	if( modifPos[1] > -1){
 		
 		motifX <- c()
@@ -354,10 +355,13 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 	
 	for(m in modifList){
 		
-		m <- gsub("\\[","",m)
-		m <- as.numeric(gsub("\\].*","",m))
+		if(grepl("N\\-term",m)){
+			m <- 1
+		}else{
+			m <- gsub("\\[","",m)
+			m <- as.numeric(gsub("\\].*","",m))
+		}
 		modifPos <- c(modifPos,m)
-		
 	}
 	
 	### get peptide position on protein (first matching position if duplicates)

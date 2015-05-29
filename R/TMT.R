@@ -11,8 +11,22 @@
 #' @details No details
 #' @references NA 
 #' @examples print("No examples")
-getImpuritiesMatrix <- function (plexNb=6){
+getImpuritiesMatrix <- function (plexNb=6, test=F){
 	
+#	if(test){
+#		
+#		#### test from MSnbase
+#		tmt126 <- c(0,0,6.1,0)
+#		tmt127 <- c(0,0.5,6.7,0)
+#		tmt128 <- c(0,1.1,4.2,0)
+#		tmt129 <- c(0,1.7,4.1,0)
+#		tmt130 <- c(0,1.6,2.1,0)
+#		tmt131 <- c(0.2,3.2,2.8,0)
+#		
+#		reporterIonIsotopicDistrib <-  t( as.matrix( data.frame(c(0,tmt126,0),c(0,tmt127,0),c(0,tmt128,0),c(0,tmt129,0),c(0,tmt130,0),c(0,tmt131,0)) ) )/100
+#		rownames(reporterIonIsotopicDistrib) <- 1:6
+#		
+#	}else
 	if(plexNb == 10){
 		
 		### FROM THERMO PRODUCT DATA SHEET
@@ -37,10 +51,9 @@ getImpuritiesMatrix <- function (plexNb=6){
 			,c(0,tmt131,0)) ) )/100
 		rownames(reporterIonIsotopicDistrib) <- 1:10
 		
-	}else{
+	}else if(plexNb == 6){
 		
 		### FROM THERMO PRODUCT DATA SHEET
-		
 		# 6-plex old
 #		tmt126 <- c(0,0,9.4,0.6)
 #		tmt127 <- c(0.1,0.8,8.6,0.4)
@@ -49,12 +62,19 @@ getImpuritiesMatrix <- function (plexNb=6){
 #		tmt130 <- c(0.2,2.1,5.1,0.2)
 #		tmt131 <- c(0.1,4.1,4.7,0.1)
 		
-		tmt126 <- c(0,0,5.85,0.0)
-		tmt127 <- c(0.0,0.4,6.5,0)
-		tmt128 <- c(0.34,1.2,3.59,0)
-		tmt129 <- c(0,1.59,3.48,0)
-		tmt130 <- c(0.17,2.9,2.18,0)
-		tmt131 <- c(0.35,3.58,2.1,0)
+#		tmt126 <- c(0,0,5.85,0.0)
+#		tmt127 <- c(0.0,0.4,6.5,0)
+#		tmt128 <- c(0.34,1.2,3.59,0)
+#		tmt129 <- c(0,1.59,3.48,0)
+#		tmt130 <- c(0.17,2.9,2.18,0)
+#		tmt131 <- c(0.35,3.58,2.1,0)
+		
+		tmt126 <- c(0,   0  , 5.6  ,0)
+		tmt127 <- c(0,   0.4, 5    ,0)
+		tmt128 <- c(0,   1.2, 5.3  ,0.1)
+		tmt129 <- c(0.2, 1.5, 4.1  ,0)
+		tmt130 <- c(0.1, 2.6, 2.5  ,0)
+		tmt131 <- c(0.1 ,3.3, 2.6  ,0)
 		
 		#### test from MSnbase
 		#tmt126 <- c(0,0,6.1,0)
@@ -66,7 +86,35 @@ getImpuritiesMatrix <- function (plexNb=6){
 		
 		reporterIonIsotopicDistrib <-  t( as.matrix( data.frame(c(0,tmt126,0),c(0,tmt127,0),c(0,tmt128,0),c(0,tmt129,0),c(0,tmt130,0),c(0,tmt131,0)) ) )/100
 		rownames(reporterIonIsotopicDistrib) <- 1:6
+		
+	}else if(plexNb == -6){	 ### test
+		
+		tmt126 <- c(0,   0  , 0  ,0)
+		tmt127 <- c(0,   0, 0    ,0)
+		tmt128 <- c(0,   0, 0  ,0)
+		tmt129 <- c(0, 0, 4.1  ,0)
+		tmt130 <- c(0, 0, 0  ,0)
+		tmt131 <- c(0 ,3.3, 0  ,0)
+		#tmt131 <- c(0 ,0, 0  ,0)
+		
+		plexNb <- 6
+		reporterIonIsotopicDistrib <-  t( as.matrix( data.frame(c(0,tmt126,0),c(0,tmt127,0),c(0,tmt128,0),c(0,tmt129,0),c(0,tmt130,0),c(0,tmt131,0)) ) )/100
+		rownames(reporterIonIsotopicDistrib) <- 1:6
 	
+	}else if(plexNb == -60){	 ### test
+		
+		tmt126 <- c(0,   0, 0  ,0)
+		tmt127 <- c(0,   0, 5  ,0)
+		tmt128 <- c(0,   0, 0  ,0)
+		tmt129 <- c(0, 1.5, 4.1,0)
+		tmt130 <- c(0, 0, 0  ,0)
+		tmt131 <- c(0 ,3.3, 0  ,0)
+		#tmt131 <- c(0 ,0, 0  ,0)
+		
+		plexNb <- 6
+		reporterIonIsotopicDistrib <-  t( as.matrix( data.frame(c(0,tmt126,0),c(0,tmt127,0),c(0,tmt128,0),c(0,tmt129,0),c(0,tmt130,0),c(0,tmt131,0)) ) )/100
+		rownames(reporterIonIsotopicDistrib) <- 1:6
+		
 	}
 	
 	###convert  reporterIonIsotopicDistrib -> impuritiesMatrix
@@ -86,6 +134,10 @@ getImpuritiesMatrix <- function (plexNb=6){
 		}
 	}
 	
+	
+	
+	#diag(impuritiesMatrix) <- 1
+	impuritiesMatrix <- t(impuritiesMatrix) 
 	return(impuritiesMatrix)
 	
 }
@@ -93,22 +145,40 @@ getImpuritiesMatrix <- function (plexNb=6){
 
 #' Correct channel intensities based on Reporter ion Isotopic Distributions 
 #' @param tmtData data.frame containing tmt channel intensities
+#' @param method to deal with NA and negative values c("","allZero","allNA","allOrg") 
 #' @return data.frame of corrected tmt intensities
 #' @export
 #' @note  No note
 #' @details Same method as MSnbase, and described in Breitwieser et al. 2012 (Book Chapter)
 #' @references NA 
 #' @examples print("No examples")
-purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix){
+purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix, invalidReplace = "allNA" ){
 	tmtDataCorrected <- matrix(nrow=nrow(tmtData),ncol=ncol(impurityMatrix))
 	### solve linear system (spectrum by spectrum)
 	for(i in 1:nrow(tmtData)){
-		correctedSpectrumIntensities <- t(solve(impurityMatrix) %*% tmtData[i,])
+		#correctedSpectrumIntensities <- t(solve(impurityMatrix) %*% tmtData[i,])
+		
+		correctedSpectrumIntensities <- solve(impurityMatrix, tmtData[i,])
+		
 		tmtDataCorrected[i,1:ncol(impurityMatrix)] <- correctedSpectrumIntensities
 	}
 	#tmtDataCorrected[tmtDataCorrected <0] <- 0
+	
+	#print(sum(!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)))
 	### if negative intensity upon correction then do not correct.
-	tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
+	#tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
+	
+	if(invalidReplace  == "allZero" ){
+		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- 0
+	}else if(invalidReplace  == "allNA"){
+		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- NA
+	}else if(invalidReplace  == "allOrg"){ ### keep original values
+		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
+	}### else Negative values are allowed
+
+	#print(invalidReplace)
+	
+	colnames(tmtDataCorrected) <- colnames(tmtData)
 	
 	return(tmtDataCorrected)
 }

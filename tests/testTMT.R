@@ -11,10 +11,24 @@ testGetImpuritiesMatrix <- function(){
 	cat(" --- testGetImpuritiesMatrix --- \n")
 	# 6-plex
 	# old stopifnot(0.094 ==  getImpuritiesMatrix(6)[1,2])
-	stopifnot(0.06 ==  round(getImpuritiesMatrix(6)[1,2],2))
+	stopifnot(0.004 ==  round(getImpuritiesMatrix(6)[1,2],3))
 	# 10-plex
-	stopifnot(0.047 ==  round(getImpuritiesMatrix(10)[1,2],3))
+	stopifnot(0.004 ==  round(getImpuritiesMatrix(10)[1,2],3))
 	cat(" --- testGetImpuritiesMatrix: PASS ALL TEST --- \n")
+	
+	
+	getImpuritiesMatrix(test=T)
+	# getImpuritiesMatrix(test=T)
+	#       [,1]  [,2]  [,3]  [,4]  [,5]  [,6]
+	# [1,] 0.939 0.061 0.000 0.000 0.000 0.000
+	# [2,] 0.005 0.928 0.067 0.000 0.000 0.000
+	# [3,] 0.000 0.011 0.947 0.042 0.000 0.000
+	# [4,] 0.000 0.000 0.017 0.942 0.041 0.000
+	# [5,] 0.000 0.000 0.000 0.016 0.963 0.021
+	# [6,] 0.000 0.000 0.000 0.002 0.032 0.938
+	# > cat("Synch1432219972384675000\n");
+
+	
 }
 
 testPurityCorrectTMT <- function(){
@@ -22,10 +36,10 @@ testPurityCorrectTMT <- function(){
 	cat(" --- testPurityCorrectTMT --- \n")
 	# 6-plex
 	# old stopifnot( round(9.998839,4)  ==  round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[1,1],4))
-	stopifnot( round(8.999833,4)  ==  round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[2,1],4))
+	stopifnot( 9.4965  ==  round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[2,1],4))
 	
 	# 10-plex
-	stopifnot( 10  ==  round(purityCorrectTMT(tmtTestData10Plex,impurityMatrix=getImpuritiesMatrix(10))[1,1],4))
+	stopifnot( 10.4493  ==  round(purityCorrectTMT(tmtTestData10Plex,impurityMatrix=getImpuritiesMatrix(10))[1,1],4))
 	cat(" --- testPurityCorrectTMT: PASS ALL TEST --- \n")
 	
 }
@@ -56,21 +70,30 @@ comparePurityCorrectionToMsnbase <- function(){
 					0.000, 0.001, 0.040, 0.923),
 			nrow = 4)
 	
-	qnt <- quantify(itraqdata[1:2,],reporters = iTRAQ4)
+	qnt <- quantify(itraqdata[1:3,],reporters = iTRAQ4)
 	
 	exprs(qnt)[1,] <- rep(1,4)
 	exprs(qnt)[2,] <- 1:4
+	
+	exprs(qnt)[3,] <- rnorm(4,10)
+	
 	qnt.crct <- purityCorrect(qnt, impurities)
 	
+	testA <- solve(impurities,rep(1,4))
 	### our correction method
-	testA <- as.vector(t(solve(impurities) %*% rep(1,4)))
-	testB <- as.vector(t(solve(impurities) %*% 1:4))
+	#testA <- as.vector(t(solve(impurities) %*% rep(1,4)))
+	#testB <- as.vector(t(solve(impurities) %*% 1:4))
+	testB <- solve(impurities,1:4)
+	#testC <- as.vector(t(solve(impurities) %*% exprs(qnt)[3,]))
+	testC <- solve(impurities,exprs(qnt)[3,])
 	
 	stopifnot( sum(round(testA,3) == round(exprs(qnt.crct)[1,],3)) == 4 )
 	stopifnot( sum(round(testB,3) == round(exprs(qnt.crct)[2,],3)) == 4 )
+	stopifnot( sum(round(testC,3) == round(exprs(qnt.crct)[3,],3)) == 4 )
 	
 	cat(" --- comparePurityCorrectionToMsnbase: PASS ALL TEST --- \n")
 	
+
 } 
 
 ### test functions end
@@ -101,7 +124,34 @@ testCreateExpDesign()
 ### TESTS END
 
 
+### Ex. 4 channels
+
+# reporter ion distributions
+#-2	-1	1	2
+#0	0	0	0
+#0	0	0	0
+#0	0	.1	0
+#0	0	0	0
+
+#-> impurity matrix
+#1: c1T <- 1 0 0 0
+#2: c2T <- 0 1 0 0
+#3: c3T <- 0 0 0.9 0
+#4: c4T <- 0 0 0.1 1
+
+impurities <- t(matrix(c( 1, 0,0,0,
+				0, 1,0,0,
+				0, 0,0.9,0,
+				0, 0,0.1,1),
+		nrow = 4))
+
+solve(impurities,c(10,10,9,11))
 
 
+impurities <- t(matrix(c( 0.9,0 ,0,0,
+						0.1, 0.9,0,0,
+						0, 0.1,0.9,0,
+						0, 0,0.1,1),
+				nrow = 4))
 
-
+solve(impurities,c(9,10,10,1))

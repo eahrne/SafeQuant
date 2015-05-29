@@ -568,6 +568,8 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 	
 	#par(mar=c(7.1,4.1,4.1,2.1))
 	
+	eset <- eset[!fData(eset)$isFiltered,]
+	
 	d <- apply(exprs(eset),2, function(t){ (sum(is.na(t)) / length(t))*100 } )
 	ylim <- c(0,range(d)[2])
 	if(max(d,na.rm=T) == 0) ylim <- c(0,100)
@@ -602,6 +604,8 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' @examples print("No examples")
 barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="sum",cex.lab=1.25, cex.axis=1.25,...){
 	
+	eset <- eset[!fData(eset)$isFiltered,]
+	
 	if(method == "median"){
 		profile <- apply(exprs(eset),2,median,na.rm=T)
 		ylab <- "Median MS-Signal (Scaled)"
@@ -627,6 +631,8 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 #' @references NA
 #' @examples print("No examples")
 cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pData(eset)$condition),]), cex.names=0.9,cex.axis=1.25,cex.lab=1.25,...){
+	
+	eset <- eset[!fData(eset)$isFiltered,]
 	
 	cv <- getAllCV(eset)
 	### avoid crach when not enough repliocates
@@ -717,13 +723,12 @@ hClustHeatMap <- function(eset
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 
 	 
-	log2RatioPerMsRun
 	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
 	feature.cor.dist = as.dist(1-feature.cor)
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
 	feature.tree = hclust(feature.cor.dist, method="ward")
 	
-	### clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not
+	### clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
 	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
@@ -778,7 +783,7 @@ hClustHeatMap <- function(eset
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1.5),pvalRange=c(0,0.3)
+plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3)
 		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
 	
 	### we need at least two conditions
@@ -911,7 +916,7 @@ plotIdScoreVsFDR <-function(idScore,qvals, ylab="False Discovery Rate", xlab="Id
 plotROC <- function(qvals
 		,xlab="False Discovery Rate"
 		,ylab="# Valid Identifications"
-		,xlim=c(0,1)
+		,xlim=c(0,0.1)
 		,breaks=100
 		,col="blue"
 		,lwd=1.5	

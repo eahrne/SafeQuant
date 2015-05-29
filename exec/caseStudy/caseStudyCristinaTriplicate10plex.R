@@ -39,11 +39,14 @@ if(T){
 	rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_short.rData"
 
 	#CTRL <- "RPE"
-	#CTRL <- "DLD12N"
-	CTRL <- "DLD14N"
+	CTRL <- "DLD12N"
+	#CTRL <- "DLD14N"
 	
-	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".pdf",sep="")
-	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".xls",sep="")
+	#pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".pdf",sep="")
+	#xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".xls",sep="")
+		
+	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.pdf",sep="")
+	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.xls",sep="")
 
 	
 }else{
@@ -52,6 +55,13 @@ if(T){
 	pdfFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.pdf"
 	xlsFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.xls"
 	rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_wIsoForms.rData"
+
+	#CTRL <- "RPE"
+	#CTRL <- "DLD12N"
+	CTRL <- "DLD14N"
+	
+	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".pdf",sep="")
+	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".xls",sep="")
 	
 }
 
@@ -111,6 +121,12 @@ esetBioRep2 <- eset[grepl("exp40",as.character(fData(eset)$spectrumName)),]
 # biological replicate 3
 #sum(grepl("exp41",as.character(fData(eset)$spectrumName)))
 esetBioRep3 <- eset[grepl("exp41",as.character(fData(eset)$spectrumName)),]
+
+# keep only proteins found in all biological replicates
+sharedProteins <- unique(intersect(intersect(fData(esetBioRep1)$proteinName,fData(esetBioRep2)$proteinName),fData(esetBioRep3)$proteinName))
+esetBioRep1 <- esetBioRep1[fData(esetBioRep1)$proteinName %in% sharedProteins, ]
+esetBioRep2 <- esetBioRep2[fData(esetBioRep2)$proteinName %in% sharedProteins, ]
+esetBioRep3 <- esetBioRep3[fData(esetBioRep3)$proteinName %in% sharedProteins, ]
 
 # normalize
 esetBioRep1Norm <- sqNormalize(esetBioRep1, method="global")
@@ -212,18 +228,28 @@ medianRatiosCalibrated <- data.frame(predict(fitRatioCalibrationProtein,newdata=
 							)
 
 names(medianRatiosCalibrated)	<- names(medianRatios)						
-							
+
+sqa <- list()
+class(sqa) <- "safeQuantAnalysis"
+
+sqa$eset <- esetProteinRatios
+sqa$qValue <- qValues
+sqa$pValue <- pValues
+sqa$ratio <- medianRatios
+
+
 ### ADJUST RATIOS BASED ON SPIKE-IN KIT END
 
 ### XLS
 
 ratios <- exprs(esetProteinRatios)
 colnames(ratios) <- paste(pData(esetProteinRatios)$condition ,colnames(exprs(esetProteinRatios)),sep="_")
-out <- cbind(fData(esetProteinRatios),ratios,medianRatios,medianRatiosCalibrated,qValues)
+out <- cbind(fData(esetProteinRatios),ratios,medianRatios,medianRatiosCalibrated,pValues,qValues)
 names(out)[3:23] <- paste("log2ratio",names(out)[3:23],sep="_")
 names(out)[24:30] <- paste("median_log2ratio",names(out)[24:30],sep="_")
 names(out)[31:37] <- paste("median_log2ratio_adjusted",names(out)[31:37],sep="_")
-names(out)[38:ncol(out)] <- paste("qValue",names(out)[38:ncol(out)],sep="_")
+names(out)[38:44] <- paste("pValue",names(out)[38:44],sep="_")
+names(out)[45:ncol(out)] <- paste("qValue",names(out)[45:ncol(out)],sep="_")
 write.table(file=xlsFile,out,row.names=F,sep="\t")
 
 ### XLS END
@@ -231,6 +257,24 @@ write.table(file=xlsFile,out,row.names=F,sep="\t")
 ### GRAPHICS
 
 pdf(pdfFile)
+
+conditionColors =.getConditionColors(esetProteinRatios)
+samplecolors =  as.vector(unlist(conditionColors[pData(esetProteinRatios)$condition,]))
+breaks=seq(-1.5,1.5,length=20)
+
+heatmap.2(exprs(esetProteinRatios)
+
+		,ColSideColors=samplecolors
+		,breaks=breaks
+		, col=colorRampPalette(c(colors()[142],"black",colors()[128]))
+		,labRow= rep("",(nrow(esetProteinRatios)))
+		,dendrogram="column"
+		,density.info="density", scale="none"
+		, key=TRUE
+		, symkey=FALSE
+		, trace="none"
+)
+legend("left",levels(pData(esetProteinRatios)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 
 par(mfrow=c(2,3))
 plotCalibrationMixRatios(esetCalibMix)
@@ -257,29 +301,55 @@ mtext(side=3,"Peptides")
 venn(list(bioRep1=unique(as.character(fData(esetBioRep1)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3)$proteinName))))
 mtext(side=3,"Proteins")
 
+# qvalue
 par(mfrow=c(3,3),cex.lab=1.5,cex.names=1.5, cex.axis=1.3 )
 for(i in 1:ncol(qValues)){
-	#controlCondition <- "RPE"
-	#caseCondition <- paste("cond", i+1)
 	caseCondition <- names(medianRatios)[i]		
-	
 	plot(medianRatios[,i],-log10(qValues[,i])
 			, pch=19
 			, xlab= paste("log2(",caseCondition,"/",CTRL,")", sep="" )
 			, ylab= paste("-log10(qValue)",sep="")
 			,col=c("black","blue")[(qValues[,i] < qValueThrs)+1 ]
-	
-	
 	)
 	grid()
 }
 
-barplot(apply(qValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( qValue <=",qValueThrs,")"))
+# pvalue
+par(mfrow=c(3,3),cex.lab=1.5,cex.names=1.5, cex.axis=1.3 )
+for(i in 1:ncol(qValues)){
+	caseCondition <- names(medianRatios)[i]		
+	plot(medianRatios[,i],-log10(pValues[,i])
+			, pch=19
+			, xlab= paste("log2(",caseCondition,"/",CTRL,")", sep="" )
+			, ylab= paste("-log10(pValue)",sep="")
+			,col=c("black","blue")[(pValues[,i] < qValueThrs)+1 ]
+	)
+	grid()
+}
 
+par(mfrow=c(2,2))
+
+barplot(apply(qValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( qValue <=",qValueThrs,")"))
+barplot(apply(pValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( pValue <=",qValueThrs,")"))
+
+par(mfrow=c(2,2))
+plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=T, isLegend=T ,pvalCutOff=qValueThrs)
+plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=T, isLegend=F, pvalCutOff=qValueThrs)
+
+plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=F , isLegend=F ,pvalCutOff=qValueThrs)
+plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=F, isLegend=F ,pvalCutOff=qValueThrs)
+
+par(mfrow=c(3,3))
+.allpValueHist(sqa)
 
 dev.off()
 
 ### GRAPHICS END
+
+par(mfrow=c(1,2))
+venn(list(bioRep1=unique(as.character(fData(esetBioRep1Norm)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2Norm)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3Norm)$proteinName))))
+mtext(side=3,"Proteins")
+
 
 
 print("DONE")

@@ -74,7 +74,16 @@ testGetScoreCutOff <- function(){
 
 testGetModifProteinCoordinates <- function(){
 	
+	ptm <- "[N-term] Acetyl (Protein N-term)|[6] Oxidation (M)"
+	peptide <- "SSDAEMAVFGEAAPYLR"
+	protein <-  "MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK"
+	
+	#debug(getModifProteinCoordinates)
+	
 	cat("--- testGetModifProteinCoordinates: --- \n")
+	mc <- getModifProteinCoordinates(ptm,peptide,protein)
+	stopifnot(9 == mc[1])
+	stopifnot(14 == mc[2])
 	stopifnot(sum(c(34,49) == getModifProteinCoordinates(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1)) ==2) 
 	stopifnot(37 == getModifProteinCoordinates(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2)) 
 	cat("--- testGetModifProteinCoordinates: PASS ALL TEST --- \n")
@@ -200,10 +209,6 @@ testGetMeanCenteredRange <- function(){
 	cat("--- testGetMeanCenteredRange: --- \n")
 	stopifnot( round(mean(getMeanCenteredRange(fData(eset)$pMassError)),3) == round(mean(fData(eset)$pMassError),3) )
 	cat("--- testGetMeanCenteredRange: PASS ALL TEST --- \n")
-	
-	hist(pMassError)
-	abline(v=getMeanCenteredRange(pMassError,nbSd = 1))
-	abline(v=getMeanCenteredRange(pMassError,nbSd = 5))
 	
 }
 

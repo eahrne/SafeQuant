@@ -289,8 +289,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
 	# roll-up peptide level
 	cat("INFO: ROLL-UP PEPTIDE LEVEL\n")
-	
-	
+		
 	esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"))
 	#print(system.time(esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)))
 	#esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)
@@ -348,7 +347,21 @@ userOptions$peptideTsvFilePath <- file.path(userOptions$outputDir, paste(userOpt
 userOptions$proteinTsvFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_PROTEIN.tsv",sep=""))
 userOptions$paramsFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ_PARAMS.TXT",sep=""))
 userOptions$rDataFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ.rData",sep=""))
-### GRAPHICS
+
+
+############################### GRAPHICS
+
+# plot protein or peptide level resutls
+if(exists("sqaProtein")){
+	sqaDisp <- sqaProtein
+	lab <- "Protein"
+}else{
+	sqaDisp <- sqaPeptide
+	lab <- "Peptide"
+}
+### only disp. a subset for some plots
+rowSelEset <- sample(nrow(eset),min(c(2000,nrow(eset))) ,replace=F)
+rowSelSqaDisp <- sample(nrow(sqaDisp$eset),min(c(2000,nrow(sqaDisp$eset))) ,replace=F)
 
 pdf(userOptions$pdfFile)
 parDefault <- par()
@@ -358,8 +371,6 @@ CONDITIONCOLORS <- .getConditionColors(esetNorm)
 plotExpDesign(esetNorm, version=VERSION)
 ### EXPDESIGN PLOT END
 
-# l <- layout(rbind(c(1,1), c(2,3)))
-# layout.show(l)
 
 ### IDENTIFICATION PLOTS
 if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
@@ -376,25 +387,10 @@ par(parDefault)
 ### IDENTIFICATIONS PLOTS END
 ### QUANT. QC PLOTS 
 if(userOptions$verbose) cat("INFO: QUANT QC. PLOTS \n")
-rowSelEsetNorm <- sample(nrow(esetNorm),min(c(500,nrow(esetNorm))) ,replace=F)
-rowSelEset <- sample(nrow(eset),min(c(1000,nrow(eset))) ,replace=F)
 
-### CORRELATION PLOTS
-### COR OR PAIRS PLOT. IF FEWER THAN X SAMPLES 
-if(ncol(esetNorm) < 8){
-	pairsAnnot(log10(exprs(esetNorm))[rowSelEsetNorm,],textCol=as.character(CONDITIONCOLORS[pData(esetNorm)$condition,]))
-}else{
-	.correlationPlot(log10(exprs(esetNorm))[rowSelEsetNorm,], labels=as.character(unique(pData(esetNorm)$condition)), textCol=as.character(CONDITIONCOLORS[pData(esetNorm)$condition,]))
-}
-### COR OR PAIRS PLOT. IF FEWER THAN X CONDITIONS 
-if(length(unique(pData(esetNorm)$condition)) < 8){
-	pairsAnnot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,as.character(unique(pData(esetNorm)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(esetNorm)$condition)),]))
-}else{
-	.correlationPlot(log10(getSignalPerCondition(esetNorm[rowSelEsetNorm,]))[,as.character(unique(pData(esetNorm)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(esetNorm)$condition)),]))
-}
 
+### MASS ERROR
 par(parDefault)
-
 if("pMassError" %in% names(fData(eset))){
 	
 	par(mfrow=c(2,1), mar=c(4.5,6.1,4.1,6.1))
@@ -404,11 +400,36 @@ if("pMassError" %in% names(fData(eset))){
 	par(parDefault)
 }
 
+
 layout(rbind(c(1,2), c(3,3)))
+### missing values
 missinValueBarplot(eset)
+
+### total intensity sum
 barplotMSSignal(eset)
 par( mar=c(6.5,5.1,2.5,3.1))
-cvBoxplot(esetNorm)
+cvBoxplot(sqaDisp$eset)
+
+par(parDefault)
+
+### CORRELATION PLOTS
+### COR OR PAIRS PLOT. IF FEWER THAN X SAMPLES 
+
+#rowSelEsetNorm <- sample(nrow(esetNorm),min(c(500,nrow(esetNorm))) ,replace=F)
+
+
+if(ncol(sqaDisp$eset) < 8){
+	pairsAnnot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp,],textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
+}else{
+	.correlationPlot(log10(exprs(sqaDisp$eset))[rowSelSqaDisp,], labels=as.character(unique(pData(sqaDisp$eset)$condition)), textCol=as.character(CONDITIONCOLORS[pData(sqaDisp$eset)$condition,]))
+}
+### COR OR PAIRS PLOT. IF FEWER THAN X CONDITIONS 
+if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
+	pairsAnnot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
+}else{
+	.correlationPlot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
+}
+
 par(parDefault)
 
 ### retention time plot
@@ -417,163 +438,80 @@ if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
 ### QUANT. QC PLOTS END
 
 par(mfrow=c(1,2))
-#if(userOptions$eBayes | (exists("sqaPeptide") & exists("sqaProtein"))) par(mfrow=c(2,2))
+
+par(parDefault)
+if(userOptions$verbose) cat("INFO: HEAT MAP \n")
+hClustHeatMap(sqaDisp$eset[sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000))),],main= paste(lab,"Level"))
 
 ### QUANT. STAT. PLOTS 
 
 ### VAILD FEATURES VS. pValue/qValue
 if(userOptions$verbose) cat("INFO: QUANT RES. PLOTS \n")
-if(exists("sqaProtein")){
-	
-	plotNbValidDeFeaturesPerFDR(sqaProtein,
-			upRegulated=F
-			,log2RatioCufOff=log2(userOptions$ratioCutOff)
-			,pvalRange=c(0,0.15)
-			,pvalCutOff=userOptions$deFdrCutoff
-			,isLegend=T
-			,isAdjusted=T
-			,ylab="Protein Counts"
-			,main="DOWN REGULATION"
-	)
-	
-	plotNbValidDeFeaturesPerFDR(sqaProtein,
-			upRegulated=T
-			,log2RatioCufOff=log2(userOptions$ratioCutOff)
-			,pvalRange=c(0,0.15)
-			,pvalCutOff=userOptions$deFdrCutoff
-			,isLegend=F
-			,isAdjusted=T
-			,ylab="Protein Counts"
-			,main="UP REGULATION"
-	)
 
-}else if(exists("sqaPeptide")){
-	
-	plotNbValidDeFeaturesPerFDR(sqaPeptide,
-			upRegulated=F
-			,log2RatioCufOff=log2(userOptions$ratioCutOff)
-			,pvalRange=c(0,0.15)
-			,pvalCutOff=userOptions$deFdrCutoff
-			,isLegend=T
-			,isAdjusted=T
-			,ylab="Peptide Counts"
-			,main="DOWN REGULATION"
-	)
-	
-	plotNbValidDeFeaturesPerFDR(sqaPeptide,
-			upRegulated=T
-			,log2RatioCufOff=log2(userOptions$ratioCutOff)
-			,pvalRange=c(0,0.15)
-			,pvalCutOff=userOptions$deFdrCutoff
-			,isLegend=F
-			,isAdjusted=T
-			,ylab="Peptide Counts"
-			,main="UP REGULATION"
-	)
-	
-}
+plotNbValidDeFeaturesPerFDR(sqaDisp,
+		upRegulated=F
+		,log2RatioCufOff=log2(userOptions$ratioCutOff)
+		,pvalRange=c(0,0.15)
+		,pvalCutOff=userOptions$deFdrCutoff
+		,isLegend=T
+		,isAdjusted=T
+		,ylab=paste(lab, "Counts")
+		,main="DOWN REGULATION"
+)
 
-if(userOptions$eBayes){ 
-	if(exists("sqaProtein")){
-		
-		plotNbValidDeFeaturesPerFDR(sqaProtein,
-				upRegulated=F
-				,log2RatioCufOff=log2(userOptions$ratioCutOff)
-				,pvalRange=c(0,0.15)
-				,pvalCutOff=userOptions$deFdrCutoff
-				,isLegend=T
-				,isAdjusted=F
-				,ylab="Protein Counts"
-				,main="DOWN REGULATION"
-		)
-		
-		plotNbValidDeFeaturesPerFDR(sqaProtein,
-				upRegulated=T
-				,log2RatioCufOff=log2(userOptions$ratioCutOff)
-				,pvalRange=c(0,0.15)
-				,pvalCutOff=userOptions$deFdrCutoff
-				,isLegend=F
-				,isAdjusted=F
-				,ylab="Protein Counts"
-				,main="UP REGULATION"
-		)
-	}else if(exists("sqaPeptide")){
-		
-		plotNbValidDeFeaturesPerFDR(sqaPeptide,
-				upRegulated=F
-				,log2RatioCufOff=log2(userOptions$ratioCutOff)
-				,pvalRange=c(0,0.15)
-				,pvalCutOff=userOptions$deFdrCutoff
-				,isLegend=T
-				,isAdjusted=F
-				,ylab="Peptide Counts"
-				,main="DOWN REGULATION"
-		)
-		
-		plotNbValidDeFeaturesPerFDR(sqaPeptide,
-				upRegulated=T
-				,log2RatioCufOff=log2(userOptions$ratioCutOff)
-				,pvalRange=c(0,0.15)
-				,pvalCutOff=userOptions$deFdrCutoff
-				,isLegend=F
-				,isAdjusted=F
-				,ylab="Peptide Counts"
-				,main="UP REGULATION"
-		)
-	}
-} 
+plotNbValidDeFeaturesPerFDR(sqaDisp,
+		upRegulated=T
+		,log2RatioCufOff=log2(userOptions$ratioCutOff)
+		,pvalRange=c(0,0.15)
+		,pvalCutOff=userOptions$deFdrCutoff
+		,isLegend=F
+		,isAdjusted=T
+		,ylab=paste(lab, "Counts")
+		,main="UP REGULATION"
+)
 
-par(parDefault)
-if(userOptions$verbose) cat("INFO: HEAT MAP \n")
-if(exists("sqaProtein")){
-	hClustHeatMap(sqaProtein$eset,main="Protein Level")
-	
-	plotVolcano(sqaProtein
-			, main="Protein Level" 
-			, ratioThrs= userOptions$ratioCutOff
-			, pValueThreshold= userOptions$deFdrCutoff
-			, adjusted = T)
-}else if(exists("sqaPeptide")){
-	
-	
-	### max 10000 features, otherwise very slow clustering
-	hClustHeatMap(sqaPeptide$eset[sample(nrow(sqaPeptide$eset),min(c(nrow(sqaPeptide$eset),10000))),],main="Peptide Level")
-		
-	plotVolcano(sqaPeptide
-			, main="Peptide Level" 
-			, ratioThrs= userOptions$ratioCutOff
-			, pValueThreshold= userOptions$deFdrCutoff
-			, adjusted = T)
-} 
+plotVolcano(sqaDisp
+		, main=paste(lab,"Level")
+		, ratioThrs= userOptions$ratioCutOff
+		, pValueThreshold= userOptions$deFdrCutoff
+		, adjusted = T)
+
 
 if(userOptions$eBayes){
 	
-	if(exists("sqaProtein")){
-		
-		plotVolcano(sqaProtein
-				, main="Protein Level"
-				, ratioThrs= userOptions$ratioCutOff
-				, pValueThreshold= userOptions$deFdrCutoff
-				, adjusted = F)
-		
-		par(mfrow=c(2,2))
-		if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
-		.allpValueHist(sqaProtein)
-		par(parDefault)
-		
-	}else  if(exists("sqaPeptide")){
-		par(mfrow=c(2,2))
-		if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
-		.allpValueHist(sqaPeptide)
-		par(parDefault)
-		
-		plotVolcano(sqaPeptide
-					, main="Peptide Level"
-					, ratioThrs= userOptions$ratioCutOff
-					, pValueThreshold= userOptions$deFdrCutoff
-					, adjusted = F)
-	}
-}
+	plotNbValidDeFeaturesPerFDR(sqaDisp,
+			upRegulated=F
+			,log2RatioCufOff=log2(userOptions$ratioCutOff)
+			,pvalRange=c(0,0.15)
+			,pvalCutOff=userOptions$deFdrCutoff
+			,isLegend=T
+			,isAdjusted=F
+			,ylab=paste(lab, "Counts")
+			,main="DOWN REGULATION"
+	)
+	
+	plotNbValidDeFeaturesPerFDR(sqaDisp,
+			upRegulated=T
+			,log2RatioCufOff=log2(userOptions$ratioCutOff)
+			,pvalRange=c(0,0.15)
+			,pvalCutOff=userOptions$deFdrCutoff
+			,isLegend=F
+			,isAdjusted=F
+			,ylab=paste(lab, "Counts")
+			,main="UP REGULATION"
+	)
+	
+	plotVolcano(sqaDisp
+			, main=paste(lab,"Level")
+			, ratioThrs= userOptions$ratioCutOff
+			, pValueThreshold= userOptions$deFdrCutoff
+			, adjusted = F)
+	
+	par(mfrow=c(2,2))
+	if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
+	.allpValueHist(sqaDisp)
+	par(parDefault)
+}		
 
 ### QUANT. STAT. PLOTS END
 
@@ -583,14 +521,14 @@ cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 
 graphics.off()
 
-### GRAPHICS END
+############################### GRAPHICS END
 
 ### TSV EXPORT
 
 if(exists("sqaPeptide")){ 
 	
 	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
-						,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures", "isNormAnchor") 
+						,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 
 	
 	### add modif coord
@@ -637,7 +575,7 @@ if(exists("sqaPeptide")){
 	
 if(exists("sqaProtein")){
 	
-	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides","isNormAnchor")
+	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides")
 	selFDataCol <- selFDataCol[selFDataCol %in%  names(fData(sqaProtein$eset))] 
 	
 	### add allAccessions

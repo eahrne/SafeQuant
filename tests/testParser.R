@@ -134,12 +134,10 @@ testGetFileType <- function(){
 
 testParseProgenesisPeptideMeasurementCsv <- function(){
 	
-	### cannot use "peptide measurement exports" as feature are mapped to peptides. The same feature is listed multiple times
-	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv --- \n")
 	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
 	stopifnot(ncol(exprs(eset)) == 1)
-	stopifnot(nrow(exprs(eset)) == 11078)
+	stopifnot(nrow(exprs(eset)) == 9840)
 	
 	stopifnot(sum(grepl(";",fData(eset)$proteinName)) == 2)
 	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
