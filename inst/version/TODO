@@ -15,10 +15,6 @@
 - speed up parsing. update/get rid off .getProgenesisCsvExpressionColIndices()
 
 
-- add "examples" to -h option
-
-- expDesign, keep condition names unless conditions are mixed 
-
 ### SOLVED
 
 ### - write manual
@@ -47,3 +43,7 @@
 
 ### - update getMotifX 
 ###	 getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){ ->  getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){ 
+
+### - expDesign, keep condition names unless conditions are mixed 
+
+### - add "examples" to -h option

@@ -179,9 +179,24 @@ option_list <- list(
 #' @examples print("No examples")
 getUserOptions <- function(version=version){
 	
+	epilogue <- "Examples:
+	Progenesis LFQ Protein Quant:
+	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv
+
+	Progenesis LFQ Protein Quant (QE):
+	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv --FL 7
+
+	Progenesis LFQ Phospho Quant:
+	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv -f /path/to/proteins.fasta --FM phospho --FN 3 --EP
+
+	Scaffold Q+ TMT Protein Quant:
+	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
+	"
+
+	
 	# get command line options, if help option encountered print help and exit,
 	# otherwise if options not found on command line then set defaults,
-	cmdOpt <- parse_args(OptionParser( prog=paste("SafeQuant",version), option_list=option_list))
+	cmdOpt <- parse_args(OptionParser( prog=paste("SafeQuant",version), option_list=option_list, epilogue=epilogue))
 	
 	### CMD OPTIONS END						
 	
