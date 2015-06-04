@@ -67,10 +67,15 @@ testExpDesignTagToExpDesign <- function(){
 	stopifnot(length(unique(expDesign2$condition)) == 3 )
 	stopifnot(sum(expDesign2$isControl) == 4 )
 	
+	### condition name assignment when mixing runs from different conditions
+	expDesign <- data.frame(condition=paste("foo",c(1,1,1,2,2,3,3)),isControl=c(F,F,F,T,T,F,F) )
+	stopifnot(all(grepl("foo" ,expDesignTagToExpDesign("1,2,3:4,5:6",expDesign)$condition)))
+	stopifnot(all(grepl("Condition" ,expDesignTagToExpDesign("1:4,6:5",expDesign)$condition)))
+	stopifnot(all(grepl("foo" ,expDesignTagToExpDesign("1,2,3:4,5",expDesign)$condition)))
+	stopifnot(all(grepl("Condition" ,expDesignTagToExpDesign("1,2,4",expDesign)$condition)))
+	stopifnot(all(grepl("foo" ,expDesignTagToExpDesign("2",expDesign)$condition)))
 	
 	cat("--- testExpDesignTagToExpDesign: PASS ALL TEST --- \n")
-	
-	#expDesignTagToExpDesign("3")
 	
 }
 

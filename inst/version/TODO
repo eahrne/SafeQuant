@@ -1,4 +1,4 @@
-- Troubleshoot getAllCV and getCV
+
 - Create dependencies installation script
 - Update R version on TPP server
 
@@ -15,7 +15,9 @@
 - speed up parsing. update/get rid off .getProgenesisCsvExpressionColIndices()
 
 
+- add "examples" to -h option
 
+- expDesign, keep condition names unless conditions are mixed 
 
 ### SOLVED
 
@@ -41,3 +43,7 @@
  
 ### - graphic showing number of peptides per r.t. (ideally uniform distribution)
 ###	- alt. show cumulative as a function of r.t 
+### - Troubleshoot getAllCV and getCV
+
+### - update getMotifX 
+###	 getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){ ->  getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){ 

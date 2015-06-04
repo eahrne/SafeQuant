@@ -119,9 +119,12 @@ esetProtSolveCh5and3KeepInvalid <- rollUp(esetSolveCh5and3KeepInvalid,featureDat
 
 #pdf("/tmp/tmp.pdf")
 #pdf("/tmp/tmp_pCorrect_diag1.pdf")
-pdf("/tmp/tmp_pCorrect.pdf")
-par(mfrow=c(2,2))
+#pdf("/tmp/tmp_pCorrect.pdf")
+
 #pdf("/tmp/tmp_discard_interference_ch4_from_ch_5_manual.pdf")
+pdf("/tmp/tmp.pdf")
+
+par(mfrow=c(2,2))
 
 selChannels <- 1:5
 
@@ -152,5 +155,6 @@ mtext(side=3,at=1,"SolveCh5and3KeepInvalid")
 
 dev.off()
 
+print("DONE")
 
 #boxplot(exprs(eset),log="y")

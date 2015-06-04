@@ -907,10 +907,10 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 		
 	# idScore
 	if("idScore" %in% names(DT) ){
-		iDT <- DT[, max(idScore,na.rm=T), by=idx ]
+		#iDT <- DT[, max(idScore,na.rm=T), by=idx ]
+		iDT <- DT[, sum(idScore,na.rm=T), by=idx ]
 		rolledFData <- cbind(rolledFData,idScore = iDT[,V1])
 	}
-
 	
 	rolledAssayData <- as.matrix(rolledAssayData)
 	rolledAssayData[rolledAssayData == 0 ] <- NA

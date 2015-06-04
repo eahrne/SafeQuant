@@ -43,8 +43,10 @@
 #					modifCoord <- "Err"
 #					motifX <- "Err"
 				}else{
-					modifCoord <- paste(getModifProteinCoordinates(modifAnnot,peptide,proteinSeq),collapse=",")
-					motifX <- paste(getMotifX(modifAnnot,peptide, proteinSeq,motifLength),collapse=",")
+					
+					modifCoord <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq)
+					motifX <- paste(getMotifX(modifCoord,peptide, proteinSeq,motifLength),collapse=",")
+					modifCoord <- paste(modifCoord,collapse=",")
 				}
 			}
 			
@@ -298,6 +300,7 @@ getScoreCutOff <- function(scores,isDecoy,fdrCutOff = 0.01){
 
 ### create motif-x peptide annotation
 #' Create motif-x peptide annotation
+#' @param modifPos vector positions
 #' @param peptide peptide sequence
 #' @param proteinSeq protein sequence
 #' @param motifLength motif flanking sequence
@@ -307,9 +310,9 @@ getScoreCutOff <- function(scores,isDecoy,fdrCutOff = 0.01){
 #' @details motif-x example PGDYS*TTPG
 #' @references NA 
 #' @examples print("No examples")
-getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){
+getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){
 	
-	modifPos <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq)
+	#modifPos <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq)
 	
 	if( modifPos[1] > -1){
 		
@@ -330,8 +333,6 @@ getMotifX <- function(modifAnnot,peptide,proteinSeq, motifLength=4){
 	}else{
 		return(NA)
 	}
-	
-	
 }
 
 ### Get modification coordinates on protein

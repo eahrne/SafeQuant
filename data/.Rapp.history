@@ -33,3 +33,6 @@ pData(esetTechRep1)
 load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/impurityCorrectionMethodEvaluation.rData")
 eset
 pData(eset)
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP.rData")
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda")
+load("/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProteinCalMixTMT10.rda")

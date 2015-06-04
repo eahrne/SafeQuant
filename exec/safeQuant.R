@@ -56,6 +56,7 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 			
 }
 
+
 VERSION <- 2.1
 
 ### USER CMD LINE OPTIONS
@@ -183,12 +184,15 @@ filter <- data.frame(
 
 if("pMassError" %in% names(fData(eset))){
 	### applicable to Progenesis feature Exports	
-	# automatically get precursor limits, X * sd of 50% top scoring
-	userOptions$precursorMassFilter <- getMeanCenteredRange(fData(eset)$pMassError[fData(eset)$idScore > quantile(fData(eset)$idScore)[3]],nbSd = 3)
-	filter <- cbind(filter, pMassError=
-					(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
-					| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
-	)
+	
+	if(is.na(userOptions$precursorMassFilter)){ # if not user specified  
+		# automatically get precursor limits, X * sd of 50% top scoring
+		userOptions$precursorMassFilter <- getMeanCenteredRange(fData(eset)$pMassError[fData(eset)$idScore > quantile(fData(eset)$idScore)[3]],nbSd = 3)
+		filter <- cbind(filter, pMassError=
+						(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
+						| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
+		)
+	}
 }
 
 if("ptm" %in% names(fData(eset))){
@@ -209,9 +213,6 @@ if("peptide" %in% names(fData(eset))){
 			, peptideLength =nchar(as.character(fData(eset)$peptide)) < userOptions$minPeptideLength 
 			, charge =  fData(eset)$charge == 1 # discard singly charged
 	)
-	
-	
-	
 }
 
 if(!("nbPeptides" %in% names(fData(eset)))){
@@ -352,10 +353,9 @@ userOptions$proteinTsvFilePath <- file.path(userOptions$outputDir, paste(userOpt
 userOptions$paramsFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ_PARAMS.TXT",sep=""))
 userOptions$rDataFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ.rData",sep=""))
 
-
 ############################### GRAPHICS
 
-# plot protein or peptide level resutls
+# plot protein or peptide level results
 if(exists("sqaProtein")){
 	sqaDisp <- sqaProtein
 	lab <- "Protein"
@@ -375,7 +375,6 @@ CONDITIONCOLORS <- .getConditionColors(esetNorm)
 plotExpDesign(esetNorm, version=VERSION)
 ### EXPDESIGN PLOT END
 
-
 ### IDENTIFICATION PLOTS
 if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
 #if(fileType == "ProgenesisProtein") layout(rbind(c(1, 1), c(2, 3)) )
@@ -391,7 +390,6 @@ par(parDefault)
 ### IDENTIFICATIONS PLOTS END
 ### QUANT. QC PLOTS 
 if(userOptions$verbose) cat("INFO: QUANT QC. PLOTS \n")
-
 
 ### MASS ERROR
 par(parDefault)
@@ -527,7 +525,7 @@ graphics.off()
 ### TSV EXPORT
 
 if(exists("sqaPeptide")){ 
-	
+
 	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
 						,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 

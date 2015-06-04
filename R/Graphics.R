@@ -150,7 +150,7 @@ COLORS <- as.character(c(
 	lines(xPeptides,yCount,type="h",col="blue",lwd=2.5)
 	
 	### Id's ves Retention Time
-	if("retentionTime"  %in% names(fData(sqaPeptide$eset))) plotNbIdentificationsVsRT(sqaPeptide$eset)
+	if(exists("sqaPeptide") && ("retentionTime"  %in% names(fData(sqaPeptide$eset)))) plotNbIdentificationsVsRT(sqaPeptide$eset)
 	
 
 }

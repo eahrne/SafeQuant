@@ -34,6 +34,7 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 
 library("affy")
 library("limma")
+library("data.table")
 
 scaffoldRawDataFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20141125-134856_TMTexp20/Scaffold/Raw Data Report for Nigg-Cristina-TMTexp20-081214-calprot.xls"
 pdReportFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20141125-134856_TMTexp20/ProteomeDiscoverer/Cristina_Calib_mix.csv"
@@ -46,7 +47,7 @@ conflictingPeptideFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/Cristin
 expDesignTMT10Plex <- data.frame(condition=c("cond_1","cond_1","cond_2","cond_2",paste("cond",c(3:8),sep="_")),isControl=rep(F,10) )
 expDesignTMT10Plex$isControl[c(1,2)] <- T
 
-esetTMT10Spectrum <- parseScaffoldRawFile(scaffoldRawDataFile, expDesign=expDesignTMT10Plex, isPurityCorrect=F)
+esetTMT10Spectrum <- parseScaffoldRawFile(scaffoldRawDataFile, expDesign=expDesignTMT10Plex, isPurityCorrect=T)
 
 #filter
 esetTMT10Spectrum <- esetTMT10Spectrum[!isDecoy(fData(esetTMT10Spectrum)$proteinName),]  
@@ -74,12 +75,12 @@ fData(esetTMT10Spectrum) <- cbind(fData(esetTMT10Spectrum),pdAddedColumns)
 #esetTMT6Peptide <- rollUp(esetTMT10Spectrum,featureDataColumnName= c("peptide"),method="sum",isProgressBar=T) 
 #fData(esetTMT6Peptide)$isNormAnchor <-  grepl("HUMAN",fData(esetTMT6Peptide)$proteinName ) 
 
-esetTMT10Protein <- rollUp(esetTMT10Spectrum,featureDataColumnName= c("proteinName"),method="sum",isProgressBar=T) 
+esetTMT10Protein <- rollUp(esetTMT10Spectrum,featureDataColumnName= c("proteinName"),method="sum") 
 fData(esetTMT10Protein)$isNormAnchor <-  grepl("HUMAN",fData(esetTMT10Protein)$proteinName ) 
 
 
 #save(esetTMT10Spectrum,esetTMT6Peptide,esetTMT6Protein,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda" )
-save(esetTMT10Spectrum,esetTMT10Protein,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProeinCalMixTMT10.rda" )
+save(esetTMT10Spectrum,esetTMT10Protein,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProteinCalMixTMT10.rda" )
 #save(esetTMT10Spectrum,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProeinCalMixTMT10.rda" )
 
 print("DONE")

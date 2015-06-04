@@ -89,12 +89,19 @@ testGetModifProteinCoordinates <- function(){
 	cat("--- testGetModifProteinCoordinates: PASS ALL TEST --- \n")
 }
 
-
 testGetMotifX <- function(){
 	
 	cat("--- testGetMotifX: --- \n")
-	stopifnot("PGDYS*TTPG" == getMotifX(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1,4)[1])
-	stopifnot("GLPPS*PGDS" == getMotifX(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2,4))
+	
+	modifPos1 <- getModifProteinCoordinates(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1)
+	modifPos2 <- getModifProteinCoordinates(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2)
+	
+	stopifnot("PGDYS*TTPG" == getMotifX(modifPos1,fData(eset)$peptide[1],proteinSeq1,4)[1])
+	stopifnot("GLPPS*PGDS" == getMotifX(modifPos2,fData(eset)$peptide[2],proteinSeq2,4))
+	
+	#stopifnot("PGDYS*TTPG" == getMotifX(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1,4)[1])
+	#stopifnot("GLPPS*PGDS" == getMotifX(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2,4))
+	
 	cat("--- testGetMotifX: PASS ALL TEST --- \n")
 	
 }

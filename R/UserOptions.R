@@ -97,8 +97,8 @@ option_list <- list(
 	make_option(c("--EXperimentalDesign"), type="character", default=NA,
 			help='EXPERIMENTAL DESIGN: --EX "," seperated samples, ":" separated conditions 
 					Example: 1,2,3:4,5,6 
-					->  condition1 (REF) : channel 1,2,3
-					->  condition2: channel 4,5,6
+					   condition1 (REF) : channel 1,2,3
+					   condition2: channel 4,5,6
 					Note: for 10-plex default is "1,4,7,10:2,5,8:3,6,9"
 					[default %default]'), 
 	
@@ -418,8 +418,9 @@ getUserOptions <- function(version=version){
 #' @references NA 
 #' @examples print("No examples")
 expDesignTagToExpDesign <- function(tag, expDesignDefault){
+	
 	sampleOrder <- as.numeric(unlist(strsplit(tag,"[\\,\\:]")))
-
+	
 	# make sure no duplicates, withing range etc.
 	if(is.na(sampleOrder[1]) 
 			| (max(table(sampleOrder))>1) 
@@ -431,7 +432,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	}
 	
 	expDesign <- data.frame(row.names=sampleOrder,condition=rep(NA,length(sampleOrder)), isControl=rep(FALSE,length(sampleOrder))  )
-
+	
 	
 	condNb <- 1
 	for(cond in unlist(strsplit(tag,":"))){
@@ -444,14 +445,27 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	
 	expDesign[ expDesign[,1] == "Condition 1" ,]$isControl <- T
 	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
-
+	
 	
 	### get original sample names
 	rownames(expDesign) <- rownames(expDesignDefault)[as.numeric(rownames(expDesign))]
 	#expDesignUser$condition <- expDesign[rownames(expDesignUser) ,]$condition
 	
+	# get original condition names, unless conditions have been split
+	
+	# check if conditions are split in new expDesign
+	for(cond in unique(expDesign$condition)){
+		runs <- rownames(expDesign)[expDesign$condition == cond]
+		
+		if(length(unique(expDesignDefault[runs,]$condition)) > 1){
+			return(expDesign)
+			#stop("SPLIT")
+		} 
+	}
+	
+	expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
+	
 	return(expDesign)
 	
 }
-
 
