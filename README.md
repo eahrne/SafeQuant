@@ -28,7 +28,7 @@ More documentation to come.
 
     R> install.packages("devtools")
     R> library(devtools)
-    R> install_github("SafeQuant", username = "eahrne", ref="v.2.01-pack")
+    R> install_github("SafeQuant", username = "eahrne", ref="v.2.1")
     
     Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
 
