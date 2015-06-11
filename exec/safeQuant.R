@@ -219,6 +219,7 @@ if(!("nbPeptides" %in% names(fData(eset)))){
 	### set nb peptides per protein
 	eset <- setNbPeptidesPerProtein(eset)
 }
+
 filter <- cbind(filter,nbPeptides=(fData(eset)$nbPeptides < userOptions$minNbPeptidesPerProt))
 
 if("idScore" %in% names(fData(eset))){
@@ -288,7 +289,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered |  isDecoy(fData(esetNorm)$proteinName)
 	sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod)
 	
-	fData(sqaProtein$eset)$isFiltered <- fData(sqaProtein$eset)$isFiltered | isDecoy(fData(sqaProtein$eset)$proteinName)
+	fData(sqaProtein$eset)$isFiltered <- fData(sqaProtein$eset)$isFiltered | isDecoy(fData(sqaProtein$eset)$proteinName) | (fData(sqaProtein$eset)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
 }else{
 	
@@ -303,13 +304,13 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	# replace qValues by rollUp level qValues ()
 	esetPeptide <- addIdQvalues(esetPeptide)
 	# update filter to exclude peptide level hight qValues
-	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$idQValue > userOptions$fdrCutoff)
-	
+	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$idQValue > userOptions$fdrCutoff) | (fData(esetPeptide)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+		
 	if(userOptions$proteinQuant){
 		cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 		esetProtein <- rollUp(esetPeptide,featureDataColumnName= c("proteinName"))
 		esetProtein <- addIdQvalues(esetProtein)
-		fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName)
+		fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
 
 	}
@@ -317,7 +318,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | isDecoy(fData(esetPeptide)$proteinName)
 	sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
 	
-	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName)
+	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName) | (fData(esetNorm)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
 	if(userOptions$top3 & userOptions$proteinQuant){
 		cat("INFO: ROLL-UP TOP3\n")

@@ -1,16 +1,15 @@
 param	value
 verbose	FALSE
-inputFile	../inst/testData/2014/peptides2_FILTERED.csv
+inputFile	../inst/testData/2014/TMT10plex.xls
 resultsFileLabel	SQ_Results
 outputDir	../inst/testData/2014/SQ_Results
 proteinFastaFile	NA
 selectedProteinName	.
 selectedModifName	
 fdrCutoff	0.01
-precursorMassFilter1	-0.265798879495917
-precursorMassFilter2	9.51113331654177
+precursorMassFilter	NA
 cvCutOff	Inf
-minNbPeptidesPerProt	1
+minNbPeptidesPerProt	5
 maxNbPtmsPerPeptide	99999
 minPeptideLength	1
 normAC	.
@@ -21,7 +20,7 @@ proteinQuant	TRUE
 ratioCutOff	1
 deFdrCutoff	0.01
 iBAQ	FALSE
-top3	TRUE
+top3	FALSE
 isSaveRObject	FALSE
 test	FALSE
 pdfFilePath	../inst/testData/2014/SQ_Results/SQ_Results.pdf

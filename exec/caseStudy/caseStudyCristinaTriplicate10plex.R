@@ -47,7 +47,6 @@ if(T){
 		
 	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.pdf",sep="")
 	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.xls",sep="")
-
 	
 }else{
 	rep1ScaffoldFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20150326-091346_TMTex28b/Scaffold/Raw Data Report for ENigg-Cristine-TMT-28b-40-41-no-replicates-200415-final.xls"
@@ -346,9 +345,50 @@ dev.off()
 
 ### GRAPHICS END
 
-par(mfrow=c(1,2))
-venn(list(bioRep1=unique(as.character(fData(esetBioRep1Norm)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2Norm)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3Norm)$proteinName))))
+#par(mfrow=c(1,2))
+#venn(list(bioRep1=unique(as.character(fData(esetBioRep1Norm)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2Norm)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3Norm)$proteinName))))
+#mtext(side=3,"Proteins")
+
+pdf("/tmp/techRepOverlapCristina.pdf")
+venn(list(techRep1=unique(as.character(fData(esetTechRep1)$proteinName)),techRep2=unique(as.character(fData(esetTechRep2)$proteinName))))
 mtext(side=3,"Proteins")
+
+fData(esetTechRep1)$proteinName %in% sharedProteins
+
+esetBioRep1TechRep1 <- esetTechRep1[grepl("ex28",as.character(fData(esetTechRep1)$spectrumName)),]
+esetBioRep1TechRep2 <- esetTechRep2[grepl("ex28",as.character(fData(esetTechRep2)$spectrumName)),]
+
+proteinsBioRep1TechRep1 <- unique(as.character(fData(esetBioRep1TechRep1)$proteinName))
+proteinsBioRep1TechRep2 <- unique(as.character(fData(esetBioRep1TechRep2)$proteinName))
+
+esetBioRep2TechRep1 <- esetTechRep1[grepl("exp40",as.character(fData(esetTechRep1)$spectrumName)),]
+esetBioRep2TechRep2 <- esetTechRep2[grepl("exp40",as.character(fData(esetTechRep2)$spectrumName)),]
+
+proteinsBioRep2TechRep1 <- unique(as.character(fData(esetBioRep2TechRep1)$proteinName))
+proteinsBioRep2TechRep2 <- unique(as.character(fData(esetBioRep2TechRep2)$proteinName))
+
+esetBioRep3TechRep1 <- esetTechRep1[grepl("exp41",as.character(fData(esetTechRep1)$spectrumName)),]
+esetBioRep3TechRep2 <- esetTechRep2[grepl("exp41",as.character(fData(esetTechRep2)$spectrumName)),]
+
+proteinsBioRep3TechRep1 <- unique(as.character(fData(esetBioRep3TechRep1)$proteinName))
+proteinsBioRep3TechRep2 <- unique(as.character(fData(esetBioRep3TechRep2)$proteinName))
+
+sharedProteinsTechRep1 <- intersect(intersect(proteinsBioRep1TechRep1,proteinsBioRep2TechRep1),proteinsBioRep3TechRep1)
+sharedProteinsTechRep2 <- intersect(intersect(proteinsBioRep1TechRep2,proteinsBioRep2TechRep2),proteinsBioRep3TechRep2)
+
+venn(list(sharedProteinsTechRep1=sharedProteinsTechRep1,sharedProteinsTechRep2=sharedProteinsTechRep2 ))
+mtext(side=3,"Proteins")
+
+
+dev.off()
+
+
+
+
+
+
+
+
 
 
 
