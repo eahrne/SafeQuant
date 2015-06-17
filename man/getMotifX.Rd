@@ -4,9 +4,11 @@
 \alias{getMotifX}
 \title{Create motif-x peptide annotation}
 \usage{
-getMotifX(modifAnnot, peptide, proteinSeq, motifLength = 4)
+getMotifX(modifPos, peptide, proteinSeq, motifLength = 4)
 }
 \arguments{
+\item{modifPos}{vector positions}
+
 \item{peptide}{peptide sequence}
 
 \item{proteinSeq}{protein sequence}

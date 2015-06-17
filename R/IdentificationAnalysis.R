@@ -453,7 +453,6 @@ getMeanCenteredRange <- function(d,nbSd=4){
 #' @references NA 
 #' @examples print("No examples")
 isStrippedACs <-function(acs){
-	
 	acs <- as.character(acs)
 	return( (sum(grepl("\\|",acs)) / length(acs)) < 0.9 )
 }
