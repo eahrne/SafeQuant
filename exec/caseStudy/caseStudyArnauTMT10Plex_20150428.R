@@ -24,12 +24,16 @@ source("/Users/erikahrne/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R
 ### PARAMS
 
 scaffoldRawFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MZavolan/ArnauVinaVilaseca_14/20150428-172535_p40/Scaffold/Raw Data Report for MZavolan-Arnau-TMT-p40-040615.xls"
-rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyArnauTMT10Plex_20150428/caseStudyArnauTMT10Plex_20150428.rData"
+
+xlsFile
+
+rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyArnauTMT10Plex_20150428.rData"
 
 CTRL <- "l4"
 qValueThrs <- 0.01
 
 pdfFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MZavolan/ArnauVinaVilaseca_14/20150428-172535_p40/Scaffold/SafeQuant/SQ.pdf"
+xlsFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MZavolan/ArnauVinaVilaseca_14/20150428-172535_p40/Scaffold/SafeQuant/SQ.xls"
 
 ### PARAMS END
 
@@ -318,13 +322,12 @@ dev.off()
 ### XLS
 
 ratios <- exprs(esetProteinRatios)
-colnames(ratios) <- paste(pData(esetProteinRatios)$condition ,colnames(exprs(esetProteinRatios)),sep="_")
+colnames(ratios) <- paste("log2ratio",colnames(exprs(esetProteinRatios)),sep="_")
 out <- cbind(fData(esetProteinRatios),ratios,medianRatios,pValues,qValues)
-#names(out)[3:23] <- paste("log2ratio",names(out)[3:23],sep="_")
-#names(out)[24:30] <- paste("median_log2ratio",names(out)[24:30],sep="_")
-#names(out)[31:37] <- paste("median_log2ratio_adjusted",names(out)[31:37],sep="_")
-#names(out)[38:44] <- paste("pValue",names(out)[38:44],sep="_")
-#names(out)[45:ncol(out)] <- paste("qValue",names(out)[45:ncol(out)],sep="_")
+names(out)[19:23] <- paste("median_log2ratio",names(out)[19:23],sep="_")
+
+names(out)[24:28] <- paste("pValue",names(out)[24:28],sep="_")
+names(out)[29:ncol(out)] <- paste("qValue",names(out)[29:ncol(out)],sep="_")
 write.table(file=xlsFile,out,row.names=F,sep="\t")
 
 ### XLS END

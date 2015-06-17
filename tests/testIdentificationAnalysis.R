@@ -219,6 +219,21 @@ testGetMeanCenteredRange <- function(){
 	
 }
 
+testIsStrippedACs <- function(){
+	
+	cat("--- testIsStrippedACs: --- \n")
+	stopifnot(isStrippedACs(sample(names(proteinDB),100)))
+	stopifnot(isStrippedACs(fData(eset)$proteinName))
+	cat("--- testIsStrippedACs: PASS ALL TEST --- \n")
+}
+
+testStripACs <- function(){
+	
+	cat("--- testStripACs: --- \n")
+	stopifnot(isStrippedACs(stripACs(sample(names(proteinDB),100))))
+	cat("--- testStripACs: PASS ALL TEST --- \n")
+}
+
 ### TEST FUNCTIONS END
 
 
@@ -239,14 +254,10 @@ testGetNbMisCleavages()
 testGetPeptidePerProtein()
 testSetPeptidePerProtein()
 testGetMeanCenteredRange()
+testIsStrippedACs()
+testStripACs()
 
 ### TESTS END
-
-
-
-
-
-
 
 
 

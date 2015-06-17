@@ -166,6 +166,14 @@ if(!is.na(userOptions$proteinFastaFile)){
 	cat("INFO: PARSING PROTEIN SEQUENCE DB ",userOptions$proteinFastaFile, "\n" )
 	### read protein db
 	proteinDB <- read.fasta(userOptions$proteinFastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+	
+	# dirty fix check if ACs in Progenesis file are stripped
+	if(isStrippedACs(sample(fData(eset)$proteinName,100))){
+		cat("INFO: RE-FORMATTING ACCESSION NUMBERS\n")
+		names(proteinDB) <- stripACs(names(proteinDB))
+	} 
+	
+	
 }
 
 ############################################################### CREATE DATA MODEL ############################################################### 

@@ -358,6 +358,8 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
 		
 		if(grepl("N\\-term",m)){
 			m <- 1
+		}else if(grepl("C\\-term",m)){
+			m <- nchar(peptideSeq)
 		}else{
 			m <- gsub("\\[","",m)
 			m <- as.numeric(gsub("\\].*","",m))
@@ -442,4 +444,32 @@ getMeanCenteredRange <- function(d,nbSd=4){
 	return(c(mean(d,na.rm=T) - nbSd*sd(d,na.rm=T),mean(d,na.rm=T) + nbSd*sd(d,na.rm=T)))
 }
 
+#' Check if ACs are in "non-stripped" uniprot format e.g. "sp|Q8CHJ2|AQP12_MOUSE" 
+#' @param acs accession numbers
+#' @return boolean TRUE/FALSE
+#' @export
+#' @note  No note
+#' @details TRUE if less than 10% of ACs contain a "|" character
+#' @references NA 
+#' @examples print("No examples")
+isStrippedACs <-function(acs){
+	
+	acs <- as.character(acs)
+	return( (sum(grepl("\\|",acs)) / length(acs)) < 0.9 )
+}
+
+#' strip uniprot format e.g. "sp|Q8CHJ2|AQP12_MOUSE" ->  Q8CHJ2
+#' @param acs accession numbers
+#' @return vector character
+#' @export
+#' @note  No note
+#' @details TRUE if less than 10% of ACs contain a "|" character
+#' @references NA 
+#' @examples print("No examples")
+stripACs <- function(acs){
+	acs <- gsub("[a-z]{1,4}\\|","",acs)
+	acs <- gsub("\\|.*","",acs)
+	return(acs)
+	
+}
 

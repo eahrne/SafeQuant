@@ -1,14 +1,14 @@
 param	value
 verbose	FALSE
-inputFile	../inst/testData/QI_2.0/peptide_measurements5_MRuegg.csv
+inputFile	../inst/testData/QI_2.0/peptide_measurements2.csv
 resultsFileLabel	SQ_Results
 outputDir	../inst/testData/QI_2.0/SQ_Results
 proteinFastaFile	NA
 selectedProteinName	.
 selectedModifName	
 fdrCutoff	0.01
-precursorMassFilter1	-1.96009296734449
-precursorMassFilter2	4.23482698172895
+precursorMassFilter1	-1.2613967935936
+precursorMassFilter2	1.77082853596784
 cvCutOff	Inf
 minNbPeptidesPerProt	1
 maxNbPtmsPerPeptide	99999
