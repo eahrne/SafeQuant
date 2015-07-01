@@ -86,6 +86,7 @@ COLORS <- as.character(c(
 			
 		### don't plot if many (more than 10) NA motifs (NA motid due to wrongly specified fasta)
 		if("motifX" %in% names(fData(sqaPeptide$eset)) & (sum(is.na(fData(sqaPeptide$eset)$motifX)) < 10 ) ){ 
+			
 			if(userOptions$verbose) cat("INFO: MOTIF-X PLOT \n")
 			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm)
 			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found
@@ -439,6 +440,9 @@ plotVolcano <- function(obj
 #' @examples print("No examples")
 plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="X"){
 	
+	### plot ctrl at the bottom
+	pData(eset) <- rbind(pData(eset)[pData(eset)$isControl,],pData(eset)[!pData(eset)$isControl,])
+	
 	conditionNames <- as.character(unique(pData(eset)$condition))
 	nbConditions <- length(conditionNames)
 	controlCondition = .getControlCondition(eset)
@@ -602,7 +606,7 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="sum",cex.lab=1.25, cex.axis=1.25,...){
+barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="sum",cex.lab=1.25, cex.axis=1.25,labels=rownames(pData(eset)),...){
 	
 	eset <- eset[!fData(eset)$isFiltered,]
 	
@@ -619,7 +623,7 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 			, plot.grid=T
 			, grid.col="lightgrey"		
 			,...)
-	mtext(names(profile),side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
+	mtext(labels,side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
 	
 }
 
@@ -1041,11 +1045,12 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' Scatter plot with density coloring
 #' @param x number vector
 #' @param y number vector
+#' @import epiR
 #' @note  No note
 #' @export
 #' @references NA
 #' @examples print("No examples")
-plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R"),  ...){
+plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),  ...){
 	
 	df <- data.frame(x,y)
 	
@@ -1071,13 +1076,19 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 			abline(fit)
 		}
 		
-		if("R" %in% disp){
+		legd <- c()
+		
+		if("R" %in% disp) legd <- c(legd,as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
+			
+		if("Rc" %in% disp) legd <- c(legd,as.expression(bquote(R[c]*"" == .(round(epi.ccc(x,y)$rho.c$est,2)))))
+		
+		if(length(legd) >= 0 ){
 			legend(legendPos
-					,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
-					,text.col=c(1,2), box.col="transparent", cex=2
+					,legend= legd
+					,text.col=1, box.col="transparent", cex=2
 			)
 		}
-		return(fit)
+		
 	}
 	
 	return(NA)
@@ -1230,5 +1241,91 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 	rtTable <- table(round(fData(eset)$retentionTime))
 	plot(as.numeric(names(rtTable)),rtTable[names(rtTable)], type="h", xlab="Retention Time (min)"
 			, ylab="# Identified Features", cex.axis=cex.axis,cex.lab=cex.lab, col=col, lwd=lwd,...)
+}
+
+
+
+### @TODO add unit test
+#' Scatter plot with density coloring
+#' @param fit simple log-linear model
+#' @param dispElements c("formula","lowess","stats")
+#' @return
+#' @export
+#' @import epiR
+#' @note  No note
+#' @references NA
+#' @examples print("No examples")
+.plotCalibrationCurve <- function(fit
+		,dispElements = c("formula","lowess","stats")
+		,xlab="Protein Copies/Cell Measured using SID"
+		,ylab="Protein Copies/Cell Estimated using iBAQ"
+		,cex=1.5
+		,main=""
+		,...){
+	x <- predict(fit) + fit$residuals 						
+	y <- predict(fit)		
+	
+	
+	### some extra margin for axis labels
+	par(mar=c(6.3,6.3,4.1,2.1))
+	plot(10^x, 10^y
+		,log="xy"
+		,xlab=""
+		,ylab=""
+		,cex.axis=1
+#		,yaxt="n"
+#		,xaxt="n"
+		,cex=cex
+		#,lwd=cex
+		,pch=19
+		,las=2,cex.axis=cex
+		,cex.main=cex
+		,main=main
+		,... )
+	
+#	axis(1,las=2,cex.axis=cex)
+#	axis(2,las=2,cex.axis=cex)
+
+	abline(coef=c(0,1),lty=2)
+	### add axis labels
+	mtext(side=1,xlab,las=1, line=4.8, cex=cex, ...)
+	mtext(side=2,ylab,las=3, line=4.8, cex=cex, ...)
+	
+	if( "formula" %in% dispElements){
+		legend("bottomright"
+				,paste("log10(Est. CPC)"," = ", signif(coef(fit)[1],2)," + ",signif(coef(fit)[2],2)," * log10(iBAQ)" ,sep="")		
+				,box.lwd=0
+				,box.col="white"
+				,cex=cex-0.4
+				,...
+		)
+	}
+	
+	if( "lowess" %in% dispElements){
+		lws <- lowess(y ~ x)
+		lines(10^lws$x, 10^lws$y,col="red",...)
+	}
+	
+	if( "stats" %in% dispElements){
+		
+		df <- data.frame(cpc =  x,signal = y)
+		medianFoldError <- median(abs(getLoocvFoldError(df)[,1]),na.rm=T)
+		linRc <- as.vector(unlist(epi.ccc(x,y)$rho.c)[1])
+	
+		legend("topleft"
+				,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2))))
+							#,paste("Lin's Rc  = ",round(linRc,2))
+							,as.expression(bquote(R[c]*"" == .(round(linRc,2))))
+							,paste("Median Fold Error = ",round(medianFoldError,2))
+				)
+				#,text.col=c(1,2)
+				,box.lwd=0
+				,box.col="white"
+				,cex=cex
+				,...
+		)
+	}
+	### reset margins
+	par(mar=c(5.1,4.1,4.1,2.1))
 }
 

@@ -30,9 +30,21 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 	open(con);
 	line1 <- readLines(con, n = 1)
 	close(con)
-	intStartCol <- grep("Normalized abundance",unlist(strsplit(line1,",")))
-	intEndCol <- grep("Raw abundance",unlist(strsplit(line1,",")))-1
-	nbSamples <- intEndCol - intStartCol + 1
+	
+	if(grepl("Raw abundance",line1)){
+		### non-fractionated data
+		intStartCol <- grep("Normalized abundance",unlist(strsplit(line1,",")))
+		intEndCol <- grep("Raw abundance",unlist(strsplit(line1,",")))-1
+		nbSamples <- intEndCol - intStartCol + 1
+	}else{
+		### fractionated data
+		intStartCol <- grep("Normalized abundance",unlist(strsplit(line1,",")))
+		intEndCol <- grep("ectral counts",unlist(strsplit(line1,",")))-1
+		nbSamples <- intEndCol - intStartCol + 1
+		
+		intStartCol <- intStartCol - nbSamples
+		intEndCol <- intEndCol - nbSamples
+	}
 	
 	if(method =="auc"){
 		return(return((intStartCol:intEndCol)+nbSamples))
@@ -45,6 +57,9 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 	}else{
 		stop("Unknown quantification indices\n")
 	}
+	
+	#@TODO fractionated data. Exports only contain Normalized Abundance data
+	
 }
 
 
@@ -160,7 +175,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	### stop if not all samples labelled with a given condition are assigned as control
 	# Example:
-	#	condition isControl
+	#			condition isControl
 	#	A11.09066 Condition 1      TRUE
 	#	A11.09067 Condition 1     FALSE
 	#	A11.09068 Condition 1     FALSE

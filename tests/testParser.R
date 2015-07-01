@@ -37,6 +37,10 @@ testGetProgenesisCsvExpressionColIndices <- function(){
 	
 	stopifnot(sum(31:48 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile1) ) == 18 )
 	
+	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementFile1)  == 18 )
+	
+	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementFractionatedFile1)[1] == 21)
+	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
 	
 }

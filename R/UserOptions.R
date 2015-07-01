@@ -436,7 +436,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	
 	sampleOrder <- as.numeric(unlist(strsplit(tag,"[\\,\\:]")))
 	
-	# make sure no duplicates, withing range etc.
+	# make sure no duplicates, within range etc.
 	if(is.na(sampleOrder[1]) 
 			| (max(table(sampleOrder))>1) 
 			| (min(sampleOrder) < 1)
@@ -448,25 +448,25 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	
 	expDesign <- data.frame(row.names=sampleOrder,condition=rep(NA,length(sampleOrder)), isControl=rep(FALSE,length(sampleOrder))  )
 	
-	
 	condNb <- 1
 	for(cond in unlist(strsplit(tag,":"))){
 		
+		#cat(as.character(unlist(strsplit(cond,","))), paste("Condition",condNb) , "\n")
 		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb)
-		#expDesign <- cbind(expDesign,length(unlist(strsplit(cond,","))))
-		
 		condNb <- condNb + 1
 	}       
 	
 	expDesign[ expDesign[,1] == "Condition 1" ,]$isControl <- T
 	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
 	
-	
 	### get original sample names
 	rownames(expDesign) <- rownames(expDesignDefault)[as.numeric(rownames(expDesign))]
 	#expDesignUser$condition <- expDesign[rownames(expDesignUser) ,]$condition
 	
 	# get original condition names, unless conditions have been split
+	
+	# if more conditions than originally use cond_1, cond_n labellinf @TODO can be done better, to avoid loosing org condition names
+	if(length(unique(expDesign$condition)) > length(unique(expDesignDefault$condition))) return(expDesign)
 	
 	# check if conditions are split in new expDesign
 	for(cond in unique(expDesign$condition)){
@@ -478,6 +478,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 		} 
 	}
 	
+	# get original condition names
 	expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
 	
 	return(expDesign)

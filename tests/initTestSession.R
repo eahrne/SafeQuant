@@ -10,6 +10,7 @@ library(gplots) # volcano plot
 library(seqinr)
 library(optparse)
 library(data.table)
+library(epiR)
 
 
 ##@TEMP
@@ -42,9 +43,9 @@ progenesisFeatureCsvFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/te
 progenesisFeatureCsvFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
 
 progenesisPeptideMeasurementFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
+progenesisPeptideMeasurementFractionatedFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/progenesis_fractionated_pep_measurement/Phospho_Set_1.csv"
 
 fastaFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
-
 maxQuantProteinFileTxt <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/maxQuant/proteinGroups.txt"
 
 ### INIT END

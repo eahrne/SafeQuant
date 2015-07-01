@@ -74,7 +74,8 @@ testExpDesignTagToExpDesign <- function(){
 	stopifnot(all(grepl("foo" ,expDesignTagToExpDesign("1,2,3:4,5",expDesign)$condition)))
 	stopifnot(all(grepl("Condition" ,expDesignTagToExpDesign("1,2,4",expDesign)$condition)))
 	stopifnot(all(grepl("foo" ,expDesignTagToExpDesign("2",expDesign)$condition)))
-	
+	stopifnot( length(unique(expDesignTagToExpDesign("1:2:3:4:5:6",expDesign)$condition)) == 6)
+		
 	cat("--- testExpDesignTagToExpDesign: PASS ALL TEST --- \n")
 	
 }

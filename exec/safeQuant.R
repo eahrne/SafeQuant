@@ -16,7 +16,6 @@
 # Author: erikahrne
 ###############################################################################
 
-
 # TEST FILE
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
 # /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
@@ -628,6 +627,7 @@ if(exists("sqaProtein")){
 	# add iBAQ	
 	if(exists("esetIBAQ")){
 		
+		### medians
 		tmpOut <- medianSignalDf
 		tmpOut[!is.na(tmpOut)] <- NA
 		selProts <- intersect(rownames(tmpOut),rownames(esetIBAQ))
@@ -636,6 +636,18 @@ if(exists("sqaProtein")){
 		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
 		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
+		
+	
+#		### per run
+#		tmpOut <- exprs(esetIBAQ)
+#		tmpOut[!is.na(tmpOut)] <- NA
+#		selProts <- intersect(rownames(tmpOut),rownames(esetIBAQ))
+#		tmpOut[selProts,] <- exprs(esetIBAQ)[selProts,]
+#		
+#		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
+#		names(tmpOut) <- paste("iBAQ_",colnames(exprs(esetIBAQ)))
+#		out <- cbind(out,tmpOut)
+	
 		
 	}
 	

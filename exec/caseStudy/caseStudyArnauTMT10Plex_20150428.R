@@ -25,7 +25,7 @@ source("/Users/erikahrne/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R
 
 scaffoldRawFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MZavolan/ArnauVinaVilaseca_14/20150428-172535_p40/Scaffold/Raw Data Report for MZavolan-Arnau-TMT-p40-040615.xls"
 
-xlsFile
+
 
 rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyArnauTMT10Plex_20150428.rData"
 
@@ -53,7 +53,7 @@ xlsFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MZavolan/ArnauVinaVilaseca_1
 
 #conditions high4, low4, high5, low5, high6, low6 
 
-if(T){
+if(F){
 	print("PARSE")
 	
 	expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1)),isControl=c(T,F,F,T,F,F,T,F,F,T) )
@@ -71,44 +71,19 @@ runNb <- as.numeric(gsub("_p-40.*","",fData(esetTmp)$spectrumName))
 eset1 <- esetTmp[runNb < 11,]
 eset2 <- esetTmp[runNb > 10,]
 
-pData(eset1)$condition <- c("h4_a1","l4_a1","h5_a1","l5_a1","h4_a2","l4_a2","h5_a2","l5_a2","h6_a1","l6_a1")
+pData(eset1)$condition <- c("h4_d1_1","l4_d1_1","h5_d1_1","l5_d1_1","h4_d2_1","l4_d2_1","h5_d2_1","l5_d2_1","h6_d2_1","l6_d2_1")
 pData(eset1)$isControl <- grepl(CTRL,pData(eset1)$condition)
 pData(eset1)$condition[pData(eset1)$isControl] <- gsub("\\_.*","",pData(eset1)$condition[pData(eset1)$isControl])
 pData(eset1)$condition <- as.factor(pData(eset1)$condition)
 
-pData(eset1)
-# pData(eset1)
-#    condition isControl
-# 1         h4      TRUE
-# 2      l4_a1     FALSE
-# 3      h5_a1     FALSE
-# 4      l5_a1     FALSE
-# 5         h4      TRUE
-# 6      l4_a2     FALSE
-# 7      h5_a2     FALSE
-# 8      l5_a2     FALSE
-# 9      h6_a1     FALSE
-# 10     l6_a1     FALSE
 
-pData(eset2)$condition <- c("h4_b1","l4_b1","h4_b2","l4_b2","h5_b1","l5_b1","h5_b2","l5_b2","h6_b1","l6_b1")
+pData(eset2)$condition <- c("h4_d1_2","l4_d1_2","h4_d3_2","l4_d3_2","h5_d1_2","l5_d1_2","h5_d3_2","l5_d3_2","h6_d3_2","l6_d3_2")
 pData(eset2)$isControl <- grepl(CTRL,pData(eset2)$condition) 
 pData(eset2)$condition[pData(eset2)$isControl] <- gsub("\\_.*","",pData(eset2)$condition[pData(eset2)$isControl])
 pData(eset2)$condition <- as.factor(pData(eset2)$condition)
 
 pData(eset2)
-# pData(eset2)
-#    condition isControl
-# 1         h4      TRUE
-# 2      l4_b1     FALSE
-# 3         h4      TRUE
-# 4      l4_b2     FALSE
-# 5      h5_b1     FALSE
-# 6      l5_b1     FALSE
-# 7      h5_b2     FALSE
-# 8      l5_b2     FALSE
-# 9      h6_b1     FALSE
-# 10     l6_b1     FALSE
-# > cat("Synch1434008772319918000\n");
+
 
 
 ### PARSE END
@@ -132,16 +107,18 @@ exprs(eset1Norm) <- exprs(eset1Norm) + baselineIntensity
 pData(eset1Norm)
 # pData(eset1Norm)
 #    condition isControl globalNormFactors
-# 1         h4      TRUE        1.00000000
-# 2      l4_a1     FALSE        0.13008807
-# 3      h5_a1     FALSE        0.10134815
-# 4      l5_a1     FALSE        0.11227925
-# 5         h4      TRUE        0.06774442
-# 6      l4_a2     FALSE        0.09846373
-# 7      h5_a2     FALSE        0.09836274
-# 8      l5_a2     FALSE        0.10973232
-# 9      h6_a1     FALSE        0.10909501
-# 10     l6_a1     FALSE        0.10640477
+# 1    h4_d1_1     FALSE        1.00000000
+# 2         l4      TRUE        0.13008807
+# 3    h5_d1_1     FALSE        0.10134815
+# 4    l5_d1_1     FALSE        0.11227925
+# 5    h4_d2_1     FALSE        0.06774442
+# 6         l4      TRUE        0.09846373
+# 7    h5_d2_1     FALSE        0.09836274
+# 8    l5_d2_1     FALSE        0.10973232
+# 9    h6_d2_1     FALSE        0.10909501
+# 10   l6_d2_1     FALSE        0.10640477
+# > cat("Synch1435221768638116000\n");
+
 
 exprs(eset2Norm)[is.na(exprs(eset2Norm)) | (exprs(eset2Norm) < 0)  ] <- 0 
 exprs(eset2Norm) <- exprs(eset2Norm) + baselineIntensity
@@ -149,17 +126,18 @@ exprs(eset2Norm) <- exprs(eset2Norm) + baselineIntensity
 pData(eset2Norm)
 # pData(eset2Norm)
 #    condition isControl globalNormFactors
-# 1         h4      TRUE        1.00000000
-# 2      l4_b1     FALSE        0.12657107
-# 3         h4      TRUE        0.15312200
-# 4      l4_b2     FALSE        0.10409090
-# 5      h5_b1     FALSE        0.06645898
-# 6      l5_b1     FALSE        0.09392171
-# 7      h5_b2     FALSE        0.13872919
-# 8      l5_b2     FALSE        0.11540657
-# 9      h6_b1     FALSE        0.10374254
-# 10     l6_b1     FALSE        0.08047145
-# > cat("Synch1433947505960268000\n");
+# 1    h4_d1_2     FALSE        1.00000000
+# 2         l4      TRUE        0.12657107
+# 3    h4_d3_2     FALSE        0.15312200
+# 4         l4      TRUE        0.10409090
+# 5    h5_d1_2     FALSE        0.06645898
+# 6    l5_d1_2     FALSE        0.09392171
+# 7    h5_d3_2     FALSE        0.13872919
+# 8    l5_d3_2     FALSE        0.11540657
+# 9    h6_d3_2     FALSE        0.10374254
+# 10   l6_d3_2     FALSE        0.08047145
+# > cat("Synch1435221908138571000\n");
+
 
 
 print("rollUp")
@@ -173,6 +151,15 @@ print("rollUp DONE")
 # calculate ratios
 proteinRatios1 <- getRatios(eset1ProteinNorm)
 proteinRatios2 <- getRatios(eset2ProteinNorm)
+
+# names(proteinRatios1)
+# [1] "h4_d1_1" "h5_d1_1" "l5_d1_1" "h4_d2_1" "h5_d2_1" "l5_d2_1" "h6_d2_1"
+# [8] "l6_d2_1"
+
+# names(proteinRatios2)
+# [1] "h4_d1_2" "h4_d3_2" "h5_d1_2" "l5_d1_2" "h5_d3_2" "l5_d3_2" "h6_d3_2"
+# [8] "l6_d3_2"
+
 
 ###### MERGE DATA
 
@@ -192,31 +179,33 @@ featureData <- unique(rbind(fData(eset1ProteinNorm)[,1:2]
 expDesign <- data.frame(row.names=names(ratioExpMatrix),isControl=rep(F,ncol(ratioExpMatrix)),condition=gsub("\\_.*","",names(ratioExpMatrix)) )
 esetProteinRatios <- createExpressionDataset(expressionMatrix=as.matrix(ratioExpMatrix),expDesign=expDesign,featureAnnotations=featureData)		 
 
+pData(esetProteinRatios)
+# pData(esetProteinRatios)
+#         isControl condition
+# h4_d1_1     FALSE        h4
+# h4_d1_2     FALSE        h4
+# h4_d2_1     FALSE        h4
+# h4_d3_2     FALSE        h4
+# h5_d1_1     FALSE        h5
+# h5_d1_2     FALSE        h5
+# h5_d2_1     FALSE        h5
+# h5_d3_2     FALSE        h5
+# h6_d2_1     FALSE        h6
+# h6_d3_2     FALSE        h6
+# l5_d1_1     FALSE        l5
+# l5_d1_2     FALSE        l5
+# l5_d2_1     FALSE        l5
+# l5_d3_2     FALSE        l5
+# l6_d2_1     FALSE        l6
+# l6_d3_2     FALSE        l6
+# > cat("Synch1435225504006630000\n");
+
 
 ###### MERGE DATA END
 
 ###### DIFFERENTIAL ABUNDANCE STATS
 
-#pData(esetProteinRatios)
-#isControl condition
-#h5_1     FALSE        h5
-#h5_2     FALSE        h5
-#h5_3     FALSE        h5
-#h5_4     FALSE        h5
-#h6_1     FALSE        h6
-#h6_2     FALSE        h6
-#l4_1     FALSE        l4
-#l4_2     FALSE        l4
-#l4_3     FALSE        l4
-#l4_4     FALSE        l4
-#l5_1     FALSE        l5
-#l5_2     FALSE        l5
-#l5_3     FALSE        l5
-#l5_4     FALSE        l5
-#l6_1     FALSE        l6
-#l6_2     FALSE        l6
-
-
+# pData(esetProteinRatios)
 
 pValues <- data.frame(eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition == levels(pData(esetProteinRatios)$condition)[1] ]))$p.value
 	,eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition ==  levels(pData(esetProteinRatios)$condition)[2] ]))$p.value
@@ -246,9 +235,12 @@ sqa$ratio <- medianRatios
 
 pdf(pdfFile)
 
+plotExpDesign(eset1)
+plotExpDesign(eset2)
+
 par(mfrow=c(1,2))
-barplotMSSignal(eset1, main="1")
-barplotMSSignal(eset2, main="2")
+barplotMSSignal(eset1, main="set 1", labels=pData(eset1)$condition)
+barplotMSSignal(eset2, main="set 2", labels=pData(eset2)$condition)
 
 par(mfrow=c(1,1))
 
