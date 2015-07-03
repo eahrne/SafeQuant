@@ -200,6 +200,9 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	# added
 	ptm <- res[,"Variable modifications ([position] description)"]
+	# strip ; character, which appears sometimes (Proteome Discoverer data?) example: modifAnnot: [5] Phospho; (S)|[7] Phospho (S)
+	ptm <- gsub("\\;","",ptm)
+	
 	nbPtmsPerPeptide <- unlist(lapply(ptm,function(t){
 						t <- as.character(t)
 						return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )}))
@@ -435,6 +438,9 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
 	# added
 	ptm <- featureDT$Modifications
+	# strip ; character, which appears sometimes (Proteome Discoverer data?) example: modifAnnot: [5] Phospho; (S)|[7] Phospho (S)
+	ptm <- gsub("\\;","",ptm)
+	
 	nbPtmsPerPeptide <- unlist(lapply(as.character(ptm),function(t){
 						return(sum(unlist(gregexpr("\\|",t)[[1]]) > 0) + (nchar(t) > 0)  )}))
 	
