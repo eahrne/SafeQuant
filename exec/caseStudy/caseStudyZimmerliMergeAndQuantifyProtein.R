@@ -153,6 +153,22 @@ plotExpDesign(esetR4)
 
 par(mfrow=c(1,1))
 
+venn(list(r1 = as.character(fData(sqaProtR1$eset)$proteinName)
+				,r2 = as.character(fData(sqaProtR2$eset)$proteinName)
+				,r3 = as.character(fData(sqaProtR3$eset)$proteinName)
+				,r4 = as.character(fData(sqaProtR4$eset)$proteinName)
+	
+				)
+)
+
+venn(list(r1 = unique(as.character(fData(esetR1)$peptide))
+				,r2 = unique(as.character(fData(esetR2)$peptide))
+				,r3 = unique(as.character(fData(esetR3)$peptide))
+				,r4 = unique(as.character(fData(esetR4)$peptide))
+		
+		)
+)
+
 conditionColors =.getConditionColors(esetProteinRatios)
 samplecolors =  as.vector(unlist(conditionColors[pData(esetProteinRatios)$condition,]))
 breaks=seq(-1.5,1.5,length=20)
@@ -173,7 +189,6 @@ heatmap.2(
 		, trace="none"
 )
 legend("left",levels(pData(esetProteinRatios)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
-
 
 par(mfrow=c(2,2))
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=T, isLegend=T ,pvalCutOff=qValueThrs)
