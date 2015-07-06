@@ -927,8 +927,8 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	### set peptides per protein
 	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
 	
-	print(rolledAssayData)
-	print(rolledFData)
+#	print(rolledAssayData)
+#	print(rolledFData)
 	#print(pData(eset))
 	
 	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
