@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>SafeQuant by eahrne</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">SafeQuant</h1>
+        <p class="header">A Toolbox for analysis of Proteomics Data</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/eahrne/SafeQuant/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/eahrne/SafeQuant/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/eahrne/SafeQuant">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/eahrne">eahrne</a></p>
+
+
+      </header>
+      <section>
+        <p>--- Introduction</p>
+
+<p>The SafeQuant Package includes methods for analysis of Proteomics "Quant data".
+More documentation to come.</p>
+
+<p>1) Install Dependencies</p>
+
+<pre><code>A) Install CRAN library dependencies (open R)
+R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
+
+B) Install BioConductor library dependencies (open R)
+R&gt; source("http://bioconductor.org/biocLite.R")
+R&gt; biocLite(c("limma","affy"))
+</code></pre>
+
+<p>2 option 1) Install SafeQuant from sources</p>
+
+<pre><code>A) Download Zip from github
+https://github.com/eahrne/SafeQuant
+
+B) Unzip SafeQuant-v.X.X.zip
+
+C) Install SafeQuant (open R)
+Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
+The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
+R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant-v.X.X",type="source", repos=NULL)
+</code></pre>
+
+<p>2 option 2) Install SafeQuant from sources using "devtools"</p>
+
+<pre><code>R&gt; install.packages("devtools")
+R&gt; library(devtools)
+R&gt; install_github("SafeQuant", username = "eahrne", ref="v.2.1")
+
+Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
+</code></pre>
+
+<p>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</p>
+
+<pre><code>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.1\exec\safeQuant.R ) 
+This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
+
+B) open terminal
+# To display help options
+&gt; Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
+# To run (with minimal arguments)
+&gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\proteins.csv" -o "c:\Program Files\SafeQuant\out"
+</code></pre>
+
+<p>Tips</p>
+
+<p>I) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports. </p>
+
+<ul>
+<li>File -&gt; Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI</li>
+<li>When choosing properties to be included in the exported file check the "Grouped accessions (for this sequence)" check box.</li>
+</ul>
+
+<p>II) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQuant analysis.
+This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.1\exec\filterLargeProgenesisPeptideFile.pl) </p>
+
+<pre><code>A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
+
+B) open terminal
+&gt; perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
+# this will create a new veriosn of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv
+</code></pre>
+
+<p>--- Use Case Manual</p>
+
+<p>/SafeQuant/inst/manuals/SafeQuant_UseCases.txt</p>
+
+<p>--- .tsv export help</p>
+
+<p>/SafeQuant/inst/manuals/tsv_spreadsheet_help.pdf</p>
+
+<p>--- Publications</p>
+
+<ul>
+<li>Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
+Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
+Journal of Proteome Research Just Accepted Manuscript</li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
