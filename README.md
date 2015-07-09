@@ -62,11 +62,11 @@ This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C
 
 --- Use Case Manual
 
-/SafeQuant/inst/manuals/SafeQuant_UseCases.txt
+https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant_UseCases.txt
 
 --- .tsv export help
 
-/SafeQuant/inst/manuals/tsv_spreadsheet_help.pdf
+https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf
 
 
 --- Publications
