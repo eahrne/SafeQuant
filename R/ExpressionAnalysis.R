@@ -132,7 +132,7 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 				
 				f <- factor(as.character(esetPair$condition))
 				design <- model.matrix(~f)
-				#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
+				#### calculate moderated t-statistic, empirical Bayes method, Smyth (2004) 
 				fit <- eBayes(lmFit(esetPair,design))
 				
 				p <- fit$p.value[,2]

@@ -72,9 +72,9 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 #' @details No details
 #' @references NA 
 #' @examples print("No examples")
-getExpDesignProgenesisCsv <- function(file){
+getExpDesignProgenesisCsv <- function(file, expressionColIndices = .getProgenesisCsvExpressionColIndices(file)){
 	
-	header <-  read.csv(file,nrows=2, check.names=F)[,.getProgenesisCsvExpressionColIndices(file)]
+	header <-  read.csv(file,nrows=2, check.names=F)[,expressionColIndices]
 	header <- data.frame(header) ## in case only one cond one sample
 	
 	conditionLine <- as.character(unlist(header[1,]))
@@ -295,7 +295,8 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @references NA 
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
-parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc" ){
+parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc", 	
+		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) ){
 	
 	### stop if not all samples labelled with a given condition are assigned as control
 # Example:
@@ -426,7 +427,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 		
 	################################## PROTEIN INFERENCE END ################################## 
 	
-	expMatrix <- as.matrix(featureDT[,.getProgenesisCsvExpressionColIndices(file, method=method),with=FALSE])
+	expMatrix <- as.matrix(featureDT[,expressionColIndices,with=FALSE])
 	
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA

@@ -14,9 +14,11 @@
 
 - speed up parsing. update/get rid off .getProgenesisCsvExpressionColIndices()
 
-- compatibility with fractionated data
+- write column description for peptide and protein tsv. 
 
 ### SOLVED
+
+### - compatibility with fractionated data
 
 ### - write manual
 ### 	- protein level LFQ

@@ -5,7 +5,7 @@
 \title{Scatter plot with density coloring}
 \usage{
 plotXYDensity(x, y, isFitLm = T, legendPos = "bottomright",
-  disp = c("abline", "R"), ...)
+  disp = c("abline", "R", "Rc"), ...)
 }
 \arguments{
 \item{x}{number vector}

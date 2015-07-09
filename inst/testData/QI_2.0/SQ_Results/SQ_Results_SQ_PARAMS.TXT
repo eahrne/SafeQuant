@@ -3,12 +3,12 @@ verbose	FALSE
 inputFile	../inst/testData/QI_2.0/peptide_measurements3.csv
 resultsFileLabel	SQ_Results
 outputDir	../inst/testData/QI_2.0/SQ_Results
-proteinFastaFile	NA
+proteinFastaFile	/Volumes/pcf01$/Schmidt_Group/Databases/Latest_UniProt/uniprot-Human_301014.fasta
 selectedProteinName	.
 selectedModifName	
 fdrCutoff	0.01
-precursorMassFilter1	-0.433950641988885
-precursorMassFilter2	4.04422307422359
+precursorMassFilter1	0.00566736790598887
+precursorMassFilter2	3.56744988386237
 cvCutOff	Inf
 minNbPeptidesPerProt	1
 maxNbPtmsPerPeptide	99999
@@ -23,7 +23,7 @@ deFdrCutoff	0.01
 iBAQ	FALSE
 top3	FALSE
 isSaveRObject	FALSE
-test	FALSE
+test	TRUE
 pdfFilePath	../inst/testData/QI_2.0/SQ_Results/SQ_Results.pdf
 peptideTsvFilePath	../inst/testData/QI_2.0/SQ_Results/SQ_Results_PEPTIDE.tsv
 proteinTsvFilePath	../inst/testData/QI_2.0/SQ_Results/SQ_Results_PROTEIN.tsv

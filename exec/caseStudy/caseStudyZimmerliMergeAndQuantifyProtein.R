@@ -23,13 +23,17 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
 ### PARAMS
 
 progenesisFileRep1 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set1.csv"
-progenesisFileRep2 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set2.csv" 
-progenesisFileRep3 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set3.csv" 
-progenesisFileRep4 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set4.csv" 
+progenesisFileRep2 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set2.csv"
+progenesisFileRep3 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set3.csv"
+progenesisFileRep4 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set4.csv"
 
 rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyZimmerliMergeAndQunatifyProtein.rData"
 
-pdfFile <- "/tmp/tmp.pdf"
+#pdfFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyZimmerliMergeAndQuantifyProtein/sq_intersect.pdf"
+#xlsFile <-  "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyZimmerliMergeAndQuantifyProtein/sq_intersect.xls"
+
+pdfFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyZimmerliMergeAndQuantifyProtein/sq.pdf"
+xlsFile <-  "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyZimmerliMergeAndQuantifyProtein/sq.xls"
 
 qValueThrs <- 0.01
 
@@ -85,7 +89,8 @@ intersectProteins <- intersect(
 						,intersect(as.character(fData(sqaProtR3$eset)$proteinName),as.character(fData(sqaProtR4$eset)$proteinName))
 				)
 				
-selProteins	<- 	intersectProteins			
+#selProteins	<- 	intersectProteins		
+selProteins	<- 	allProteins		
 
 expMatrixRatios <- data.frame(sqaProtR1$ratio[selProteins,],sqaProtR2$ratio[selProteins,],sqaProtR3$ratio[selProteins,],sqaProtR4$ratio[selProteins,])
 rownames(expMatrixRatios) <- selProteins
@@ -124,9 +129,9 @@ esetProteinRatios <- createExpressionDataset(expressionMatrix=as.matrix(expMatri
 medianRatios <- getSignalPerCondition(esetProteinRatios)
 
 # p-values
-pValues <- data.frame(eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition == levels(pData(esetProteinRatios)$condition)[1] ]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition ==  levels(pData(esetProteinRatios)$condition)[2] ]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition == levels(pData(esetProteinRatios)$condition)[3] ]))$p.value
+pValues <- data.frame(eBayes(lmFit(esetProteinRatios[,1:4 ]))$p.value
+		,eBayes(lmFit(esetProteinRatios[,5:8 ]))$p.value
+		,eBayes(lmFit(esetProteinRatios[,9:12 ]))$p.value
 )
 names(pValues) <- names(medianRatios)
 
@@ -157,9 +162,9 @@ venn(list(r1 = as.character(fData(sqaProtR1$eset)$proteinName)
 				,r2 = as.character(fData(sqaProtR2$eset)$proteinName)
 				,r3 = as.character(fData(sqaProtR3$eset)$proteinName)
 				,r4 = as.character(fData(sqaProtR4$eset)$proteinName)
-	
 				)
 )
+mtext(side=3,text="Protein")
 
 venn(list(r1 = unique(as.character(fData(esetR1)$peptide))
 				,r2 = unique(as.character(fData(esetR2)$peptide))
@@ -168,6 +173,7 @@ venn(list(r1 = unique(as.character(fData(esetR1)$peptide))
 		
 		)
 )
+mtext(side=3,text="Peptide")
 
 conditionColors =.getConditionColors(esetProteinRatios)
 samplecolors =  as.vector(unlist(conditionColors[pData(esetProteinRatios)$condition,]))
@@ -191,23 +197,23 @@ heatmap.2(
 legend("left",levels(pData(esetProteinRatios)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 
 par(mfrow=c(2,2))
+.allpValueHist(sqa)
+
+par(mfrow=c(2,2))
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=T, isLegend=T ,pvalCutOff=qValueThrs)
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=T, isLegend=F, pvalCutOff=qValueThrs)
 
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=F , isLegend=F ,pvalCutOff=qValueThrs)
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=F, isLegend=F ,pvalCutOff=qValueThrs)
 
-par(mfrow=c(3,3))
-.allpValueHist(sqa)
-
-if(F){
+if(T){
 	# volcanoes qvalue
-	par(mfrow=c(3,3),cex.lab=1.5,cex.axis=1.3 )
+	par(mfrow=c(2,2),cex.lab=1.5,cex.axis=1.3 )
 	for(i in 1:ncol(qValues)){
 		caseCondition <- names(medianRatios)[i]		
 		plot(medianRatios[,i],-log10(qValues[,i])
 				, pch=19
-				, xlab= paste("log2(",caseCondition,"/",CTRL,")", sep="" )
+				, xlab= paste("log2(",caseCondition,"/WT",")", sep="" )
 				, ylab= paste("-log10(qValue)",sep="")
 				,col=c("black","blue")[(qValues[,i] < qValueThrs)+1 ]
 		)
@@ -216,3 +222,20 @@ if(F){
 }
 
 dev.off()
+
+### GRAPIHCS END
+
+### XLS EXPORT
+
+ratios <- exprs(esetProteinRatios)
+colnames(ratios) <- paste("log2ratio",colnames(exprs(esetProteinRatios)),sep="_")
+names(medianRatios) <-  paste("median_log2ratio",names(medianRatios),sep="_")
+names(pValues) <-  paste("pValue",names(pValues),sep="_")
+names(qValues) <-  paste("qValue",names(pValues),sep="_")
+out <- cbind(fData(esetProteinRatios),ratios,medianRatios,pValues,qValues)
+write.table(file=xlsFile,out,row.names=F,sep="\t")
+
+### XLS EXPORT END
+
+
+

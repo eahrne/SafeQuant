@@ -6,7 +6,8 @@
 \usage{
 barplotMSSignal(eset,
   col = as.character(.getConditionColors(eset)[pData(eset)$condition, ]),
-  method = "sum", cex.lab = 1.25, cex.axis = 1.25, ...)
+  method = "sum", cex.lab = 1.25, cex.axis = 1.25,
+  labels = rownames(pData(eset)), ...)
 }
 \arguments{
 \item{matrix}{matrix of ms-signals}

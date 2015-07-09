@@ -444,7 +444,7 @@ if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
 
 ### QUANT. QC PLOTS END
 
-par(mfrow=c(1,2))
+
 
 par(parDefault)
 if(userOptions$verbose) cat("INFO: HEAT MAP \n")
@@ -455,6 +455,7 @@ hClustHeatMap(sqaDisp$eset[(1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),
 ### VAILD FEATURES VS. pValue/qValue
 if(userOptions$verbose) cat("INFO: QUANT RES. PLOTS \n")
 
+par(mfrow=c(1,2))
 plotNbValidDeFeaturesPerFDR(sqaDisp,
 		upRegulated=F
 		,log2RatioCufOff=log2(userOptions$ratioCutOff)
@@ -477,6 +478,8 @@ plotNbValidDeFeaturesPerFDR(sqaDisp,
 		,main="UP REGULATION"
 )
 
+par(parDefault)
+
 plotVolcano(sqaDisp
 		, main=paste(lab,"Level")
 		, ratioThrs= userOptions$ratioCutOff
@@ -485,7 +488,8 @@ plotVolcano(sqaDisp
 
 
 if(userOptions$eBayes){
-	
+
+	par(mfrow=c(1,2))
 	plotNbValidDeFeaturesPerFDR(sqaDisp,
 			upRegulated=F
 			,log2RatioCufOff=log2(userOptions$ratioCutOff)
@@ -507,6 +511,7 @@ if(userOptions$eBayes){
 			,ylab=paste(lab, "Counts")
 			,main="UP REGULATION"
 	)
+	par(parDefault)
 	
 	plotVolcano(sqaDisp
 			, main=paste(lab,"Level")

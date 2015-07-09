@@ -1249,7 +1249,6 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 #' Scatter plot with density coloring
 #' @param fit simple log-linear model
 #' @param dispElements c("formula","lowess","stats")
-#' @return
 #' @export
 #' @import epiR
 #' @note  No note
