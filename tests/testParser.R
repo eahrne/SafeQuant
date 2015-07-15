@@ -1,11 +1,11 @@
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### TEST FUNCTIONS
 

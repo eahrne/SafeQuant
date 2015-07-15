@@ -1,5 +1,5 @@
 library(roxygen2)
-roxygenize("/Users/erikahrne/dev/R/workspace/SafeQuant")
+roxygenize("/Users/ahrnee-adm/dev/R/workspace/SafeQuant")
 cat("DONE \n")
 
 

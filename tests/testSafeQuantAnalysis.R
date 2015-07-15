@@ -1,7 +1,7 @@
 
 ### INIT
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### INIT END
 

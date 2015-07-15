@@ -1,11 +1,11 @@
 # Grapihcs.R unit tests
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 ### INIT
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### INIT END
 
@@ -29,7 +29,7 @@ test.getConditionColors()
 testPlotNbIdentificationsVsRT <- function(){
 	
 	file <- progenesisPeptideMeasurementFile1
-	#file <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements5_MRuegg.csv"
+	#file <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements5_MRuegg.csv"
 	
 	cat("--- testPlotNbIdentificationsVsRT: --- \n")
 	esetTmp <- parseProgenesisPeptideMeasurementCsv(file,expDesign= getExpDesignProgenesisCsv(file))
@@ -40,7 +40,7 @@ testPlotNbIdentificationsVsRT <- function(){
 
 if(T){
 	
-	pdf("/Users/erikahrne/tmp/tmp.pdf")
+	pdf("/Users/ahrnee-adm/tmp/tmp.pdf")
 	# plots
 	plotExpDesign(eset)
 	

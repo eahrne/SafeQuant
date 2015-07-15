@@ -13,13 +13,13 @@
 #	optparse
 #	data.table
 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 # TEST FILE
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
-# /Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
+# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
+# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
+# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
@@ -36,8 +36,8 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 	cat("Loading SafeQuant Library \n")
 	library("SafeQuant")
 }else{ # FOR DEVELOPMENT
-	if(file.exists("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-		sqDirPath <- "/Users/erikahrne/dev/R/workspace/"
+	if(file.exists("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")){
+		sqDirPath <- "/Users/ahrnee-adm/dev/R/workspace/"
 	}else{
 		#@TEMP TPP
 		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/"

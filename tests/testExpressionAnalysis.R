@@ -1,11 +1,11 @@
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 ### INIT
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### INIT END
 
@@ -151,7 +151,7 @@ testRollUp <- function(){
 	
 	cat(" --- testRollUp: PASS ALL TEST  --- \n")
 	
-#	progenesisFeatureCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
+#	progenesisFeatureCsvFile3 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
 #	d <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile3))
 #	system.time(e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide")))
 #	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))

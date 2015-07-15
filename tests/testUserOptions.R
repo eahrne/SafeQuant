@@ -1,17 +1,17 @@
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 ### INIT
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 ### INIT END
 

@@ -1,11 +1,11 @@
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 ### INIT
 
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
 
 proteinSeq1 <- "MSAGSSCSQTPSRAIPTRRVALGDGVQLPPGDYSTTPGGTLFSTTPGGTRIIYDRKFLMECRNSPVAKTPPKDLPAIPGVTSPTSDEPPMQASQSQLPSSPEDKRAGGEESQFEMDI"
 proteinSeq2 <- "MVKKSRRRGAAQWAAVRAQAGLTATDENEDDLGLPPSPGDSSYYQDQVDEFHEARSRAVLAKGWNEVESGEEDGDEEEE"
@@ -45,7 +45,7 @@ testAddIdQvalues <- function(){
 	stopifnot(round(max(fData(addIdQvalues(rollUp(eset, featureDataColumnName = "proteinName"  )))$idQValue),2) == 0.29)
 	cat("--- testAddIdQvalues: PASS ALL TEST --- \n")
 	
-	#progenesisPeptideCsvFile3 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
+	#progenesisPeptideCsvFile3 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
 	#d <- parseProgenesisPeptideCsv(file=progenesisPeptideCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisPeptideCsvFile3))
 	#e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("proteinName"))
 	#x <- addIdQvalues(e)
@@ -260,8 +260,8 @@ testStripACs()
 ### TESTS END
 
 ### scaffold PTM
-scaffoldPTMFile1 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold.xls"
-scaffoldPTMFile2 <- "/Users/erikahrne/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold_HCD.xls"
+scaffoldPTMFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold.xls"
+scaffoldPTMFile2 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold_HCD.xls"
 
 
 scaffoldPTM <- read.csv(scaffoldPTMFile1,sep="\t")

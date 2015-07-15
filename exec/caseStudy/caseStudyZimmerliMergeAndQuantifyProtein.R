@@ -6,20 +6,20 @@
 ### load / source
 library("affy")
 library("limma")
-library(gplots) # volcano plot
+library(gplots)
 library(seqinr)
 library(optparse)
 library(data.table)
 
 ##@TEMP
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Graphics.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
-
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Graphics.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
+#source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
+library(SafeQuant)
 ### PARAMS
 
 progenesisFileRep1 <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/MRuegg/ChristianZimmerli_111/AdditionalFiles/Pankaj_Proteome_Wide/Proteome_Wide_Set1.csv"
@@ -39,7 +39,7 @@ qValueThrs <- 0.01
 
 ### PARAMS END 
 ## parse
-if(F){
+if(T){
 
 	### PARSE
 	
@@ -96,9 +96,6 @@ expMatrixRatios <- data.frame(sqaProtR1$ratio[selProteins,],sqaProtR2$ratio[selP
 rownames(expMatrixRatios) <- selProteins
 
 expMatrixRatios <- expMatrixRatios[,rev(order(names(expMatrixRatios)))]
-
-#head(expMatrixRatios)
-#head(expMatrixRatios[,rev(order(names(expMatrixRatios)))])
 
 featureData <- unique(rbind(fData(sqaProtR1$eset)[,1:2]
 				,fData(sqaProtR2$eset)[,1:2]
@@ -206,6 +203,7 @@ plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=F , isLegend=F ,pvalCutOff=qValueThrs)
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=F, isLegend=F ,pvalCutOff=qValueThrs)
 
+# plot volcanoes
 if(T){
 	# volcanoes qvalue
 	par(mfrow=c(2,2),cex.lab=1.5,cex.axis=1.3 )
