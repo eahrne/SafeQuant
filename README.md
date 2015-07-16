@@ -3,21 +3,31 @@
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data 
 More documentation to come.
 
-### 1) Install Dependencies
+## 1) Install Dependencies
 
 A) Install CRAN library dependencies (open R)
 
-	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
+	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR"))
 
 B) Install BioConductor library dependencies (open R)
 
 	R> source("http://bioconductor.org/biocLite.R")
 	R> biocLite(c("limma","affy"))
 
-### 2 option 1) Install SafeQuant from sources
+## 1) Install SafeQuant from sources 
 
-A) Download Zip from github
-https://github.com/eahrne/SafeQuant
+### Option 1, using "devtools"
+
+    R> install.packages("devtools")
+    R> library(devtools)
+    R> install_github("SafeQuant", username = "eahrne")
+    
+Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
+
+### Option 2
+
+A) Download Zip
+https://github.com/eahrne/SafeQuant/zipball/master
 
 B) Unzip SafeQuant.zip
 		
@@ -27,15 +37,7 @@ The SafeQuant source directory is the directory containing the NAMESPACE and DES
 
 	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 
-### 2 option 2) Install SafeQuant from sources using "devtools"
-
-    R> install.packages("devtools")
-    R> library(devtools)
-    R> install_github("SafeQuant", username = "eahrne")
-    
-Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
-
-### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
+## 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 
 A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
