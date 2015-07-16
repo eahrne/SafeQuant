@@ -50,33 +50,33 @@ R&gt; biocLite(c("limma","affy"))
 <pre><code>A) Download Zip from github
 https://github.com/eahrne/SafeQuant
 
-B) Unzip SafeQuant-v.X.X.zip
+B) Unzip SafeQuant.zip
 
 C) Install SafeQuant (open R)
 Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
 The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
-R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant-v.X.X",type="source", repos=NULL)
+R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 </code></pre>
 
 <p>2 option 2) Install SafeQuant from sources using "devtools"</p>
 
 <pre><code>R&gt; install.packages("devtools")
 R&gt; library(devtools)
-R&gt; install_github("SafeQuant", username = "eahrne", ref="v.2.1")
+R&gt; install_github("SafeQuant", username = "eahrne")
 
 Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
 </code></pre>
 
 <p>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</p>
 
-<pre><code>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.1\exec\safeQuant.R ) 
+<pre><code>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
 
 B) open terminal
 # To display help options
 &gt; Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
 # To run (with minimal arguments)
-&gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\proteins.csv" -o "c:\Program Files\SafeQuant\out"
+&gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 </code></pre>
 
 <p>Tips</p>
@@ -89,22 +89,22 @@ B) open terminal
 </ul>
 
 <p>II) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQuant analysis.
-This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant-v.2.1\exec\filterLargeProgenesisPeptideFile.pl) </p>
+This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\filterLargeProgenesisPeptideFile.pl) </p>
 
 <pre><code>A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
 
 B) open terminal
 &gt; perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
-# this will create a new veriosn of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv
+# this will create a new versions of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv
 </code></pre>
 
 <p>--- Use Case Manual</p>
 
-<p>/SafeQuant/inst/manuals/SafeQuant_UseCases.txt</p>
+<p><a href="https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant_UseCases.txt">https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant_UseCases.txt</a></p>
 
 <p>--- .tsv export help</p>
 
-<p>/SafeQuant/inst/manuals/tsv_spreadsheet_help.pdf</p>
+<p><a href="https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf">https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf</a></p>
 
 <p>--- Publications</p>
 
