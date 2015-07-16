@@ -79,3 +79,5 @@ https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_hel
 * Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
 Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
 Journal of Proteome Research Just Accepted Manuscript
+
+### [erik.ahrne-at-unibas.ch](mailto:erik.ahrne@unibas.ch)
