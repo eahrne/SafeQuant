@@ -4,7 +4,7 @@ The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM
 
 More documentation to come.
 
-### **1) Install Dependencies**
+### 1) Install Dependencies
 
 A) Install CRAN library dependencies (open R)
 
@@ -15,15 +15,15 @@ B) Install BioConductor library dependencies (open R)
 	R> source("http://bioconductor.org/biocLite.R")
 	R> biocLite(c("limma","affy"))
 
-### **2) Install SafeQuant from sources**
+### 2) Install SafeQuant from sources
 
-### Option 1, using "devtools"
+**Option 1, using "devtools"**
 
     R> install.packages("devtools")
     R> library(devtools)
     R> install_github("SafeQuant", username = "eahrne")
     
-### Option 2
+**Option 2**
 
 A) Download Zip
 https://github.com/eahrne/SafeQuant/zipball/master
@@ -36,7 +36,7 @@ The SafeQuant source directory is the directory containing the NAMESPACE and DES
 
 	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 
-### **3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)**
+### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 
 A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
@@ -79,4 +79,4 @@ https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_hel
 Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
 Journal of Proteome Research Just Accepted Manuscript
 
-**[erik.ahrne-at-unibas.ch](mailto:erik.ahrne@unibas.ch)**
+**[questions?](mailto:erik.ahrne@unibas.ch)**
