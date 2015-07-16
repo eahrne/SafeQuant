@@ -717,6 +717,9 @@ hClustHeatMap <- function(eset
 		,...
 ){
 	
+	# do not plot filtered
+	eset <- eset[!fData(eset)$isFiltered,]
+	
 	### we need at least two conditions
 	if(ncol(eset) == 1){
 			return(cat("INFO: Only one condition no hClustHeatMap \n"))
