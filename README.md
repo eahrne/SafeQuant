@@ -22,8 +22,6 @@ B) Install BioConductor library dependencies (open R)
     R> library(devtools)
     R> install_github("SafeQuant", username = "eahrne")
     
-Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
-
 ### Option 2
 
 A) Download Zip
@@ -65,7 +63,6 @@ B) open terminal
 
 	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 This will create a new versions of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
-
 
 
 ### Use Case Manual
