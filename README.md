@@ -1,4 +1,4 @@
-# Introduction
+## Introduction
 
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.
 
