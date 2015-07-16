@@ -1,4 +1,4 @@
-# --- Introduction
+# Introduction
 
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data 
 More documentation to come.
@@ -68,16 +68,16 @@ This will create a new versions of the feature file called with the extension "_
 
 
 
-### --- Use Case Manual
+### Use Case Manual
 
 https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant_UseCases.txt
 
-### --- .tsv export help
+### .tsv export help
 
 https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf
 
 
-### --- Publications
+### Publications
 
 * Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
 Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
