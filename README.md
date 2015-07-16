@@ -78,4 +78,4 @@ https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_hel
 Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
 Journal of Proteome Research Just Accepted Manuscript
 
-### [erik.ahrne-at-unibas.ch](mailto:erik.ahrne@unibas.ch)
+**[erik.ahrne-at-unibas.ch](mailto:erik.ahrne@unibas.ch)**
