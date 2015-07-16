@@ -171,8 +171,6 @@ if(!is.na(userOptions$proteinFastaFile)){
 		cat("INFO: RE-FORMATTING ACCESSION NUMBERS\n")
 		names(proteinDB) <- stripACs(names(proteinDB))
 	} 
-	
-	
 }
 
 ############################################################### CREATE DATA MODEL ############################################################### 
