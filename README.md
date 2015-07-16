@@ -1,8 +1,8 @@
-## Introduction
-
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.
 
 More documentation to come.
+
+## Installation
 
 ### 1) Install Dependencies
 
@@ -47,7 +47,7 @@ To display help options
 	> Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
 To run (with minimal arguments)
 
-	>Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
+	> Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 
 ### Tips
 
@@ -72,6 +72,10 @@ https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant
 ### .tsv export help
 
 https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf
+
+### Package Documentation
+
+https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant-man.pdf
 
 ### Publications
 
