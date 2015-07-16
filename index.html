@@ -6,9 +6,10 @@
     <title>SafeQuant by eahrne</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -16,26 +17,24 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">SafeQuant</h1>
-        <p class="header">A Toolbox for analysis of Proteomics Data</p>
-
+        <h1>SafeQuant</h1>
+        <p>A Toolbox for analysis of Proteomics Data</p>
+        <p class="view"><a href="https://github.com/eahrne/SafeQuant">View the Project on GitHub <small>eahrne/SafeQuant</small></a></p>
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/eahrne/SafeQuant/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/eahrne/SafeQuant/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/eahrne/SafeQuant">View On GitHub</a></li>
+          <li><a href="https://github.com/eahrne/SafeQuant/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/eahrne/SafeQuant/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/eahrne/SafeQuant">View On <strong>GitHub</strong></a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/eahrne">eahrne</a></p>
-
-
       </header>
       <section>
-        <p>--- Introduction</p>
+        <h1>
+<a id="----introduction" class="anchor" href="#----introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>--- Introduction</h1>
 
-<p>The SafeQuant Package includes methods for analysis of Proteomics "Quant data".
+<p>The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data 
 More documentation to come.</p>
 
-<p>1) Install Dependencies</p>
+<h3>
+<a id="1-install-dependencies" class="anchor" href="#1-install-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>1) Install Dependencies</h3>
 
 <pre><code>A) Install CRAN library dependencies (open R)
 R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
@@ -45,7 +44,8 @@ R&gt; source("http://bioconductor.org/biocLite.R")
 R&gt; biocLite(c("limma","affy"))
 </code></pre>
 
-<p>2 option 1) Install SafeQuant from sources</p>
+<h3>
+<a id="2-option-1-install-safequant-from-sources" class="anchor" href="#2-option-1-install-safequant-from-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 option 1) Install SafeQuant from sources</h3>
 
 <pre><code>A) Download Zip from github
 https://github.com/eahrne/SafeQuant
@@ -58,7 +58,8 @@ The SafeQuant source directory is the directory containing the NAMESPACE and DES
 R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 </code></pre>
 
-<p>2 option 2) Install SafeQuant from sources using "devtools"</p>
+<h3>
+<a id="2-option-2-install-safequant-from-sources-using-devtools" class="anchor" href="#2-option-2-install-safequant-from-sources-using-devtools" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 option 2) Install SafeQuant from sources using "devtools"</h3>
 
 <pre><code>R&gt; install.packages("devtools")
 R&gt; library(devtools)
@@ -67,7 +68,8 @@ R&gt; install_github("SafeQuant", username = "eahrne")
 Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
 </code></pre>
 
-<p>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</p>
+<h3>
+<a id="3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" class="anchor" href="#3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</h3>
 
 <pre><code>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
@@ -79,7 +81,8 @@ B) open terminal
 &gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 </code></pre>
 
-<p>Tips</p>
+<h2>
+<a id="tips" class="anchor" href="#tips" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tips</h2>
 
 <p>I) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports. </p>
 
@@ -98,15 +101,18 @@ B) open terminal
 # this will create a new versions of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv
 </code></pre>
 
-<p>--- Use Case Manual</p>
+<h2>
+<a id="----use-case-manual" class="anchor" href="#----use-case-manual" aria-hidden="true"><span class="octicon octicon-link"></span></a>--- Use Case Manual</h2>
 
-<p><a href="https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant_UseCases.txt">https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant_UseCases.txt</a></p>
+<p><a href="https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant_UseCases.txt">https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant_UseCases.txt</a></p>
 
-<p>--- .tsv export help</p>
+<h2>
+<a id="----tsv-export-help" class="anchor" href="#----tsv-export-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>--- .tsv export help</h2>
 
 <p><a href="https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf">https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf</a></p>
 
-<p>--- Publications</p>
+<h2>
+<a id="----publications" class="anchor" href="#----publications" aria-hidden="true"><span class="octicon octicon-link"></span></a>--- Publications</h2>
 
 <ul>
 <li>Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
@@ -114,11 +120,12 @@ Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, a
 Journal of Proteome Research Just Accepted Manuscript</li>
 </ul>
       </section>
-      <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
-      </footer>
     </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/eahrne">eahrne</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    
   </body>
 </html>
