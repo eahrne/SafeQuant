@@ -64,7 +64,6 @@ B) open terminal
 	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 This will create a new versions of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
 
-
 ### Use Case Manual
 
 https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant_UseCases.txt
@@ -72,7 +71,6 @@ https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant
 ### .tsv export help
 
 https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf
-
 
 ### Publications
 
