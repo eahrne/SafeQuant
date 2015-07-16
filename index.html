@@ -36,26 +36,30 @@ More documentation to come.</p>
 <h3>
 <a id="1-install-dependencies" class="anchor" href="#1-install-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>1) Install Dependencies</h3>
 
-<pre><code>A) Install CRAN library dependencies (open R)
-R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
+<p>A) Install CRAN library dependencies (open R)</p>
 
-B) Install BioConductor library dependencies (open R)
-R&gt; source("http://bioconductor.org/biocLite.R")
+<pre><code>R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
+</code></pre>
+
+<p>B) Install BioConductor library dependencies (open R)</p>
+
+<pre><code>R&gt; source("http://bioconductor.org/biocLite.R")
 R&gt; biocLite(c("limma","affy"))
 </code></pre>
 
 <h3>
 <a id="2-option-1-install-safequant-from-sources" class="anchor" href="#2-option-1-install-safequant-from-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 option 1) Install SafeQuant from sources</h3>
 
-<pre><code>A) Download Zip from github
-https://github.com/eahrne/SafeQuant
+<p>A) Download Zip from github
+<a href="https://github.com/eahrne/SafeQuant">https://github.com/eahrne/SafeQuant</a></p>
 
-B) Unzip SafeQuant.zip
+<p>B) Unzip SafeQuant.zip</p>
 
-C) Install SafeQuant (open R)
-Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
-The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
-R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
+<p>C) Install SafeQuant (open R)
+Assuming that the SafeQuant source directory is at "C:\Users\ahrnee-adm\Downloads\"
+The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.</p>
+
+<pre><code>R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 </code></pre>
 
 <h3>
@@ -64,21 +68,25 @@ R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="sourc
 <pre><code>R&gt; install.packages("devtools")
 R&gt; library(devtools)
 R&gt; install_github("SafeQuant", username = "eahrne")
-
-Look up the current "ref" argument (version name) at https://github.com/eahrne/SafeQuant
 </code></pre>
+
+<p>Look up the current "ref" argument (version name) at <a href="https://github.com/eahrne/SafeQuant">https://github.com/eahrne/SafeQuant</a></p>
 
 <h3>
 <a id="3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" class="anchor" href="#3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</h3>
 
-<pre><code>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
-This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
+<p>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
+This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\</p>
 
-B) open terminal
-# To display help options
-&gt; Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
-# To run (with minimal arguments)
-&gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
+<p>B) open terminal
+To display help options</p>
+
+<pre><code>&gt; Rscript "c:\Program Files\SafeQuant\safeQuant.R" -h
+</code></pre>
+
+<p>To run (with minimal arguments)</p>
+
+<pre><code>&gt;Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 </code></pre>
 
 <h2>
@@ -94,12 +102,14 @@ B) open terminal
 <p>II) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQuant analysis.
 This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\filterLargeProgenesisPeptideFile.pl) </p>
 
-<pre><code>A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
+<p>A) install perl (or activePerl for windows <a href="http://www.activestate.com/activeperl">http://www.activestate.com/activeperl</a>)</p>
 
-B) open terminal
-&gt; perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
-# this will create a new versions of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv
+<p>B) open terminal</p>
+
+<pre><code>&gt; perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 </code></pre>
+
+<p>This will create a new versions of the feature file called with the extension "_FILTERED" features.csv -&gt; features_FILTERED.csv</p>
 
 <h2>
 <a id="----use-case-manual" class="anchor" href="#----use-case-manual" aria-hidden="true"><span class="octicon octicon-link"></span></a>--- Use Case Manual</h2>
