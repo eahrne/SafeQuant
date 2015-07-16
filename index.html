@@ -33,12 +33,12 @@
 <p>The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data 
 More documentation to come.</p>
 
-<h3>
-<a id="1-install-dependencies" class="anchor" href="#1-install-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>1) Install Dependencies</h3>
+<h2>
+<a id="1-install-dependencies" class="anchor" href="#1-install-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>1) Install Dependencies</h2>
 
 <p>A) Install CRAN library dependencies (open R)</p>
 
-<pre><code>R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table"))
+<pre><code>R&gt; install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR"))
 </code></pre>
 
 <p>B) Install BioConductor library dependencies (open R)</p>
@@ -47,11 +47,24 @@ More documentation to come.</p>
 R&gt; biocLite(c("limma","affy"))
 </code></pre>
 
-<h3>
-<a id="2-option-1-install-safequant-from-sources" class="anchor" href="#2-option-1-install-safequant-from-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 option 1) Install SafeQuant from sources</h3>
+<h2>
+<a id="1-install-safequant-from-sources" class="anchor" href="#1-install-safequant-from-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>1) Install SafeQuant from sources</h2>
 
-<p>A) Download Zip from github
-<a href="https://github.com/eahrne/SafeQuant">https://github.com/eahrne/SafeQuant</a></p>
+<h3>
+<a id="option-1-using-devtools" class="anchor" href="#option-1-using-devtools" aria-hidden="true"><span class="octicon octicon-link"></span></a>Option 1, using "devtools"</h3>
+
+<pre><code>R&gt; install.packages("devtools")
+R&gt; library(devtools)
+R&gt; install_github("SafeQuant", username = "eahrne")
+</code></pre>
+
+<p>Look up the current "ref" argument (version name) at <a href="https://github.com/eahrne/SafeQuant">https://github.com/eahrne/SafeQuant</a></p>
+
+<h3>
+<a id="option-2" class="anchor" href="#option-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Option 2</h3>
+
+<p>A) Download Zip
+<a href="https://github.com/eahrne/SafeQuant/zipball/master">https://github.com/eahrne/SafeQuant/zipball/master</a></p>
 
 <p>B) Unzip SafeQuant.zip</p>
 
@@ -62,18 +75,8 @@ The SafeQuant source directory is the directory containing the NAMESPACE and DES
 <pre><code>R&gt; install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 </code></pre>
 
-<h3>
-<a id="2-option-2-install-safequant-from-sources-using-devtools" class="anchor" href="#2-option-2-install-safequant-from-sources-using-devtools" aria-hidden="true"><span class="octicon octicon-link"></span></a>2 option 2) Install SafeQuant from sources using "devtools"</h3>
-
-<pre><code>R&gt; install.packages("devtools")
-R&gt; library(devtools)
-R&gt; install_github("SafeQuant", username = "eahrne")
-</code></pre>
-
-<p>Look up the current "ref" argument (version name) at <a href="https://github.com/eahrne/SafeQuant">https://github.com/eahrne/SafeQuant</a></p>
-
-<h3>
-<a id="3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" class="anchor" href="#3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</h3>
+<h2>
+<a id="3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" class="anchor" href="#3-to-run-safequantr-post-process-progenesis-lfq-datasets-or-scaffold-tmt-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)</h2>
 
 <p>A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\</p>
