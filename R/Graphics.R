@@ -329,6 +329,7 @@ COLORS <- as.character(c(
 	legend("bottomleft"
 			, labels
 			, fill=unique(textCol)
+			#, fill=textCol
 			, box.col="white"
 	)
 }
@@ -735,7 +736,7 @@ hClustHeatMap <- function(eset
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
 	feature.tree = hclust(feature.cor.dist, method="ward")
 	
-	### clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
+	### !!!! clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
 	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
@@ -1244,6 +1245,33 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 	rtTable <- table(round(fData(eset)$retentionTime))
 	plot(as.numeric(names(rtTable)),rtTable[names(rtTable)], type="h", xlab="Retention Time (min)"
 			, ylab="# Identified Features", cex.axis=cex.axis,cex.lab=cex.lab, col=col, lwd=lwd,...)
+}
+
+
+#' Plot qValue vs pValue
+#' @param sqa SafeQuantAnalysis Object
+#' @param lim x-axis and y-axis range
+#' @note  No note
+#' @export
+#' @details No details
+#' @references NA
+#' @examples print("No examples")
+plotQValueVsPValue <- function(sqa, lim=c(0,1)){
+	conditionColors <- .getConditionColors(sqa$eset)
+	conditions <- names(sqa$pValue)
+	
+	plot(0,0,xlab="pValue",ylab="False Discovery Rate (qValue)", type="n", xlim=lim,ylim=lim)
+	grid()
+	for(cond in conditions){
+		
+		pVal <- sqa$pValue[,cond]
+		qVal <- sqa$qValue[,cond]
+		o <- order(pVal)
+		lines(pVal[o],qVal[o],col= as.character(conditionColors[cond ,]), lwd=2)
+	}
+	
+	abline(coef=c(0,1),lty=2)
+	legend("bottomright", conditions, fill=as.character(conditionColors[conditions,]), cex=0.6)
 }
 
 

@@ -112,6 +112,8 @@ if(T){
 	
 	missinValueBarplot(eset)
 	
+	plotQValueVsPValue(sqa, lim=c(0,0.5))
+		
 	graphics.off()
 	
 }

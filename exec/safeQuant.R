@@ -520,6 +520,7 @@ if(userOptions$eBayes){
 	par(mfrow=c(2,2))
 	if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
 	.allpValueHist(sqaDisp)
+	plotQValueVsPValue(sqaDisp, lim=c(0,1))
 	par(parDefault)
 }		
 
