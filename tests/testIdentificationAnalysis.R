@@ -236,6 +236,16 @@ testStripACs <- function(){
 
 ### TEST FUNCTIONS END
 
+testGetAAProteinCoordinates <- function(){
+	
+	cat("--- testGetAAProteinCoordinates: --- \n")
+	peptide <- "SSDAEMAVFGEAAPYLR"
+	protein <-  "MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK"
+	stopifnot(length(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","S")) == 2)
+	stopifnot(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","Y") == 23)
+	cat("--- testGetAAProteinCoordinates: PASS ALL TEST --- \n")	
+	
+}
 
 ### TESTS
 
@@ -256,6 +266,7 @@ testSetPeptidePerProtein()
 testGetMeanCenteredRange()
 testIsStrippedACs()
 testStripACs()
+testGetAAProteinCoordinates()
 
 ### TESTS END
 

@@ -356,7 +356,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	# NOT COMPATIBLE WITH STANDARD iBAQ AND TOP3 ABSOLUT QUANTIFICATION! 
 	
 	
-	cat("INFO: ASSIGNING PEPTIDES TO PROTENS APPLYING OCCAM'S RAZOR \n" )	
+	cat("INFO: ASSIGNING PEPTIDES TO PROTEINS APPLYING OCCAM'S RAZOR \n" )	
 	
 	#Check that file includes column "Grouped accessions (for this sequence)"
 	if(!("Grouped accessions (for this sequence)" %in% names(res))) stop("Column \"Grouped accessions (for this sequence)\" missing in file ",file)

@@ -144,7 +144,7 @@ getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),
 	### add cleaved residue
 	matchPos <- gregexpr(proteaseRegExp,proteinSeq,perl=TRUE)[[1]]
 	separator <- allAA[ matchPos ]
-	###Êif c-term peptide isn't tryptic
+	###ï¿½if c-term peptide isn't tryptic
 	if(length(separator) < length(fcPeptides)) separator <- c(separator,"")
 	fcPeptides <- paste(fcPeptides,separator,sep="")
 	fcPeptides <- fcPeptides[nchar(fcPeptides) > 0 ]
@@ -472,3 +472,31 @@ stripACs <- function(acs){
 	
 }
 
+#' Get amino acid coordinates on protein
+#' @param peptideSeq peptide sequence
+#' @param proteinSeq protein sequence
+#' @return vector of protein coordinates (mmodification residue number) 
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+getAAProteinCoordinates <- function(peptideSeq,proteinSeq, aaRegExpr="[STY]"){
+	
+	peptideSeq <- as.character(peptideSeq)
+	
+	### parse modifAnnot -> modif position(s) on peptide positions
+	#modifList <- strsplit(as.character(modifAnnot),"\\|")[[1]]
+	modifPos <- as.vector(unlist(gregexpr(aaRegExpr,peptideSeq)[[1]]))
+	
+	### get peptide position on protein (first matching position if duplicates)
+	pepStartPos <- regexpr(peptideSeq,proteinSeq)[1]
+	
+	if(pepStartPos < 0){
+		cat("\nERROR - getModifProteinCoordinates -:",peptideSeq," not matching current protein sequence (check provided protein sequence db)","\n" )	
+		return(pepStartPos)
+	}
+	
+	return((modifPos+pepStartPos-1))
+	
+}
