@@ -36,7 +36,7 @@ plot.safeQuantAnalysis <- function(){}
 # created from Expression set (name of controlCondition is specified), adjust. 
 # normalization
 # replace missing values
-# c("global","naRep","rt","pairwise")
+# c("global","naRep","rt","pairwise","quantile")
 #' @export
 safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	

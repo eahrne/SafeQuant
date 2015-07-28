@@ -13,9 +13,16 @@
 
 - speed up parsing. update/get rid off .getProgenesisCsvExpressionColIndices()
 
-- write column description for peptide and protein tsv. 
+- normalization methods
+	- quantile normalization
+	- rt bin normalization (applying coarser binning) 
+
+- heatmap
+	# don't display discarded conditions in legend
 
 ### SOLVED
+
+### - write column description for peptide and protein tsv. 
 
 ### - compatibility with fractionated data
 

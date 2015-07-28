@@ -311,6 +311,7 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 	### get median ratio per minute bin
 	roundedRT <- round(fData(eset)$retentionTime)
 	rtBin <- sort(unique(round(fData(eset)$retentionTime)))
+	rtBin <-  rtBin[!is.na(rtBin)] 
 	
 	# normalization factors per retention time bin bin
 	rtNormFactors <- data.frame(row.names=rtBin)
@@ -360,17 +361,21 @@ rtNormalize <- function(eset,rtNormFactors){
 	if(is.null(fData(eset)$retentionTime)){
 		stop("retentionTime not found")
 	}
-	
-	
+		
 	roundedRT <-  round(fData(eset)$retentionTime)
-
-	if(sum(!(as.character(roundedRT) %in% row.names(rtNormFactors))) > 0){
+	
+	# FIX
+	if(sum(!(as.character(roundedRT)[!is.na(roundedRT)] %in% row.names(rtNormFactors))) > 0){
 		stop("ERROR: Missing R.T. Norm Factors.")
 	}
 		
 	for(i in 1:ncol(eset)){
 		# normalize 
-		exprs(eset)[,i]  <- 2^(log2(exprs(eset)[,i]) - rtNormFactors[as.character(roundedRT),i])
+		
+		nF <- rtNormFactors[as.character(roundedRT),i]
+		nF[is.na(nF)] <- 0
+		
+		exprs(eset)[,i]  <- 2^(log2(exprs(eset)[,i]) - nF)
 	}
 	
 	return(eset)
@@ -390,11 +395,16 @@ getGlobalNormFactors <- function(eset, method="sum"){
 	
 	sel <- rep(T,nrow(eset))
 	
-	### check if isNormAnchor and isFiltered columns are defiend, if -> get normalization factors from nonFiltered anchor proteins
+	### check if isNormAnchor and isFiltered columns are defined, if -> get normalization factors from nonFiltered anchor proteins
 	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
-		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered
+		
+		### only use feature qunatified in all runs for normalization
+		isAllSignal <- as.vector(apply(is.finite(exprs(eset)),1,sum) == ncol(eset))
+		
+		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered & isAllSignal
+	
 		if(sum(sel) == 0){
-			stop("Error: Invalid Anchor Protein Selection")
+			stop("Error: getGlobalNormFactors -> Invalid Anchor Protein Selection ")
 		}
 	}
 	
@@ -434,9 +444,10 @@ globalNormalize <- function(eset,globalNormFactors){
 
 #' Normalize 
 #' @param eset ExpressionSet
-#' @param	method c("global","rt") 
+#' @param	method c("global","rt","quantile") 
 #' @return eset ExpressionSet
 #' @export
+#' @import limma
 #' @note  No note
 #' @details No details
 #' @keywords normalization
@@ -452,7 +463,7 @@ sqNormalize <- function(eset, method="global"){
 		globalNormFactors <- getGlobalNormFactors(esetNorm)
 		
 		### add normalization factors to ExpressionSet
-		pData(esetNorm) <- cbind(pData(esetNorm),globalNormFactors)
+		pData(esetNorm)$globalNormFactors <- globalNormFactors
 		esetNorm <- globalNormalize(esetNorm,globalNormFactors)
 	}
 	if("rt" %in% method){
@@ -461,8 +472,11 @@ sqNormalize <- function(eset, method="global"){
 			esetNorm <- rtNormalize(eset,rtNormFactors)
 			
 	}
+	if("quantile" %in% method){
+		# limma
+		exprs(eset) <- normalizeQuantiles(exprs(eset))	
+	}
 	
-
 	### @ experimental
 #	if("vsn" %in% method){
 #		library(vsn)

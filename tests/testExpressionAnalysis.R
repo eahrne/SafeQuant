@@ -297,12 +297,7 @@ testPerFeatureNormalization <- function(){
 	
 	cat(" --- testPerFeatureNormalization: PASS ALL TEST --- \n")
 	
-	
-	
-	
-	
-	
-	
+
 	#coveredPeptideSel <- fData(eset)$proteinName %in% rownames(normFactors)
 	#exprs(eset)[coveredPeptideSel,]	<- exprs(eset)[coveredPeptideSel, ] - normFactors[as.character(fData(eset)[coveredPeptideSel,]$proteinName),pData(eset)$condition]
 	
@@ -340,10 +335,25 @@ testPerFeatureNormalization()
 
 
 
+### Quantile normalization. Replace rank (rank of protein intensity in one run)  by "rank quantile intensity" 
+# Proteins with the same rank in each run will have the same intensity 
+#	Get Rank Quantile intensity Step 1
+#	A    5    4    3    becomes A 2 1 3
+#	B    2    1    4    becomes B 3 2 4
+#	C    3    4    6    becomes C 4 4 6
+#	D    4    2    8    becomes D 5 4 8
+#	Get Rank Quantile intensity Step 2 (rank i = 2.00 )
+#	A (2 1 3)/3 = 2.00 = rank i, 
+#	B (3 2 4)/3 = 3.00 = rank ii
+#	C (4 4 6)/3 = 4.67 = rank iii
+#	D (5 4 8)/3 = 5.67 = rank iv
 
-
-
-
-
-
-
+#normalizeQuantiles(exprs(eset))
+#
+#
+#m <-  t(matrix(c(5,4, 3
+#    ,2,1,4
+#    ,3,4,6
+#    ,4,2,8),ncol=4))
+#
+#normalizeQuantiles(m)

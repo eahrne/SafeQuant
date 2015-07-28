@@ -184,9 +184,7 @@ COLORS <- as.character(c(
 	if((5 %in% selection) && ("retentionTime" %in% names(fData(eset))) ){
 		plotRTNormSummary(getRTNormFactors(eset, minFeaturesPerBin=100))
 	}
-	
 	#if(6 %in% selection) invisible(hClustHeatMap(eset[sel & !fData(eset)$isFiltered,],main=paste("SELECTED NB. FEATURES:", nbFeatures), ...))
-	
 } 
 
 ### some quality control plots
@@ -219,9 +217,6 @@ COLORS <- as.character(c(
 		if(2 %in% selection) plotIdScoreVsFDR(scores,qvalues,qvalueThrs, ...)
 		if(3 %in% selection) plotROC(qvalues,qvalueThrs,...)
 	}
-	
-	
-	
 } 
 
 #' @export
@@ -601,17 +596,28 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' Barplot of ms-signal per column
 #' @param matrix matrix of ms-signals
 #' @param color color
+#' @param method c("median","sum","sharedSignal")
 #' @import affy
 #' @export
 #' @note  No note
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,]),method="sum",cex.lab=1.25, cex.axis=1.25,labels=rownames(pData(eset)),...){
+barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,])
+	,method=c("sum","sharedSignal")
+	,cex.lab=1.25
+	,cex.axis=1.25
+	,labels=rownames(pData(eset))
+	,...){
 	
-	eset <- eset[!fData(eset)$isFiltered,]
+	sel <- !fData(eset)$isFiltered
+
+	### only use feature qunatified in all runs for normalization
+	if("sharedSignal" %in% method) sel <- sel & (as.vector(apply(is.finite(exprs(eset)),1,sum) == ncol(eset)))
 	
-	if(method == "median"){
+	eset <- eset[sel,]			
+		
+	if("median" %in% method){
 		profile <- apply(exprs(eset),2,median,na.rm=T)
 		ylab <- "Median MS-Signal (Scaled)"
 	}else{
@@ -635,7 +641,7 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pData(eset)$condition),]), cex.names=0.9,cex.axis=1.25,cex.lab=1.25,...){
+cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pData(eset)$condition),]), cex.names=0.9,cex.axis=1.25,cex.lab=1.25,ylab="C.V. (%)",...){
 	
 	eset <- eset[!fData(eset)$isFiltered,]
 	
@@ -647,7 +653,7 @@ cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pDa
 		grid(nx=NA, ny=NULL) #grid over boxplot
 		par(new=TRUE)
 		
-		boxplot(cv*100,  col=col,las=2, ylab="C.V. (%)"
+		boxplot(cv*100,  col=col,las=2, ylab=ylab
 				, cex.names=cex.names
 				, cex.axis=cex.axis
 				, cex.lab=cex.lab
@@ -729,8 +735,7 @@ hClustHeatMap <- function(eset
 	#d <- log2(exprs(eset))
 	### log2 ratios to median of control condition
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
-
-	 
+	
 	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
 	feature.cor.dist = as.dist(1-feature.cor)
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
@@ -768,6 +773,7 @@ hClustHeatMap <- function(eset
 			,density.info="density"
 			#,KeyValueName="Prob. Response"
 			,breaks=breaks
+			,na.rm=T
 			, ...
 	)
 	
@@ -1080,13 +1086,18 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 			abline(fit)
 		}
 		
+		if("lowess" %in% disp){
+			lines(lowess(x[ok],y[ok],...))
+		}
+		
+		
 		legd <- c()
 		
 		if("R" %in% disp) legd <- c(legd,as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
 			
 		if("Rc" %in% disp) legd <- c(legd,as.expression(bquote(R[c]*"" == .(round(epi.ccc(x,y)$rho.c$est,2)))))
 		
-		if(length(legd) >= 0 ){
+		if(length(legd) > 0 ){
 			legend(legendPos
 					,legend= legd
 					,text.col=1, box.col="transparent", cex=2
