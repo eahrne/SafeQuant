@@ -78,7 +78,6 @@ fData(esetTMT10Spectrum) <- cbind(fData(esetTMT10Spectrum),pdAddedColumns)
 esetTMT10Protein <- rollUp(esetTMT10Spectrum,featureDataColumnName= c("proteinName"),method="sum") 
 fData(esetTMT10Protein)$isNormAnchor <-  grepl("HUMAN",fData(esetTMT10Protein)$proteinName ) 
 
-
 #save(esetTMT10Spectrum,esetTMT6Peptide,esetTMT6Protein,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/proteomeMixTMT6.rda" )
 save(esetTMT10Spectrum,esetTMT10Protein,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProteinCalMixTMT10.rda" )
 #save(esetTMT10Spectrum,file="/Users/erikahrne/dev/R/workspace/SafeQuant/data/cristinaProeinCalMixTMT10.rda" )

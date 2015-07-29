@@ -187,7 +187,7 @@ getUserOptions <- function(version=version){
 	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv --FL 7
 
 	Progenesis LFQ Phospho Quant:
-	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv -f /path/to/proteins.fasta --FM phospho --FN 3 --EP
+	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv -f /path/to/proteins.fasta --FM phospho --FS 3 --EP
 
 	Scaffold Q+ TMT Protein Quant:
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
