@@ -226,14 +226,14 @@ COLORS <- as.character(c(
 
 ### color strip for volcano plot
 #' @export
-.cvColorstrip <- function(colors, maxCV = maxCV  )
+.dotColorstrip <- function(colors,minSignal=0, maxSignal = maxSignal,lab= "C.V. (%)"  )
 {
 	bottom <- 1	
 	count <- length(colors)
 	m <- matrix(1:count, count, 1)
 	image(m, col=colors, ylab="", axes=FALSE)
 	
-	labels <- round(seq(0,maxCV,length.out=3))
+	labels <- round(seq(minSignal,maxSignal,length.out=3))
 	
 	### round off to nearest 5 
 	labels <- as.character( round(labels / 5) *5 )
@@ -241,7 +241,7 @@ COLORS <- as.character(c(
 	at <- seq(0,1,length.out=3)
 	
 	axis(bottom,tick=TRUE, labels=labels , at=at )
-	mtext("C.V. (%)", bottom, adj=0.5, line=2)
+	mtext(lab, bottom, adj=0.5, line=2)
 }
 
 ### called from plotVolcano. Creates volcano plot form data.frame input
@@ -251,7 +251,7 @@ COLORS <- as.character(c(
 		, absLog10pValueCutOff=2
 		, xlim = range(d[,1],na.rm=T)
 		, ylim = range(abs(        log10(d[,2])[is.finite(  log10(d[,2])  )]    )      ,na.rm=T) # pValue or qValue
-		, cvMax = max(d[,3][is.finite(d[,3])],na.rm=T)	
+		, maxSignal = max(d[,3][is.finite(d[,3])],na.rm=T)	
 		#, higlightSel = rep(F,nrow(d))
 		, controlCondition = "control"
 		, caseCondition = "case"
@@ -259,8 +259,8 @@ COLORS <- as.character(c(
 
 ){
 	
-	cvColorPalette <- rev(rich.colors(32))
-	CVcolors <- cvColorPalette[round(1+ d[,3]/cvMax *31)] 
+	colorPalette <- rev(rich.colors(32))
+	dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
 	
 	par(fig=c(0,1,0.18,1))
 	plot(0,0
@@ -273,7 +273,7 @@ COLORS <- as.character(c(
 	grid()
 	
 	### d[,2] qValues or pValues
-	points(d[,1], abs(log10(d[,2])), col=CVcolors, pch=20)
+	points(d[,1], abs(log10(d[,2])), col=dotColors, pch=20)
 	
 	### draw valid squares contianing valid proteins/peptides 
 	lines(c(-ratioCutOffAbsLog2,-ratioCutOffAbsLog2),c(absLog10pValueCutOff,1000), col="grey")
@@ -286,7 +286,7 @@ COLORS <- as.character(c(
 	
 	### add heat color bar
 	par(fig=c(0,1,0,0.3), new=TRUE)
-	.cvColorstrip(cvColorPalette, maxCV=cvMax*100)
+	.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
 	par(mfrow=c(1,1))
 	
 }
@@ -309,7 +309,7 @@ COLORS <- as.character(c(
 
 #' @export
 #' @import corrplot
-.correlationPlot <- function(d, textCol="black", labels=colnames(d) ){
+.correlationPlot <- function(d, textCol="black", labels=colnames(d),... ){
 	
 		
 	corrplot(cor(d,use="complete")^2
@@ -320,10 +320,17 @@ COLORS <- as.character(c(
 			#, method="circle"
 			, method="pie"
 			, addgrid.col="white" 
+			,...
 	)
 	legend("bottomleft"
 			, labels
 			, fill=unique(textCol)
+			#, fill=textCol
+			, box.col="white"
+	)
+	legend("topright"
+			, c("","",as.expression(bquote(R^2*"        ")))
+			#, fill=unique(textCol)
 			#, fill=textCol
 			, box.col="white"
 	)
@@ -408,7 +415,7 @@ plotVolcano <- function(obj
 					, absLog10pValueCutOff=absLog10pValueCutOff
 					, xlim = xlim
 					, ylim = ylim # pValue or qValue
-					, cvMax = cvMax	
+					, maxSignal = cvMax	
 					#, higlightSel = higlightSel
 					, controlCondition = controlCondition
 					, caseCondition = caseCondition

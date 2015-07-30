@@ -138,7 +138,6 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
 }else if(fileType == "MaxQuantProteinGroup"){
 
-	
 	# get user specified experimental design
 	if(!is.na(userOptions$expDesignTag)){
 		# user specified
@@ -641,7 +640,6 @@ if(exists("sqaProtein")){
 		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
 		
-	
 #		### per run
 #		tmpOut <- exprs(esetIBAQ)
 #		tmpOut[!is.na(tmpOut)] <- NA

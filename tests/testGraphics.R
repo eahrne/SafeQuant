@@ -63,6 +63,9 @@ if(T){
 	# quant QC plots
 	pairsAnnot(exprs(eset), main="pairsAnnot")
 	pairsAnnot(getSignalPerCondition(eset), main="pairsAnnot")
+	
+	
+	
 	plotMSSignalDistributions(exprs(eset),col=COLORS, cex=1, cex.axis=1.5, cex.lab=1.5, ylab="binned count", xlab="AUC", main="plotMSSignalDistributions")
 	barplotMSSignal(eset,cex.lab=1.5,main="barplotMSSignal")
 	
@@ -114,19 +117,16 @@ if(T){
 	
 	plotQValueVsPValue(sqa, lim=c(0,0.5))
 		
+	.correlationPlot(exprs(eset))
+	
 	graphics.off()
+	
+	
+
+	
 	
 }
 ### TESTS END
-
-
-
-
-
-
-
-
-
 
 
 
