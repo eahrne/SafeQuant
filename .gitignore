@@ -1,5 +1,6 @@
 #### results out put & test data
 *.tsv
+*.csv
 # OS generated files #
 ######################
 .DS_Store

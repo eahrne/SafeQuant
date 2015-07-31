@@ -21,7 +21,7 @@ B) Install BioConductor library dependencies (open R)
 
     R> install.packages("devtools")
     R> library(devtools)
-    R> install_github("SafeQuant", username = "eahrne")
+    R> install_github("eahrne/SafeQuant")
     
 **Option 2**
 
