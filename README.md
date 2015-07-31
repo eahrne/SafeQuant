@@ -19,6 +19,11 @@ B) Install BioConductor library dependencies (open R)
 
 **Option 1, using "devtools"**
 
+Make sure you have a working development environment.
+	**Windows**: Install Rtools.
+	**Mac**: Install Xcode from the Mac App Store.
+	**Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
+
     R> install.packages("devtools")
     R> library(devtools)
     R> install_github("eahrne/SafeQuant")
