@@ -307,6 +307,25 @@ testPerFeatureNormalization <- function(){
 }
 
 
+testStandardise <- function(){
+	
+	cat(" --- testStandardise: --- \n")
+	
+	d <- data.frame(rnorm(10000,5,20), rnorm(10000,10,10))
+	dStd <- standardise(d[,1])
+	
+	stopifnot(round(mean(dStd)) == 0 )
+	stopifnot(round(sd(dStd)) == 1 )
+	
+	dStd <- standardise(d)
+	stopifnot(round(apply(dStd,2,mean)[1]) == 0)
+	stopifnot(round(apply(dStd,2,sd)[1]) == 1)
+
+	cat(" --- testStandardise: PASS ALL TEST --- \n")
+	
+}
+
+
 ### TEST FUNCTIONS END
 
 ### TESTS
@@ -326,9 +345,11 @@ testGetLoocvFoldError()
 
 testRemoveOutliers()
 testPerFeatureNormalization()
+testStandardise()
+
 ### FOR vs APPLY
 
-#### create index tags by concatinating selected coulm entries
+#### create index tags by concatenating selected coulm entries
 #allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
 #							return(paste(as.vector(unlist(t)),collapse="_"))
 #						})))

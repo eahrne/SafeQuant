@@ -6,7 +6,8 @@
 \usage{
 cvBoxplot(eset,
   col = as.character(.getConditionColors(eset)[unique(pData(eset)$condition),
-  ]), cex.names = 0.9, cex.axis = 1.25, cex.lab = 1.25, ...)
+  ]), cex.names = 0.9, cex.axis = 1.25, cex.lab = 1.25,
+  ylab = "C.V. (\%)", ...)
 }
 \arguments{
 \item{eset}{ExpressionSet}

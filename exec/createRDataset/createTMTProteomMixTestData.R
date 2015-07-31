@@ -14,8 +14,6 @@ source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
 library("affy")
 library("limma")
 
-
-
 ### ??? scaffoldRawDataFile <- "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/Ratio_Pilot_6plex_250714/Scaffold/Raw Data Report for TMT-6-stats-2-Bart-human-310714.xls"
 
 scaffoldRawDataFile <- "/Volumes/pcf01$/Schmidt_Group/Alex/LC-MS-Tests/TMT_Ratio_Stats_Paper_230714/Ratio_Pilot_6plex_250714/Scaffold/Raw Data Report for Copy_of_TMT-6-ratio-pilot-Bart-human-290714.xls"

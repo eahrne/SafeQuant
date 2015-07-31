@@ -2,51 +2,31 @@
 % Please edit documentation in R/ExpressionAnalysis.R
 \name{getTopX}
 \alias{getTopX}
-\title{Roll up feature intensites per unique colum combination}
+\title{Calculate Mean of X most intense features}
 \usage{
 getTopX(entryData, topX = 3)
 }
 \arguments{
-\item{entryData}{data.frame listing feature intensities of one entry
-Typically rows corresponds to Peptide entries of one protein}
+\item{entryData}{data.frame listing feature intensities of one entry. Typically rows corresponds to Peptide entries of one protein}
 
 \item{topX}{best X flyers}
-
-\item{eset}{ExpressionSet}
-
-\item{featureDataColumnName}{vector of column names e.g. peptide or proteinName}
-
-\item{method}{"sum", "mean" or "top3"}
-
-\item{isProgressBar}{TRUE/FALSE display progress bar}
 }
 \value{
-ExpressionSet object
-
 vector of topX intensities per column (sample)
 }
 \description{
-Roll up feature intensites per unique colum combination
+Calculate Mean of X most intense features
 }
 \details{
-featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
+No details
 }
 \note{
-No note
-
 No note
 }
 \examples{
 print("No examples")
-Calculate Mean of X most intense features
 }
 \references{
-No references
-
-Absolute quantification of proteins by LCMSE: A virtue of parallel MS acquisition, Silva (2006), \url{http://www.ncbi.nlm.nih.gov/pubmed/16219938},
-Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Ahrne (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23794183}
-}
-\seealso{
-\code{\link{topX}}
+Absolute quantification of proteins by LCMSE: A virtue of parallel MS acquisition, Silva (2006), \url{http://www.ncbi.nlm.nih.gov/pubmed/16219938},  Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Ahrne (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23794183}
 }
 

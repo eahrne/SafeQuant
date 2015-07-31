@@ -6,10 +6,12 @@
 \usage{
 barplotMSSignal(eset,
   col = as.character(.getConditionColors(eset)[pData(eset)$condition, ]),
-  method = "sum", cex.lab = 1.25, cex.axis = 1.25,
+  method = c("sum", "sharedSignal"), cex.lab = 1.25, cex.axis = 1.25,
   labels = rownames(pData(eset)), ...)
 }
 \arguments{
+\item{method}{c("median","sum","sharedSignal")}
+
 \item{matrix}{matrix of ms-signals}
 
 \item{color}{color}

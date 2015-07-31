@@ -9,7 +9,7 @@ sqNormalize(eset, method = "global")
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{method}{c("global","rt")}
+\item{method}{c("global","rt","quantile")}
 }
 \value{
 eset ExpressionSet

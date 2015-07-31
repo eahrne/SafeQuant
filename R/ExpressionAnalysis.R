@@ -821,3 +821,26 @@ perFeatureNormalization <- function(eset,normFactors){
 	return(eset)	
 	
 }
+
+#' Standardise data
+#' @param d vector or data.frame or matrix
+#' @return vector or data.frame or matrix
+#' @export
+#' @note  No note
+#' @details No details
+#' @examples print("No examples")
+standardise <- function(d){
+	
+	d[!is.finite(as.matrix(d))] <- NA
+	
+	if((class(d) == "data.frame") | (class(d) == "matrix")){
+		for(i in 1:ncol(d)){
+			d[,i] <- d[,i]- mean(d[,i],na.rm=T)
+			d[,i] <- d[,i]/ sd(d[,i],na.rm=T)
+		}
+		return(d)
+	}else{
+		return( (d - mean(d,na.rm=T)) / sd(d,na.rm=T) )
+	}
+}
+
