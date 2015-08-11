@@ -1111,6 +1111,8 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 			)
 		}
 		
+		return(fit)
+		
 	}
 	
 	return(NA)
