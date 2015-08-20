@@ -234,6 +234,8 @@ if("idScore" %in% names(fData(eset))){
 # set pre-rollup filters
 eset <- .setFilter(eset,filter=filter)
 
+
+
 ### make sure at least 1 feature pass the filter
 if(sum(!fData(eset)$isFiltered,na.rm=T) == 0){
 	stop("CHECK FILTER SETTINGS. ALL FEATURES WERE FILTERED OUT")
@@ -388,7 +390,8 @@ if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
 if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
 .idOverviewPlots()
-if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
+if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(3,2))
+.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff)
 if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
 if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
 par(parDefault)

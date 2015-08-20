@@ -737,7 +737,10 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	if(method =="sum"){
 		rDT <- DT[, lapply(.SD, sum, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
 		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
-			
+	}else if(method =="median"){
+		rDT <- DT[, lapply(.SD, median, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
+		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		
 	}else if(method =="mean"){
 		rDT <- DT[, lapply(.SD, mean, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
 		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)

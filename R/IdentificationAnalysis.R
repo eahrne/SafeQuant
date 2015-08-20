@@ -144,7 +144,7 @@ getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),
 	### add cleaved residue
 	matchPos <- gregexpr(proteaseRegExp,proteinSeq,perl=TRUE)[[1]]
 	separator <- allAA[ matchPos ]
-	###�if c-term peptide isn't tryptic
+	###if c-term peptide isn't tryptic
 	if(length(separator) < length(fcPeptides)) separator <- c(separator,"")
 	fcPeptides <- paste(fcPeptides,separator,sep="")
 	fcPeptides <- fcPeptides[nchar(fcPeptides) > 0 ]
@@ -427,6 +427,34 @@ getNbPeptidesPerProtein <- function(eset){
 #' @examples print("No examples")
 setNbPeptidesPerProtein <- function(eset){
 	fData(eset)$nbPeptides	<- getNbPeptidesPerProtein(eset)[as.character(fData(eset)$proteinName)]
+	return(eset)
+}
+
+#' Get number of spectra per protein
+#' @param eset ExpressionSet
+#' @return table
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+getNbSpectraPerProtein <- function(eset){
+	
+	sel <- !fData(eset)$isFiltered
+	return(sort(table(fData(eset[sel,])$proteinName),decreasing=T))
+	
+}
+
+#' Set nbPeptides coulmn of featureData
+#' @param eset ExpressionSet
+#' @return eset
+#' @export
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @examples print("No examples")
+setNbSpectraPerProtein <- function(eset){
+	fData(eset)$nbSpectra	<- getNbSpectraPerProtein(eset)[as.character(fData(eset)$proteinName)]
 	return(eset)
 }
 
