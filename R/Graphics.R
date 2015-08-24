@@ -492,7 +492,7 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 #' @references NA
 #' @examples print("No examples")
 pairsAnnot<-
-		function(data,textCol=rep(1,ncol(data)), diagText=c(),col= rgb(0,100,0,50,maxColorValue=255),...) {
+		function(data,textCol=rep(1,ncol(data)), diagText=c(),col= rgb(0,100,0,50,maxColorValue=255),isHeatCol=F,...) {
 	
 	### we need at least two samples
 	if(ncol(data.frame(data)) < 2 ){
@@ -518,11 +518,28 @@ pairsAnnot<-
 					#	cex = 1, col.lm = "red", lwd=par("lwd"), ...)
 					col.lm = "red", lwd=par("lwd"))
 	{
-		points(x, y, pch = 20, col =col, bg = bg)
+				
+		if(isHeatCol){
+			df <- data.frame(x,y)
+			## Use densCols() output to get density at each point
+			densityCol <- densCols(x,y, colramp=colorRampPalette(c("black", "white")))
+			df$densityCol <- col2rgb(densityCol)[1,] + 1L
+			## Map densities to colors
+			cols <-  colorRampPalette(c("#000099", "#00FEFF", "#45FE4F", 
+							"#FCFF00", "#FF9400", "#FF3100"))(256)
+			df$hCol <- cols[df$densityCol]
+			
+			points(y~x, data=df[order(df$densityCol),], pch = 20, col =hCol, bg = bg)
+			col <<- "black"
+			
+		}else{
+			points(x, y, pch = 20, col =col, bg = bg)
+		}
+		
 		
 		ok = is.finite(x) & is.finite(y)
 		if (any(ok)){
-			abline(lm(y~x,subset=ok), col = "red", lwd=1.5)
+			abline(lm(y~x,subset=ok), col = "blue", lwd=1.5)
 			abline(coef=c(0,1),lty=2)
 		}
 	}
