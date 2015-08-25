@@ -458,7 +458,6 @@ setNbSpectraPerProtein <- function(eset){
 	return(eset)
 }
 
-
 #' Get modification coordinates on protein
 #' @param d numeric vector
 #' @param nbSd range spanning number of sd frmo mean

@@ -56,7 +56,7 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 }
 
 
-VERSION <- 2.1
+VERSION <- 2.2
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
@@ -114,6 +114,8 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
 	
+	
+	
 # Scaffold Export (TMT data)
 }else if(fileType == "ScaffoldTMT"){
 	cat("INFO: PARSING SCAFFOLD RAW EXPORT FILE ",userOptions$inputFile, "\n" )
@@ -134,8 +136,16 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		# user specified
 		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,expDesign)
 	}
-	
+
 	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+	if(!is.na(userOptions$scaffoldPTMSpectrumReportFile)){
+		
+		cat("INFO: ADDING SCAFFOLD PTM ANNOTATIONS \n")
+		eset <- addScaffoldPTMFAnnotations(eset,userOptions$scaffoldPTMSpectrumReportFile)
+		
+	}
+
 }else if(fileType == "MaxQuantProteinGroup"){
 
 	# get user specified experimental design
@@ -186,12 +196,13 @@ filter <- data.frame(
 		,ac = !(grepl(userOptions$selectedProteinName,fData(eset)$proteinName,ignore.case=T)) # protein ac
 )
 
-if("pMassError" %in% names(fData(eset))){
+# do not filter TMT data
+if("pMassError" %in% names(fData(eset))  &&  (fileType != "ScaffoldTMT") ){
 	### applicable to Progenesis feature Exports	
 	
 	if(is.na(userOptions$precursorMassFilter)){ # if not user specified  
 		# automatically get precursor limits, X * sd of 50% top scoring
-		userOptions$precursorMassFilter <- getMeanCenteredRange(fData(eset)$pMassError[fData(eset)$idScore > quantile(fData(eset)$idScore)[3]],nbSd = 3)
+		userOptions$precursorMassFilter <- getMeanCenteredRange(fData(eset)$pMassError[fData(eset)$idScore > quantile(fData(eset)$idScore,na.rm=T)[3]],nbSd = 3)
 		filter <- cbind(filter, pMassError=
 						(fData(eset)$pMassError < userOptions$precursorMassFilter[1])
 						| (fData(eset)$pMassError > userOptions$precursorMassFilter[2]) # precursor mass tolerance
@@ -203,8 +214,14 @@ if("ptm" %in% names(fData(eset))){
 	
 	# add motif-X and ptm coordinates
 	if(exists("proteinDB")){
-		cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
-		eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
+		
+		if(fileType == "ScaffoldTMT"){
+			# @TODO
+			cat("WARN: .idOverviewPlots() SCAFFOLD PTM SUPPORT NOT YET FULLY IMPLEMENTED \n")
+		}else{
+			cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
+			eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
+		}
 	}
 	filter <- cbind(filter
 					, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))
@@ -226,15 +243,14 @@ if(!("nbPeptides" %in% names(fData(eset)))){
 
 filter <- cbind(filter,nbPeptides=(fData(eset)$nbPeptides < userOptions$minNbPeptidesPerProt))
 
-if("idScore" %in% names(fData(eset))){
+# do not filter TMT data
+if(("idScore" %in% names(fData(eset))) && (fileType != "ScaffoldTMT")){
 	eset <- addIdQvalues(eset)
 	filter <- cbind(filter,qvalue=fData(eset)$idQValue > userOptions$fdrCutoff)
 }
 
 # set pre-rollup filters
 eset <- .setFilter(eset,filter=filter)
-
-
 
 ### make sure at least 1 feature pass the filter
 if(sum(!fData(eset)$isFiltered,na.rm=T) == 0){
@@ -288,7 +304,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered  | isDecoy(fData(esetNorm)$proteinName)
 	sqaProtein <- safeQuantAnalysis(esetNorm, method=statMethod)
-}else if((fileType == "ScaffoldTMT")){
+}else if((fileType == "ScaffoldTMT") && is.na(userOptions$scaffoldPTMSpectrumReportFile)){
 
 	# roll-up protein level
 	cat("INFO: ROLL-UP PROTEIN LEVEL\n")
@@ -309,14 +325,24 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	# fdr filter
 	# replace qValues by rollUp level qValues ()
 	esetPeptide <- addIdQvalues(esetPeptide)
-	# update filter to exclude peptide level hight qValues
-	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$idQValue > userOptions$fdrCutoff) | (fData(esetPeptide)$nbPeptides <  userOptions$minNbPeptidesPerProt)
-		
+	
+	if(fileType == "ScaffoldTMT"){
+		fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+	}else{
+		# update filter to exclude peptide level hight qValues
+		fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$idQValue > userOptions$fdrCutoff) | (fData(esetPeptide)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+	}
+
 	if(userOptions$proteinQuant){
 		cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 		esetProtein <- rollUp(esetPeptide,featureDataColumnName= c("proteinName"))
 		esetProtein <- addIdQvalues(esetProtein)
-		fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+		
+		if(fileType == "ScaffoldTMT"){
+			fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+		}else{
+			fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
+		}
 		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
 
 	}
@@ -385,15 +411,18 @@ plotExpDesign(esetNorm, version=VERSION)
 ### IDENTIFICATION PLOTS
 if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
 #if(fileType == "ProgenesisProtein") layout(rbind(c(1, 1), c(2, 3)) )
-if(fileType == "ProgenesisProtein") par(mfrow=c(2,2))
-if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
+#if(fileType == "ProgenesisProtein")
+par(mfrow=c(2,2))
+#if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
-if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
+#if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
 .idOverviewPlots()
-if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(3,2))
-.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff)
-if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
-if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
+if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
+	par(mfrow=c(3,2))
+	.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff)
+	if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
+	if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
+}	
 par(parDefault)
 ### IDENTIFICATIONS PLOTS END
 ### QUANT. QC PLOTS 
@@ -401,8 +430,8 @@ if(userOptions$verbose) cat("INFO: QUANT QC. PLOTS \n")
 
 ### MASS ERROR
 par(parDefault)
-if("pMassError" %in% names(fData(eset))){
-	
+#if("pMassError" %in% names(fData(eset))){
+if(fileType %in% c("ProgenesisFeature")){	
 	par(mfrow=c(2,1), mar=c(4.5,6.1,4.1,6.1))
 	plotPrecMassErrorDistrib(eset, pMassTolWindow=userOptions$precursorMassFilter)
 	
@@ -554,6 +583,21 @@ if(exists("sqaPeptide")){
 		selFDataCol <- c(selFDataCol,"allAccessions")
 	}
 	
+	### add ptmPeptide
+	if("ptmPeptide" %in% names(fData(sqaPeptide$eset))){
+		selFDataCol <- c(selFDataCol,"ptmPeptide")
+	}
+	
+	### add ptmLocProb
+	if("ptmLocProb" %in% names(fData(sqaPeptide$eset))){
+		selFDataCol <- c(selFDataCol,"ptmLocProb")
+	}
+	
+	### add ptmLocMascotConfidence
+	if("ptmLocMascotConfidence" %in% names(fData(sqaPeptide$eset))){
+		selFDataCol <- c(selFDataCol,"ptmLocMascotConfidence")
+	}
+	
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio
@@ -689,5 +733,3 @@ if(userOptions$isSaveRObject){
 	cat("INFO: CREATED FILE ", userOptions$rDataFilePath,"\n")	
 }
 ### EXPORT RDATA END
-
-

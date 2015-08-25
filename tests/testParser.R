@@ -176,6 +176,29 @@ testParseMaxQuantProteinGroupTxt <- function(){
 	
 }
 
+testParseScaffoldPTMReport <- function(){
+	
+	cat(" --- testParseScaffoldPTMReport:  --- \n")
+	df <- parseScaffoldPTMReport(scaffoldPtmReportFile1)
+	stopifnot(nrow(df) == 20004 )
+	cat(" --- testParseScaffoldPTMReport: PASS ALL TEST  --- \n")
+
+}
+
+
+testAddScaffoldPTMFAnnotations <- function(){
+	
+	expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )
+	eset <- parseScaffoldRawFile(scaffoldPtmTMTRawDataFile1,expDesign = expDesignTMTTenPlex)
+	
+	cat(" --- testAddScaffoldPTMFAnnotations:  --- \n")
+	eset <- addScaffoldPTMFAnnotations(eset,scaffoldPtmReportFile1)
+	
+	stopifnot(all( c("ptmPeptide","ptm","ptmLocProb","idScore","ptmLocMascotConfidence","pMassError") %in% names(fData(eset))))
+	
+	cat(" --- testAddScaffoldPTMFAnnotations: PASS ALL TEST  --- \n")
+	
+}
 
 ### TEST FUNCTIONS END
 
@@ -192,5 +215,28 @@ testParseProgenesisFeatureCsv()
 testParseProgenesisPeptideMeasurementCsv()
 testParseMaxQuantProteinGroupTxt()
 testGetFileType()
+
+testParseScaffoldPTMReport()
+testAddScaffoldPTMFAnnotations()
 ### TESTS END
 
+#expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )
+#eset <- parseScaffoldRawFile(scaffoldPtmTMTRawDataFile1,expDesign = expDesignTMTTenPlex)
+#
+#eset <- eset[!isDecoy(fData(eset)$proteinName),]
+#
+#
+#eset <- addScaffoldPTMFAnnotations(eset,scaffoldPtmReportFile1)
+#
+#e <- rollUp(eset, featureDataColumnName="peptide")
+#
+#AAAAAAAATMALAAPSSPTPESPTMLTK
+#
+#head(fData(e))
+#
+#fData(e)["AAAAAAAATMALAAPSSPTPESPTMLTK",]
+#
+#
+#fData(e)["AADAEAEVASLNR",]
+#
+#"AAAAAAAATMALAAPSSPTPESPTMLTK" %in%  fData(eset)$peptide

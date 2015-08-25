@@ -270,35 +270,5 @@ testGetAAProteinCoordinates()
 
 ### TESTS END
 
-### scaffold PTM
-scaffoldPTMFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold.xls"
-scaffoldPTMFile2 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Spectrum Report PTM Scaffold_HCD.xls"
 
-
-scaffoldPTM <- read.csv(scaffoldPTMFile1,sep="\t")
-
-names(scaffoldPTM)
-# names(scaffoldPTM)
-#  [1] "protein.accession"                    
-#  [2] "protein.name"                         
-#  [3] "Peptide.Sequence"                     
-#  [4] "Variable.Modifications"               
-#  [5] "Localization.Probability"             
-#  [6] "Ascore"                               
-#  [7] "Peptide.Score"                        
-#  [8] "Mascot.PTM.Site.Assignment.Confidence"
-#  [9] "Mascot.Expectation.Value"             
-# [10] "Mascot.Score"                         
-# [11] "NTT"                                  
-# [12] "Actual.Mass"                          
-# [13] "Observed.Mass"                        
-# [14] "Charge"                               
-# [15] "Delta.AMU"                            
-# [16] "Delta.PPM"                            
-# [17] "Start"                                
-# [18] "Stop"                                 
-# [19] "Fixed.Modifications"                  
-# [20] "Spectrum.Name"                        
-# [21] "MS.Sample"                            
-# > cat("Synch1434551618773390000\n");
 

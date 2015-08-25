@@ -95,17 +95,21 @@ COLORS <- as.character(c(
 			}	
 					
 		}else{
-			### ptm 
-			if(userOptions$verbose) cat("PTM PLOT \n")			
-			ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
-			ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
-			ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
-				
-			ptmTable <- table(ptmTag[!fData(sqaPeptide$eset)$isFiltered] )
-			#barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, las=2, grid.col="lightgrey", cex.names=0.7)
-			bp <- barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
-			mtext(names(ptmTable),side=1,at=bp[,1], line=0, cex=0.6, las=2)
-		
+			
+			if(fileType == "ScaffoldTMT"){
+				# @TODO
+				cat("WARN: .idOverviewPlots() SCAFFOLD PTM SUPPORT NOT YET FULLY IMPLEMENTED \n")
+			}else{
+				### ptm PROGENSIS 
+				if(userOptions$verbose) cat("PTM PLOT \n")			
+				ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
+				ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
+				ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
+				ptmTable <- table(ptmTag[!fData(sqaPeptide$eset)$isFiltered] )
+				#barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, las=2, grid.col="lightgrey", cex.names=0.7)
+				bp <- barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
+				mtext(names(ptmTable),side=1,at=bp[,1], line=0, cex=0.6, las=2)
+			}
 		}
 		
 		if("nbPtmsPerPeptide"  %in% names(fData(sqaPeptide$eset))){
@@ -904,9 +908,9 @@ plotScoreDistrib <-function(targetScores,decoyScores,xlab="Identification Score"
 		targetHist = hist(targetScores, breaks=breaks, plot=FALSE)
 		decoyHist = hist(decoyScores, breaks=breaks, plot=FALSE)
 		
-		ylim = c(0,max(c(decoyHist$counts,targetHist$counts)))
+		ylim = c(0,max(c(decoyHist$counts,targetHist$counts),na.rm=T))
 		
-		plot(0,0,type='n', ylim=ylim, xlab=xlab, ylab=ylab, xlim=range(targetScores,decoyScores),...)
+		plot(0,0,type='n', ylim=ylim, xlab=xlab, ylab=ylab, xlim=range(targetScores,decoyScores,na.rm=T),...)
 		grid()
 		points(targetHist$mids[targetHist$counts > 0], targetHist$counts[targetHist$counts > 0], col=1, type="h", lwd=4)
 		points(decoyHist$mids[decoyHist$counts > 0], decoyHist$counts[decoyHist$counts > 0], col=2, type="h", lwd=5)
@@ -1003,7 +1007,7 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10), ...){
 	isDec <- isDecoy(fData(eset)$proteinName)
 	pMassError <- fData(eset)$pMassError
 	
-	xRange 	<- range(pMassError,pMassTolWindow)
+	xRange 	<- range(pMassError,pMassTolWindow,na.rm=T)
 	breaks <- seq(xRange[1],xRange[2],length=50)
 	
 	### decoy hist
@@ -1059,7 +1063,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 	plot(pMassError, idScore 
 			, type="n"		
 			#, col = isDecoy+1
-			,ylab="score", xlab="mass diff. (ppm)", xlim=range(c(pMassTolWindow,pMassError))
+			,ylab="score", xlab="mass diff. (ppm)", xlim=range(c(pMassTolWindow,pMassError),na.rm=T)
 			,...
 	)
 	

@@ -27,6 +27,10 @@ option_list <- list(
 				help="I/O:  Protein DB .fasta file [default ./]",
 		),
 		
+		make_option(c("-p", "--scaffoldPTMSpectrumReportFile"), type="character", default="",
+				help="I/O:  Scaffold PTM Spectrum Report File [default ./]",
+		),
+		
 ### I/O END
 		
 # FILTER (--F)
@@ -231,6 +235,7 @@ getUserOptions <- function(version=version){
 		userOptions$outputDir <- file.path(userOptions$outputDir, userOptions$resultsFileLabel)
 	}
 	
+	#I/O: proteinFastaFile
 	userOptions$proteinFastaFile <- NA
 	if(nchar(cmdOpt$fastaFile) > 0 ){
 		### check if file exists
@@ -238,6 +243,18 @@ getUserOptions <- function(version=version){
 			userOptions$proteinFastaFile <- cmdOpt$fastaFile
 		}else{
 			cat("ERROR. File does not exist",cmdOpt$fastaFile,"\n")
+			q(status=-1)
+		}				
+	}
+	
+	#I/O: scaffoldPTMSpectrumReportFile
+	userOptions$scaffoldPTMSpectrumReportFile <- NA
+	if(nchar(cmdOpt$scaffoldPTMSpectrumReportFile) > 0 ){
+		### check if file exists
+		if(file.exists(cmdOpt$scaffoldPTMSpectrumReportFile)){
+			userOptions$scaffoldPTMSpectrumReportFile <- cmdOpt$scaffoldPTMSpectrumReportFile
+		}else{
+			cat("ERROR. File does not exist",cmdOpt$scaffoldPTMSpectrumReportFile,"\n")
 			q(status=-1)
 		}				
 	}
@@ -275,9 +292,7 @@ getUserOptions <- function(version=version){
 			q(status=-1)
 		}
 	}
-	
-	
-	
+		
 	#FILTER: cvCutOff
 	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
 	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
