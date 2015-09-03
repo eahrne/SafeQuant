@@ -3,7 +3,7 @@ The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM
 ### Basic functionality of the safeQuant.R script
 
 #### 1) Data Normalization
-LFQ**
+**LFQ**
 
 Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
 
@@ -25,7 +25,7 @@ Summation of reporter ion intensities per peptide/protein and LC-MS/MS run, foll
 
 The summarized peptide/protein expression values are used for statistical testing of between condition differentially abundant peptides/proteins. Here, empirical Bayes moderated t-tests is applied, as implemented in the R/Bioconductor limma package (Smyth, 2004). The resulting per protein and condition comparison p-values are subsequently adjusted for multiple testing using the Benjamini-Hochberg method.
 
-Smyth, G. K. (2004). Linear models and empirical bayes methods for assessing differential expression in microarray experiments. Stat Appl Genet Mol Biol, 3 SP -, Article3. http://doi.org/http://dx.doi.org/10.2202/1544-6115.1027
+Smyth, G. K. (2004). Linear models and empirical bayes methods for assessing differential expression in microarray experiments. Stat Appl Genet Mol Biol, 3 SP -, Article3. http://www.ncbi.nlm.nih.gov/pubmed/16646809
 
 
 ### Installation
