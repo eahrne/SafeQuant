@@ -83,13 +83,14 @@ COLORS <- as.character(c(
 		nbSel <-min(c(nbRows,500))
 		nbMCTable <- (table(getNbMisCleavages(fData(esetNorm)$peptide[sel][sample(nbRows,nbSel)] ))/nbSel)*100
 		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts (%)", col="blue", plot.grid = TRUE, grid.col="lightgrey")
-			
+		
 		### don't plot if many (more than 10) NA motifs (NA motid due to wrongly specified fasta)
 		if("motifX" %in% names(fData(sqaPeptide$eset)) & (sum(is.na(fData(sqaPeptide$eset)$motifX)) < 10 ) ){ 
 			
 			if(userOptions$verbose) cat("INFO: MOTIF-X PLOT \n")
 			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset,format=(fileType == "ScaffoldTMT")+1)$ptm)
-			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found  #@TODO some thing weird here.. always F when there are NA's ?
+			
+			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found
 				bp <- barplot2(motifTable, ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
 				mtext(names(motifTable),side=1,at=bp[,1], line=0.2, las=2,cex=0.6)
 			}	

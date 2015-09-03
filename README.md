@@ -1,6 +1,22 @@
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.
 
-More documentation to come.
+Basic functionality of the safeQuant.R script
+
+1) Data Normalization
+LFQ
+Global data normalization by equalizing the total MS1 peak areas (reporter ion intensities, in case of TMT experiments) across all LC/MS runs (TMT channels).
+Isobaric Labelling experiments (TMT or iTRAQ)
+Global data normalization by equalizing the total MS1 peak areas (reporter ion intensities, in case of TMT experiments) across all LC/MS runs (TMT channels).
+
+2) Ratio Calculation
+
+3) Statistical testing for differential abundances 
+
+, summation of MS1 peak areas per protein and LC-MS/MS run, followed by calculation of protein abundance ratios. 
+
+The summarized protein expression values were used for statistical testing of between condition differentially abundant proteins. Here, empirical Bayes moderated t-tests were applied, as implemented in the R/Bioconductor limma package (Smyth, 2004). The resulting per protein and condition comparison p-values were adjusted for multiple testing using the Benjamini-Hochberg method.
+
+Smyth, G. K. (2004). Linear models and empirical bayes methods for assessing differential expression in microarray experiments. Stat Appl Genet Mol Biol, 3 SP -, Article3. http://doi.org/http://dx.doi.org/10.2202/1544-6115.1027
 
 ## Installation
 
