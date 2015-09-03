@@ -1,26 +1,8 @@
 The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.
 
-Basic functionality of the safeQuant.R script
+### Installation
 
-1) Data Normalization
-LFQ
-Global data normalization by equalizing the total MS1 peak areas (reporter ion intensities, in case of TMT experiments) across all LC/MS runs (TMT channels).
-Isobaric Labelling experiments (TMT or iTRAQ)
-Global data normalization by equalizing the total MS1 peak areas (reporter ion intensities, in case of TMT experiments) across all LC/MS runs (TMT channels).
-
-2) Ratio Calculation
-
-3) Statistical testing for differential abundances 
-
-, summation of MS1 peak areas per protein and LC-MS/MS run, followed by calculation of protein abundance ratios. 
-
-The summarized protein expression values were used for statistical testing of between condition differentially abundant proteins. Here, empirical Bayes moderated t-tests were applied, as implemented in the R/Bioconductor limma package (Smyth, 2004). The resulting per protein and condition comparison p-values were adjusted for multiple testing using the Benjamini-Hochberg method.
-
-Smyth, G. K. (2004). Linear models and empirical bayes methods for assessing differential expression in microarray experiments. Stat Appl Genet Mol Biol, 3 SP -, Article3. http://doi.org/http://dx.doi.org/10.2202/1544-6115.1027
-
-## Installation
-
-### 1) Install Dependencies
+#### 1) Install Dependencies
 
 A) Install CRAN library dependencies (open R)
 
@@ -31,7 +13,7 @@ B) Install BioConductor library dependencies (open R)
 	R> source("http://bioconductor.org/biocLite.R")
 	R> biocLite(c("limma","affy"))
 
-### 2) Install SafeQuant from sources
+#### 2) Install SafeQuant from sources
 
 **Option 1, using "devtools"**
 
@@ -60,7 +42,7 @@ The SafeQuant source directory is the directory containing the NAMESPACE and DES
 
 	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
 
-### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
+#### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 
 A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
@@ -73,7 +55,7 @@ To run (with minimal arguments)
 
 	> Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 
-### Tips
+#### Tips
 
 I) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports. 
 - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI
@@ -89,19 +71,36 @@ B) open terminal
 	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
 This will create a new versions of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
 
-### Use Case Manual
+#### Basic functionality of the safeQuant.R script
+
+1. **Data Normalization**
+	* LFQ
+		* Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
+	* Isobaric Labeling experiments (TMT or iTRAQ)
+		* Global data normalization by equalizing the total reporter ion intensities across all reporter ion channels.
+2. **Ratio Calculation**
+	* LFQ
+		* Summation of MS1 peak areas per peptide/protein and LC-MS/MS run, followed by calculation of peptide/protein abundance ratios. 
+	* Isobaric Labeling experiments (TMT or iTRAQ)
+		* Summation of reporter ion intensities per peptide/protein and LC-MS/MS run, followed by calculation of peptide/protein abundance ratios. 
+3. **Statistical testing for differential abundances**
+	* The summarized peptide/protein expression values are used for statistical testing of between condition differentially abundant peptides/proteins. Here, empirical Bayes moderated t-tests is applied, as implemented in the R/Bioconductor limma package (Smyth, 2004). The resulting per protein and condition comparison p-values are subsequently adjusted for multiple testing using the Benjamini-Hochberg method.
+
+Smyth, G. K. (2004). Linear models and empirical bayes methods for assessing differential expression in microarray experiments. Stat Appl Genet Mol Biol, 3 SP -, Article3. http://www.ncbi.nlm.nih.gov/pubmed/16646809
+
+#### Use Case Manual
 
 https://raw.githubusercontent.com/eahrne/SafeQuant/master/inst/manuals/SafeQuant_UseCases.txt
 
-### .tsv export help
+#### .tsv export help
 
 https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/tsv_spreadsheet_help.pdf
 
-### Package Documentation
+#### Package Documentation
 
 https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant-man.pdf
 
-### Publications
+#### Publications
 
 * Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
 Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
