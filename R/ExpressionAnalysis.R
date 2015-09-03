@@ -1,4 +1,31 @@
 
+## get index of max (created for data.table)
+#' @export
+getMaxIndex <- function(v){
+	if(all(is.na(v))) return(1)
+	return(which(max(v,na.rm=T) == v)[1])	
+}
+
+
+testGetMaxIndex <-function(){
+	
+	cat(" --- testGetMaxIndex:  --- \n")
+	d <- data.frame(s=c(NA,NA,NA,NA,1,1:4),lab=sort(rep(c("A","B","C"),3)))
+	DT <- data.table(d)
+	setkey(DT,lab)
+	DT[, .I[getMaxIndex(s)], by=lab ]
+	
+	stopifnot(all(c(1,5,9) == DT$V1))
+	cat(" --- testGetMaxIndex: PASS ALL TEST  --- \n")
+	
+}
+
+## return first entry per column
+#' @export
+.getFirstEntry <- function(x){
+	return(x[1])
+}
+
 #' @export
 .log2Exprs <- function(eset){
 	exprs(eset) <- log2(exprs(eset))
@@ -752,25 +779,35 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
 	}
 	
-	## return first entry per column
-	getFirstEntry <- function(x){return(x[1])}
-	## allColumns but idx,intensity data and idScore
-	selCol <- which(!(names(DT)  %in%  c(colnames(exprs(eset)),"idx","idScore")))
-	
-	rolledFData <- data.frame(DT[, lapply(.SD, getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:(length(selCol)+1)]
+	# idScore
+	if("idScore" %in% names(DT) ){
+		
+		### get fData of highest scoring row per rollUP level
+		indices <- DT[, .I[getMaxIndex(idScore) ], by=idx]$V1
+		rolledFData <- data.frame(data.frame(DT)[indices,names(fData(eset))],row.names=rownames(rolledAssayData))
+		# replace idScore colum, by summed score
+		sumDT <- DT[, sum(idScore,na.rm=T), by=idx ]
+		rolledFData$idScore = sumDT[,V1]
+	}else{
+		
+		# @TODO inefficient solution -> speed up	
+		# allColumns but idx,intensity data and idScore
+		#selColOld <- which(!(names(DT)  %in%  c(colnames(exprs(eset)),"idx","idScore")))
+		selCol <- which((names(DT)  %in% names(fData(eset))))
+		
+		#rolledFDataOld <- data.frame(DT[, lapply(.SD, .getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,2:(length(selCol)+1)]
+		rolledFData <- data.frame(DT[, lapply(.SD, .getFirstEntry), by=idx, .SDcols=selCol],row.names=rownames(rolledAssayData))[,names(fData(eset))]
+		
+#		print(names(rolledFData))
+#		print("")
+#		print(names(rolledFDataOld))	
+	}
 	
 	### concatenate allAccessions
 	if("allAccessions" %in% names(DT)){
 		rolledFData$allAccession <- DT[, list( allAccessionsTMP  = paste(unique(unlist(strsplit(paste(allAccessions,collapse=";"),";"))),collapse=";") ), by = key(DT)]$allAccessionsTMP	
 	}
 		
-	# idScore
-	if("idScore" %in% names(DT) ){
-		#iDT <- DT[, max(idScore,na.rm=T), by=idx ]
-		iDT <- DT[, sum(idScore,na.rm=T), by=idx ]
-		rolledFData <- cbind(rolledFData,idScore = iDT[,V1])
-	}
-	
 	rolledAssayData <- as.matrix(rolledAssayData)
 	rolledAssayData[rolledAssayData == 0 ] <- NA
 	#names(rolledFData) <- names(fData(eset))
@@ -782,14 +819,13 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	if(!is.null(rolledFData$isFiltered)){
 		rolledFData$isFiltered <- F
 	}
-	
+
 	### set peptides per protein
 	rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
 	
-#	print(rolledAssayData)
-#	print(rolledFData)
-	#print(pData(eset))
-	
+	### if 
+
+
 	return(createExpressionDataset(expressionMatrix=rolledAssayData,expDesign=pData(eset),featureAnnotations=rolledFData))
 }
 
@@ -846,4 +882,5 @@ standardise <- function(d){
 		return( (d - mean(d,na.rm=T)) / sd(d,na.rm=T) )
 	}
 }
+
 

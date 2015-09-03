@@ -11,6 +11,7 @@ library(seqinr)
 library(optparse)
 library(data.table)
 library(epiR)
+library(corrplot)
 
 
 ##@TEMP
@@ -46,7 +47,11 @@ progenesisPeptideMeasurementFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuan
 progenesisPeptideMeasurementFractionatedFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/progenesis_fractionated_pep_measurement/Phospho_Set_1.csv"
 
 fastaFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
-maxQuantProteinFileTxt <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/maxQuant/proteinGroups.txt"
+maxQuantProteinFileTxt <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/maxQuant/proteinGroups.csv"
+
+
+scaffoldPtmReportFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
+scaffoldPtmTMTRawDataFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
 
 ### INIT END
 

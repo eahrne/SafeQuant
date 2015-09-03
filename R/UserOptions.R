@@ -27,6 +27,10 @@ option_list <- list(
 				help="I/O:  Protein DB .fasta file [default ./]",
 		),
 		
+		make_option(c("-p", "--scaffoldPTMSpectrumReportFile"), type="character", default="",
+				help="I/O:  Scaffold PTM Spectrum Report File [default ./]",
+		),
+		
 ### I/O END
 		
 # FILTER (--F)
@@ -191,8 +195,10 @@ getUserOptions <- function(version=version){
 
 	Scaffold Q+ TMT Protein Quant:
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
+	
+	Scaffold Q+ TMT  PEPTIDE PTM Quant (PHOSHO):
+	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3
 	"
-
 	
 	# get command line options, if help option encountered print help and exit,
 	# otherwise if options not found on command line then set defaults,
@@ -231,6 +237,7 @@ getUserOptions <- function(version=version){
 		userOptions$outputDir <- file.path(userOptions$outputDir, userOptions$resultsFileLabel)
 	}
 	
+	#I/O: proteinFastaFile
 	userOptions$proteinFastaFile <- NA
 	if(nchar(cmdOpt$fastaFile) > 0 ){
 		### check if file exists
@@ -238,6 +245,18 @@ getUserOptions <- function(version=version){
 			userOptions$proteinFastaFile <- cmdOpt$fastaFile
 		}else{
 			cat("ERROR. File does not exist",cmdOpt$fastaFile,"\n")
+			q(status=-1)
+		}				
+	}
+	
+	#I/O: scaffoldPTMSpectrumReportFile
+	userOptions$scaffoldPTMSpectrumReportFile <- NA
+	if(nchar(cmdOpt$scaffoldPTMSpectrumReportFile) > 0 ){
+		### check if file exists
+		if(file.exists(cmdOpt$scaffoldPTMSpectrumReportFile)){
+			userOptions$scaffoldPTMSpectrumReportFile <- cmdOpt$scaffoldPTMSpectrumReportFile
+		}else{
+			cat("ERROR. File does not exist",cmdOpt$scaffoldPTMSpectrumReportFile,"\n")
 			q(status=-1)
 		}				
 	}
@@ -275,9 +294,7 @@ getUserOptions <- function(version=version){
 			q(status=-1)
 		}
 	}
-	
-	
-	
+		
 	#FILTER: cvCutOff
 	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
 	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){

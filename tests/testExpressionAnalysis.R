@@ -157,6 +157,9 @@ testRollUp <- function(){
 #	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))
 #	
 	esetTmp <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+	
+	fData(esetTmp)
+	
 	rollUpEsetProteinAllAccessions <- rollUp(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
 	stopifnot(fData(rollUpEsetProteinAllAccessions)$allAccessionsTMP[68] == "sp|E9PAV3|NACAM_HUMAN;sp|Q9BZK3|NACP1_HUMAN")
 
@@ -325,6 +328,19 @@ testStandardise <- function(){
 	
 }
 
+testGetMaxIndex <-function(){
+	
+	cat(" --- testGetMaxIndex:  --- \n")
+	d <- data.frame(s=c(NA,NA,NA,NA,1,1:4),lab=sort(rep(c("A","B","C"),3)))
+	DT <- data.table(d)
+	setkey(DT,lab)
+	DT[, .I[getMaxIndex(s)], by=lab ]
+	
+	stopifnot(all(c(1,5,9) == DT$V1))
+	cat(" --- testGetMaxIndex: PASS ALL TEST  --- \n")
+	
+}
+
 
 ### TEST FUNCTIONS END
 
@@ -346,7 +362,7 @@ testGetLoocvFoldError()
 testRemoveOutliers()
 testPerFeatureNormalization()
 testStandardise()
-
+testGetMaxIndex()
 ### FOR vs APPLY
 
 #### create index tags by concatenating selected coulm entries

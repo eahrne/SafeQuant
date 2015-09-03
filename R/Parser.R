@@ -620,7 +620,8 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	conn<-file(fileName,open="r")
 	suppressWarnings(linn<-readLines(conn))
 	skip <- 1
-	while(regexpr("Bio Sample",as.character(linn[skip])) == -1 ){
+	while(regexpr("accession", ignore.case = T,as.character(linn[skip])) == -1 ){
+	#while(regexpr("Bio Sample",as.character(linn[skip])) == -1 ){
 		skip <- skip +1 
 	}
 	close(conn)
@@ -731,8 +732,11 @@ parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=F
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
+
 	
-	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
+	eset <- createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations)
+	rownames(eset) <- fData(eset)$spectrumName
+	return(eset)
 }
 
 ### maxQuant protein group parser
@@ -853,9 +857,78 @@ parseMaxQuantProteinGroupTxt <- function(file=file,expDesign=expDesign, method="
 }
 
 
+#' Parse scaffold PTM Spectrum Report
+#' @param file path to Scaffold file
+#' @return data.frame
+#' @export
+#' @note  No note
+#' @details No details
+#' @references NA 
+#' @examples print("No examples")
+parseScaffoldPTMReport <- function(file){
+	
+	d <- read.csv(file,sep="\t")
+	# Note that peptides with multiple protein assignments are listed once per protein.
+	# Howerver, only one peptide per spectrum is listed
+	#d <- read.csv(file,sep="\t",skip=.getSkipLineNb(file))[,c(4,5,9,10,16,20)]
+	d <- read.csv(file,sep="\t")[,c(3,4,5,9,10,16,20)]
+	d <- unique(d)
+	rownames(d) <- d$Spectrum.Name
+	#	d <- d[,1:5]
+	#	names(d) <- c("ptm","ptmLocProb","idScore","ptmLocMascotConfidence","pMassError")
+	
+	d <- d[,1:(ncol(d) - 1)]
+	names(d) <- c("ptmPeptide","ptm","ptmLocProb","idScore","ptmLocMascotConfidence","pMassError")
+	
+	### add column nbPtmsPerPeptide
+#	a <- c("dfgdsg,dfsd,s","sdfsd,we","we","")
+#	unlist(lapply(strsplit(a,""),function(t){return(sum(grepl("\\,",t)) + (length(t)> 0))}))
+#	
+	d$ptm <- as.character(d$ptm )
+	#S8 Phospho, S30 Phospho, M35 Oxidation (number of ',' +1 )
+	d <- cbind(d,nbPtmsPerPeptide= unlist(lapply(strsplit(d$ptm,""),function(t){return(sum(grepl("\\,",t)) + (length(t)> 0))})) )
+
+	return( d )
+}
+
+
+#' Add scaffold ptm annotaitons to tmt experiment
+#' @param eset ExpressionSet
+#' @param file path to Scaffold file
+#' @return ExpressionSet object
+#' @export
+#' @import affy
+#' @note  No note
+#' @references No references
+#' @examples print("No examples")
+addScaffoldPTMFAnnotations <- function(eset,file){
+	
+	scaffoldPTMFData <- parseScaffoldPTMReport(file)
+	
+	spectrumNameIntersect <- intersect(fData(eset)$spectrumName,rownames(scaffoldPTMFData))
+	# conflicting peptide entries
+	misMatch <- fData(eset)[spectrumNameIntersect,]$peptide != toupper(scaffoldPTMFData[spectrumNameIntersect,]$ptmPeptide)
+	# discard mismatches from intersect and Scaffold PTM df
+	spectrumNameIntersect <- spectrumNameIntersect[!misMatch]
+	scaffoldPTMFData <- scaffoldPTMFData[spectrumNameIntersect,]
+	
+	missingEntriesFrac <- 1- length(spectrumNameIntersect) / nrow(eset)
+	if(missingEntriesFrac > 0)cat("INFO: ", round((missingEntriesFrac * 100)), "% of TMT spectra not listed in Scaffold PTM export \n" )
+	
+	fData(eset) <- data.frame(fData(eset), scaffoldPTMFData[rownames(fData(eset)),], row.names=rownames(fData(eset)))
+
+	#set NA scores 0
+	#fData(eset)$idScore[is.na(fData(eset)$idScore)] <- 0
+	
+	return(eset)
+	
+}
+
+
 
 
 ################################## TMT END ##############################
+
 
 
 
