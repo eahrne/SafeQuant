@@ -74,11 +74,10 @@ This will create a new versions of the feature file called with the extension "_
 #### Basic functionality of the safeQuant.R script
 
 1. **Data Normalization**
-
--LFQ
-	-Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
---Isobaric Labeling experiments (TMT or iTRAQ)
-	--Global data normalization by equalizing the total reporter ion intensities across all reporter ion channels.
+	* LFQ
+		* Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
+	* Isobaric Labeling experiments (TMT or iTRAQ)
+		* Global data normalization by equalizing the total reporter ion intensities across all reporter ion channels.
 
 2. Ratio Calculation
 
