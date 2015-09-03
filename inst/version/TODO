@@ -20,6 +20,8 @@
 - heatmap
 	# don't display discarded conditions in legend
 
+- map scaffold PTM results to progenesis data
+
 - scaffold ptm full support
 	- parse scaffold ptm annotations 
 		- convert scaffold ptm annotations to ptm coordinates

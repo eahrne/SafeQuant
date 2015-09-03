@@ -215,13 +215,10 @@ if("ptm" %in% names(fData(eset))){
 	# add motif-X and ptm coordinates
 	if(exists("proteinDB")){
 		
-		if(fileType == "ScaffoldTMT"){
-			# @TODO
-			cat("WARN: .idOverviewPlots() SCAFFOLD PTM SUPPORT NOT YET FULLY IMPLEMENTED \n")
-		}else{
 			cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
-			eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T)
-		}
+			#format 1) progensis  2) scaffold
+			eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
+	
 	}
 	filter <- cbind(filter
 					, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))

@@ -913,7 +913,7 @@ addScaffoldPTMFAnnotations <- function(eset,file){
 	scaffoldPTMFData <- scaffoldPTMFData[spectrumNameIntersect,]
 	
 	missingEntriesFrac <- 1- length(spectrumNameIntersect) / nrow(eset)
-	if(missingEntriesFrac > 0)cat("INFO: ", round((missingEntriesFrac * 100),2), "% of TMT spectra not listed in Scaffold PTM export \n" )
+	if(missingEntriesFrac > 0)cat("INFO: ", round((missingEntriesFrac * 100)), "% of TMT spectra not listed in Scaffold PTM export \n" )
 	
 	fData(eset) <- data.frame(fData(eset), scaffoldPTMFData[rownames(fData(eset)),], row.names=rownames(fData(eset)))
 

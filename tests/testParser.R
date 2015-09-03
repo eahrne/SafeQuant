@@ -220,23 +220,3 @@ testParseScaffoldPTMReport()
 testAddScaffoldPTMFAnnotations()
 ### TESTS END
 
-#expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )
-#eset <- parseScaffoldRawFile(scaffoldPtmTMTRawDataFile1,expDesign = expDesignTMTTenPlex)
-#
-#eset <- eset[!isDecoy(fData(eset)$proteinName),]
-#
-#
-#eset <- addScaffoldPTMFAnnotations(eset,scaffoldPtmReportFile1)
-#
-#e <- rollUp(eset, featureDataColumnName="peptide")
-#
-#AAAAAAAATMALAAPSSPTPESPTMLTK
-#
-#head(fData(e))
-#
-#fData(e)["AAAAAAAATMALAAPSSPTPESPTMLTK",]
-#
-#
-#fData(e)["AADAEAEVASLNR",]
-#
-#"AAAAAAAATMALAAPSSPTPESPTMLTK" %in%  fData(eset)$peptide

@@ -86,6 +86,14 @@ testGetModifProteinCoordinates <- function(){
 	stopifnot(14 == mc[2])
 	stopifnot(sum(c(34,49) == getModifProteinCoordinates(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1)) ==2) 
 	stopifnot(37 == getModifProteinCoordinates(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2)) 
+	
+	#### SCAFFOLD PTM FORMAT
+	proteinSeq <-  "MMMMMMMMMMETPSPRPPPMRHRSSRSP"		
+	peptideSeq <- "ETPSPRPPPMR"
+	modifAnnot <- "T2 Phospho, S4 Phospho, M10 Oxidation"
+	stopifnot(all(c(12,14,20) ==  getModifProteinCoordinates(modifAnnot,peptideSeq,proteinSeq, format=2)))
+	
+	
 	cat("--- testGetModifProteinCoordinates: PASS ALL TEST --- \n")
 }
 
@@ -269,6 +277,7 @@ testStripACs()
 testGetAAProteinCoordinates()
 
 ### TESTS END
+
 
 
 

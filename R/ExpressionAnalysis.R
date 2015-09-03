@@ -785,9 +785,9 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 		### get fData of highest scoring row per rollUP level
 		indices <- DT[, .I[getMaxIndex(idScore) ], by=idx]$V1
 		rolledFData <- data.frame(data.frame(DT)[indices,names(fData(eset))],row.names=rownames(rolledAssayData))
-
+		# replace idScore colum, by summed score
 		sumDT <- DT[, sum(idScore,na.rm=T), by=idx ]
-		rolledFData <- cbind(rolledFData,idScore = sumDT[,V1])
+		rolledFData$idScore = sumDT[,V1]
 	}else{
 		
 		# @TODO inefficient solution -> speed up	

@@ -88,8 +88,8 @@ COLORS <- as.character(c(
 		if("motifX" %in% names(fData(sqaPeptide$eset)) & (sum(is.na(fData(sqaPeptide$eset)$motifX)) < 10 ) ){ 
 			
 			if(userOptions$verbose) cat("INFO: MOTIF-X PLOT \n")
-			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset)$ptm)
-			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found
+			motifTable <- table(.getUniquePtmMotifs(sqaPeptide$eset,format=(fileType == "ScaffoldTMT")+1)$ptm)
+			if(nrow(motifTable) > 0){ # make sure some non NA motifs were found  #@TODO some thing weird here.. always F when there are NA's ?
 				bp <- barplot2(motifTable, ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
 				mtext(names(motifTable),side=1,at=bp[,1], line=0.2, las=2,cex=0.6)
 			}	
@@ -97,19 +97,25 @@ COLORS <- as.character(c(
 		}else{
 			
 			if(fileType == "ScaffoldTMT"){
-				# @TODO
-				cat("WARN: .idOverviewPlots() SCAFFOLD PTM SUPPORT NOT YET FULLY IMPLEMENTED \n")
+				
+				ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
+				ptmTag[(nchar(ptmTag) == 0)] <- "Unmod" 
+				ptmTag <- gsub("[0-9]","",unlist(strsplit(ptmTag,"\\, ")))
+				ptmTable <- table(ptmTag[!fData(sqaPeptide$eset)$isFiltered] )
+				
 			}else{
 				### ptm PROGENSIS 
-				if(userOptions$verbose) cat("PTM PLOT \n")			
 				ptmTag <- as.character(fData(sqaPeptide$eset)$ptm)[!fData(sqaPeptide$eset)$isFiltered]
 				ptmTag[nchar(ptmTag) == 0] <- "Unmod" 
 				ptmTag <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(ptmTag,"\\|")))
 				ptmTable <- table(ptmTag[!fData(sqaPeptide$eset)$isFiltered] )
-				#barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, las=2, grid.col="lightgrey", cex.names=0.7)
-				bp <- barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
-				mtext(names(ptmTable),side=1,at=bp[,1], line=0, cex=0.6, las=2)
+				
 			}
+			if(userOptions$verbose) cat("PTM PLOT \n")	
+			#barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, las=2, grid.col="lightgrey", cex.names=0.7)
+			bp <- barplot2(ptmTable, ylab="Peptide Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
+			mtext(names(ptmTable),side=1,at=bp[,1], line=0, cex=0.6, las=2)
+			
 		}
 		
 		if("nbPtmsPerPeptide"  %in% names(fData(sqaPeptide$eset))){
