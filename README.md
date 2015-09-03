@@ -75,8 +75,8 @@ This will create a new versions of the feature file called with the extension "_
 
 1. **Data Normalization**
 
---LFQ
-	--Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
+-LFQ
+	-Global data normalization by equalizing the total MS1 peak areas  across all LC/MS runs.
 --Isobaric Labeling experiments (TMT or iTRAQ)
 	--Global data normalization by equalizing the total reporter ion intensities across all reporter ion channels.
 
