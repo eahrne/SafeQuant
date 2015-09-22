@@ -197,7 +197,7 @@ getUserOptions <- function(version=version){
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
 	
 	Scaffold Q+ TMT  PEPTIDE PTM Quant (PHOSHO):
-	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3
+	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3 -f /path/to/proteins.fasta
 	"
 	
 	# get command line options, if help option encountered print help and exit,
