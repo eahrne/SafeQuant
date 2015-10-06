@@ -217,7 +217,7 @@ if("ptm" %in% names(fData(eset))){
 		
 			cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
 			#format 1) progensis  2) scaffold
-			eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
+			eset <- .addPTMCoord(eset,proteinDB,motifLength=6, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
 	
 	}
 	filter <- cbind(filter
