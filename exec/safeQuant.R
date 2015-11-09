@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/local/bin/Rscript
 
 ###
 # 0) Update SHEBANG ('#!/usr/bin/Rscript') to match location of your R installation

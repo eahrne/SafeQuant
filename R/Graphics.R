@@ -503,7 +503,7 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 #' @references NA
 #' @examples print("No examples")
 pairsAnnot<-
-		function(data,textCol=rep(1,ncol(data)), diagText=c(),col= rgb(0,100,0,50,maxColorValue=255),isHeatCol=F,...) {
+		function(data,textCol=rep(1,ncol(data)), diagText=colnames(data),col= rgb(0,100,0,50,maxColorValue=255),isHeatCol=F,cexTxt=2,...) {
 	
 	### we need at least two samples
 	if(ncol(data.frame(data)) < 2 ){
@@ -573,15 +573,15 @@ pairsAnnot<-
 		txt = round(r2, digits)
 		txt = bquote(R^2*"" == .(txt))
 		
-		text(0.5, 0.5, txt,cex=cex)
+		text(0.5, 0.5, txt,cex=cexTxt)
 		
 	}
 	
 	#panel.txt <- function(x, y, labels, cex, font,digits=2, ...){
 	panel.txt <- function(x, y, labels, font,digits=2,...){
 
-		txt = colnames(data)[count]
-		text(0.5, 0.6, txt, cex=cex, col=textCol[count])
+		txt = diagText[count]
+		text(0.5, 0.6, txt, cex=cexTxt, col=textCol[count])
 		
 		count <<-count+1
 	}
