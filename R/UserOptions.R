@@ -84,8 +84,7 @@ option_list <- list(
 	
 	make_option(c("--SAnchorProtein"), type="character", default=".",
 			help="STATISTICS: --SA Normalize Intensities by selected protein(s) Regular Expression
-			 [default %default] (use all proteins). 
-			!!! Note that the specified proteins will be excluded from results output !!!",
+			 [default %default] (use all proteins).",
 			metavar="Protein Accession Reg. expr."),
 	
 	make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
