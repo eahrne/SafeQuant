@@ -1,6 +1,6 @@
 # TODO: Add comment
 # 
-# Author: erikahrne
+# Author: ahrnee-adm
 ###############################################################################
 
 ### load / source
@@ -12,15 +12,15 @@ library(optparse)
 library(data.table)
 
 ##@TEMP
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Graphics.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/Parser.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/erikahrne/dev/R/workspace/SafeQuant/R/UserOptions.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Graphics.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Parser.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/TMT.R")
+source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
 
-source("/Users/erikahrne/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R")
+source("/Users/ahrnee-adm/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R")
 ### PARAMS
 
 #10 PLEX:
@@ -36,31 +36,31 @@ source("/Users/erikahrne/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R
 if(T){
 	rep1ScaffoldFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20150326-091346_TMTex28b/Scaffold/Raw Data Report for ENigg-Cristine-TMT-28b-40-41-110515-human-short.xls"
 	rep2ScaffoldFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20150326-091346_TMTex28b/Scaffold/Raw Data Report for ENigg-Cristina-TMT-28br-40r-41r-110515-human-short.xls"
-	rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_short.rData"
+	rDataFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_short.rData"
 
 	#CTRL <- "RPE"
 	CTRL <- "DLD12N"
 	#CTRL <- "DLD14N"
 	
-	#pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".pdf",sep="")
-	#xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_",CTRL,".xls",sep="")
+	pdfFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/20151112/ex2p28b_40_41/short_",CTRL,".pdf",sep="")
+	xlsFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/20151112/ex2p28b_40_41/short_",CTRL,".xls",sep="")
 		
-	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.pdf",sep="")
-	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/short_intersect_",CTRL,"pCor.xls",sep="")
+	#pdfFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/20151112/short_intersect_",CTRL,"pCor.pdf",sep="")
+	#xlsFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/20151112/short_intersect_",CTRL,"pCor.xls",sep="")
 	
 }else{
 	rep1ScaffoldFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20150326-091346_TMTex28b/Scaffold/Raw Data Report for ENigg-Cristine-TMT-28b-40-41-no-replicates-200415-final.xls"
 	rep2ScaffoldFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/CristinaVigano_93/20150326-091346_TMTex28b/Scaffold/Raw Data Report for ENigg-Cristina-TMT-28br-40r-41r-no-replicates-200415-final.xls"
-	pdfFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.pdf"
-	xlsFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.xls"
-	rDataFile <- "/Users/erikahrne/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_wIsoForms.rData"
+	pdfFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.pdf"
+	xlsFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms.xls"
+	rDataFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/data/caseStudyCristinaTriplicate10plexTMP_wIsoForms.rData"
 
 	#CTRL <- "RPE"
 	#CTRL <- "DLD12N"
 	CTRL <- "DLD14N"
 	
-	pdfFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".pdf",sep="")
-	xlsFile <- paste("/Users/erikahrne/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".xls",sep="")
+	pdfFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".pdf",sep="")
+	xlsFile <- paste("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/caseStudy/out/caseStudyCristinaTriplicate10Plex/wIsoForms_",CTRL,".xls",sep="")
 	
 }
 
@@ -87,7 +87,6 @@ if(F){
 #esetTechRep2 <- esetTechRep2[rownames(esetTechRep2) %in% sample(nrow(esetTechRep2),3000),] 
 
 ### Merge technical replicate
-
 expressionMatrix=rbind(exprs(esetTechRep1),exprs(esetTechRep2))
 featureAnnotations=rbind(fData(esetTechRep1),fData(esetTechRep2))
 rownames(expressionMatrix) <-1:nrow(expressionMatrix)
@@ -175,29 +174,44 @@ ratioExpMatrix <- cbind(proteinRatiosBioRep1[allProteins,1], proteinRatiosBioRep
 	
 )
 
+
+#ratioExpMatrix <- data.frame(row.names=allProteins)
+#for(i in 1:ncol(proteinRatiosBioRep1)){
+#	ratioExpMatrix <- cbind(ratioExpMatrix, proteinRatiosBioRep1[allProteins,i],proteinRatiosBioRep2[allProteins,i],proteinRatiosBioRep3[allProteins,i] )
+#}
+
 featureData <- unique(rbind(fData(esetBioRep1ProteinNorm)[,1:2]
 			,fData(esetBioRep2ProteinNorm)[,1:2]
 			,fData(esetBioRep3ProteinNorm)[,1:2]
 		))[allProteins,]
 
 
-expDesign <- data.frame(row.names=1:21,isControl=rep(F,21),condition=unlist(lapply(names(proteinRatiosBioRep1),function(t){ rep(t,3)})))
+expDesignMerge <- data.frame(row.names=1:ncol(ratioExpMatrix),isControl=rep(F,ncol(ratioExpMatrix)),condition=unlist(lapply(names(proteinRatiosBioRep1),function(t){ rep(t,3)})))
+expDesignMerge$condition <- as.character(expDesignMerge$condition)
+expDesignMerge$condition[grepl("clone",expDesignMerge$condition)] <- rep("clone",sum(grepl("clone",expDesignMerge$condition)))
+expDesignMerge$condition <- as.factor(expDesignMerge$condition)
+
 #expDesign <- data.frame(row.names=1:21,isControl=rep(F,21),condition=   paste(1:3,names(proteinRatiosBioRep1))   )
-esetProteinRatios <- createExpressionDataset(expressionMatrix=ratioExpMatrix,expDesign=expDesign,featureAnnotations=featureData)		 
+esetProteinRatios <- createExpressionDataset(expressionMatrix=ratioExpMatrix,expDesign=expDesignMerge,featureAnnotations=featureData)		 
 
 ###### MERGE DATA END
 
 ###### DIFFERENTIAL ABUNDANCE STATS
-pValues <- data.frame(eBayes(lmFit(esetProteinRatios[,1:3]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,4:6]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,7:9]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,10:12]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,13:15]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,16:18]))$p.value
-		,eBayes(lmFit(esetProteinRatios[,19:21]))$p.value
-)
+#pValues <- data.frame(eBayes(lmFit(esetProteinRatios[,1:3]))
+#		,eBayes(lmFit(esetProteinRatios[,4:6]))$p.value
+#		,eBayes(lmFit(esetProteinRatios[,7:9]))$p.value
+#		,eBayes(lmFit(esetProteinRatios[,10:12]))$p.value
+#		,eBayes(lmFit(esetProteinRatios[,13:15]))$p.value
+#		,eBayes(lmFit(esetProteinRatios[,16:18]))$p.value
+#		,eBayes(lmFit(esetProteinRatios[,19:21]))$p.value
+#)
+pValues <- data.frame(row.names=allProteins)
+for(cond in unique(pData(esetProteinRatios)$condition)){
+	pValues <- cbind(pValues, eBayes(lmFit(esetProteinRatios[,pData(esetProteinRatios)$condition == cond]))$p.value )
+}
+
 #names(pValues) <- paste("condition",2:8,sep="_")
-names(pValues) <- names(proteinRatiosBioRep1)
+names(pValues) <- unique(expDesignMerge$condition)
 qValues <- data.frame(apply(pValues,2,p.adjust,method="BH"))		
 medianRatios <- getSignalPerCondition(esetProteinRatios)
 ###### DIFFERENTIAL ABUNDANCE STATS END
@@ -216,16 +230,20 @@ fitRatioCalibrationProtein <- getRatioCorrectionFactorModel(rollUp(esetCalibMixP
 #getRatioCorrectionFactorModel(rollUp(.getCalibMixPairedEset(.getCalibMixEset(esetBioRep2)),featureDataColumnName="proteinName"))
 #getRatioCorrectionFactorModel(rollUp(.getCalibMixPairedEset(.getCalibMixEset(esetBioRep3)),featureDataColumnName="proteinName"))
 
-medianRatiosCalibrated <- data.frame(predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,1]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,2]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,3]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,4]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,5]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,6]))
-									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,7]))
-									,row.names=rownames(medianRatios)		
-							)
+#medianRatiosCalibrated <- data.frame(predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,1]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,2]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,3]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,4]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,5]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,6]))
+#									,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,7]))
+#									,row.names=rownames(medianRatios)		
+#							)
 
+medianRatiosCalibrated <-data.frame(row.names=allProteins)
+for(i in 1:ncol(medianRatios)){
+	medianRatiosCalibrated <- cbind(medianRatiosCalibrated,predict(fitRatioCalibrationProtein,newdata=data.frame(tmtRatio=medianRatios[,i])))
+}							
 names(medianRatiosCalibrated)	<- names(medianRatios)						
 
 sqa <- list()
@@ -238,20 +256,6 @@ sqa$ratio <- medianRatios
 
 
 ### ADJUST RATIOS BASED ON SPIKE-IN KIT END
-
-### XLS
-
-ratios <- exprs(esetProteinRatios)
-colnames(ratios) <- paste(pData(esetProteinRatios)$condition ,colnames(exprs(esetProteinRatios)),sep="_")
-out <- cbind(fData(esetProteinRatios),ratios,medianRatios,medianRatiosCalibrated,pValues,qValues)
-names(out)[3:23] <- paste("log2ratio",names(out)[3:23],sep="_")
-names(out)[24:30] <- paste("median_log2ratio",names(out)[24:30],sep="_")
-names(out)[31:37] <- paste("median_log2ratio_adjusted",names(out)[31:37],sep="_")
-names(out)[38:44] <- paste("pValue",names(out)[38:44],sep="_")
-names(out)[45:ncol(out)] <- paste("qValue",names(out)[45:ncol(out)],sep="_")
-write.table(file=xlsFile,out,row.names=F,sep="\t")
-
-### XLS END
 
 ### GRAPHICS
 
@@ -273,12 +277,12 @@ heatmap.2(exprs(esetProteinRatios)
 		, symkey=FALSE
 		, trace="none"
 )
-legend("left",levels(pData(esetProteinRatios)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
+legend("left",levels(as.factor(pData(esetProteinRatios)$condition)), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 
-par(mfrow=c(2,3))
-plotCalibrationMixRatios(esetCalibMix)
-par(mfrow=c(1,1))
-plotRelativeInterferencePerChannel(esetCalibMix, cex.axis=1.5, cex.lab=1.5)
+#par(mfrow=c(2,3))
+#plotCalibrationMixRatios(esetCalibMix)
+#par(mfrow=c(1,1))
+#plotRelativeInterferencePerChannel(esetCalibMix, cex.axis=1.5, cex.lab=1.5)
 #.plotTMTRatioVsRefRatio(esetCalibMixPair)
 #.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair,featureDataColumnName="proteinName"))
 .plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair,featureDataColumnName="peptide"))
@@ -293,12 +297,12 @@ barplotMSSignal(esetBioRep1, main="BioRep 1")
 barplotMSSignal(esetBioRep2, main="BioRep 2")
 barplotMSSignal(esetBioRep3, main="BioRep 3")
 
-par(mfrow=c(1,2))
-venn(list(bioRep1=unique(as.character(fData(esetBioRep1)$peptide)),bioRep2=unique(as.character(fData(esetBioRep2)$peptide)),bioRep3=unique(as.character(fData(esetBioRep3)$peptide))))
-mtext(side=3,"Peptides")
-
-venn(list(bioRep1=unique(as.character(fData(esetBioRep1)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3)$proteinName))))
-mtext(side=3,"Proteins")
+#par(mfrow=c(1,2))
+#venn(list(bioRep1=unique(as.character(fData(esetBioRep1)$peptide)),bioRep2=unique(as.character(fData(esetBioRep2)$peptide)),bioRep3=unique(as.character(fData(esetBioRep3)$peptide))))
+#mtext(side=3,"Peptides")
+#
+#venn(list(bioRep1=unique(as.character(fData(esetBioRep1)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3)$proteinName))))
+#mtext(side=3,"Proteins")
 
 # qvalue
 par(mfrow=c(3,3),cex.lab=1.5,cex.names=1.5, cex.axis=1.3 )
@@ -326,10 +330,10 @@ for(i in 1:ncol(qValues)){
 	grid()
 }
 
-par(mfrow=c(2,2))
-
-barplot(apply(qValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( qValue <=",qValueThrs,")"))
-barplot(apply(pValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( pValue <=",qValueThrs,")"))
+#par(mfrow=c(2,2))
+#
+#barplot(apply(qValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( qValue <=",qValueThrs,")"))
+#barplot(apply(pValues <= qValueThrs,2,sum  ),las=2, names=names(medianRatios), ylab=paste("Diff Abd. ( pValue <=",qValueThrs,")"))
 
 par(mfrow=c(2,2))
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=T, isLegend=T ,pvalCutOff=qValueThrs)
@@ -338,16 +342,42 @@ plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="UP", isAdjusted=F , isLegend=F ,pvalCutOff=qValueThrs)
 plotNbValidDeFeaturesPerFDR(sqa,upRegulated=F,log2RatioCufOff=log2(1),pvalRange=c(0,1), main="DOWN", isAdjusted=F, isLegend=F ,pvalCutOff=qValueThrs)
 
-par(mfrow=c(3,3))
-.allpValueHist(sqa)
+#par(mfrow=c(3,3))
+#.allpValueHist(sqa)
 
 dev.off()
 
 ### GRAPHICS END
 
-#par(mfrow=c(1,2))
-#venn(list(bioRep1=unique(as.character(fData(esetBioRep1Norm)$proteinName)),bioRep2=unique(as.character(fData(esetBioRep2Norm)$proteinName)),bioRep3=unique(as.character(fData(esetBioRep3Norm)$proteinName))))
-#mtext(side=3,"Proteins")
+### XLS
+
+ratios <- exprs(esetProteinRatios)
+colnames(ratios) <- paste("log2ratio",paste(pData(esetProteinRatios)$condition ,colnames(exprs(esetProteinRatios)),sep="_"),sep="_")
+colnames(medianRatios) <- paste("median_log2ratio",names(medianRatios),sep="_")
+colnames(medianRatiosCalibrated) <- paste("median_log2ratio_adjusted",names(medianRatiosCalibrated),sep="_")
+colnames(pValues) <- paste("pValue",names(pValues),sep="_")
+colnames(qValues) <- paste("qValue",names(qValues),sep="_")
+out <- cbind(fData(esetProteinRatios),ratios,medianRatios,medianRatiosCalibrated,pValues,qValues)
+#names(out)[3:23] <- paste("log2ratio",names(out)[3:23],sep="_")
+#names(out)[24:30] <- paste("median_log2ratio",names(out)[24:30],sep="_")
+#names(out)[31:37] <- paste("median_log2ratio_adjusted",names(out)[31:37],sep="_")
+#names(out)[38:44] <- paste("pValue",names(out)[38:44],sep="_")
+#names(out)[45:ncol(out)] <- paste("qValue",names(out)[45:ncol(out)],sep="_")
+write.table(file=xlsFile,out,row.names=F,sep="\t")
+
+
+#tmp <- names(out) 
+
+
+#tmp[tmp != names(out)]
+#names(out)[tmp != names(out)]
+#
+#
+#ata.frame(tmp == names(out) )
+
+### XLS END
+
+
 
 pdf("/tmp/techRepOverlapCristina.pdf")
 venn(list(techRep1=unique(as.character(fData(esetTechRep1)$proteinName)),techRep2=unique(as.character(fData(esetTechRep2)$proteinName))))
