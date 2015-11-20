@@ -5,7 +5,7 @@
 \title{Plot lower triangle Pearsons R^2. Diagonal text, upper triangle all against all scatter plots with lm abline}
 \usage{
 pairsAnnot(data, textCol = rep(1, ncol(data)), diagText = c(),
-  col = rgb(0, 100, 0, 50, maxColorValue = 255), ...)
+  col = rgb(0, 100, 0, 50, maxColorValue = 255), isHeatCol = F, ...)
 }
 \arguments{
 \item{data}{data.frame}

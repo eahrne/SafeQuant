@@ -13,7 +13,7 @@
 
 ### add ptm coord to eset fData (data frame  listing phospho coordinates and motifX)
 #' @export
-.addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F){
+.addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F,format=1){
 	
 	ptmCoordDf <- data.frame()
 	
@@ -28,7 +28,7 @@
 		modifAnnot <-  as.character(fData(eset)$ptm[i])
 		
 		### if peptide is modified
-		if(nchar(modifAnnot) > 0 ){
+		if((nchar(modifAnnot) > 0) & !is.na(modifAnnot) ){
 			peptide <- as.character(fData(eset)$peptide[i])
 			proteinAC <- as.character(fData(eset)$proteinName[i])
 			
@@ -37,18 +37,17 @@
 			
 			proteinSeq <- proteinDB[proteinAC]
 			
-			if(nchar(modifAnnot) > 0){
-				if(proteinSeq == "NULL" ){
-					warning(proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
+			if(proteinSeq == "NULL" ){
+				warning(proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
 #					modifCoord <- "Err"
 #					motifX <- "Err"
-				}else{
-					
-					modifCoord <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq)
-					motifX <- paste(getMotifX(modifCoord,peptide, proteinSeq,motifLength),collapse=",")
-					modifCoord <- paste(modifCoord,collapse=",")
-				}
+			}else{
+				
+				modifCoord <- getModifProteinCoordinates(modifAnnot,peptide,proteinSeq, format=format)
+				motifX <- paste(getMotifX(modifCoord,peptide, proteinSeq,motifLength),collapse=",")
+				modifCoord <- paste(modifCoord,collapse=",")
 			}
+			
 			
 		}else{
 			modifCoord <- ""
@@ -85,29 +84,50 @@
 
 # @details returns a dataframe lising all unique motifs and the corresponding ptm. multiple entries will be created  for multiply modified peptides
 #' @export
-.getUniquePtmMotifs <- function(eset){
+.getUniquePtmMotifs <- function(eset, format=1){
 	
 	eset <- eset[!fData(eset)$isFiltered & (nchar(as.character(fData(eset)$ptm)) > 0),]
-		
+	
 	### has to be done this way as sometimes the matching AC is not found in the database...
 	motifXTag <- c()
 	ptmTag <- c()
-	for(i in 1:nrow(eset)){
-		
-		ptms <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\|")))
-		mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
-		
-		ptmTag <- c(ptmTag,ptms)
-		
-		#if(length(ptms) > 0){
-		if(length(ptms) == length(mX) ){
-			motifXTag <- c(motifXTag,mX)
+	
+	if(format ==1){
+		for(i in 1:nrow(eset)){
 			
-		}else{
-			motifXTag <- c(motifXTag,rep(NA,length(ptms)))
+			ptms <- gsub("\\[[0-9]*\\] {1,}","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\|")))
+			mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
+			
+			ptmTag <- c(ptmTag,ptms)
+			
+			#if(length(ptms) > 0){
+			if(length(ptms) == length(mX) ){
+				motifXTag <- c(motifXTag,mX)
+				
+			}else{
+				motifXTag <- c(motifXTag,rep(NA,length(ptms)))
+			}
+			#}
 		}
-		#}
+	}else{ # scaffold PTM
+		for(i in 1:nrow(eset)){
+			ptms <- gsub("[0-9]","",unlist(strsplit(as.character(fData(eset)$ptm[i]),"\\, ")))
+			mX <- unlist(strsplit(as.character(fData(eset)$motifX[i]),"\\,"))
+			
+			ptmTag <- c(ptmTag,ptms)
+			
+			#if(length(ptms) > 0){
+			if(length(ptms) == length(mX) ){
+				motifXTag <- c(motifXTag,mX)
+				
+			}else{
+				motifXTag <- c(motifXTag,rep(NA,length(ptms)))
+			}
+			#}
+		}
 	}
+	
+	
 	
 	sel <- !is.na(motifXTag) & grepl("\\*",motifXTag)
 	return(unique(data.frame(ptm = ptmTag[sel], motif = motifXTag[sel])))
@@ -329,7 +349,7 @@ getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){
 		}
 		
 		return(motifX)
-	
+		
 	}else{
 		return(NA)
 	}
@@ -340,31 +360,56 @@ getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){
 #' @param modifAnnot modifcation as annotated by progenesis. E.g. '[15] Phospho (ST)|[30] Phospho (ST)'
 #' @param peptideSeq peptide sequence
 #' @param proteinSeq protein sequence
+#' @param numeric format 1) progenesis 2) scaffold 
 #' @return vector of protein coordinates (mmodification residue number) 
 #' @export
 #' @note  No note
 #' @details NA
 #' @references NA 
 #' @examples print("No examples")
-getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq){
+getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq, format=1){
 	
 	peptideSeq <- as.character(peptideSeq)
-	
-	### parse modifAnnot -> modif position(s) on peptide positions
-	modifList <- strsplit(as.character(modifAnnot),"\\|")[[1]]
 	modifPos <- c()
 	
-	for(m in modifList){
+	if(format == 1){
+		### parse modifAnnot -> modif position(s) on peptide positions
+		modifList <- strsplit(as.character(modifAnnot),"\\|")[[1]]
 		
-		if(grepl("N\\-term",m)){
-			m <- 1
-		}else if(grepl("C\\-term",m)){
-			m <- nchar(peptideSeq)
-		}else{
-			m <- gsub("\\[","",m)
-			m <- as.numeric(gsub("\\].*","",m))
+		for(m in modifList){
+			
+			if(grepl("N\\-term",m)){
+				m <- 1
+			}else if(grepl("C\\-term",m)){
+				m <- nchar(peptideSeq)
+			}else{
+				m <- gsub("\\[","",m)
+				m <- as.numeric(gsub("\\].*","",m))
+			}
+			modifPos <- c(modifPos,m)
 		}
-		modifPos <- c(modifPos,m)
+	}else if(format == 2){
+		
+		modifList <- strsplit(as.character(modifAnnot),"\\, ")[[1]]
+		
+		for(m in tolower(modifList)){
+			
+			### @ TODO check how n-term and c-term modificaitons are annotated
+			if(grepl("n\\-term",m)){
+				m <- 1
+			}else if(grepl("c\\-term",m)){
+				m <- nchar(peptideSeq)
+			}else{
+				m <- gsub("[a-z A-Z]","",m)
+			}
+			modifPos <- c(modifPos,m)
+		}
+		
+		
+		modifPos <- as.numeric(modifPos)
+		
+	}else{
+		stop("ERROR: getModifProteinCoordinates - Unknown PTM format", format)
 	}
 	
 	### get peptide position on protein (first matching position if duplicates)
@@ -457,7 +502,6 @@ setNbSpectraPerProtein <- function(eset){
 	fData(eset)$nbSpectra	<- getNbSpectraPerProtein(eset)[as.character(fData(eset)$proteinName)]
 	return(eset)
 }
-
 
 #' Get modification coordinates on protein
 #' @param d numeric vector
