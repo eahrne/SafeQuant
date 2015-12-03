@@ -4,6 +4,7 @@
 *.csv
 *.pdf
 *.fasta
+*.txt
 !testData/
 !inst/manuals/
 
