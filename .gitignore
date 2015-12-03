@@ -3,6 +3,7 @@
 *.tsv
 *.csv
 *.pdf
+*.fasta
 !testData/*
 !inst/manuals/*
 
