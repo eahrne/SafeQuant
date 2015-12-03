@@ -26,9 +26,6 @@ source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
 #install.packages("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/", repos = NULL, type="source")
 #library(SafeQuant)
 
-
-
-
 ### INIT
 
 	### VARIOUS TEST FILES
@@ -48,7 +45,6 @@ progenesisPeptideMeasurementFractionatedFile1 <- "/Users/ahrnee-adm/dev/R/worksp
 
 fastaFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
 maxQuantProteinFileTxt <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/maxQuant/proteinGroups.csv"
-
 
 scaffoldPtmReportFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
 scaffoldPtmTMTRawDataFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
