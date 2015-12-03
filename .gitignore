@@ -5,7 +5,7 @@
 *.pdf
 *.fasta
 *.txt
-!/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/manuals
+inst/*
 #!inst/manuals/
 
 # OS generated files #
