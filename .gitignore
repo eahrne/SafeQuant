@@ -4,11 +4,12 @@
 *.csv
 *.pdf
 *.fasta
-!testData/*
-!inst/manuals/*
+!testData/
+!inst/manuals/
 
 # OS generated files #
 ######################
+*lock*
 .DS_Store
 .DS_Store?
 .Spotlight-V100
