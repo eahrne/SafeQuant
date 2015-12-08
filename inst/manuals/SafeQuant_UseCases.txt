@@ -1,0 +1,78 @@
+Using safeQuant.R					Updated 2015-03-13
+
+Author: erikahrne
+Contact: erik.ahrne@unibas.ch
+
+### Basic usage common to all workflows ###
+
+1) Navigate to the folder where the safeQuant.R script is installed.
+mymac:exec erikahrne$ cd /Users/erikahrne/dev/R/workspace/SafeQuant/exec
+
+2) Display help
+mymac:exec erikahrne$ Rscript safeQuant.R -h
+
+3) Specify input file
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_measurements1.csv
+
+4) Define experimental design
+
+2 Conditions. Control Samples: 1,2,3. Case 1: Samples 4,5
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_measurements2.csv  --EX 1,2,3:4,5
+
+3 Conditions. Control Samples: 4,5. Case 1: Samples 1,2. Case 2: Sample 3
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_measurements2.csv  --EX 4,5:1,2:3
+
+2 Conditions. Control Samples: 4,5. Case 1: Sample 1
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_measurements2.csv  --EX 4,5:1
+
+5) Require at least X peptide per protein
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/QI_2.0/peptide_measurements2.csv  --FN 2
+
+LFQ Protein Relative Quantification
+
+### TO BE REVIEWED
+Compatible with Feature, Protein and Peptide Measurement Progenesis .csv exports. If using Progenesis QI 2.0 or later we recommend using Peptide Measurement Progenesis exports. 
+To export:
+- File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI.
+    - When choosing properties to be included in the exported file check the "Grouped accessions (for this sequence)" check box.
+
+
+### LFQ Phospho Relative Quantification ###
+
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/2014/peptides1_FILTERED.csv -f ../inst/testData/2014/sp_hum_160512.decoy.fasta --FM phospho Ð-EP ÐFS 2
+
+-f ../inst/testData/2014/sp_hum_160512.decoy.fasta
+Supply protein (.fasta) database so that all phospho sites will be annotated with their protein position (amino acid number starting from n-term) as well as sequence motifs (motif-X input format http://motif-x.med.harvard.edu/).
+
+--FM phospho
+Filter data to only include phospho peptides
+
+--EP
+Do not carry out Protein level quantification
+
+--FS 2
+Filter data to only include peptides carrying maximum 2 variable PTMs. 
+
+### TMT Protein Relative Quantification ###
+
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/2014/TMT_10-Plex_Scaffold_Raw_Export_Example.xls
+
+Make sure to specifiy the experimental design if needed using (--EX flag).
+
+TMT 6-plex default experimental design is 1,2,3:4,5,6
+TMT 10-plex default experimental design is 1,2,3,4:5,6,7:8,9,10
+
+### LFQ Protein Absolute Abundance Estimation ###
+
+Calculate intensity-based absolute-protein-quantification (iBAQ) metric per protein.
+Reference: Global quantification of mammalian gene expression control, Schwanhausser (2011), \url{http://www.ncbi.nlm.nih.gov/pubmed/21593866}
+
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/2014/peptides2_FILTERED.csv -f ../inst/testData/2014/sp_mouse_160512.decoy.fasta ÐAI
+
+Calculate Top3 (Mean of X most intense features)
+Reference: Absolute quantification of proteins by LCMSE: A virtue of parallel MS acquisition, Silva (2006), \url{http://www.ncbi.nlm.nih.gov/pubmed/16219938}
+
+mymac:exec erikahrne$ Rscript safeQuant.R -i  ../inst/testData/2014/peptides2_FILTERED.csv --AT
+
+
+
