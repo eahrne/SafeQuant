@@ -5,9 +5,11 @@
 *.pdf
 *.fasta
 *.txt
+*.rData
 inst/*
 !inst/manuals/
-!inst/testData/
+
+##!test/testData/
 
 # OS generated files #
 ######################

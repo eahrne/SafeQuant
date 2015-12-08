@@ -3,14 +3,25 @@
 # Author: ahrnee-adm
 ###############################################################################
 
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testExpressionAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testGraphics.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testIdentificationAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testSafeQuantAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testTMT.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testParser.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/testUserOptions.R")
+### Don't run if in CHECK mode
+if(!grepl("SafeQuant\\.Rcheck$",getwd())){
+	
+	setwd(dirname(sys.frame(1)$ofile))
+	source("initTestSession.R")
+	source("testExpressionAnalysis.R")
+	source("testGraphics.R")
+	source("testIdentificationAnalysis.R")
+	source("testSafeQuantAnalysis.R")
+	source("testTMT.R")
+	source("testParser.R")
+	source("testUserOptions.R")
+	
+	cat("\n ---------------------- ALL TESTS PASSED ------------------ \n")
+	
+}
 
-cat("\n ---------------------- ALL TESTS PASSED ------------------ \n")
+
+
+
 
 

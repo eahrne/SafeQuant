@@ -4,9 +4,8 @@
 ###############################################################################
 
 ### INIT
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
-
+setwd(dirname(sys.frame(1)$ofile))
+source("initTestSession.R")
 ### INIT END
 
 
@@ -243,6 +242,7 @@ testSqNormalize <- function(){
 
 testRtNormalize <- function(){
 	
+
 	cat(" --- testRTNormalize --- \n")
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)

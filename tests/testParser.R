@@ -4,8 +4,10 @@
 ###############################################################################
 
 
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+### INIT
+setwd(dirname(sys.frame(1)$ofile))
+source("initTestSession.R")
+### INIT END
 
 ### TEST FUNCTIONS
 

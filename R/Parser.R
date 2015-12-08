@@ -258,16 +258,26 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	#@TODO 
 	#allColNA <- rep(F,length(allColNA))
+	
+
 
 	# discard non peptide annotated rows
 	isPep <- !is.na(featureAnnotations$idScore) 
+	
+	
+	print(head(featureAnnotations))
+	print(nrow(featureAnnotations))
+	print(length(allColNA))
+	print(length(isPep))
+	print(head(expMatrix))
+	print(nrow(expMatrix))
+	print(rownames(expDesign))
+	
 	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
 		
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
-	
-	
-	
+		
 	### re-order and exclude channels  
 	if(ncol(expMatrix) > 1){
 		expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])

@@ -1,8 +1,7 @@
 
 ### INIT
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
-
+setwd(dirname(sys.frame(1)$ofile))
+source("initTestSession.R")
 ### INIT END
 
 
