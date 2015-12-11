@@ -9,6 +9,10 @@ plotVolcano(obj, ratioThrs = 1, pValueThreshold = 0.01, adjusted = T, ...)
 \arguments{
 \item{obj}{safeQuantAnalysis object or data.frame}
 
+\item{ratioThrs}{default 1}
+
+\item{pValueThreshold}{default 0.01}
+
 \item{adjusted}{TRUE/FALSE plot qValues or pValues on y-axis}
 
 \item{ratioCutOffAbsLog2}{ratio abline}

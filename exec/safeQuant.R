@@ -36,22 +36,23 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 	cat("Loading SafeQuant Library \n")
 	library("SafeQuant")
 }else{ # FOR DEVELOPMENT
+	
 	if(file.exists("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-		sqDirPath <- "/Users/ahrnee-adm/dev/R/workspace/"
+		setwd("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R")
 	}else{
 		#@TEMP TPP
 		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/"
+		setwd("import/bc2/home/pcf/ahrnee/R/SafeQuant/R")
 	}
-	
-	#@TEMP
-	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/ExpressionAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/SafeQuantAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/Graphics.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/IdentificationAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/Parser.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/TMT.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
+
+	source("UserOptions.R")
+	source("ExpressionAnalysis.R")
+	source("SafeQuantAnalysis.R")
+	source("Graphics.R")
+	source("IdentificationAnalysis.R")
+	source("Parser.R")
+	source("TMT.R")
+	source("UserOptions.R")
 			
 }
 
@@ -155,7 +156,6 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	}else{
 		stop("Please Specify Experimental Design")
 	}
-
 	eset <- parseMaxQuantProteinGroupTxt(userOptions$inputFile,expDesign=expDesign, method="auc")
 	
 }else if(fileType == "GenericCSV"){

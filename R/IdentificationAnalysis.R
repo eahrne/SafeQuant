@@ -38,7 +38,7 @@
 			proteinSeq <- proteinDB[proteinAC]
 			
 			if(proteinSeq == "NULL" ){
-				warning(proteinAC,"NOT FOUND IN PROTEIN FASTA","\n")
+				warning(proteinAC," NOT FOUND IN PROTEIN FASTA","\n")
 #					modifCoord <- "Err"
 #					motifX <- "Err"
 			}else{
@@ -360,7 +360,7 @@ getMotifX <- function(modifPos,peptide,proteinSeq, motifLength=4){
 #' @param modifAnnot modifcation as annotated by progenesis. E.g. '[15] Phospho (ST)|[30] Phospho (ST)'
 #' @param peptideSeq peptide sequence
 #' @param proteinSeq protein sequence
-#' @param numeric format 1) progenesis 2) scaffold 
+#' @param format c(1,2) 1. progenesis 2. scaffold 
 #' @return vector of protein coordinates (mmodification residue number) 
 #' @export
 #' @note  No note

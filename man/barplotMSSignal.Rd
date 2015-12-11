@@ -10,11 +10,11 @@ barplotMSSignal(eset,
   labels = rownames(pData(eset)), ...)
 }
 \arguments{
+\item{eset}{expressionSet}
+
+\item{col}{default condition colors}
+
 \item{method}{c("median","sum","sharedSignal")}
-
-\item{matrix}{matrix of ms-signals}
-
-\item{color}{color}
 }
 \description{
 Barplot of ms-signal per column

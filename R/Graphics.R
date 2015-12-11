@@ -361,7 +361,9 @@ COLORS <- as.character(c(
 #' @param obj safeQuantAnalysis object or data.frame
 #' @param ratioCutOffAbsLog2 ratio abline 
 #' @param absLog10pValueCutOff pValue abline
-#' @param  adjusted TRUE/FALSE plot qValues or pValues on y-axis
+#' @param adjusted TRUE/FALSE plot qValues or pValues on y-axis
+#' @param ratioThrs default 1
+#' @param pValueThreshold default 0.01
 #' @import affy gplots
 #' @export
 #' @note  No note
@@ -497,6 +499,11 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 
 #' Plot lower triangle Pearsons R^2. Diagonal text, upper triangle all against all scatter plots with lm abline
 #' @param data data.frame
+#' @param textCol text color
+#' @param diagText diagnoal text
+#' @param col dot col
+#' @param isHeatCol heat colors
+#' @param cexTxt cex txt 
 #' @note  No note
 #' @export
 #' @details No details
@@ -629,8 +636,8 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 
 ### 
 #' Barplot of ms-signal per column
-#' @param matrix matrix of ms-signals
-#' @param color color
+#' @param eset expressionSet
+#' @param col default condition colors
 #' @param method c("median","sum","sharedSignal")
 #' @import affy
 #' @export
@@ -671,6 +678,11 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 
 #' C.V. boxplot 
 #' @param eset ExpressionSet
+#' @param col col
+#' @param cex.names default 0.9
+#' @param cex.axis default 1.25
+#' @param cex.lab default 1.25
+#' @param ylab "C.V. (%)"
 #' @note  No note
 #' @export
 #' @details No details
@@ -895,12 +907,11 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 
 }
 
-
-
-
 #' Plot identifications target decoy distribution
 #' @param targetScores
 #' @param decoyScores
+#' @param xlab default "Identification Score"
+#' @param ylab default "Counts"
 #' @note  No note
 #' @export
 #' @details No details
@@ -1090,6 +1101,8 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' Scatter plot with density coloring
 #' @param x number vector
 #' @param y number vector
+#' @param isFitLm fit linear model
+#' @param disp  c("abline","R","Rc") display options 
 #' @import epiR
 #' @note  No note
 #' @export

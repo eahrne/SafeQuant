@@ -5,7 +5,9 @@
 
 
 ### INIT
-setwd(dirname(sys.frame(1)$ofile))
+if(!grepl("SafeQuant\\.Rcheck",getwd())){
+	setwd(dirname(sys.frame(1)$ofile))
+}
 source("initTestSession.R")
 ### INIT END
 
@@ -15,15 +17,15 @@ source("initTestSession.R")
 
 testGetSkipLineNb <- function(){
 	cat(" --- testGetSkipLineNb --- \n")
-	stopifnot(40 ==  .getSkipLineNb(tmt6PlexRawTestFile))
-	stopifnot(40 ==  .getSkipLineNb(tmt10PlexRawTestFile))
+	stopifnot(40 ==  .getSkipLineNb(scaffoldTmt6PlexRawTestFile))
+	stopifnot(40 ==  .getSkipLineNb(scaffoldTmt10PlexRawTestFile))
 	cat(" --- testGetSkipLineNb: PASS ALL TEST --- \n")	
 }
 
 testGetNbPlex <- function(){
 	cat(" --- testGetNbPlex --- \n")
-	stopifnot(10 ==.getNbPlex(tmt10PlexRawTestFile))
-	stopifnot(6 ==.getNbPlex(tmt6PlexRawTestFile))
+	stopifnot(10 ==.getNbPlex(scaffoldTmt10PlexRawTestFile))
+	stopifnot(6 ==.getNbPlex(scaffoldTmt6PlexRawTestFile))
 	cat(" --- testGetNbPlex: PASS ALL TEST --- \n")	
 }
 
@@ -39,9 +41,9 @@ testGetProgenesisCsvExpressionColIndices <- function(){
 	
 	stopifnot(sum(31:48 %in% .getProgenesisCsvExpressionColIndices(progenesisFeatureCsvFile1) ) == 18 )
 	
-	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementFile1)  == 18 )
+	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementCsvFile1)  == 18 )
 	
-	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementFractionatedFile1)[1] == 21)
+	stopifnot(.getProgenesisCsvExpressionColIndices(progenesisPeptideMeasurementFractionatedCsvFile1)[1] == 21)
 	
 	cat(" --- testGetProgenesisCsvProteinIntColIndices: PASS ALL TEST --- \n")	
 	
@@ -65,7 +67,7 @@ testParseProgenesisProteinCsv <- function(){
 	cat(" --- testParseProgenesisProteinCsv --- \n")
 	
 	eset <- parseProgenesisProteinCsv(file=progenesisProteinCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisProteinCsvFile1))
-	stopifnot(1917 == nrow(eset))
+	stopifnot(983 == nrow(eset))
 	stopifnot(6 == ncol(fData(eset)))
 	stopifnot(4 == nrow(pData(eset)))
 	
@@ -83,8 +85,8 @@ testParseProgenesisFeatureCsv <- function(){
 	cat(" --- testParseProgenesisFeatureCsv --- \n")
 	
 	eset <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
-	stopifnot(496 == nrow(eset))
-	names(fData(eset))
+	stopifnot(97 == nrow(eset))
+	#names(fData(eset))
 	stopifnot(13 == ncol(fData(eset)))
 	stopifnot(18 == nrow(pData(eset)))
 	
@@ -105,20 +107,20 @@ testParseScaffoldRawFile <- function(){
 	# 6 plex	
 	
 	expDesignTMTSixPlex <- data.frame(condition=sort(rep(c(1,2),3)),isControl=sort(rep(c(T,F),3),decreasing=T) )
-	eset <- parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex)
+	eset <- parseScaffoldRawFile(scaffoldTmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex)
 	stopifnot(329 ==  nrow(eset))
 	stopifnot("sp|P38711|RS27B_YEAST,sp|P35997|RS27_YEAST" ==  fData(eset)$proteinName[1])
-	stopifnot("sp|P38711|RS27B_YEAST" == fData(parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex,keepFirstAcOnly=T))$proteinName[1])
+	stopifnot("sp|P38711|RS27B_YEAST" == fData(parseScaffoldRawFile(scaffoldTmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex,keepFirstAcOnly=T))$proteinName[1])
 	
 	expDesignTMTSixPlex <- data.frame(condition=sort(rep(c(1,2),3)),isControl=sort(rep(c(T,F),3),decreasing=T) )
 	rownames(expDesignTMTSixPlex) <- rev(1:6)
-	eset2 <- parseScaffoldRawFile(tmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex[1:5,])
+	eset2 <- parseScaffoldRawFile(scaffoldTmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex[1:5,])
 	stopifnot(exprs(eset)[1,6] == exprs(eset2)[1,1])
 	
 	# 10 plex	
 	expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )
-	eset3 <- parseScaffoldRawFile(tmt10PlexRawTestFile,expDesign=expDesignTMTTenPlex, keepFirstAcOnly=T)
-	stopifnot(8875 ==  nrow(eset3))
+	eset3 <- parseScaffoldRawFile(scaffoldTmt10PlexRawTestFile,expDesign=expDesignTMTTenPlex, keepFirstAcOnly=T)
+	stopifnot(958 ==  nrow(eset3))
 	cat(" --- testParseScaffoldRawFile: PASS ALL TEST --- \n")
 	
 }
@@ -127,11 +129,11 @@ testGetFileType <- function(){
 	
 	cat(" --- testGetFileType --- \n")
 	
-	stopifnot(.getFileType(tmt6PlexRawTestFile) == "ScaffoldTMT")
-	stopifnot(.getFileType(tmt10PlexRawTestFile) == "ScaffoldTMT")
+	stopifnot(.getFileType(scaffoldTmt6PlexRawTestFile) == "ScaffoldTMT")
+	stopifnot(.getFileType(scaffoldTmt10PlexRawTestFile) == "ScaffoldTMT")
 	stopifnot(.getFileType(progenesisFeatureCsvFile1) == "ProgenesisFeature")
 	stopifnot(.getFileType(progenesisProteinCsvFile1) == "ProgenesisProtein")
-	stopifnot(.getFileType(progenesisPeptideMeasurementFile1) == "ProgenesisPeptide")
+	stopifnot(.getFileType(progenesisPeptideMeasurementCsvFile1) == "ProgenesisPeptide")
 	stopifnot(.getFileType(maxQuantProteinFileTxt) == "MaxQuantProteinGroup")
 
 	cat(" --- testGetFileType: PASS ALL TEST --- \n")
@@ -141,24 +143,14 @@ testGetFileType <- function(){
 testParseProgenesisPeptideMeasurementCsv <- function(){
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv --- \n")
-	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1))
 	stopifnot(ncol(exprs(eset)) == 1)
-	stopifnot(nrow(exprs(eset)) == 9840)
+	stopifnot(nrow(eset) == 92)
 	
 	stopifnot(sum(grepl(";",fData(eset)$proteinName)) == 2)
 	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")
-	
-	### sort protein accessions
-#	fData(eset)$proteinName <- as.character(fData(eset)$proteinName)
-#	fData(eset)$proteinName <- as.vector(unlist(lapply(fData(eset)$proteinName, function(prot){
-#	
-#				prot <- paste(sort(as.vector(unlist(strsplit(prot,";")))),collapse=";")
-#				return(prot)
-#				
-#			}  )))
-	
 	
 }
 
@@ -172,7 +164,7 @@ testParseMaxQuantProteinGroupTxt <- function(){
 	
 	stopifnot(ncol(fData(eset)) == 7)
 	stopifnot(ncol(eset) == 20)
-	stopifnot( nrow(exprs(parseMaxQuantProteinGroupTxt(maxQuantProteinFileTxt,expDesign=expDesign, method="spc"))) == 3426 )
+	stopifnot( nrow(parseMaxQuantProteinGroupTxt(maxQuantProteinFileTxt,expDesign=expDesign, method="spc")) == 996 )
 
 	cat(" --- testParseMaxQuantProteinGroupTxt: PASS ALL TEST  --- \n")
 	
@@ -182,7 +174,7 @@ testParseScaffoldPTMReport <- function(){
 	
 	cat(" --- testParseScaffoldPTMReport:  --- \n")
 	df <- parseScaffoldPTMReport(scaffoldPtmReportFile1)
-	stopifnot(nrow(df) == 20004 )
+	stopifnot(nrow(df) == 883 )
 	cat(" --- testParseScaffoldPTMReport: PASS ALL TEST  --- \n")
 
 }
@@ -206,19 +198,24 @@ testAddScaffoldPTMFAnnotations <- function(){
 
 
 ### TESTS
+testGetFileType()
 
-testGetSkipLineNb()
-testParseScaffoldRawFile()
-testGetNbPlex()
+# progenesis
 testGetProgenesisCsvExpressionColIndices()
 testGetExpDesignProgenesisCsv()
 testParseProgenesisProteinCsv()
 testParseProgenesisFeatureCsv()
 testParseProgenesisPeptideMeasurementCsv()
-testParseMaxQuantProteinGroupTxt()
-testGetFileType()
 
+# scaffold 
+testGetSkipLineNb()
+testParseScaffoldRawFile()
+testGetNbPlex()
 testParseScaffoldPTMReport()
 testAddScaffoldPTMFAnnotations()
+
+# max quant
+testParseMaxQuantProteinGroupTxt()
+
 ### TESTS END
 

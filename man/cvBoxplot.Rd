@@ -11,6 +11,16 @@ cvBoxplot(eset,
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{col}{col}
+
+\item{cex.names}{default 0.9}
+
+\item{cex.axis}{default 1.25}
+
+\item{cex.lab}{default 1.25}
+
+\item{ylab}{"C.V. (%)"}
 }
 \description{
 C.V. boxplot

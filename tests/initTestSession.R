@@ -14,41 +14,66 @@ library(epiR)
 library(corrplot)
 
 ### INIT
-setwd(dirname(sys.frame(1)$ofile))
-### INIT END
+if(!grepl("SafeQuant\\.Rcheck",getwd())){ ### wd already set to tests when running CHECK
+	wd <- dirname(sys.frame(1)$ofile)
+	setwd(dirname(sys.frame(1)$ofile))
+}
+sqRootDir <- gsub("tests","",getwd())
+sqRootDir <- gsub("\\.Rcheck","",sqRootDir) # if CHECK mode
 
+### INIT END
+#stop("")
 ##@TEMP
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Graphics.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Parser.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Utils.R")
+
+source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/Graphics.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/IdentificationAnalysis.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
+source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
+
+
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Graphics.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Parser.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/TMT.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
+#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Utils.R")
 
 
 ### INIT
 ### VARIOUS TEST FILES
 
+# progenesis
+progenesisFeatureCsvFile1 <- "testData/progenesis_feature_export1.csv"
+progenesisPeptideMeasurementCsvFile1 <- "testData/progenesis_pep_measurement1.csv"
 
+#progenesisPeptideMeasurementCsvFile1 <- "testData/tmp.csv"
 
-tmt6PlexRawTestFile <- "testData/2014//TMT_6-Plex_Scaffold_Raw_Export_Example.xls"
-tmt10PlexRawTestFile <- "testData/2014//TMT_10-Plex_Scaffold_Raw_Export_Example.xls"
-progenesisProteinCsvFile1 <- "testData/2014/proteins1.csv"
+progenesisProteinCsvFile1 <- "testData//progenesis_protein_export1.csv"
+progenesisPeptideMeasurementFractionatedCsvFile1 <- "testData/progenesis_pep_measurement_fractionated1.csv"
+
 progenesisProteinCsvFile2 <- "testData/2014/proteins2.csv"
-
-progenesisFeatureCsvFile1 <- "testData/2014/peptides1_FILTERED.csv"
 progenesisFeatureCsvFile2 <- "testData/2014/peptides2.csv"
 
-progenesisPeptideMeasurementFile1 <- "testData/QI_2.0/peptide_measurements1.csv"
-progenesisPeptideMeasurementFractionatedFile1 <- "testData/progenesis_fractionated_pep_measurement/Phospho_Set_1.csv"
 
-fastaFile <- "testData/2014/sp_mouse_160512.decoy.fasta"
-maxQuantProteinFileTxt <- "testData/maxQuant/proteinGroups.csv"
+# scaffold
+scaffoldTmt6PlexRawTestFile <- "testData/scaffold_tmt6plex_raw.xls"
+scaffoldTmt10PlexRawTestFile <- "testData/scaffold_tmt10plex_raw.xls"
 
-scaffoldPtmReportFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
-scaffoldPtmTMTRawDataFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
+#scaffoldPtmTMTRawDataFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
+#scaffoldPtmReportFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
+scaffoldPtmTMTRawDataFile1 <- "testData/scaffold_tmt10plex_raw_phospho.xls"
+scaffoldPtmReportFile1 <- "testData/scaffoldPtm_spectrum_report.xls"
+
+# maxquant
+maxQuantProteinFileTxt <- "testData/maxquant_protein_groups.csv"
+
+# db
+fastaFile <- "testData/mouse_proteins.fasta"
 
 ### INIT END
 

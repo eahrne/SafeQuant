@@ -4,7 +4,9 @@
 ###############################################################################
 
 ### INIT
-setwd(dirname(sys.frame(1)$ofile))
+if(!grepl("SafeQuant\\.Rcheck",getwd())){
+	setwd(dirname(sys.frame(1)$ofile))
+}
 source("initTestSession.R")
 ### INIT END
 
@@ -155,7 +157,7 @@ testRollUp <- function(){
 #	system.time(e <- rollUp(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide")))
 #	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))
 #	
-	esetTmp <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementFile1))
+	esetTmp <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1))
 	
 	fData(esetTmp)
 	
@@ -220,6 +222,7 @@ testGetIBAQEset <- function(){
 	cat(" --- testGetIBAQEset: PASS ALL TEST --- \n")
 }
 
+
 testGetLoocvFoldError <- function(){
 	
 	cat(" --- testGetLoocvFoldError --- \n")
@@ -246,7 +249,7 @@ testRtNormalize <- function(){
 	cat(" --- testRTNormalize --- \n")
 	esetTmp <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	rtNormFactors <- getRTNormFactors(esetTmp, minFeaturesPerBin=100)
-	stopifnot(nrow(rtNormalize(esetTmp,rtNormFactors)) == 496)
+	stopifnot(nrow(rtNormalize(esetTmp,rtNormFactors)) == 97)
 	
 	# Stop if rtNormFactors doesn't cover all retention times.
 	#rtNormalize(esetTmp,rtNormFactors[1:2,])
@@ -356,41 +359,13 @@ testGetSignalPerCondition()
 testBaselineIntensity()
 testRollUp()
 testTopX()
-testGetIBAQEset()
+
 testGetLoocvFoldError()
 
 testRemoveOutliers()
 testPerFeatureNormalization()
 testStandardise()
 testGetMaxIndex()
-### FOR vs APPLY
 
-#### create index tags by concatenating selected coulm entries
-#allIndexTags <- as.vector(unlist(apply(data.frame(fData(eset)[,selectedColumns]),1,function(t){
-#							return(paste(as.vector(unlist(t)),collapse="_"))
-#						})))
+testGetIBAQEset()
 
-
-
-### Quantile normalization. Replace rank (rank of protein intensity in one run)  by "rank quantile intensity" 
-# Proteins with the same rank in each run will have the same intensity 
-#	Get Rank Quantile intensity Step 1
-#	A    5    4    3    becomes A 2 1 3
-#	B    2    1    4    becomes B 3 2 4
-#	C    3    4    6    becomes C 4 4 6
-#	D    4    2    8    becomes D 5 4 8
-#	Get Rank Quantile intensity Step 2 (rank i = 2.00 )
-#	A (2 1 3)/3 = 2.00 = rank i, 
-#	B (3 2 4)/3 = 3.00 = rank ii
-#	C (4 4 6)/3 = 4.67 = rank iii
-#	D (5 4 8)/3 = 5.67 = rank iv
-
-#normalizeQuantiles(exprs(eset))
-#
-#
-#m <-  t(matrix(c(5,4, 3
-#    ,2,1,4
-#    ,3,4,6
-#    ,4,2,8),ncol=4))
-#
-#normalizeQuantiles(m)

@@ -433,8 +433,8 @@ getUserOptions <- function(version=version){
 #6 Condition 2     FALSE
 
 #' Create experimental design data.frame from user input string
-#' @param string tag
-#' @param data.frame default expDesign 
+#' @param tag tag
+#' @param expDesign data.frame  
 #' @return data.frame describing experimental design
 #' @export
 #' @note  No note

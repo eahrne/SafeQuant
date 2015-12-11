@@ -7,9 +7,9 @@
 expDesignTagToExpDesign(tag, expDesignDefault)
 }
 \arguments{
-\item{string}{tag}
+\item{tag}{tag}
 
-\item{data.frame}{default expDesign}
+\item{expDesign}{data.frame}
 }
 \value{
 data.frame describing experimental design

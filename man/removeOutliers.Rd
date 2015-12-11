@@ -7,9 +7,9 @@
 removeOutliers(x, na.rm = TRUE, ...)
 }
 \arguments{
-\item{vector}{numeric}
+\item{na.rm}{logical indicating whether missing values should be removed.}
 
-\item{a}{logical indicating whether missing values should be removed.}
+\item{vector}{numeric}
 }
 \value{
 vector numeric

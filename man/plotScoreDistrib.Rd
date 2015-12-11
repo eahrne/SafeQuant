@@ -11,6 +11,10 @@ plotScoreDistrib(targetScores, decoyScores, xlab = "Identification Score",
 \item{targetScores}{}
 
 \item{decoyScores}{}
+
+\item{xlab}{default "Identification Score"}
+
+\item{ylab}{default "Counts"}
 }
 \description{
 Plot identifications target decoy distribution

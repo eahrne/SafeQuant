@@ -712,7 +712,7 @@ getLoocvFoldError <- function(df){
 
 #' Set value to NA if it deviatves with more than 1.5 * IQR from lower/upper quantile
 #' @param vector numeric
-#' @param a logical indicating whether missing values should be removed.
+#' @param na.rm logical indicating whether missing values should be removed.
 #' @return vector numeric
 #' @export
 #' @note  No note

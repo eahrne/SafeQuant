@@ -265,13 +265,13 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	isPep <- !is.na(featureAnnotations$idScore) 
 	
 	
-	print(head(featureAnnotations))
-	print(nrow(featureAnnotations))
-	print(length(allColNA))
-	print(length(isPep))
-	print(head(expMatrix))
-	print(nrow(expMatrix))
-	print(rownames(expDesign))
+#	print(head(featureAnnotations))
+#	print(nrow(featureAnnotations))
+#	print(length(allColNA))
+#	print(length(isPep))
+#	print(head(expMatrix))
+#	print(nrow(expMatrix))
+#	print(rownames(expDesign))
 	
 	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
 		

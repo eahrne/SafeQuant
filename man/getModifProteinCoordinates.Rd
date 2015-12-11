@@ -4,7 +4,7 @@
 \alias{getModifProteinCoordinates}
 \title{Get modification coordinates on protein}
 \usage{
-getModifProteinCoordinates(modifAnnot, peptideSeq, proteinSeq)
+getModifProteinCoordinates(modifAnnot, peptideSeq, proteinSeq, format = 1)
 }
 \arguments{
 \item{modifAnnot}{modifcation as annotated by progenesis. E.g. '[15] Phospho (ST)|[30] Phospho (ST)'}
@@ -12,6 +12,8 @@ getModifProteinCoordinates(modifAnnot, peptideSeq, proteinSeq)
 \item{peptideSeq}{peptide sequence}
 
 \item{proteinSeq}{protein sequence}
+
+\item{format}{c(1,2) 1. progenesis 2. scaffold}
 }
 \value{
 vector of protein coordinates (mmodification residue number)

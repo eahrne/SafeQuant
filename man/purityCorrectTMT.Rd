@@ -10,6 +10,8 @@ purityCorrectTMT(tmtData, impurityMatrix = impurityMatrix,
 \arguments{
 \item{tmtData}{data.frame containing tmt channel intensities}
 
+\item{impurityMatrix}{correction matrix}
+
 \item{method}{to deal with NA and negative values c("","allZero","allNA","allOrg")}
 }
 \value{

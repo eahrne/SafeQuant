@@ -146,6 +146,7 @@ getImpuritiesMatrix <- function (plexNb=6, test=F){
 #' Correct channel intensities based on Reporter ion Isotopic Distributions 
 #' @param tmtData data.frame containing tmt channel intensities
 #' @param method to deal with NA and negative values c("","allZero","allNA","allOrg") 
+#' @param impurityMatrix correction matrix
 #' @return data.frame of corrected tmt intensities
 #' @export
 #' @note  No note
@@ -156,27 +157,21 @@ purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix, invalidRepla
 	tmtDataCorrected <- matrix(nrow=nrow(tmtData),ncol=ncol(impurityMatrix))
 	### solve linear system (spectrum by spectrum)
 	for(i in 1:nrow(tmtData)){
-		#correctedSpectrumIntensities <- t(solve(impurityMatrix) %*% tmtData[i,])
-		
 		correctedSpectrumIntensities <- solve(impurityMatrix, tmtData[i,])
-		
 		tmtDataCorrected[i,1:ncol(impurityMatrix)] <- correctedSpectrumIntensities
 	}
-	#tmtDataCorrected[tmtDataCorrected <0] <- 0
 	
-	#print(sum(!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)))
-	### if negative intensity upon correction then do not correct.
-	#tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
+	tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- NA
 	
-	if(invalidReplace  == "allZero" ){
-		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- 0
-	}else if(invalidReplace  == "allNA"){
-		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- NA
-	}else if(invalidReplace  == "allOrg"){ ### keep original values
-		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
-	}### else Negative values are allowed
+#	if(invalidReplace  == "allZero" ){
+#		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- 0
+#	}else if(invalidReplace  == "allNA"){
+#		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected < 0)] <- NA
+#	}else if(invalidReplace  == "allOrg"){ ### keep original values
+#		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
+#	}### else Negative values are allowed
 
-	#print(invalidReplace)
+
 	
 	colnames(tmtDataCorrected) <- colnames(tmtData)
 	
