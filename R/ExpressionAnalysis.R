@@ -67,7 +67,8 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	return(ExpressionSet(assayData = expressionMatrix
 					, phenoData =  pData							### yeah this is weird, but gives error if rolling up already 
 					# rolled up eset unless colindices are explicitly specified		
-					, featureData = new("AnnotatedDataFrame", data= featureAnnotations[,1:ncol(featureAnnotations)])  
+					#, featureData = new("AnnotatedDataFrame", data= featureAnnotations[,1:ncol(featureAnnotations)])  
+					, featureData = AnnotatedDataFrame(data= featureAnnotations[,1:ncol(featureAnnotations)])  
 			)
 	)
 }
