@@ -21,8 +21,8 @@ rm(list=ls()[ls() != "eset"])
 ### PARAMS
 
 ### UPDATE THIS ###
-pdfFile <- "//Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/SQ_Results/mfuzz_clusters/clusters.pdf"
-xlsExportFolder <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/SQ_Results/mfuzz_clusters/"
+pdfFile <- "//Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/mfuzz_clusters/clusters.pdf"
+xlsExportFolder <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/mfuzz_clusters/"
 ### UPDATE THIS ###
 
 nbClusters <- 8
