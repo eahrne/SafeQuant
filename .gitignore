@@ -8,8 +8,7 @@
 *.rData
 inst/*
 !inst/manuals/
-
-##!test/testData/
+!tests/testData/
 
 # OS generated files #
 ######################
