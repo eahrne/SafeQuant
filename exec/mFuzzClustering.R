@@ -14,6 +14,8 @@ sqRDataFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/Add
 load(sqRDataFile)
 
 eset <- sqaProtein$eset
+eset <- eset[!fData(eset)$isFiltered,]
+
 # remove all objects we don't need
 rm(list=ls()[ls() != "eset"])
 ### LOAD DATA END
@@ -38,6 +40,8 @@ xlab <- "Condition"
 
 # log
 exprs(eset) <- log10(exprs(eset))
+
+
 
 # standardise
 # good idea when including all data?
@@ -85,11 +89,10 @@ cat("Figures exported to", pdfFile, "\n")
 for(i in 1:nbClusters){
 	
 	xlsExportFile = paste(xlsExportFolder,"cluster",i,".xls" ,sep="")
-	clusterMembers <- names(fuzzification$cluster[fuzzification$cluster == i])
+	protein <- names(fuzzification$cluster[fuzzification$cluster == i])
 	membershipValue <- fuzzification$membership[fuzzification$cluster == i,i]
-	outDf <- data.frame(as.vector(unlist(membershipValue)),exprs(eset)[clusterMembers,])
-	names(outDf)[1] <-  "membershipValue"
-	outDf <- outDf[outDf[,1] >= min.mem,]
+	outDf <- data.frame(protein=protein,membershipValue=as.vector(unlist(membershipValue)),exprs(eset)[protein,])
+	outDf <- subset(outDf,membershipValue > min.mem)
 	write.table(file=xlsExportFile,outDf, row.names=F,sep="\t")
 	cat("Created file", xlsExportFile, "\n")
 }
