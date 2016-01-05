@@ -19,7 +19,6 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	source("testUserOptions.R")
 	source("testGraphics.R")
 	
-	
 	cat("\n ---------------------- ALL TESTS PASSED ------------------ \n")
 	
 }

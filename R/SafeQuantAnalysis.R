@@ -3,6 +3,66 @@
 # Author: erikahrne
 ###############################################################################
 
+### s3 class for storing p-values, ratios and CVs
+# created from Expression set (name of controlCondition is specified), adjust. 
+# normalization
+# replace missing values
+# c("global","naRep","rt","pairwise","quantile")
+#' safeQunat s3 class
+#' @param eset ExpressionSet
+#' @param method c("global","naRep","pairwise")
+#' @export
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
+	
+	out <- list()
+	class(out) <- "safeQuantAnalysis"
+	
+	### what about fdr, decoy, massTol filters etc..
+	#eset <- addIdQvalues(eset)
+	
+	#normalizationFactors <- NA
+	### normalize
+	eset <- sqNormalize(eset, method=method)
+	
+	baselineIntensity <- NA
+	# replace missing values
+	if("naRep" %in% method ){
+		baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(eset)[,1])),promille=5)
+		### add pseudo (baseline) intensity
+		exprs(eset)[is.na(exprs(eset)) | (exprs(eset) < 0)  ] <- 0 
+		exprs(eset) <- exprs(eset) + baselineIntensity
+		
+	}
+	
+	out$eset <- eset # should the ExpressionSet be stored?
+	out$cv <- getAllCV(eset)
+	out$ratio <- getRatios(eset,log2=T)
+	
+	### do not perform stat test for filtered out features
+	sel <- !fData(eset)$isFiltered
+	
+	out$pValue <- out$ratio
+	out$pValue[rownames(out$pValue),] <- NA
+	
+	### we need at least two conditions
+	if(length(unique(pData(eset)$condition)) > 1){
+		out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
+	}
+	
+	out$qValue <- out$ratio
+	out$qValue[rownames(out$qValue),] <- NA
+	
+	### we need at least two runs
+	if(length(unique(pData(eset)$condition)) > 1){
+		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
+	}
+	out$baselineIntensity <- baselineIntensity
+	
+	return(out)
+	
+}
+
+
 #' @export
 .filterSQA <- function(sqa,filter=NA ){
 	
@@ -29,84 +89,19 @@
 }
 
 
-plot.safeQuantAnalysis <- function(){}
-
-
-### s3 class for storing p-values, ratios and CVs
-# created from Expression set (name of controlCondition is specified), adjust. 
-# normalization
-# replace missing values
-# c("global","naRep","rt","pairwise","quantile")
-#' @export
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
-	
-	out <- list()
-	class(out) <- "safeQuantAnalysis"
-	
-	### what about fdr, decoy, massTol filters etc..
-	#eset <- addIdQvalues(eset)
-	
-	#normalizationFactors <- NA
-	### normalize
-	eset <- sqNormalize(eset, method=method)
-	
-	baselineIntensity <- NA
-	# replace missing values
-	if("naRep" %in% method ){
-		baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(eset)[,1])),promille=5)
-		### add pseudo (baseline) intensity
-		exprs(eset)[is.na(exprs(eset)) | (exprs(eset) < 0)  ] <- 0 
-		exprs(eset) <- exprs(eset) + baselineIntensity
-		
-	}
-		
-	out$eset <- eset # should the ExpressionSet be stored?
-	out$cv <- getAllCV(eset)
-	out$ratio <- getRatios(eset,log2=T)
-	
-	### do not perform stat test for filtered out features
-	sel <- !fData(eset)$isFiltered
-	
-	out$pValue <- out$ratio
-	out$pValue[rownames(out$pValue),] <- NA
-	
-	### we need at least two conditions
-	if(length(unique(pData(eset)$condition)) > 1){
-		out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
-	}
-		
-	out$qValue <- out$ratio
-	out$qValue[rownames(out$qValue),] <- NA
-	
-	### we need at least two runs
-	if(length(unique(pData(eset)$condition)) > 1){
-		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
-	}
-	out$baselineIntensity <- baselineIntensity
-	
-	return(out)
-	
-}
-
-### generic method export
-#' @export
-export <- function(x, ...)  UseMethod("export")
-
-#' @export
-export.default <- function(x, ...)
-	stop("No method implemented for this class of object")
-
 #' Export content of safeQuantAnalysis object
 #' @param sqa safeQuantAnalysis object
 #' @param nbRows Number of rows to export. Features are ordred by increasing minimal p.value
+#' @param file file path
 #' @export
-#' @import limma affy 
+#' @import limma Biobase
+#' @importFrom utils write.table
 #' @note  No note
 #' @details NA
 #' @references NA
 #' @seealso  \code{\link{safeQuantAnalysis}}
 #' @examples print("No examples")
-export.safeQuantAnalysis <- function(sqa,nbRows=nrow(sqa$pValue), file=NA){
+export <- function(sqa,nbRows=nrow(sqa$pValue), file=NA){
 	
 	o <- order(apply(sqa$pValue,1,min))
 	
@@ -131,29 +126,29 @@ export.safeQuantAnalysis <- function(sqa,nbRows=nrow(sqa$pValue), file=NA){
 		#print(o[1:nbRows])
 		print(out[o[1:nbRows],-1])
 	}
+	
 }
 
-#' Print content of safeQuantAnalysis object
-#' @param sqa safeQuantAnalysis object
+#print <- function(x) UseMethod("print")
+
 #' @export
-#' @import limma affy 
-#' @note  No note
-#' @details NA
-#' @references NA
-#' @seealso  \code{\link{safeQuantAnalysis}}
-#' @examples print("No examples")
-print.safeQuantAnalysis <- function(sqa){
+print.safeQuantAnalysis <- function(x, ... ){
 	
 	#@TODO
 	cat("Experimental Design:\n")
-	print(pData(sqa$eset))
+	#print(pData(sqa$eset))
 	cat("\n")
 	
 	cat("\nStatistical Analysis:\n")
-	print(export(sqa,nbRows=10))
-	if(!is.na(sqa$baselineIntensity)){
+	print(export(x,nbRows=10))
+	if(!is.na(x$baselineIntensity)){
 		cat("\nBaseline Intensity:\n")
-		cat(sqa$baselineIntensity,"\n")
+		cat(x$baselineIntensity,"\n")
 	}
+	
 }
 
+#plot <- function(x) UseMethod("plot")
+
+#' @export
+plot.safeQuantAnalysis <- function(x,... ){}

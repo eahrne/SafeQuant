@@ -38,24 +38,21 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 }else{ # FOR DEVELOPMENT
 	
 	if(file.exists("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-		setwd("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R")
+		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 	}else{
 		#@TEMP TPP
-		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/"
-		setwd("import/bc2/home/pcf/ahrnee/R/SafeQuant/R")
+		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 	}
 
-	source("UserOptions.R")
-	source("ExpressionAnalysis.R")
-	source("SafeQuantAnalysis.R")
-	source("Graphics.R")
-	source("IdentificationAnalysis.R")
-	source("Parser.R")
-	source("TMT.R")
-	source("UserOptions.R")
-			
+	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
+	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
+	source(paste(sourceDir,"Graphics.R",sep=""))
+	source(paste(sourceDir,"IdentificationAnalysis.R",sep=""))
+	source(paste(sourceDir,"Parser.R",sep=""))
+	source(paste(sourceDir,"TMT.R",sep=""))
+	source(paste(sourceDir,"UserOptions.R",sep=""))
+		
 }
-
 
 VERSION <- 2.2
 
@@ -413,10 +410,16 @@ par(mfrow=c(2,2))
 #if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
 #if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
-.idOverviewPlots()
+.idOverviewPlots(userOptions=userOptions
+					,esetNorm=esetNorm
+					,fileType=fileType
+					,sqaPeptide=sqaPeptide
+					,sqaProtein=sqaProtein
+)
+
 if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
 	par(mfrow=c(3,2))
-	.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff)
+	.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff, userOptions=userOptions)
 	if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
 	if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
 }	

@@ -344,7 +344,6 @@ testGetMaxIndex <-function(){
 	
 }
 
-
 ### TEST FUNCTIONS END
 
 ### TESTS

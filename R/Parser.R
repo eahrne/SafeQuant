@@ -66,8 +66,10 @@ parseCSV <- function(file=file,expDesign=expDesign){}
 # Get Experimental 	
 #' Parse Experimental Design from Progenesis Csv Export
 #' @param file path to progenesis csv file
+#' @param expressionColIndices default .getProgenesisCsvExpressionColIndices(file)
 #' @return data.frame describing experimental design
 #' @export
+#' @importFrom utils read.csv
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -114,6 +116,7 @@ getExpDesignProgenesisCsv <- function(file, expressionColIndices = .getProgenesi
 #' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
+#' @importFrom utils read.csv
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -165,7 +168,8 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 #' @param method auc (area under curve) or spc (spectral count)
 #' @return ExpressionSet object
 #' @export
-#' @import affy
+#' @import Biobase
+#' @importFrom utils read.csv
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -297,9 +301,11 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @param file path to Progenesis Peptide Measurement csv file
 #' @param expDesign experimental design data.frame
 #' @param method auc (area under curve) or spc (spectral count)
+#' @param expressionColIndices default .getProgenesisCsvExpressionColIndices()
 #' @return ExpressionSet object
 #' @export
-#' @import affy
+#' @import Biobase
+#' @importFrom utils read.csv
 #' @note  No note
 #' @details No details
 #' @references NA 
@@ -307,6 +313,9 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @examples print("No examples")
 parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc", 	
 		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) ){
+	
+	# HACK to please CRAN CHECK "rollUp: no visible binding for global variable "Sequence""
+	Sequence <- Score <- resDTIndex <- proteinScore <- Accession <- NULL
 	
 	### stop if not all samples labelled with a given condition are assigned as control
 # Example:
@@ -678,18 +687,19 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 #' @param file path to Scaffold file
 #' @param expDesign experimental design data.frame
 #' @param keepFirstAcOnly TRUE/FALSE If multiple ACs in Accession.Numbers filed. Then keep the first one only
+#' @param isPurityCorrect do purity correction
 #' @return ExpressionSet object
 #' @export
-#' @import affy
+#' @import Biobase
 #' @note  No note
 #' @details No details
 #' @references NA 
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
-parseScaffoldRawFile <- function(fileName, expDesign=expDesign,keepFirstAcOnly=FALSE,isPurityCorrect=T){
+parseScaffoldRawFile <- function(file, expDesign=expDesign,keepFirstAcOnly=FALSE,isPurityCorrect=T){
 	
 	### parse data
-	res <- read.csv(fileName,sep="\t",skip=.getSkipLineNb(fileName))
+	res <- read.csv(file,sep="\t",skip=.getSkipLineNb(file))
 	if(keepFirstAcOnly) res$Accession.Numbers <- gsub("\\,.*","",as.character(res$Accession.Numbers))
 	res$Accession.Numbers <- gsub("\\[","",as.character(res$Accession.Numbers))
 	res$Accession.Numbers <- gsub("\\]","",as.character(res$Accession.Numbers))
@@ -907,7 +917,7 @@ parseScaffoldPTMReport <- function(file){
 #' @param file path to Scaffold file
 #' @return ExpressionSet object
 #' @export
-#' @import affy
+#' @import Biobase
 #' @note  No note
 #' @references No references
 #' @examples print("No examples")

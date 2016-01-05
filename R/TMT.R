@@ -11,7 +11,8 @@
 #' @details No details
 #' @references NA 
 #' @examples print("No examples")
-getImpuritiesMatrix <- function (plexNb=6, test=F){
+getImpuritiesMatrix <- function (plexNb=6){
+#getImpuritiesMatrix <- function (plexNb=6, test=F){
 	
 #	if(test){
 #		
@@ -145,7 +146,6 @@ getImpuritiesMatrix <- function (plexNb=6, test=F){
 
 #' Correct channel intensities based on Reporter ion Isotopic Distributions 
 #' @param tmtData data.frame containing tmt channel intensities
-#' @param method to deal with NA and negative values c("","allZero","allNA","allOrg") 
 #' @param impurityMatrix correction matrix
 #' @return data.frame of corrected tmt intensities
 #' @export
@@ -153,7 +153,7 @@ getImpuritiesMatrix <- function (plexNb=6, test=F){
 #' @details Same method as MSnbase, and described in Breitwieser et al. 2012 (Book Chapter)
 #' @references NA 
 #' @examples print("No examples")
-purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix, invalidReplace = "allNA" ){
+purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix ){
 	tmtDataCorrected <- matrix(nrow=nrow(tmtData),ncol=ncol(impurityMatrix))
 	### solve linear system (spectrum by spectrum)
 	for(i in 1:nrow(tmtData)){
@@ -170,8 +170,6 @@ purityCorrectTMT <- function(tmtData,impurityMatrix=impurityMatrix, invalidRepla
 #	}else if(invalidReplace  == "allOrg"){ ### keep original values
 #		tmtDataCorrected[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] <- tmtData[!is.na(tmtDataCorrected) & (tmtDataCorrected <= 0)] 
 #	}### else Negative values are allowed
-
-
 	
 	colnames(tmtDataCorrected) <- colnames(tmtData)
 	

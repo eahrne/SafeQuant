@@ -4,6 +4,7 @@
 ###############################################################################
 
 ### SET COLOR VECTOR
+#' color vector
 #' @export
 COLORS <- as.character(c(
 				"red"
@@ -21,7 +22,13 @@ COLORS <- as.character(c(
 )
 
 #' @export
-.idOverviewPlots <- function(){
+#' @import Biobase
+#' @importFrom graphics plot par grid lines points legend
+.idOverviewPlots <- function(userOptions=userOptions
+		,esetNorm=esetNorm
+		,fileType=fileType
+		,sqaPeptide=sqaPeptide
+		,sqaProtein=sqaProtein){
 	
 	######################## OVERVIEW PLOT
 	fdr <-userOptions$fdrCutoff
@@ -170,7 +177,7 @@ COLORS <- as.character(c(
 
 ### some quality control plots
 #' @export
-.qcPlots <- function(eset,selection=1:7,nbFeatures=500, ...){
+.qcPlots <- function(eset,selection=1:7,nbFeatures=500, userOptions=userOptions, ...){
 	
 	if(nrow(eset) < nbFeatures) nbFeatures <- nrow(eset) 
 	sel <- sample(nrow(eset),nbFeatures,replace=F)
@@ -237,6 +244,7 @@ COLORS <- as.character(c(
 
 ### color strip for volcano plot
 #' @export
+#' @importFrom graphics image mtext axis
 .dotColorstrip <- function(colors,minSignal=0, maxSignal = maxSignal,lab= "C.V. (%)"  )
 {
 	bottom <- 1	
@@ -257,6 +265,7 @@ COLORS <- as.character(c(
 
 ### called from plotVolcano. Creates volcano plot form data.frame input
 #' @export
+#' @importFrom graphics plot par grid lines points
 .plotVolcano <- function(d
 		, ratioCutOffAbsLog2=0
 		, absLog10pValueCutOff=2
@@ -303,6 +312,7 @@ COLORS <- as.character(c(
 }
 
 #' @export
+#' @importFrom graphics arrows
 .errorBar <- function(x, y, upper, lower=upper, length=0.1,...){
 	if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
 		stop("vectors must be same length")
@@ -310,6 +320,7 @@ COLORS <- as.character(c(
 }
 
 #' @export
+#' @importFrom graphics legend plot par
 .outerLegend <- function(...) {
 	opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), 
 			mar=c(0.5, 0.5, 0.5, 1), new=TRUE)
@@ -320,6 +331,7 @@ COLORS <- as.character(c(
 
 #' @export
 #' @import corrplot
+#' @importFrom graphics legend
 .correlationPlot <- function(d, textCol="black", labels=colnames(d),... ){
 	
 		
@@ -359,12 +371,11 @@ COLORS <- as.character(c(
 
 #' Plots volcano, data points colored by max cv of the 2 compared conditions
 #' @param obj safeQuantAnalysis object or data.frame
-#' @param ratioCutOffAbsLog2 ratio abline 
-#' @param absLog10pValueCutOff pValue abline
 #' @param adjusted TRUE/FALSE plot qValues or pValues on y-axis
 #' @param ratioThrs default 1
 #' @param pValueThreshold default 0.01
-#' @import affy gplots
+#' @param ... see plot
+#' @import Biobase gplots
 #' @export
 #' @note  No note
 #' @details data.frame input object should contain 3 columns (ratio,qValue,cv)
@@ -448,7 +459,10 @@ plotVolcano <- function(obj
 
 #' Display experimental design, high-lighting the control condition 
 #' @param eset ExpressionSet
-#' @import affy 
+#' @param condColors condition colors
+#' @param version version number
+#' @import Biobase
+#' @importFrom graphics text plot
 #' @export
 #' @note  No note
 #' @details No details
@@ -470,7 +484,7 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 	ylim <- c(-2,nbSamples+2)
 	
 	plot(0,0,type="n", xlim=xlim, ylim=ylim, main="Experimental Design", axes=FALSE, xlab="", ylab="")
-	
+		
 	condYPosStep <- (nbSamples+2)/(nbConditions+1)
 	sampleNb <- 1
 	
@@ -504,8 +518,11 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 #' @param col dot col
 #' @param isHeatCol heat colors
 #' @param cexTxt cex txt 
+#' @param ... see plot 
 #' @note  No note
 #' @export
+#' @importFrom graphics pairs abline par points
+#' @importFrom stats cor
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -545,6 +562,9 @@ pairsAnnot<-
 			## Map densities to colors
 			cols <-  colorRampPalette(c("#000099", "#00FEFF", "#45FE4F", 
 							"#FCFF00", "#FF9400", "#FF3100"))(256)
+			
+			# HACK to please CRAN CHECK "rollUp: no visible binding for global variable hCol"
+			hCol <- NULL
 			df$hCol <- cols[df$densityCol]
 			
 			points(y~x, data=df[order(df$densityCol),], pch = 20, col =hCol, bg = bg)
@@ -600,7 +620,12 @@ pairsAnnot<-
 
 #' Plot Percentage of Features with with missing values
 #' @param eset ExpressionSet
-#' @import affy
+#' @param col col
+#' @param cex.axis cex.axis
+#' @param cex.lab cex.lab
+#' @param ... see plot 
+#' @import Biobase
+#' @importFrom graphics mtext
 #' @export
 #' @note  No note
 #' @details No details
@@ -639,8 +664,14 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' @param eset expressionSet
 #' @param col default condition colors
 #' @param method c("median","sum","sharedSignal")
-#' @import affy
+#' @param cex.lab default 1.25
+#' @param cex.axis default 1.25
+#' @param cex.names default 0.9
+#' @param labels labels
+#' @param ... see plot 
+#' @import Biobase
 #' @export
+#' @importFrom graphics mtext
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -649,6 +680,7 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 	,method=c("sum","sharedSignal")
 	,cex.lab=1.25
 	,cex.axis=1.25
+	,cex.names=0.9
 	,labels=rownames(pData(eset))
 	,...){
 	
@@ -670,9 +702,11 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 	
 	bp <- barplot2(profile,las=2, col=col,ylab=ylab, xaxt="n"
 			, plot.grid=T
-			, grid.col="lightgrey"		
+			, grid.col="lightgrey"
+			, cex.lab=cex.lab
+			, cex.axis=cex.axis
 			,...)
-	mtext(labels,side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
+	mtext(labels,side=1,at=bp[,1], las=2, line=0.3,cex=cex.names)
 	
 }
 
@@ -682,9 +716,11 @@ barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[p
 #' @param cex.names default 0.9
 #' @param cex.axis default 1.25
 #' @param cex.lab default 1.25
-#' @param ylab "C.V. (%)"
+#' @param ylab C.V.
+#' @param ... see plot 
 #' @note  No note
 #' @export
+#' @importFrom graphics boxplot grid par
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -708,20 +744,22 @@ cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pDa
 				, ...)
 		
 	}
-	
-
-	
 }
 
 #' Plot ms.signal distributions
-#' @param matrix matrix of ms-signals
-#' @param color color
+#' @param d matrix of ms-signals
+#' @param col color
+#' @param ylab default "Frequnecy" 
+#' @param xlab default "MS-Signal"
+#' @param ... see plot 
 #' @note  No note
 #' @export
+#' @importFrom graphics plot lines
+#' @importFrom graphics plot hist abline legend grid mtext
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="Frequnecy", xlab="MS-Signal",... ){
+plotMSSignalDistributions <- function(d, col=1:100,ylab="Frequnecy", xlab="MS-Signal",... ){
 	
 
 	### create a sms-signal histogram per column,
@@ -740,8 +778,6 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 	### plot histogram trend lines
 	plot(mids,mids,ylim=range(countPerCol)
 			, type="n"
-			, cex.axis=cex.axis
-			, cex.lab=cex.lab
 			,xlab=xlab
 			,ylab=ylab
 			,...)
@@ -759,7 +795,13 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 #' Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median
 #' @param eset ExpressionSet
 #' @param conditionColors data.frame of colors per condition
+#' @param breaks default seq(-2,2,length=20)
+#' @param dendogram see heatmap.2 gplots
+#' @param legendPos see legend
+#' @param ... see plot
 #' @import gplots
+#' @importFrom graphics legend
+#' @importFrom stats hclust as.dist as.dendrogram
 #' @export
 #' @note  No note
 #' @details No details
@@ -768,6 +810,8 @@ plotMSSignalDistributions <- function(d, col=1:100, cex.axis=1, cex.lab=1,ylab="
 hClustHeatMap <- function(eset
 		,conditionColors =.getConditionColors(eset)
 		,breaks=seq(-2,2,length=20)
+		,dendogram = "column"
+		,legendPos="left"
 		,...
 ){
 	
@@ -816,7 +860,7 @@ hClustHeatMap <- function(eset
 			,labRow = labRow
 			,Rowv=as.dendrogram(feature.tree)
 			,Colv=as.dendrogram(msrun.tree)
-			,dendrogram="column"
+			,dendrogram=dendogram
 			,density.info="density"
 			#,KeyValueName="Prob. Response"
 			,breaks=breaks
@@ -824,7 +868,7 @@ hClustHeatMap <- function(eset
 			, ...
 	)
 	
-	legend("left",levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
+	legend(legendPos,levels(pData(eset)$condition), fill=as.character(conditionColors[,1]), cex=0.7, box.col=0)
 	
 }
 
@@ -839,8 +883,11 @@ hClustHeatMap <- function(eset
 #' @param pvalRange pValue/qValue range
 #' @param isLegend TRUE/FALSE display legend
 #' @param isAdjusted TRUE/FALSE qValues/pValue on x-axis
+#' @param ylab default  Nb. Features
+#' @param ... see plot
 #' @note  No note
 #' @export
+#' @importFrom graphics plot lines legend grid
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -908,12 +955,14 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 }
 
 #' Plot identifications target decoy distribution
-#' @param targetScores
-#' @param decoyScores
+#' @param targetScores target Scores
+#' @param decoyScores decoy Scores
 #' @param xlab default "Identification Score"
 #' @param ylab default "Counts"
+#' @param ... see plot
 #' @note  No note
 #' @export
+#' @importFrom graphics plot hist points legend grid
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
@@ -953,15 +1002,19 @@ plotScoreDistrib <-function(targetScores,decoyScores,xlab="Identification Score"
 #' @param idScore vector of identification scores 
 #' @param qvals vector of q-valres
 #' @param qvalueThrs threshold indicated by horizontal line
+#' @param xlab default Identification Score
+#' @param ylab default False Discovery Rate
+#' @param ... see plot
 #' @export
+#' @importFrom graphics plot grid abline
 #' @note  No note
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotIdScoreVsFDR <-function(idScore,qvals,qvalueThrs=0.01, ylab="False Discovery Rate", xlab="Identification Score",lwd=1.5,...){
-	plot(sort(idScore),rev(sort(qvals)),type="l",ylab=ylab,xlab=xlab,lwd=lwd, ... )
+plotIdScoreVsFDR <-function(idScore,qvals,qvalueThrs=0.01, ylab="False Discovery Rate", xlab="Identification Score",...){
+	plot(sort(idScore),rev(sort(qvals)),type="l",ylab=ylab,xlab=xlab, ... )
 	grid()
-	abline(h=qvalueThrs,lwd=lwd,col="grey")
+	abline(h=qvalueThrs,col="grey")
 }
 
 
@@ -971,7 +1024,14 @@ plotIdScoreVsFDR <-function(idScore,qvals,qvalueThrs=0.01, ylab="False Discovery
 #' @param qvals vector of q-values
 #' @param qvalueThrs threshold indicated by vertical line
 #' @param breaks see breaks for hist function
+#' @param xlab default "False Discovery Rate"
+#' @param ylab default "Nb. Valid Identifications"
+#' @param xlim default c(0,0.1)
+#' @param col default blue
+#' @param lwd default 1.5
+#' @param ... see plot
 #' @export
+#' @importFrom graphics plot abline grid
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -979,7 +1039,7 @@ plotIdScoreVsFDR <-function(idScore,qvals,qvalueThrs=0.01, ylab="False Discovery
 plotROC <- function(qvals
 		,qvalueThrs=0.01
 		,xlab="False Discovery Rate"
-		,ylab="# Valid Identifications"
+		,ylab="Nb. Valid Identifications"
 		,xlim=c(0,0.1)
 		,breaks=100
 		,col="blue"
@@ -1008,7 +1068,9 @@ plotROC <- function(qvals
 #' Plot Precursor Mass Error Distribution 
 #' @param eset ExpressionSet 
 #' @param pMassTolWindow Precursor Mass Error Tolerance Window
+#' @param ... see plot
 #' @export
+#' @importFrom graphics plot hist abline legend grid mtext axis
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -1065,7 +1127,9 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10), ...){
 #' Plot precursorMass error v.s score highlighting decoy and displaying user specified user specified precursor mass filter
 #' @param eset ExpressionSet
 #' @param pMassTolWindow Precursor Mass Error Tolerance Window
+#' @param ... see plot
 #' @export
+#' @importFrom graphics plot points abline legend grid
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -1103,7 +1167,12 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @param y number vector
 #' @param isFitLm fit linear model
 #' @param disp  c("abline","R","Rc") display options 
+#' @param legendPos see legend
+#' @param ... see plot
 #' @import epiR
+#' @importFrom graphics plot lines abline legend
+#' @importFrom grDevices col2rgb colorRampPalette colors densCols rgb
+#' @importFrom stats lm
 #' @note  No note
 #' @export
 #' @references NA
@@ -1163,12 +1232,20 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 #' Plot absolut Estimation calibration Curve
 #' @param fit simple log-linear model
 #' @param dispElements c("formula","lowess","stats")
-#' @param cex.lab= expansion factor for axis labels
-#' @param cex.axis= expansion factor for axis 
-#' @param cex.text= expansion factor for legend
-#' @param cex.dot= expansion factor for plotted dots
+#' @param cex.lab expansion factor for axis labels
+#' @param cex.axis expansion factor for axis 
+#' @param cex.text expansion factor for legend
+#' @param cex.dot expansion factor for plotted dots
+#' @param predictorName predictorName
+#' @param text add names beside each dot
+#' @param xlab xlab
+#' @param ylab ylab
+#' @param main main
+#' @param ... see plot
 #' @note  No note
 #' @export
+#' @importFrom graphics par plot lines mtext abline legend
+#' @importFrom stats coef predict median
 #' @references NA
 #' @examples print("No examples")
 plotAbsEstCalibrationCurve <- function(fit
@@ -1181,8 +1258,8 @@ plotAbsEstCalibrationCurve <- function(fit
 		,cex.axis=1
 		,cex.text=1
 		,cex.dot=1
-		,...
-		,main=""){
+		,main = ""
+		,...){
 	x <- predict(fit) +  fit$residuals 
 	y <- predict(fit) 			
 	
@@ -1238,10 +1315,12 @@ plotAbsEstCalibrationCurve <- function(fit
 
 
 #' Plot all retention time normalization profiles
-#' @param rtNormFactors data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors
-#' @param condNames  vector of condition names
+#' @param eset ExpressionSet
+#' @param ... see plot 
+#' @param col condition colors 
 #' @note  No note
 #' @export
+#' @importFrom graphics plot lines abline
 #' @details No details
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
@@ -1268,8 +1347,11 @@ plotRTNormSummary <- function(eset, col = as.character(.getConditionColors(eset)
 #' @param rtNormFactors data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors
 #' @param eset  ExprsssionSet
 #' @param samples specify samples (sample numbers) to be plotted
+#' @param main main
+#' @param ... see plot see plot
 #' @note  No note
 #' @export
+#' @importFrom graphics plot lines abline
 #' @details No details
 #' @seealso  \code{\link{getRTNormFactors}}
 #' @references In Silico Instrumental Response Correction Improves Precision of Label-free Proteomics and Accuracy of Proteomics-based Predictive Models, Lyutvinskiy et al. (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23589346} 
@@ -1298,8 +1380,14 @@ plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors),main="",
 
 #' Plot the number of identified Features per Reteintion Time minute.
 #' @param eset ExpressionSet
+#' @param ... see plot see plot
+#' @param cex.axis default 1.25
+#' @param cex.lab default 1.25
+#' @param col default "blue"
+#' @param lwd default 2
 #' @note  No note
 #' @export
+#' @importFrom graphics plot
 #' @references NA
 #' @examples print("No examples")
 plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blue", lwd=2, ...){
@@ -1312,12 +1400,14 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 #' Plot qValue vs pValue
 #' @param sqa SafeQuantAnalysis Object
 #' @param lim x-axis and y-axis range
+#' @param ... see plot
 #' @note  No note
 #' @export
+#' @importFrom graphics plot lines abline legend
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotQValueVsPValue <- function(sqa, lim=c(0,1)){
+plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	conditionColors <- .getConditionColors(sqa$eset)
 	conditions <- names(sqa$pValue)
 	
@@ -1338,20 +1428,13 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1)){
 
 
 ### @TODO add unit test
-#' Scatter plot with density coloring
-#' @param fit simple log-linear model
-#' @param dispElements c("formula","lowess","stats")
 #' @export
-#' @import epiR
-#' @note  No note
-#' @references NA
-#' @examples print("No examples")
+#' @importFrom graphics par plot lines mtext abline legend
 .plotCalibrationCurve <- function(fit
 		,dispElements = c("formula","lowess","stats")
 		,xlab="Protein Copies/Cell Measured using SID"
 		,ylab="Protein Copies/Cell Estimated using iBAQ"
 		,cex=1.5
-		,main=""
 		,...){
 	x <- predict(fit) + fit$residuals 						
 	y <- predict(fit)		
@@ -1363,7 +1446,6 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1)){
 		,log="xy"
 		,xlab=""
 		,ylab=""
-		,cex.axis=1
 #		,yaxt="n"
 #		,xaxt="n"
 		,cex=cex
@@ -1371,7 +1453,6 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1)){
 		,pch=19
 		,las=2,cex.axis=cex
 		,cex.main=cex
-		,main=main
 		,... )
 	
 #	axis(1,las=2,cex.axis=cex)

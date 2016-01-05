@@ -13,6 +13,8 @@
 
 ### add ptm coord to eset fData (data frame  listing phospho coordinates and motifX)
 #' @export
+#' @importFrom seqinr read.fasta
+#' @importFrom utils setTxtProgressBar txtProgressBar
 .addPTMCoord <- function(eset,proteinDB,motifLength=4, isProgressBar=F,format=1){
 	
 	ptmCoordDf <- data.frame()
@@ -136,7 +138,7 @@
 ### Detectable/Identifiable peptide lengths (600 - 4000 Da -> 600/110 - 4000/110 ->) 5 - 36 AA's
 #' Get number peptides passing defined length criteria
 #' @param peptides list of peptides 
-#' @param vector of two integers defining peptide length range
+#' @param peptideLength vector of two integers defining peptide length range
 #' @return integer corresponding to number of detectable peptides
 #' @export
 #' @note  No note
@@ -149,6 +151,8 @@ getNbDetectablePeptides <- function(peptides, peptideLength=c(5,36)){
 
 #' Digest protein 
 #' @param proteinSeq protein sequence 
+#' @param proteaseRegExp protease Regular Expression
+#' @param nbMiscleavages default 0
 #' @return vector of peptides
 #' @export
 #' @note  No note
@@ -196,7 +200,6 @@ getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),
 #' @param eset ExpressionSet
 #' @return ExpressionSet object
 #' @details if ptm column is part if the ExpressionSet q-values are calculated seperately for modified and non-modified features
-#' @import affy
 #' @export
 #' @note  No note
 #' @details No details
@@ -404,8 +407,7 @@ getModifProteinCoordinates <- function(modifAnnot,peptideSeq,proteinSeq, format=
 			}
 			modifPos <- c(modifPos,m)
 		}
-		
-		
+				
 		modifPos <- as.numeric(modifPos)
 		
 	}else{
@@ -547,6 +549,7 @@ stripACs <- function(acs){
 #' Get amino acid coordinates on protein
 #' @param peptideSeq peptide sequence
 #' @param proteinSeq protein sequence
+#' @param aaRegExpr target AA reg exp
 #' @return vector of protein coordinates (mmodification residue number) 
 #' @export
 #' @note  No note

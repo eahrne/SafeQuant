@@ -6,6 +6,7 @@
 
 
 ### CMD OPTIONS
+#' Command Line Option List
 #' @export
 option_list <- list(
 		
@@ -434,7 +435,7 @@ getUserOptions <- function(version=version){
 
 #' Create experimental design data.frame from user input string
 #' @param tag tag
-#' @param expDesign data.frame  
+#' @param expDesignDefault data.frame  
 #' @return data.frame describing experimental design
 #' @export
 #' @note  No note

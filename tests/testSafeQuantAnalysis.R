@@ -56,3 +56,6 @@ testSafequantAnalysis <- function(){
 #testExport() 
 testSafequantAnalysis()
 
+
+sqa <- safeQuantAnalysis(eset)
+print(sqa)

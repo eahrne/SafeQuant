@@ -4,7 +4,6 @@
 ###############################################################################
 
 ### load / source
-library("affy")
 library("limma")
 library(gplots) # volcano plot
 library(seqinr)
@@ -12,14 +11,18 @@ library(optparse)
 library(data.table)
 library(epiR)
 library(corrplot)
+library(Biobase)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ ### wd already set to tests when running CHECK
 	wd <- dirname(sys.frame(1)$ofile)
 	setwd(dirname(sys.frame(1)$ofile))
+	sqRootDir <- gsub("tests","",getwd())
+}else{
+	sqRootDir <- gsub("tests$","00_pkg_src/SafeQuant/",getwd()) # if CHECK mode
 }
-sqRootDir <- gsub("tests","",getwd())
-sqRootDir <- gsub("\\.Rcheck","",sqRootDir) # if CHECK mode
+
+#sqRootDir <- gsub("\\.Rcheck","",sqRootDir) 
 
 ### INIT END
 #stop("")
@@ -33,15 +36,7 @@ source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
 source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
 source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
 
-
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Graphics.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Parser.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/TMT.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
-#source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Utils.R")
+source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
 
 
 ### INIT
