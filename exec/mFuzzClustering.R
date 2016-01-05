@@ -2,25 +2,31 @@
 # 
 # Author: erik ahrne
 ###############################################################################
-
 ### LOAD LIBRARIES
 library(Mfuzz)
-
 ### LOAD LIBRARIES END
 
 ### LOAD DATA
-sqRDataFile <- "/tmp//SQ_Results/SQ_Results_SQ.rData"
+
+### UPDATE THIS ###
+sqRDataFile <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/SQ_Results/SQ_Results_SQ.rData"
+### UPDATE THIS ###
 load(sqRDataFile)
+
 eset <- sqaProtein$eset
 # remove all objects we don't need
 rm(list=ls()[ls() != "eset"])
 ### LOAD DATA END
 
 ### PARAMS
-nbClusters <- 4
-min.mem <- .5
-pdfFile <- "/tmp/tmp.pdf"
-xlsExportFolder <- "/tmp/"
+
+### UPDATE THIS ###
+pdfFile <- "//Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/SQ_Results/mfuzz_clusters/clusters.pdf"
+xlsExportFolder <- "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/UJenal/PabloManfredi/AdditionalFiles/Clustering/SQ_Results/mfuzz_clusters/"
+### UPDATE THIS ###
+
+nbClusters <- 8
+min.mem <- .3
 
 # graphics
 colo <- "fancy" 
@@ -30,8 +36,12 @@ xlab <- "Condition"
 
 ### PARAMS END
 
+# log
+exprs(eset) <- log10(exprs(eset))
+
 # standardise
 # good idea when including all data?
+# e.g. only cluster data regulated at least X in at least one cond
 eset <- standardise(eset)
 
 ### estimate fuzzification parameter using Schwammle and Jensen method

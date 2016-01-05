@@ -17,16 +17,16 @@ library(Biobase)
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ ### wd already set to tests when running CHECK
 	wd <- dirname(sys.frame(1)$ofile)
 	setwd(dirname(sys.frame(1)$ofile))
-	sqRootDir <- gsub("tests","",getwd())
-}else{
-	sqRootDir <- gsub("tests$","00_pkg_src/SafeQuant/",getwd()) # if CHECK mode
+	#sqRootDir <- gsub("tests","",getwd())
+	sqRootDir <- dirname(getwd())	
+}else{ # CHECK mode
+
+	# test dir ../SafeQuant.Rcheck/tests or ../SafeQuant.Rcheck/tests_i386
+	#sqRootDir <- gsub("tests$","00_pkg_src/SafeQuant/",getwd()) 
+	#sqRootDir <- gsub("tests\\_i386$","00_pkg_src/SafeQuant/",getwd()) 
+	# strip off last dir
+	sqRootDir <- paste(dirname(getwd()),"/00_pkg_src/SafeQuant/",collapse="",sep="")
 }
-
-#sqRootDir <- gsub("\\.Rcheck","",sqRootDir) 
-
-### INIT END
-#stop("")
-##@TEMP
 
 source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
 source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
