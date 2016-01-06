@@ -14,29 +14,27 @@ library(corrplot)
 library(Biobase)
 
 ### INIT
-if(!grepl("SafeQuant\\.Rcheck",getwd())){ ### wd already set to tests when running CHECK
+if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
 	wd <- dirname(sys.frame(1)$ofile)
 	setwd(dirname(sys.frame(1)$ofile))
-	#sqRootDir <- gsub("tests","",getwd())
-	sqRootDir <- dirname(getwd())	
+	sqRootDir <- dirname(getwd())
+	
+	source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/Graphics.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/IdentificationAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
+	
+	source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
+	
+	
 }else{ # CHECK mode
-
-	# test dir ../SafeQuant.Rcheck/tests or ../SafeQuant.Rcheck/tests_i386
-	#sqRootDir <- gsub("tests$","00_pkg_src/SafeQuant/",getwd()) 
-	#sqRootDir <- gsub("tests\\_i386$","00_pkg_src/SafeQuant/",getwd()) 
-	# strip off last dir
-	sqRootDir <- paste(dirname(getwd()),"/00_pkg_src/SafeQuant/",collapse="",sep="")
+	### wd already set to tests when running CHECK
+	library(SafeQuant)
 }
 
-source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/Graphics.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/IdentificationAnalysis.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
-source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
-
-source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
 
 
 ### INIT

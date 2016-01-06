@@ -15,7 +15,7 @@ B) Install BioConductor library dependencies (open R)
 
 #### 2) Install SafeQuant from sources
 
-**Option 1, using "devtools"**
+**Option 1, install "master branch" using "devtools"**
 
 Make sure you have a working development environment.
 
@@ -40,7 +40,7 @@ C) Install SafeQuant (open R)
 Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
 The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
 
-	R> install.packages("C:\\Users\\ahrnee-adm\\Downloads\\SafeQuant",type="source", repos=NULL)
+	R> install.packages()
 
 #### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 

@@ -6,6 +6,7 @@
 *.fasta
 *.txt
 *.rData
+*.sh
 inst/*
 !inst/manuals/
 tests/testData
