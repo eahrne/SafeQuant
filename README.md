@@ -29,18 +29,9 @@ Make sure you have a working development environment.
     R> library(devtools)
     R> install_github("eahrne/SafeQuant")
     
-**Option 2**
+**Option 2 install latest CRAN version**
 
-A) Download Zip
-https://github.com/eahrne/SafeQuant/zipball/master
-
-B) Unzip SafeQuant.zip
-		
-C) Install SafeQuant (open R)
-Assuming that the SafeQuant source directory is at "C:\\Users\\ahrnee-adm\\Downloads\\"
-The SafeQuant source directory is the directory containing the NAMESPACE and DESRIPTION files etc.
-
-	R> install.packages()
+	R> install.packages("SafeQuant")
 
 #### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
 
