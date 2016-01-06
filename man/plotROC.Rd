@@ -5,7 +5,7 @@
 \title{Plot Number of Identifications vs. FDR}
 \usage{
 plotROC(qvals, qvalueThrs = 0.01, xlab = "False Discovery Rate",
-  ylab = "# Valid Identifications", xlim = c(0, 0.1), breaks = 100,
+  ylab = "Nb. Valid Identifications", xlim = c(0, 0.1), breaks = 100,
   col = "blue", lwd = 1.5, ...)
 }
 \arguments{
@@ -13,7 +13,19 @@ plotROC(qvals, qvalueThrs = 0.01, xlab = "False Discovery Rate",
 
 \item{qvalueThrs}{threshold indicated by vertical line}
 
+\item{xlab}{default "False Discovery Rate"}
+
+\item{ylab}{default "Nb. Valid Identifications"}
+
+\item{xlim}{default c(0,0.1)}
+
 \item{breaks}{see breaks for hist function}
+
+\item{col}{default blue}
+
+\item{lwd}{default 1.5}
+
+\item{...}{see plot}
 }
 \description{
 Plot Number of Identifications vs. FDR

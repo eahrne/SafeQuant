@@ -9,9 +9,11 @@ plotRTNormSummary(eset,
   ...)
 }
 \arguments{
-\item{rtNormFactors}{data.frame of normalization factor per r.t bin and sample, obtained by getRTNormFactors}
+\item{eset}{ExpressionSet}
 
-\item{condNames}{vector of condition names}
+\item{col}{condition colors}
+
+\item{...}{see plot}
 }
 \description{
 Plot all retention time normalization profiles

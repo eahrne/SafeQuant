@@ -5,12 +5,21 @@
 \title{Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median}
 \usage{
 hClustHeatMap(eset, conditionColors = .getConditionColors(eset),
-  breaks = seq(-2, 2, length = 20), ...)
+  breaks = seq(-2, 2, length = 20), dendogram = "column",
+  legendPos = "left", ...)
 }
 \arguments{
 \item{eset}{ExpressionSet}
 
 \item{conditionColors}{data.frame of colors per condition}
+
+\item{breaks}{default seq(-2,2,length=20)}
+
+\item{dendogram}{see heatmap.2 gplots}
+
+\item{legendPos}{see legend}
+
+\item{...}{see plot}
 }
 \description{
 Hierarchical clustering heat map, cluster by runs intensity, features by ratio and display log2 ratios to control median

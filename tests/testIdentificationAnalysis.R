@@ -4,8 +4,11 @@
 ###############################################################################
 
 ### INIT
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
+if(!grepl("SafeQuant\\.Rcheck",getwd())){
+	setwd(dirname(sys.frame(1)$ofile))
+}
+source("initTestSession.R")
+### INIT END
 
 proteinSeq1 <- "MSAGSSCSQTPSRAIPTRRVALGDGVQLPPGDYSTTPGGTLFSTTPGGTRIIYDRKFLMECRNSPVAKTPPKDLPAIPGVTSPTSDEPPMQASQSQLPSSPEDKRAGGEESQFEMDI"
 proteinSeq2 <- "MVKKSRRRGAAQWAAVRAQAGLTATDENEDDLGLPPSPGDSSYYQDQVDEFHEARSRAVLAKGWNEVESGEEDGDEEEE"
@@ -118,7 +121,7 @@ testAddPTMCoord <- function(){
 	
 	cat("--- testAddPTMCoord: --- \n")	
 	eset <- .addPTMCoord(eset,proteinDB,motifLength = 4)
-	stopifnot(sum(nchar(as.character( fData(eset)$motifX[1:2] ) ) > 2) == 2)
+	stopifnot( "PGDYS*TTPG,TPGGT*RIIY"  ==  fData(eset)$motifX[1] )
 	cat("--- testAddPTMCoord: PASS ALL TEST --- \n")
 	
 }

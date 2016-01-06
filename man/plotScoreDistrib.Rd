@@ -8,9 +8,15 @@ plotScoreDistrib(targetScores, decoyScores, xlab = "Identification Score",
   ylab = "Counts", ...)
 }
 \arguments{
-\item{targetScores}{}
+\item{targetScores}{target Scores}
 
-\item{decoyScores}{}
+\item{decoyScores}{decoy Scores}
+
+\item{xlab}{default "Identification Score"}
+
+\item{ylab}{default "Counts"}
+
+\item{...}{see plot}
 }
 \description{
 Plot identifications target decoy distribution

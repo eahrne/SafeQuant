@@ -4,15 +4,17 @@
 \alias{parseScaffoldRawFile}
 \title{Parse scaffold output .xls file (RAW export)}
 \usage{
-parseScaffoldRawFile(fileName, expDesign = expDesign,
-  keepFirstAcOnly = FALSE, isPurityCorrect = T)
+parseScaffoldRawFile(file, expDesign = expDesign, keepFirstAcOnly = FALSE,
+  isPurityCorrect = T)
 }
 \arguments{
+\item{file}{path to Scaffold file}
+
 \item{expDesign}{experimental design data.frame}
 
 \item{keepFirstAcOnly}{TRUE/FALSE If multiple ACs in Accession.Numbers filed. Then keep the first one only}
 
-\item{file}{path to Scaffold file}
+\item{isPurityCorrect}{do purity correction}
 }
 \value{
 ExpressionSet object

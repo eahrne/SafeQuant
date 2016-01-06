@@ -10,6 +10,8 @@ getRatios(eset, method = "median", log2 = T)
 \item{eset}{ExpressionSet}
 
 \item{method}{median or mean}
+
+\item{log2}{transform}
 }
 \value{
 ExpressionSet object

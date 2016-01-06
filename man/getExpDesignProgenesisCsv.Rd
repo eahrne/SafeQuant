@@ -9,6 +9,8 @@ getExpDesignProgenesisCsv(file,
 }
 \arguments{
 \item{file}{path to progenesis csv file}
+
+\item{expressionColIndices}{default .getProgenesisCsvExpressionColIndices(file)}
 }
 \value{
 data.frame describing experimental design

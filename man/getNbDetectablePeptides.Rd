@@ -9,7 +9,7 @@ getNbDetectablePeptides(peptides, peptideLength = c(5, 36))
 \arguments{
 \item{peptides}{list of peptides}
 
-\item{vector}{of two integers defining peptide length range}
+\item{peptideLength}{vector of two integers defining peptide length range}
 }
 \value{
 integer corresponding to number of detectable peptides

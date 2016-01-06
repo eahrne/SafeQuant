@@ -9,7 +9,7 @@ perFeatureNormalization(eset, normFactors)
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{matrix}{normalization factors (logged) (row names are proteins)}
+\item{normFactors}{matrix normalization factors (logged) (row names are proteins)}
 }
 \value{
 ExpressionSet object
@@ -28,8 +28,5 @@ print("No examples")
 }
 \references{
 No references
-}
-\seealso{
-\code{\link{topX}}
 }
 

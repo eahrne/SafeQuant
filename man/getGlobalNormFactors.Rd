@@ -8,6 +8,8 @@ getGlobalNormFactors(eset, method = "sum")
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{method}{c("sum","median)}
 }
 \value{
 vector of normalization factors

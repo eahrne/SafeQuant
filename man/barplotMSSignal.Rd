@@ -7,14 +7,24 @@
 barplotMSSignal(eset,
   col = as.character(.getConditionColors(eset)[pData(eset)$condition, ]),
   method = c("sum", "sharedSignal"), cex.lab = 1.25, cex.axis = 1.25,
-  labels = rownames(pData(eset)), ...)
+  cex.names = 0.9, labels = rownames(pData(eset)), ...)
 }
 \arguments{
+\item{eset}{expressionSet}
+
+\item{col}{default condition colors}
+
 \item{method}{c("median","sum","sharedSignal")}
 
-\item{matrix}{matrix of ms-signals}
+\item{cex.lab}{default 1.25}
 
-\item{color}{color}
+\item{cex.axis}{default 1.25}
+
+\item{cex.names}{default 0.9}
+
+\item{labels}{labels}
+
+\item{...}{see plot}
 }
 \description{
 Barplot of ms-signal per column

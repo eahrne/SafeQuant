@@ -15,6 +15,8 @@ parseProgenesisPeptideMeasurementCsv(file, expDesign = expDesign,
 \item{expDesign}{experimental design data.frame}
 
 \item{method}{auc (area under curve) or spc (spectral count)}
+
+\item{expressionColIndices}{default .getProgenesisCsvExpressionColIndices()}
 }
 \value{
 ExpressionSet object

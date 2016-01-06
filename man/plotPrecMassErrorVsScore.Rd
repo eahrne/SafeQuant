@@ -10,6 +10,8 @@ plotPrecMassErrorVsScore(eset, pMassTolWindow = c(-10, 10), ...)
 \item{eset}{ExpressionSet}
 
 \item{pMassTolWindow}{Precursor Mass Error Tolerance Window}
+
+\item{...}{see plot}
 }
 \description{
 Plot precursorMass error v.s score highlighting decoy and displaying user specified user specified precursor mass filter

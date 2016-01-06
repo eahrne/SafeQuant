@@ -31,7 +31,4 @@ print("No examples")
 \references{
 No references
 }
-\seealso{
-\code{\link{topX}}
-}
 

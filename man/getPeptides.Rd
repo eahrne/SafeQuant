@@ -9,6 +9,10 @@ getPeptides(proteinSeq, proteaseRegExp = .getProteaseRegExp("trypsin"),
 }
 \arguments{
 \item{proteinSeq}{protein sequence}
+
+\item{proteaseRegExp}{protease Regular Expression}
+
+\item{nbMiscleavages}{default 0}
 }
 \value{
 vector of peptides

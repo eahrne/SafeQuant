@@ -9,6 +9,16 @@ plotNbIdentificationsVsRT(eset, cex.axis = 1.25, cex.lab = 1.25,
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{cex.axis}{default 1.25}
+
+\item{cex.lab}{default 1.25}
+
+\item{col}{default "blue"}
+
+\item{lwd}{default 2}
+
+\item{...}{see plot see plot}
 }
 \description{
 Plot the number of identified Features per Reteintion Time minute.

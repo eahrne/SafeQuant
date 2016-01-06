@@ -9,7 +9,7 @@ getBaselineIntensity(intensities, promille = 5)
 \arguments{
 \item{intensities}{refrence run signals}
 
-\item{percentile}{baseline value set as specified promille}
+\item{promille}{baseline value set as specified promille}
 }
 \value{
 baseline value

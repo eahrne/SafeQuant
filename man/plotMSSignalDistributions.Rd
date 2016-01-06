@@ -4,13 +4,19 @@
 \alias{plotMSSignalDistributions}
 \title{Plot ms.signal distributions}
 \usage{
-plotMSSignalDistributions(d, col = 1:100, cex.axis = 1, cex.lab = 1,
-  ylab = "Frequnecy", xlab = "MS-Signal", ...)
+plotMSSignalDistributions(d, col = 1:100, ylab = "Frequnecy",
+  xlab = "MS-Signal", ...)
 }
 \arguments{
-\item{matrix}{matrix of ms-signals}
+\item{d}{matrix of ms-signals}
 
-\item{color}{color}
+\item{col}{color}
+
+\item{ylab}{default "Frequnecy"}
+
+\item{xlab}{default "MS-Signal"}
+
+\item{...}{see plot}
 }
 \description{
 Plot ms.signal distributions

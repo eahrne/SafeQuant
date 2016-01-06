@@ -6,6 +6,7 @@
 
 
 ### CMD OPTIONS
+#' Command Line Option List
 #' @export
 option_list <- list(
 		
@@ -196,7 +197,7 @@ getUserOptions <- function(version=version){
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
 	
 	Scaffold Q+ TMT  PEPTIDE PTM Quant (PHOSHO):
-	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3
+	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3 -f /path/to/proteins.fasta
 	"
 	
 	# get command line options, if help option encountered print help and exit,
@@ -433,8 +434,8 @@ getUserOptions <- function(version=version){
 #6 Condition 2     FALSE
 
 #' Create experimental design data.frame from user input string
-#' @param string tag
-#' @param data.frame default expDesign 
+#' @param tag tag
+#' @param expDesignDefault data.frame  
 #' @return data.frame describing experimental design
 #' @export
 #' @note  No note

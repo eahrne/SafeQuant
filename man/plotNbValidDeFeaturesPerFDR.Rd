@@ -22,6 +22,10 @@ plotNbValidDeFeaturesPerFDR(sqa, upRegulated = T, log2RatioCufOff = log2(1),
 \item{isLegend}{TRUE/FALSE display legend}
 
 \item{isAdjusted}{TRUE/FALSE qValues/pValue on x-axis}
+
+\item{ylab}{default  Nb. Features}
+
+\item{...}{see plot}
 }
 \description{
 Plot Total Number of diffrentially Abundant Features (applying ratio cutoff) vs. qValue/pValue for all conditions

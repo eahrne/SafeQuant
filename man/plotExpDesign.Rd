@@ -8,6 +8,10 @@ plotExpDesign(eset, condColors = .getConditionColors(eset), version = "X")
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{condColors}{condition colors}
+
+\item{version}{version number}
 }
 \description{
 Display experimental design, high-lighting the control condition

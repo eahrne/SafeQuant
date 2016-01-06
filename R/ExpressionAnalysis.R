@@ -1,23 +1,11 @@
 
 ## get index of max (created for data.table)
+#' get index of max in vecotr of numeric values
+#' @param v vector
 #' @export
 getMaxIndex <- function(v){
 	if(all(is.na(v))) return(1)
 	return(which(max(v,na.rm=T) == v)[1])	
-}
-
-
-testGetMaxIndex <-function(){
-	
-	cat(" --- testGetMaxIndex:  --- \n")
-	d <- data.frame(s=c(NA,NA,NA,NA,1,1:4),lab=sort(rep(c("A","B","C"),3)))
-	DT <- data.table(d)
-	setkey(DT,lab)
-	DT[, .I[getMaxIndex(s)], by=lab ]
-	
-	stopifnot(all(c(1,5,9) == DT$V1))
-	cat(" --- testGetMaxIndex: PASS ALL TEST  --- \n")
-	
 }
 
 ## return first entry per column
@@ -48,12 +36,12 @@ testGetMaxIndex <-function(){
 #' @param expDesign experimental design data.frame
 #' @param featureAnnotations data.frame including e.g: Protein Description, Id score etc.
 #' @return ExpressionSet object
-#' @import affy
+#' @import Biobase 
 #' @export
 #' @note  No note
 #' @details No details
 #' @references NA 
-#' @seealso \code{\link[affy]{ExpressionSet}}
+#' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
 createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations){
 	
@@ -71,15 +59,16 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	#	B_rep_2         B    F
 	#	C_rep_1         C    F
 	#	C_rep_2         C    F
-	pData <- new("AnnotatedDataFrame", data=expDesign)
-	
+	#pData <- new("AnnotatedDataFrame", data=expDesign)
+	pData <- AnnotatedDataFrame(data=expDesign)
 	
 	### featureData:add more data to each feature. E.g: Protein Description, Id score etc.
 	
 	return(ExpressionSet(assayData = expressionMatrix
 					, phenoData =  pData							### yeah this is weird, but gives error if rolling up already 
 					# rolled up eset unless colindices are explicitly specified		
-					, featureData = new("AnnotatedDataFrame", data= featureAnnotations[,1:ncol(featureAnnotations)])  
+					#, featureData = new("AnnotatedDataFrame", data= featureAnnotations[,1:ncol(featureAnnotations)])  
+					, featureData = AnnotatedDataFrame(data= featureAnnotations[,1:ncol(featureAnnotations)])  
 			)
 	)
 }
@@ -89,10 +78,11 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @param eset ExpressionSet
 #' @param method c("pairwise","all") 
 #' @param adjust TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method 
-#' log T/F log-transform expression values
+#' @param log T/F log-transform expression values
 #' @return ExpressionSet object
 #' @export
-#' @import limma affy
+#' @import limma Biobase
+#' @importFrom stats model.matrix p.adjust
 #' @note  No note
 #' @details No details
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809} 
@@ -186,9 +176,10 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 #' Calculate ratios, comparing all case to control
 #' @param eset ExpressionSet 
 #' @param method median or mean
+#' @param log2 transform
 #' @return ExpressionSet object
 #' @export
-#' @import affy 
+#' @import Biobase 
 #' @note  No note
 #' @details No details
 #' @references NA
@@ -239,7 +230,7 @@ getRatios <- function(eset, method="median", log2=T){
 #' Calculate Coefficiant of Variance per feature (Relative standard Deviation) per Condition
 #' @param eset ExpressionSet
 #' @return data.frame of CVs per condition
-#' @import affy 
+#' @import Biobase
 #' @export
 #' @note  No note
 #' @details CV = sd / mean 
@@ -268,9 +259,10 @@ getAllCV <- function(eset){
 
 #' Get signal at zscore x (x standard deviations below mean)
 #' @param intensities refrence run signals
-#' @param percentile baseline value set as specified promille
+#' @param promille baseline value set as specified promille
 #' @return baseline value
 #' @export
+#' @importFrom stats quantile
 #' @note  No note
 #' @references NA
 #' @examples print("No examples")
@@ -292,6 +284,7 @@ getBaselineIntensity <- function(intensities , promille = 5){
 #' @param data data.frame of replicate signals
 #' @return vector of CVs
 #' @export
+#' @importFrom stats sd
 #' @note  No note
 #' @details CV = sd / mean 
 #' @references NA 
@@ -304,7 +297,7 @@ getCV <- function(data){
 #' @param eset ExpressionSet
 #' @param minFeaturesPerBin  minumum number of features per bin. If nb. features are < minFeaturesPerBin -> include neighbouring bins.
 #' @return data.frame normalization factors per retention time bin (minute)
-#' @import limma affy
+#' @import limma Biobase
 #' @export
 #' @note  No note
 #' @details No details
@@ -376,7 +369,7 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 #' @param rtNormFactors  obtained using getRTNormFactors
 #' @return data.frame normalization factors per retention time bin (minute)
 #' @export
-#' @import limma affy
+#' @import limma Biobase
 #' @note  No note
 #' @details Normalize for variations in elelctrospray ionization current.
 #' @seealso  \code{\link{getRTNormFactors}}
@@ -411,6 +404,7 @@ rtNormalize <- function(eset,rtNormFactors){
 
 #' Get normalization factors. calculated as summed/median signal per run (column) over summed/median of first run. 
 #' @param eset ExpressionSet
+#' @param method c("sum","median)
 #' @return vector of normalization factors
 #' @export
 #' @note  No note
@@ -451,6 +445,7 @@ getGlobalNormFactors <- function(eset, method="sum"){
 
 #' Normalize, Norm factors calculated as median signal per run (column) over median of first run. 
 #' @param eset ExpressionSet
+#' @param globalNormFactors globalNormFactors
 #' @return eset ExpressionSet
 #' @export
 #' @note  No note
@@ -521,7 +516,7 @@ sqNormalize <- function(eset, method="global"){
 }
 
 #' Summarize replicate signal per condition (min)
-#' @param data data.frame of replicate signals
+#' @param eset ExpressionSet
 #' @param method median (default), mean, max, min, sd
 #' @return data.frame of per condition signals
 #' @export
@@ -626,7 +621,7 @@ getTopX <- function(entryData,topX=3){
 
 #' Calculate intensity-based absolute-protein-quantification (iBAQ) metric per protein 
 #' @param eset protein level ExpressionSet
-#' @param list protein sequneces
+#' @param proteinDB list protein sequneces
 #' @param peptideLength peptide length interval (to get number of peptides used for normalization)
 #' @param nbMiscleavages number of mis-cleavages allowed when digesting protein sequneces in silico (to get number of peptides used for normalization)
 #' @param proteaseRegExp protease Reg Exp cleavage rule
@@ -678,7 +673,7 @@ getIBAQEset <- function(eset
 
 ### require colnames "signal", "cpc"
 #' Leave-One-Out Cross Validate Qunatification Model
-#' @param data.frame  of two columns 1) "signal" - ms metric 2) "cpc" absolute quantity
+#' @param df data.frame  of two columns 1) "signal" - ms metric 2) "cpc" absolute quantity
 #' @return data.frame of fold errors per (left-out) protein
 #' @export
 #' @note  No note
@@ -711,10 +706,11 @@ getLoocvFoldError <- function(df){
 }
 
 #' Set value to NA if it deviatves with more than 1.5 * IQR from lower/upper quantile
-#' @param vector numeric
-#' @param a logical indicating whether missing values should be removed.
-#' @return vector numeric
+#' @param x vector numeric
+#' @param na.rm logical indicating whether missing values should be removed.
+#' @param ... qunatile args 
 #' @export
+#' @importFrom stats quantile IQR
 #' @note  No note
 #' @details No details
 #' @keywords normalization
@@ -739,13 +735,15 @@ removeOutliers <- function(x, na.rm = TRUE, ...){
 #' @return ExpressionSet object
 #' @export
 #' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
-#' @import affy data.table
+#' @import Biobase data.table
 #' @note  No note
 #' @references No references
-#' @seealso \code{\link{topX}}
 #' @examples print("No examples")
 rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinName") ){
 	
+	# HACK to please CRAN CHECK "rollUp: no visible binding for global variable "idScore""
+	idx <- idScore <- V1 <- allAccessions <- NULL
+
 	### apply filter
 	eset <- eset[!fData(eset)$isFiltered,] 
 	
@@ -831,13 +829,12 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 
 #' Per Feature Normalization
 #' @param eset ExpressionSet
-#' @param matrix normalization factors (logged) (row names are proteins)
+#' @param normFactors matrix normalization factors (logged) (row names are proteins)
 #' @return ExpressionSet object
 #' @export
 #' @details Example Usage: Normalize phospho peptide signals for Protein Changes 
 #' @note  No note
 #' @references No references
-#' @seealso \code{\link{topX}}
 #' @examples print("No examples")
 perFeatureNormalization <- function(eset,normFactors){
 	

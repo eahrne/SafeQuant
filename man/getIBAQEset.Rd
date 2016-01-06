@@ -10,13 +10,13 @@ getIBAQEset(eset, proteinDB = NA, peptideLength = c(5, 36),
 \arguments{
 \item{eset}{protein level ExpressionSet}
 
+\item{proteinDB}{list protein sequneces}
+
 \item{peptideLength}{peptide length interval (to get number of peptides used for normalization)}
 
 \item{nbMiscleavages}{number of mis-cleavages allowed when digesting protein sequneces in silico (to get number of peptides used for normalization)}
 
 \item{proteaseRegExp}{protease Reg Exp cleavage rule}
-
-\item{list}{protein sequneces}
 }
 \value{
 ExpressionSet

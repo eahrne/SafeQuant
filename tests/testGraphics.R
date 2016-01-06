@@ -4,9 +4,10 @@
 ###############################################################################
 
 ### INIT
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
-
+if(!grepl("SafeQuant\\.Rcheck",getwd())){
+	setwd(dirname(sys.frame(1)$ofile))
+}
+source("initTestSession.R")
 ### INIT END
 
 
@@ -40,7 +41,9 @@ testPlotNbIdentificationsVsRT <- function(){
 
 if(T){
 	
-	pdf("/Users/ahrnee-adm/tmp/tmp.pdf")
+	tmpFile <- paste(tempdir(),"/tmp.pdf",collapse="",sep="")
+	
+	pdf(tmpFile)
 	# plots
 	plotExpDesign(eset)
 	
@@ -97,6 +100,7 @@ if(T){
 	)
 	
 	hClustHeatMap(eset)
+	hClustHeatMap(eset, dendogram="both")
 	
 	par(mfrow=c(2,2))
 	plotNbValidDeFeaturesPerFDR(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3),pvalCutOff=1, isLegend=T,isAdjusted=T,main="plotNbValidDeFeaturesPerFDR UP")
@@ -123,7 +127,7 @@ if(T){
 	
 	
 
-	
+	cat("CREATED FILE", tmpFile, "\n")
 	
 }
 ### TESTS END

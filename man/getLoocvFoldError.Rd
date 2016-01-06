@@ -7,7 +7,7 @@
 getLoocvFoldError(df)
 }
 \arguments{
-\item{data.frame}{of two columns 1) "signal" - ms metric 2) "cpc" absolute quantity}
+\item{df}{data.frame  of two columns 1) "signal" - ms metric 2) "cpc" absolute quantity}
 }
 \value{
 data.frame of fold errors per (left-out) protein

@@ -7,12 +7,11 @@
 removeOutliers(x, na.rm = TRUE, ...)
 }
 \arguments{
-\item{vector}{numeric}
+\item{x}{vector numeric}
 
-\item{a}{logical indicating whether missing values should be removed.}
-}
-\value{
-vector numeric
+\item{na.rm}{logical indicating whether missing values should be removed.}
+
+\item{...}{qunatile args}
 }
 \description{
 Set value to NA if it deviatves with more than 1.5 * IQR from lower/upper quantile

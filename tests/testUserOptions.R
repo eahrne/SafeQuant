@@ -10,9 +10,10 @@
 ###############################################################################
 
 ### INIT
-
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/tests/initTestSession.R")
-
+if(!grepl("SafeQuant\\.Rcheck",getwd())){
+	setwd(dirname(sys.frame(1)$ofile))
+}
+source("initTestSession.R")
 ### INIT END
 
 

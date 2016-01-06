@@ -8,6 +8,8 @@ globalNormalize(eset, globalNormFactors)
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{globalNormFactors}{globalNormFactors}
 }
 \value{
 eset ExpressionSet

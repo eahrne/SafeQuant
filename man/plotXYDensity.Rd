@@ -11,6 +11,14 @@ plotXYDensity(x, y, isFitLm = T, legendPos = "bottomright",
 \item{x}{number vector}
 
 \item{y}{number vector}
+
+\item{isFitLm}{fit linear model}
+
+\item{legendPos}{see legend}
+
+\item{disp}{c("abline","R","Rc") display options}
+
+\item{...}{see plot}
 }
 \description{
 Scatter plot with density coloring

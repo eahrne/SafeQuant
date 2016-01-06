@@ -9,11 +9,13 @@ plotVolcano(obj, ratioThrs = 1, pValueThreshold = 0.01, adjusted = T, ...)
 \arguments{
 \item{obj}{safeQuantAnalysis object or data.frame}
 
+\item{ratioThrs}{default 1}
+
+\item{pValueThreshold}{default 0.01}
+
 \item{adjusted}{TRUE/FALSE plot qValues or pValues on y-axis}
 
-\item{ratioCutOffAbsLog2}{ratio abline}
-
-\item{absLog10pValueCutOff}{pValue abline}
+\item{...}{see plot}
 }
 \description{
 Plots volcano, data points colored by max cv of the 2 compared conditions

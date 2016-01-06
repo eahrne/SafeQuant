@@ -10,6 +10,8 @@ getAAProteinCoordinates(peptideSeq, proteinSeq, aaRegExpr = "[STY]")
 \item{peptideSeq}{peptide sequence}
 
 \item{proteinSeq}{protein sequence}
+
+\item{aaRegExpr}{target AA reg exp}
 }
 \value{
 vector of protein coordinates (mmodification residue number)

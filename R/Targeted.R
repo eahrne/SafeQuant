@@ -4,12 +4,13 @@
 #' @param method to calculate Limit of Detection / Limit of Quantification. c("blank","low") 
 #' @return calibrationCurve object
 #' @export
-#' @import affy
+#' @import Biobase
+#' @importFrom stats qt
 #' @note  No note
 #' @details No details
 #' @references Statistical characterization of multiple-reaction monitoring mass spectrometry (MRM-MS) assays for quantitative proteomics, Mani et al. (2012), \url{http://www.ncbi.nlm.nih.gov/pubmed/23176545} 
 #' @examples print("No examples")
-createCalibrationCurve <- function(eset,method="blank"){
+calibrationCurve <- function(eset,method="blank"){
 	
 	out <- list()
 	class(out) <- "calibrationCurve"
@@ -75,44 +76,47 @@ createCalibrationCurve <- function(eset,method="blank"){
 }
 
 #' @export
-plot.calibrationCurve <- function(calibCurve, pch=19, lwd=2,cex.axis=1.5,cex.lab=1.5,cex=1.5,cex.main=1.5,xlab="Concentration",ylab="Area Under Curve",...){
+#' @importFrom graphics plot.default
+plot.calibrationCurve <- function(x, pch=19, lwd=2,cex.axis=1.5,cex.lab=1.5,cex=1.5,cex.main=1.5,xlab="Concentration",ylab="Area Under Curve",...){
 	
 	### include lod if out of range
-	xlim=c(min(calibCurve$lod,min(calibCurve$curve[,1],na.rm=T),na.rm=T),max(calibCurve$curve[,1],na.rm=T))
+	xlim=c(min(x$lod,min(x$curve[,1],na.rm=T),na.rm=T),max(x$curve[,1],na.rm=T))
 	
-	plot(calibCurve$curve
+	plot.default(x$curve
 			, log="xy"
-			, main=calibCurve$label
-			, pch=pch
-			, cex.axis=cex.axis
+			, main=x$label
+ 			, pch=pch
+			, cex.axis=cex.axis 
 			, cex.lab=cex.lab
 			, cex=cex
 			, cex.main=1.5
 			, xlab=xlab
 			, ylab=ylab
 			, xlim=xlim
-			, ...)
+			, ...
+		
+	)
 	
 	### linear model for points above loq
 	slope <- NA
-	selData <- log10(calibCurve$curve[calibCurve$curve[,1] > calibCurve$loq  ,])
+	selData <- log10(x$curve[x$curve[,1] > x$loq  ,])
 	if(length(unique(selData[,1])) > 1){
 		fit <- lm(intensity ~ concentration, data=selData)
 		slope <- coef(fit)[2]
 		abline(fit, col="darkgrey",lwd=lwd)
 	}
 	
-	abline(v=calibCurve$lod, col="red",lwd=lwd, lty=2)
-	abline(v=calibCurve$loq, col="blue",lwd=lwd, lty=2)
+	abline(v=x$lod, col="red",lwd=lwd, lty=2)
+	abline(v=x$loq, col="blue",lwd=lwd, lty=2)
 	
 	### bottom right 
 	digits <- 3
 	legend("bottomright"
-			,legend=c(as.expression(bquote(R^2*"" == .(round(summary(calibCurve$fit)$r.squared,digits)))
+			,legend=c(as.expression(bquote(R^2*"" == .(round(summary(x$fit)$r.squared,digits)))
 					)
 					,paste("K=",round(slope,digits)) 
-					,paste("LOD=",round(calibCurve$lod,digits)) 
-					,paste("LOQ=",round(calibCurve$loq,digits)) 
+					,paste("LOD=",round(x$lod,digits)) 
+					,paste("LOQ=",round(x$loq,digits)) 
 			)
 			,text.col=c("black","darkgrey","red","blue"), box.lwd=NA, cex=1.5 )
 	

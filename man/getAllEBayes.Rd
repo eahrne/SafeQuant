@@ -9,8 +9,9 @@ getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise")
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{adjust}{TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method
-log T/F log-transform expression values}
+\item{adjust}{TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method}
+
+\item{log}{T/F log-transform expression values}
 
 \item{method}{c("pairwise","all")}
 }

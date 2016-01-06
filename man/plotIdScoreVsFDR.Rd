@@ -5,8 +5,7 @@
 \title{Plot FDR vs. identification score}
 \usage{
 plotIdScoreVsFDR(idScore, qvals, qvalueThrs = 0.01,
-  ylab = "False Discovery Rate", xlab = "Identification Score", lwd = 1.5,
-  ...)
+  ylab = "False Discovery Rate", xlab = "Identification Score", ...)
 }
 \arguments{
 \item{idScore}{vector of identification scores}
@@ -14,6 +13,12 @@ plotIdScoreVsFDR(idScore, qvals, qvalueThrs = 0.01,
 \item{qvals}{vector of q-valres}
 
 \item{qvalueThrs}{threshold indicated by horizontal line}
+
+\item{ylab}{default False Discovery Rate}
+
+\item{xlab}{default Identification Score}
+
+\item{...}{see plot}
 }
 \description{
 Plot FDR vs. identification score

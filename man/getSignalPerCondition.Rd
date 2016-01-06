@@ -7,9 +7,9 @@
 getSignalPerCondition(eset, method = "median")
 }
 \arguments{
-\item{method}{median (default), mean, max, min, sd}
+\item{eset}{ExpressionSet}
 
-\item{data}{data.frame of replicate signals}
+\item{method}{median (default), mean, max, min, sd}
 }
 \value{
 data.frame of per condition signals

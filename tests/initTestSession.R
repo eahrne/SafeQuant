@@ -4,7 +4,6 @@
 ###############################################################################
 
 ### load / source
-library("affy")
 library("limma")
 library(gplots) # volcano plot
 library(seqinr)
@@ -12,46 +11,62 @@ library(optparse)
 library(data.table)
 library(epiR)
 library(corrplot)
+library(Biobase)
 
-
-##@TEMP
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/ExpressionAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/SafeQuantAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Graphics.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/IdentificationAnalysis.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/Parser.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/TMT.R")
-source("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")
-
-#install.packages("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/", repos = NULL, type="source")
-#library(SafeQuant)
-
+### INIT
+if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
+	wd <- dirname(sys.frame(1)$ofile)
+	setwd(dirname(sys.frame(1)$ofile))
+	sqRootDir <- dirname(getwd())
+	
+	source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/Graphics.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/IdentificationAnalysis.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
+	
+	source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
+	
+	
+}else{ # CHECK mode
+	### wd already set to tests when running CHECK
+	library(SafeQuant)
+}
 
 
 
 ### INIT
+### VARIOUS TEST FILES
 
-	### VARIOUS TEST FILES
+# progenesis
+progenesisFeatureCsvFile1 <- "testData/progenesis_feature_export1.csv"
+progenesisPeptideMeasurementCsvFile1 <- "testData/progenesis_pep_measurement1.csv"
 
-#testDir <- dirname(sys.frame(1)$ofile)
-#testDir <- gsub("tests\\/tmp","inst/tests/",testDir)
-tmt6PlexRawTestFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014//TMT_6-Plex_Scaffold_Raw_Export_Example.xls"
-tmt10PlexRawTestFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014//TMT_10-Plex_Scaffold_Raw_Export_Example.xls"
-progenesisProteinCsvFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/proteins1.csv"
-progenesisProteinCsvFile2 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/proteins2.csv"
+#progenesisPeptideMeasurementCsvFile1 <- "testData/tmp.csv"
 
-progenesisFeatureCsvFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/peptides1_FILTERED.csv"
-progenesisFeatureCsvFile2 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
+progenesisProteinCsvFile1 <- "testData//progenesis_protein_export1.csv"
+progenesisPeptideMeasurementFractionatedCsvFile1 <- "testData/progenesis_pep_measurement_fractionated1.csv"
 
-progenesisPeptideMeasurementFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/QI_2.0/peptide_measurements1.csv"
-progenesisPeptideMeasurementFractionatedFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/progenesis_fractionated_pep_measurement/Phospho_Set_1.csv"
-
-fastaFile <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/sp_mouse_160512.decoy.fasta"
-maxQuantProteinFileTxt <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/maxQuant/proteinGroups.csv"
+progenesisProteinCsvFile2 <- "testData/2014/proteins2.csv"
+progenesisFeatureCsvFile2 <- "testData/2014/peptides2.csv"
 
 
-scaffoldPtmReportFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
-scaffoldPtmTMTRawDataFile1 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
+# scaffold
+scaffoldTmt6PlexRawTestFile <- "testData/scaffold_tmt6plex_raw.xls"
+scaffoldTmt10PlexRawTestFile <- "testData/scaffold_tmt10plex_raw.xls"
+
+#scaffoldPtmTMTRawDataFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
+#scaffoldPtmReportFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
+scaffoldPtmTMTRawDataFile1 <- "testData/scaffold_tmt10plex_raw_phospho.xls"
+scaffoldPtmReportFile1 <- "testData/scaffoldPtm_spectrum_report.xls"
+
+# maxquant
+maxQuantProteinFileTxt <- "testData/maxquant_protein_groups.csv"
+
+# db
+fastaFile <- "testData/mouse_proteins.fasta"
 
 ### INIT END
 

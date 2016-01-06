@@ -13,6 +13,10 @@ plotRTNorm(rtNormFactors, eset, samples = 1:ncol(rtNormFactors), main = "",
 \item{eset}{ExprsssionSet}
 
 \item{samples}{specify samples (sample numbers) to be plotted}
+
+\item{main}{main}
+
+\item{...}{see plot see plot}
 }
 \description{
 Plot all retention time profile overalying ratios

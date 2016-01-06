@@ -10,6 +10,14 @@ missinValueBarplot(eset,
 }
 \arguments{
 \item{eset}{ExpressionSet}
+
+\item{col}{col}
+
+\item{cex.axis}{cex.axis}
+
+\item{cex.lab}{cex.lab}
+
+\item{...}{see plot}
 }
 \description{
 Plot Percentage of Features with with missing values

@@ -2,8 +2,19 @@
 *.xls
 *.tsv
 *.csv
+*.pdf
+*.fasta
+*.txt
+*.rData
+*.sh
+inst/*
+!inst/manuals/
+tests/testData
+!tests/testData/
+
 # OS generated files #
 ######################
+*lock*
 .DS_Store
 .DS_Store?
 .Spotlight-V100

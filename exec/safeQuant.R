@@ -1,4 +1,4 @@
-#!/usr/bin/Rscript
+#!/usr/local/bin/Rscript
 
 ###
 # 0) Update SHEBANG ('#!/usr/bin/Rscript') to match location of your R installation
@@ -36,25 +36,23 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 	cat("Loading SafeQuant Library \n")
 	library("SafeQuant")
 }else{ # FOR DEVELOPMENT
+	
 	if(file.exists("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-		sqDirPath <- "/Users/ahrnee-adm/dev/R/workspace/"
+		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 	}else{
 		#@TEMP TPP
-		sqDirPath <- "/import/bc2/home/pcf/ahrnee/R/"
+		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 	}
-	
-	#@TEMP
-	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/ExpressionAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/SafeQuantAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/Graphics.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/IdentificationAnalysis.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/Parser.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/TMT.R",sep=""))
-	source(paste(sqDirPath,"SafeQuant/R/UserOptions.R",sep=""))
-			
-}
 
+	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
+	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
+	source(paste(sourceDir,"Graphics.R",sep=""))
+	source(paste(sourceDir,"IdentificationAnalysis.R",sep=""))
+	source(paste(sourceDir,"Parser.R",sep=""))
+	source(paste(sourceDir,"TMT.R",sep=""))
+	source(paste(sourceDir,"UserOptions.R",sep=""))
+		
+}
 
 VERSION <- 2.2
 
@@ -155,7 +153,6 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	}else{
 		stop("Please Specify Experimental Design")
 	}
-
 	eset <- parseMaxQuantProteinGroupTxt(userOptions$inputFile,expDesign=expDesign, method="auc")
 	
 }else if(fileType == "GenericCSV"){
@@ -217,7 +214,7 @@ if("ptm" %in% names(fData(eset))){
 		
 			cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
 			#format 1) progensis  2) scaffold
-			eset <- .addPTMCoord(eset,proteinDB,motifLength=4, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
+			eset <- .addPTMCoord(eset,proteinDB,motifLength=6, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
 	
 	}
 	filter <- cbind(filter
@@ -413,10 +410,16 @@ par(mfrow=c(2,2))
 #if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
 #if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
-.idOverviewPlots()
+.idOverviewPlots(userOptions=userOptions
+					,esetNorm=esetNorm
+					,fileType=fileType
+					,sqaPeptide=sqaPeptide
+					,sqaProtein=sqaProtein
+)
+
 if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
 	par(mfrow=c(3,2))
-	.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff)
+	.idPlots(eset, selection=c(1,3), main="Feature Level", qvalueThrs=userOptions$fdrCutoff, userOptions=userOptions)
 	if(exists("sqaPeptide")) .idPlots(sqaPeptide$eset, selection=c(1,3), main="Peptide Level", qvalueThrs=userOptions$fdrCutoff)
 	if(exists("sqaProtein")) .idPlots(sqaProtein$eset, selection=c(1,3), main="Protein Level", qvalueThrs=userOptions$fdrCutoff)
 }	

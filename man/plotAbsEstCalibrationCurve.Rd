@@ -7,21 +7,33 @@
 plotAbsEstCalibrationCurve(fit, dispElements = c("formula", "lowess",
   "stats"), xlab = "Conc. (CPC) ", ylab = "Pred. Conc. (CPC) ",
   predictorName = paste("log10(", names(coef(fit))[2], ")", sep = ""),
-  text = F, cex.lab = 1, cex.axis = 1, cex.text = 1, cex.dot = 1, ...,
-  main = "")
+  text = F, cex.lab = 1, cex.axis = 1, cex.text = 1, cex.dot = 1,
+  main = "", ...)
 }
 \arguments{
 \item{fit}{simple log-linear model}
 
 \item{dispElements}{c("formula","lowess","stats")}
 
-\item{cex.lab=}{expansion factor for axis labels}
+\item{xlab}{xlab}
 
-\item{cex.axis=}{expansion factor for axis}
+\item{ylab}{ylab}
 
-\item{cex.text=}{expansion factor for legend}
+\item{predictorName}{predictorName}
 
-\item{cex.dot=}{expansion factor for plotted dots}
+\item{text}{add names beside each dot}
+
+\item{cex.lab}{expansion factor for axis labels}
+
+\item{cex.axis}{expansion factor for axis}
+
+\item{cex.text}{expansion factor for legend}
+
+\item{cex.dot}{expansion factor for plotted dots}
+
+\item{main}{main}
+
+\item{...}{see plot}
 }
 \description{
 Plot absolut Estimation calibration Curve

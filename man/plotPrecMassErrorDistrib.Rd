@@ -10,6 +10,8 @@ plotPrecMassErrorDistrib(eset, pMassTolWindow = c(-10, 10), ...)
 \item{eset}{ExpressionSet}
 
 \item{pMassTolWindow}{Precursor Mass Error Tolerance Window}
+
+\item{...}{see plot}
 }
 \description{
 Plot Precursor Mass Error Distribution

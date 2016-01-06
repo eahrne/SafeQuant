@@ -33,6 +33,6 @@ print("No examples")
 NA
 }
 \seealso{
-\code{\link[affy]{ExpressionSet}}
+\code{\link[Biobase]{ExpressionSet}}
 }
 
