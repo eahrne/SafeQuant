@@ -115,7 +115,7 @@ testParseScaffoldRawFile <- function(){
 	expDesignTMTSixPlex <- data.frame(condition=sort(rep(c(1,2),3)),isControl=sort(rep(c(T,F),3),decreasing=T) )
 	rownames(expDesignTMTSixPlex) <- rev(1:6)
 	eset2 <- parseScaffoldRawFile(scaffoldTmt6PlexRawTestFile,expDesign=expDesignTMTSixPlex[1:5,])
-	stopifnot(exprs(eset)[1,6] == exprs(eset2)[1,1])
+	stopifnot(all.equal(exprs(eset)[1,6], exprs(eset2)[1,1]))
 	
 	# 10 plex	
 	expDesignTMTTenPlex <- data.frame(condition=sort(rep(c(1:5),2)),isControl=c(T,T,rep(F,8)) )

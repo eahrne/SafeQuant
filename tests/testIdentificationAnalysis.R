@@ -44,8 +44,8 @@ testGetIdQvals <- function(){
 testAddIdQvalues <- function(){
 	
 	cat("--- testAddIdQvalues: --- \n")	
-	stopifnot(round(max(fData(addIdQvalues(eset))$idQValue ),2) == 0.28)
-	stopifnot(round(max(fData(addIdQvalues(rollUp(eset, featureDataColumnName = "proteinName"  )))$idQValue),2) == 0.29)
+	stopifnot(all.equal(round(max(fData(addIdQvalues(eset))$idQValue ),2),0.28))
+	stopifnot(all.equal(round(max(fData(addIdQvalues(rollUp(eset, featureDataColumnName = "proteinName"  )))$idQValue),2),0.29))
 	cat("--- testAddIdQvalues: PASS ALL TEST --- \n")
 	
 	#progenesisPeptideCsvFile3 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/PeptidesSQAnalysis/peptides5.csv"
@@ -71,7 +71,7 @@ testAddIdQvalues <- function(){
 
 testGetScoreCutOff <- function(){
 	cat("--- testGetScoreCutOff: --- \n")
-	stopifnot(round(getScoreCutOff(fData(eset)$idScore, isDecoy(fData(eset)$proteinName)),2) == 12.07)
+	stopifnot(all.equal(round(getScoreCutOff(fData(eset)$idScore, isDecoy(fData(eset)$proteinName)),2), 12.07))
 	cat("--- testGetScoreCutOff: PASS ALL TEST --- \n")
 }
 
@@ -87,14 +87,14 @@ testGetModifProteinCoordinates <- function(){
 	mc <- getModifProteinCoordinates(ptm,peptide,protein)
 	stopifnot(9 == mc[1])
 	stopifnot(14 == mc[2])
-	stopifnot(sum(c(34,49) == getModifProteinCoordinates(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1)) ==2) 
+	stopifnot(all.equal(c(34,49),getModifProteinCoordinates(fData(eset)$ptm[1],fData(eset)$peptide[1],proteinSeq1))) 
 	stopifnot(37 == getModifProteinCoordinates(fData(eset)$ptm[2],fData(eset)$peptide[2],proteinSeq2)) 
 	
 	#### SCAFFOLD PTM FORMAT
 	proteinSeq <-  "MMMMMMMMMMETPSPRPPPMRHRSSRSP"		
 	peptideSeq <- "ETPSPRPPPMR"
 	modifAnnot <- "T2 Phospho, S4 Phospho, M10 Oxidation"
-	stopifnot(all(c(12,14,20) ==  getModifProteinCoordinates(modifAnnot,peptideSeq,proteinSeq, format=2)))
+	stopifnot(all.equal(c(12,14,20),  getModifProteinCoordinates(modifAnnot,peptideSeq,proteinSeq, format=2)))
 	
 	
 	cat("--- testGetModifProteinCoordinates: PASS ALL TEST --- \n")

@@ -15,9 +15,9 @@ testGetImpuritiesMatrix <- function(){
 	cat(" --- testGetImpuritiesMatrix --- \n")
 	# 6-plex
 	# old stopifnot(0.094 ==  getImpuritiesMatrix(6)[1,2])
-	stopifnot(0.004 ==  round(getImpuritiesMatrix(6)[1,2],3))
+	stopifnot(all.equal(0.004 , round(getImpuritiesMatrix(6)[1,2],3)))
 	# 10-plex
-	stopifnot(0.004 ==  round(getImpuritiesMatrix(10)[1,2],3))
+	stopifnot(all.equal(0.004 , round(getImpuritiesMatrix(10)[1,2],3)))
 	cat(" --- testGetImpuritiesMatrix: PASS ALL TEST --- \n")
 	
 	
@@ -40,10 +40,10 @@ testPurityCorrectTMT <- function(){
 	cat(" --- testPurityCorrectTMT --- \n")
 	# 6-plex
 	# old stopifnot( round(9.998839,4)  ==  round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[1,1],4))
-	stopifnot( 9.4965  ==  round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[2,1],4))
+	stopifnot( all.equal(9.4965  , round(purityCorrectTMT(tmtTestData6Plex,impurityMatrix=getImpuritiesMatrix(6))[2,1],4)))
 	
 	# 10-plex
-	stopifnot( 10.4493  ==  round(purityCorrectTMT(tmtTestData10Plex,impurityMatrix=getImpuritiesMatrix(10))[1,1],4))
+	stopifnot(all.equal(10.4493 ,  round(purityCorrectTMT(tmtTestData10Plex,impurityMatrix=getImpuritiesMatrix(10))[1,1],4)))
 	cat(" --- testPurityCorrectTMT: PASS ALL TEST --- \n")
 	
 }

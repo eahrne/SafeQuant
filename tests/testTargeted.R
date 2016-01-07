@@ -87,7 +87,7 @@ testCalibrationCurve <- function(){
 	cat(" --- testcalibrationCurve --- \n")
 	
 	calibCurve <- calibrationCurve(esetCalibCurve[fData(esetCalibCurve)$dilutionCurveId == unique(fData(esetCalibCurve)$dilutionCurveId)[2], ])
-	stopifnot(round(calibCurve$lod,2) == 0.44)
+	stopifnot(all.equal(round(calibCurve$lod,2),0.44))
 	cat(" --- testcalibrationCurve: PASS ALL TEST  --- \n")
 	
 }

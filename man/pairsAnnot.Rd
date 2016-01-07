@@ -4,14 +4,9 @@
 \alias{pairsAnnot}
 \title{Plot lower triangle Pearsons R^2. Diagonal text, upper triangle all against all scatter plots with lm abline}
 \usage{
-<<<<<<< HEAD
-pairsAnnot(data, textCol = rep(1, ncol(data)), diagText = c(),
-  col = rgb(0, 100, 0, 50, maxColorValue = 255), isHeatCol = F, ...)
-=======
 pairsAnnot(data, textCol = rep(1, ncol(data)), diagText = colnames(data),
   col = rgb(0, 100, 0, 50, maxColorValue = 255), isHeatCol = F,
   cexTxt = 2, ...)
->>>>>>> v.2.2.1
 }
 \arguments{
 \item{data}{data.frame}
