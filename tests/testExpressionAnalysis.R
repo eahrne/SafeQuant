@@ -54,12 +54,12 @@ testGetRatios <- function(){
 	
 	
 	## NOTE: C is control
-	stopifnot(r[1,1] ==  log2(median(exprs(eset)[1,1:2]) / median(exprs(eset)[1,5:6]) ))
+	stopifnot(all.equal(r[1,1],log2(median(exprs(eset)[1,1:2]) / median(exprs(eset)[1,5:6]))))
 	
 	stopifnot(mean(r[,"A"]) < mean(r[,"B"]))
 	stopifnot(all.equal(r,getRatios(eset,method="mean")))
 	r <- getRatios(eset)
-	stopifnot(mean(r[,"B"]) == mean(r[,"B"]))
+	stopifnot(all.equal(mean(r[,"B"]),mean(r[,"B"])))
 	
 	cat("--- testGetRatios: PASS ALL TEST --- \n")
 	
@@ -71,8 +71,8 @@ testGetAllCV <- function(){
 	
 	cv <- getAllCV(eset)
 	
-	stopifnot(cv[1,"A"] == (sd(exprs(eset)[1,unlist(pData(eset)$condition == "A")]) / mean(exprs(eset)[1,unlist(pData(eset)$condition == "A")])))
-	stopifnot(cv[200,"C"] == sd(exprs(eset)[200,unlist(pData(eset)$condition == "C")]) / mean(exprs(eset)[200,unlist(pData(eset)$condition == "C")]))
+	stopifnot(all.equal(cv[1,"A"] , (sd(exprs(eset)[1,unlist(pData(eset)$condition == "A")]) / mean(exprs(eset)[1,unlist(pData(eset)$condition == "A")]))))
+	stopifnot(all.equal(cv[200,"C"] , sd(exprs(eset)[200,unlist(pData(eset)$condition == "C")]) / mean(exprs(eset)[200,unlist(pData(eset)$condition == "C")])))
 	
 	cat("--- testGetAllCV: PASS ALL TEST --- \n")
 }
@@ -115,13 +115,13 @@ testBaselineIntensity <- function(){
 	bl <- round(getBaselineIntensity(allInt,promille=5),2)
 	#hist(allInt)
 	#abline(v=bl,lwd=2)
-	stopifnot(bl == 997.82 )
+	stopifnot(all.equal(bl[[1]] , 997.82) )
 	
 	
 	set.seed(1234)
 	suppressWarnings(allInt2 <- log10(rnorm(1000,1,1)))
 	bl2 <- round(getBaselineIntensity(allInt2,promille=5),2)
-	stopifnot(-1.95== bl2)
+	stopifnot(all.equal(-1.95,bl2[[1]]))
 	#hist(allInt2)
 	#abline(v=bl2,lwd=2)
 	
@@ -144,8 +144,8 @@ testRollUp <- function(){
 	
 	print(exprs(rollUpEset2))
 	
-	stopifnot(sum(exprs(rollUpEset2)) == sum(exprs(rollUpEset1))  ) ### test sum
-	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))  ) ### test mean
+	stopifnot(all.equal(sum(exprs(rollUpEset2)),sum(exprs(rollUpEset1)))) ### test sum
+	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))) ### test mean
 	
 	rollUpEset4 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))
 	stopifnot(sum(exprs(rollUpEset3)) != sum(exprs(rollUpEset4))  ) ### test top 3
@@ -177,7 +177,7 @@ testTopX <- function(){
 	# peptide_2  3  3  3
 	# peptide_3  2  2  2
 	# peptide_4  5  5  5
-	stopifnot(sum(rep(10/3,3) == getTopX(entryData1)) == 3)
+	stopifnot(all.equal(rep(10/3,3) , as.vector(unlist(getTopX(entryData1))) ))
 	
 	entryData2 <- data.frame(t(matrix(c(1,1,1,3,3,3,2,2,2,5,5,NA),ncol=4)))
 	rownames(entryData2) <- paste("peptide",1:nrow(entryData2),sep="_")
@@ -187,13 +187,13 @@ testTopX <- function(){
 	# peptide_2  3  3  3
 	# peptide_3  2  2  2
 	# peptide_4  5  5 NA
-	stopifnot(sum(c(4,4,3) == getTopX(entryData2,topX=2 )) == 3)
+	stopifnot(all.equal(c(4,4,3) ,  as.vector(unlist(getTopX(entryData2,topX=2)))))
 	
 	# 1 row
-	stopifnot(sum(rep(1,3) == getTopX(entryData1[1,])) == 3)
+	stopifnot(all.equal(rep(1,3),as.vector(unlist(getTopX(entryData1[1,])))))
 	
 	# 1 col
-	stopifnot(sum(getTopX(entryData1) == getTopX(entryData1[,1])) == 3)
+	stopifnot(all.equal(getTopX(entryData1)[[1]],getTopX(entryData1[,1])))
 	
 	top1 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"))),1,sum)
 	top3 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))),1,sum)
@@ -202,7 +202,7 @@ testTopX <- function(){
 	stopifnot(sum(top1 >=  top3 ) == length(top3))
 	stopifnot(sum(top1) > sum(top3))
 	stopifnot(sum(top1) > sum(meanInt))
-	stopifnot(sum(top3) == sum(meanInt))
+	stopifnot(all.equal(sum(top3),sum(meanInt)))
 	
 	cat(" --- testTopX: PASS ALL TEST  --- \n")
 	
@@ -275,21 +275,21 @@ testPerFeatureNormalization <- function(){
 	normFactors[is.finite(normFactors)] <- 1
 	eNorm <-  perFeatureNormalization(eset,normFactors)
 	
-	stopifnot(exprs(eNorm)[1,1] == (exprs(eset)[1,1]-1))
-	stopifnot(exprs(eNorm)[1,2] == (exprs(eset)[1,2]-1))
-	stopifnot(exprs(eNorm)[13,2] == (exprs(eset)[13,2]))
+	stopifnot(all.equal(exprs(eNorm)[1,1] , (exprs(eset)[1,1]-1)))
+	stopifnot(all.equal(exprs(eNorm)[1,2] , (exprs(eset)[1,2]-1)))
+	stopifnot(all.equal(exprs(eNorm)[13,2] , (exprs(eset)[13,2])))
 	
 	normFactors[,2] <- 200
 	eNorm <-  perFeatureNormalization(eset,normFactors)
-	stopifnot(exprs(eNorm)[1,1] == (exprs(eset)[1,1]-1))
-	stopifnot(exprs(eNorm)[1,3] ==  (exprs(eset)[1,3]-200))
-	stopifnot(exprs(eNorm)[1,4] ==  (exprs(eset)[1,4]-200))
-	stopifnot(exprs(eNorm)[1,5] ==  (exprs(eset)[1,5]-1))
+	stopifnot(all.equal(exprs(eNorm)[1,1] , (exprs(eset)[1,1]-1)))
+	stopifnot(all.equal(exprs(eNorm)[1,3] ,  (exprs(eset)[1,3]-200)))
+	stopifnot(all.equal(exprs(eNorm)[1,4] ,  (exprs(eset)[1,4]-200)))
+	stopifnot(all.equal(exprs(eNorm)[1,5] ,  (exprs(eset)[1,5]-1)))
 	
 	normFactors[,3] <- 0
 	eNorm <-  perFeatureNormalization(eset,normFactors)
-	stopifnot(exprs(eNorm)[1,5] == exprs(eset)[1,5])
-	stopifnot(exprs(eNorm)[2,6] == exprs(eset)[2,6])
+	stopifnot(all.equal(exprs(eNorm)[1,5] , exprs(eset)[1,5]))
+	stopifnot(all.equal(exprs(eNorm)[2,6] , exprs(eset)[2,6]))
 	
 	normFactors[3,] <- 1000 
 	eNorm <-  perFeatureNormalization(eset,normFactors)
@@ -303,12 +303,8 @@ testPerFeatureNormalization <- function(){
 	
 	cat(" --- testPerFeatureNormalization: PASS ALL TEST --- \n")
 	
-
 	#coveredPeptideSel <- fData(eset)$proteinName %in% rownames(normFactors)
 	#exprs(eset)[coveredPeptideSel,]	<- exprs(eset)[coveredPeptideSel, ] - normFactors[as.character(fData(eset)[coveredPeptideSel,]$proteinName),pData(eset)$condition]
-	
-	
-	
 	
 }
 
@@ -337,9 +333,9 @@ testGetMaxIndex <-function(){
 	d <- data.frame(s=c(NA,NA,NA,NA,1,1:4),lab=sort(rep(c("A","B","C"),3)))
 	DT <- data.table(d)
 	setkey(DT,lab)
-	DT[, .I[getMaxIndex(s)], by=lab ]
 	
-	stopifnot(all(c(1,5,9) == DT$V1))
+	
+	stopifnot(all.equal(c(1,5,9) , DT[, .I[getMaxIndex(s)], by=lab ]$V1  ))
 	cat(" --- testGetMaxIndex: PASS ALL TEST  --- \n")
 	
 }

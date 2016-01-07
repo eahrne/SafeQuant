@@ -114,6 +114,10 @@ colnames(exprs(eset))
 
 # RE-LABEL, RE-ORDER ETC.. END
 
+
+
+
+
 # log
 exprs(eset) <- log10(exprs(eset))
 
@@ -175,7 +179,7 @@ for(i in 1:nbClusters){
 	
 	xlsExportFile = paste(xlsExportFolder,"cluster",i,".xls" ,sep="")
 	protein <- names(fuzzification$cluster[fuzzification$cluster == i])
-	description <- fData(eset)[protein,]$proteinDescription # GET DESCRIPTION OF EACH PROTEIN
+	description <- fData(eset)[protein,]$proteinDescription # get description of each protein
 	
 	membershipValue <- fuzzification$membership[fuzzification$cluster == i,i]
 	outDf <- data.frame(protein=protein,description=description,membershipValue=as.vector(unlist(membershipValue)),exprs(eset)[protein,])

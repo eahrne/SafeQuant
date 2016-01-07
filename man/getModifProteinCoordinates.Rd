@@ -13,11 +13,7 @@ getModifProteinCoordinates(modifAnnot, peptideSeq, proteinSeq, format = 1)
 
 \item{proteinSeq}{protein sequence}
 
-<<<<<<< HEAD
-\item{numeric}{format 1) progenesis 2) scaffold}
-=======
 \item{format}{c(1,2) 1. progenesis 2. scaffold}
->>>>>>> v.2.2.1
 }
 \value{
 vector of protein coordinates (mmodification residue number)

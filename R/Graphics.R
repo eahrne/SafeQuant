@@ -533,8 +533,7 @@ pairsAnnot<-
 	if(ncol(data.frame(data)) < 2 ){
 		return(warning("INFO: Only one sample no pairsAnnot \n"))
 	}
-	
-	
+		
 	### cex as a function of numbers of columns
 	cex <- 0.8
 	if(ncol(data) < 6){
