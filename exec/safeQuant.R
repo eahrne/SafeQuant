@@ -31,19 +31,15 @@ suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 
-# check if SafeQuant is installed
-if("SafeQuant" %in%  installed.packages()[,1]){
-	cat("Loading SafeQuant Library \n")
-	library("SafeQuant")
-}else{ # FOR DEVELOPMENT
-	
-	if(file.exists("/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/UserOptions.R")){
-		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
-	}else{
-		#@TEMP TPP
-		sourceDir <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
-	}
 
+sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
+sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
+
+# first check if dev or tpp mode
+if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
+	
+	sourceDir <- ifelse(file.exists(sourceDirOSX),sourceDirOSX,sourceDirTPP)
+		
 	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
 	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
 	source(paste(sourceDir,"Graphics.R",sep=""))
@@ -51,7 +47,14 @@ if("SafeQuant" %in%  installed.packages()[,1]){
 	source(paste(sourceDir,"Parser.R",sep=""))
 	source(paste(sourceDir,"TMT.R",sep=""))
 	source(paste(sourceDir,"UserOptions.R",sep=""))
-		
+	
+}else if("SafeQuant" %in%  installed.packages()[,1]){ # used installed SafeQuant
+	
+	cat("Loading SafeQuant Library \n")
+	library("SafeQuant")
+	
+}else{
+	stop("SafeQuant Package not installed\n")
 }
 
 VERSION <- 2.2
@@ -410,11 +413,14 @@ par(mfrow=c(2,2))
 #if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
 #if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
 #if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
+
+#.idOverviewPlots()
+#@ NOT CRAN COMPATIBLE	
 .idOverviewPlots(userOptions=userOptions
 					,esetNorm=esetNorm
 					,fileType=fileType
-					,sqaPeptide=sqaPeptide
-					,sqaProtein=sqaProtein
+					,sqaPeptide= ifelse(exists("sqaPeptide"),list(sqaPeptide),list(NA))[[1]]# HACK to pass check
+					,sqaProtein= ifelse(exists("sqaProtein"),list(sqaProtein),list(NA))[[1]] # HACK to pass check
 )
 
 if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
@@ -472,8 +478,6 @@ par(parDefault)
 if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
 
 ### QUANT. QC PLOTS END
-
-
 
 par(parDefault)
 if(userOptions$verbose) cat("INFO: HEAT MAP \n")

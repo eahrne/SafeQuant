@@ -29,7 +29,7 @@ Make sure you have a working development environment.
     R> library(devtools)
     R> install_github("eahrne/SafeQuant")
     
-**Option 2 install latest [CRAN](https://cran.r-project.org/web/packages/SafeQuant/index.html) version**
+**Option 2, install latest [CRAN](https://cran.r-project.org/web/packages/SafeQuant/index.html) version**
 
 	R> install.packages("SafeQuant")
 
