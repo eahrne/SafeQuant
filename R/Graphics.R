@@ -21,6 +21,7 @@ COLORS <- as.character(c(
 				,rev(colors())) ### if that's not enough
 )
 
+
 #' @export
 #' @import Biobase
 #' @importFrom graphics plot par grid lines points legend
@@ -30,6 +31,10 @@ COLORS <- as.character(c(
 		,sqaPeptide=sqaPeptide
 		,sqaProtein=sqaProtein){
 	
+	# HACK TO avoid check error. See function call in safeQuant.R @TODO re-structure this messsy function 
+	if(is.na(sqaPeptide)){rm(sqaPeptide)}
+	if(is.na(sqaProtein)){rm(sqaProtein)}
+
 	######################## OVERVIEW PLOT
 	fdr <-userOptions$fdrCutoff
 	nbPSM <- sum(!fData(esetNorm)$isFiltered,na.rm=T)
@@ -46,8 +51,9 @@ COLORS <- as.character(c(
 		yPos <- yPos - 0.5
 				
 	}
-		
+	
 	if(exists("sqaPeptide")){
+		
 		isMod <- nchar(as.character(fData(sqaPeptide$eset)$ptm)) > 0
 		nbPeptides <- sum(!fData(sqaPeptide$eset)$isFiltered,na.rm=T)
 		nbUnModPeptides <- sum(!fData(sqaPeptide$eset[!isMod,])$isFiltered,na.rm=T)
@@ -74,6 +80,8 @@ COLORS <- as.character(c(
 	text(xPos,yPos,paste(nbProteins," PROTEINS"),cex=cex, pos=4)
 	par(mar=c(5.1,4.1,4.1,2.1))
 	######################## OVERVIEW PLOT END
+	
+
 	
 	### charge state
 	if("charge" %in% names(fData(esetNorm))){
