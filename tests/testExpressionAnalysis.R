@@ -38,7 +38,14 @@ testGetAllEBayes <- function(){
 	stopifnot( mean(pAdj[,"A"]) > mean(p[,"A"]) )
 	cat("--- testGetAllEBayes: PASS ALL TEST --- \n")
 	
-	print(head(p))
+	#print(head(p))
+	
+	getAllEBayes(eset,method="all")
+	pData(eset)
+	pData(eset)$isControl <- c(T,T,F,F,F,F)
+	getAllEBayes(eset,method="all")
+	
+	
 	
 }
 
@@ -142,7 +149,7 @@ testRollUp <- function(){
 	rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"))
 	stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset3)) 
 	
-	print(exprs(rollUpEset2))
+	#print(exprs(rollUpEset2))
 	
 	stopifnot(all.equal(sum(exprs(rollUpEset2)),sum(exprs(rollUpEset1)))) ### test sum
 	stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))) ### test mean
@@ -343,24 +350,65 @@ testGetMaxIndex <-function(){
 ### TEST FUNCTIONS END
 
 ### TESTS
-testCreateExpressionDataset()
 testGetAllEBayes()
-testGetRatios()
-testGetAllCV()
-testGlobalNormalize()
+if(F){
+	testCreateExpressionDataset()
+	testGetAllEBayes()
+	testGetRatios()
+	testGetAllCV()
+	testGlobalNormalize()
 #testNormalise()
-testRtNormalize()
-testGetSignalPerCondition()
-testBaselineIntensity()
-testRollUp()
-testTopX()
+	testRtNormalize()
+	testGetSignalPerCondition()
+	testBaselineIntensity()
+	testRollUp()
+	testTopX()
+	
+	testGetLoocvFoldError()
+	
+	testRemoveOutliers()
+	testPerFeatureNormalization()
+	testStandardise()
+	testGetMaxIndex()
+	
+	testGetIBAQEset()
+}
 
-testGetLoocvFoldError()
+uCtrl <- 1:3
+uCase <- uCtrl + 1
+sigma <- 0.1
+n <- length(uCtrl)
 
-testRemoveOutliers()
-testPerFeatureNormalization()
-testStandardise()
-testGetMaxIndex()
+ctrl <- rnorm(n,uCtrl,sigma) 
+case <- rnorm(n,uCase,sigma) 
 
-testGetIBAQEset()
+df <- data.frame(ctrl,case, indiv= as.factor(c("A","B","C")))
+
+t.test(ctrl,case,paired=T)$p.value
+t.test(case-ctrl,mu=0,paired=F,alternative=c("two.sided"))$p.value
+
+
+t.test(ctrl , case,paired=T,alternative=c("two"), var.equal = T)$p.value
+
+
+summary(lm(ctrl ~ case + 0))
+
+
+df <- data.frame(ctrl=rnorm(n,uCtrl,sigma) ,case=rnorm(n,uCase,sigma) , indiv= as.factor(c("A","B","C")))
+df <- rbind(df,data.frame(ctrl=rnorm(n,uCtrl,sigma) ,case=rnorm(n,uCase,sigma) , indiv= as.factor(c("A","B","C"))))
+
+fit <- lm(ctrl ~ case + indiv , data=df )
+summary(fit)
+
+library(lme4)
+fit.mixed <- lmer(ctrl ~ case + (1|indiv) , data=df )
+summary(fit.mixed)
+
+
+
+
+
+#lm(d ~ cond, data=df)
+
+
 

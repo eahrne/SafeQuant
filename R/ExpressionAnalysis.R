@@ -128,13 +128,15 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 		condToNb <- data.frame(row.names=unique(pData(eset)$condition))
 		condToNb[as.character(pData(eset)$condition[pData(eset)$isControl])[1],1] <- 1 
 		condToNb[unique(as.character(pData(eset)$condition[!pData(eset)$isControl])),1] <- 2:nrow(condToNb)
-		nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
+		#nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
 		
 		f <- factor(condToNb[eset$condition,])
 		design <- model.matrix(~f)
+		
 		#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
 		fit <- eBayes(lmFit(eset,design))
 		pvalues <- data.frame(fit$p.value[,2:ncol(fit$p.value)])
+		names(pvalues) <- caseConditions
 		
 	}else{ 	#### PAIR-WISE COMPARISONS "pairwise" %in% method
 		pvalues <- data.frame(row.names=featureNames(eset))

@@ -832,6 +832,7 @@ hClustHeatMap <- function(eset
 	
 	#d <- log2(exprs(eset))
 	### log2 ratios to median of control condition
+	# @TODO adapt to accomaodated paired expDesign 
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 	
 	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
