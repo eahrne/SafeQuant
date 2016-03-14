@@ -92,7 +92,8 @@ option_list <- list(
 			help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
 	
 	make_option(c("--SNonPairWiseStatTest"), action="store_true", default=FALSE,
-			help="STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values [default %default]"),
+			help="STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values.
+			 I.e. variance is pooled, per protein/peptide, across all runs of the study [default %default]"),
 	
 # STATISTICS (--S) END
 

@@ -31,7 +31,6 @@ suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 
-
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
 
@@ -437,7 +436,7 @@ if(userOptions$verbose) cat("INFO: QUANT QC. PLOTS \n")
 ### MASS ERROR
 par(parDefault)
 #if("pMassError" %in% names(fData(eset))){
-if(fileType %in% c("ProgenesisFeature")){	
+if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){	
 	par(mfrow=c(2,1), mar=c(4.5,6.1,4.1,6.1))
 	plotPrecMassErrorDistrib(eset, pMassTolWindow=userOptions$precursorMassFilter)
 	
@@ -700,7 +699,6 @@ if(exists("sqaProtein")){
 #		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
 #		names(tmpOut) <- paste("iBAQ_",colnames(exprs(esetIBAQ)))
 #		out <- cbind(out,tmpOut)
-	
 		
 	}
 	
