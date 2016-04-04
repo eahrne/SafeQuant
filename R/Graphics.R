@@ -288,8 +288,19 @@ COLORS <- as.character(c(
 ){
 	
 	colorPalette <- rev(rich.colors(32))
-	dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
+
+	# no p/q-values
+	if(!all(is.finite(ylim))){
+		ylim <-c(0,1)
+	}
 	
+	# if d[,3] is all NA
+	if(all(!is.finite(d[,3]))){
+		dotColors <- rep("darkgrey",nrow(d))
+	}else{
+		dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
+	}
+		
 	par(fig=c(0,1,0.18,1))
 	plot(0,0
 			, xlab= paste("log2(",caseCondition,"/",controlCondition,")", sep="" )
@@ -313,9 +324,11 @@ COLORS <- as.character(c(
 	#points(d$ratio[higlightSel],abs(log10(d[,2]))[higlightSel],col="darkgrey")
 	
 	### add heat color bar
-	par(fig=c(0,1,0,0.3), new=TRUE)
-	.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
-	par(mfrow=c(1,1))
+	if(!all(!is.finite(d[,3]))){
+		par(fig=c(0,1,0,0.3), new=TRUE)
+		.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
+		par(mfrow=c(1,1))
+	}
 	
 }
 
@@ -416,14 +429,9 @@ plotVolcano <- function(obj
 		}else{
 			ylim <- range(abs(log10(obj$pValue)),na.rm=T)
 		}
+		
 		# ensure same scale on color legend
 		cvMax <- max(as.vector(unlist(obj$cv)),na.rm=T)
-		
-		### avoid crash if no pValues (when no replicates)
-		if(sum(!is.finite(c(ylim,cvMax))) > 0 ){
-			cvMax <- 100
-			ylim <- c(0,1)
-		}
 		
 		controlCondition <- .getControlCondition(obj$eset)
 		for(caseCondition in colnames(obj$pValue)){

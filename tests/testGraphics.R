@@ -99,6 +99,13 @@ if(T){
 			,cex.lab=1.2
 	)
 	
+	plotVolcano(safeQuantAnalysis(esetPaired)
+			,main= "plotVolcano created from safeQuantAnalysis object (esetPaired)"
+			,cex.axis=1.2
+			,cex.lab=1.2
+			,adjust=F
+	)
+	
 	hClustHeatMap(eset)
 	hClustHeatMap(eset, dendogram="both")
 	
@@ -118,14 +125,13 @@ if(T){
 	plotRTNorm(rtNormFactors,esetTmp, samples=2, main="plotRTNorm")
 	
 	missinValueBarplot(eset)
-	
 	plotQValueVsPValue(sqa, lim=c(0,0.5))
-		
 	.correlationPlot(exprs(eset))
-	
+
 	graphics.off()
 	
 	
+
 
 	cat("CREATED FILE", tmpFile, "\n")
 	

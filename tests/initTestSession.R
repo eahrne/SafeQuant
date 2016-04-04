@@ -141,5 +141,14 @@ absEstSimData <- data.frame(cpc =  log10(cpc),signal = log10(signal))
 absEstSimDataFit <- lm(cpc ~ signal, data=absEstSimData )
 
 
-#data(proteomeMixLFQ,package="SafeQuant")
-#data(proteomeMixTMT6,package="SafeQuant")
+### CREATE PAIRED ESET
+set.seed(1234)
+esetPaired <- eset
+exprs(esetPaired)[,1] <- rnorm(nrow(exprs(eset)),1500,1500/10)
+exprs(esetPaired)[,2] <- rnorm(nrow(exprs(eset)),3000,3000/10)
+exprs(esetPaired)[,3] <- rnorm(nrow(exprs(eset)),1200,1200/10)
+exprs(esetPaired)[,4] <- rnorm(nrow(exprs(eset)),2400,2400/10)
+exprs(esetPaired)[,5] <- rnorm(nrow(exprs(eset)),1000,1000/10)
+exprs(esetPaired)[,6] <- rnorm(nrow(exprs(eset)),2000,2000/10)
+esetPaired <- createPairedExpDesign(esetPaired)
+

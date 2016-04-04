@@ -56,7 +56,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	stop("SafeQuant Package not installed\n")
 }
 
-VERSION <- 2.2
+VERSION <- 2.3
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
@@ -80,8 +80,6 @@ if(userOptions$verbose) cat("PARSING INPUT FILE \n")
 # get file type
 fileType <- .getFileType(userOptions$inputFile)
 
-normMethod <- c("global")
-
 ### Progenesis Export
 if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide")){
 	
@@ -102,19 +100,13 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		#normMethod <- c("rt")
-		#normMethod <- c("global")
 		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
 		
 	}else{ 	#"ProgenesisFeature"
 	
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
-		#normMethod <- c("rt")
-		#normMethod <- c("global")
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
-	
-	
 	
 # Scaffold Export (TMT data)
 }else if(fileType == "ScaffoldTMT"){
@@ -125,10 +117,10 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	# use default experimental design unless specified by the user
 	if(.getNbPlex(userOptions$inputFile) == 6){
 		# 6-plex default: 1,2,3:4,5,6 
-		expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3))),isControl=sort(rep(c(T,F),3),decreasing=T) )
+		expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3)),sep=""),isControl=sort(rep(c(T,F),3),decreasing=T) )
 	}else{
 		# 10-plex default is "1,4,7,10:2,5,8:3,6,9"
-		expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1)),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+		expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) )
 	}
 	
 	# get user specified experimental design
@@ -145,7 +137,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		eset <- addScaffoldPTMFAnnotations(eset,userOptions$scaffoldPTMSpectrumReportFile)
 		
 	}
-
+	
 }else if(fileType == "MaxQuantProteinGroup"){
 
 	# get user specified experimental design
@@ -270,31 +262,20 @@ if(userOptions$verbose){
 
 ############################################################### EXPRESSION ANALYSIS ############################################################### 
 
+# create paired experiemntal design()
+if(userOptions$ECorrelatedSamples){
+	eset <- createPairedExpDesign(eset)
+}
+
 ### non-pairwise stat test
 statMethod <- c("")
 if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
 
-### normalize eset
-#cat("INFO: NORMALIZING DATA USING '",normMethod ,"' METHOD \n",sep="")
-
-### if user has specified anchor proteins -> always use global method 
-if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
-	cat("INFO: 'GLOBAL' Normalization always used in combination with SAnchorProtein option \n")	
-	normMethod <- "global"
-}
-esetNorm <- sqNormalize(eset,method=normMethod)
+esetNorm <- sqNormalize(eset)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
 exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
-
-#exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
-#baselineIntensity <- .getBaselineIntensityTMT(exprs(esetNorm)[,1]) 
-#exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < baselineIntensity)  ] <- baselineIntensity 
-
-### ProgenesisProtein -> NO ROLL-UP
-### ProgenesisFeature -> ROLL-UP PEPTIDE (ROLL-UP PROTEIN UNLESS USER SPECIFIED )
-### ScaffoldTMT -> ROLL-UP PROTEIN
 
 if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
@@ -315,8 +296,6 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	cat("INFO: ROLL-UP PEPTIDE LEVEL\n")
 		
 	esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"))
-	#print(system.time(esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)))
-	#esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)
 
 	# fdr filter
 	# replace qValues by rollUp level qValues ()
@@ -344,6 +323,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	}
 	
 	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | isDecoy(fData(esetPeptide)$proteinName)
+
 	sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName) | (fData(esetNorm)$nbPeptides <  userOptions$minNbPeptidesPerProt)
@@ -406,12 +386,7 @@ plotExpDesign(esetNorm, version=VERSION)
 
 ### IDENTIFICATION PLOTS
 if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
-#if(fileType == "ProgenesisProtein") layout(rbind(c(1, 1), c(2, 3)) )
-#if(fileType == "ProgenesisProtein")
 par(mfrow=c(2,2))
-#if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
-#if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
-#if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
 
 #.idOverviewPlots()
 #@ NOT CRAN COMPATIBLE	
@@ -472,9 +447,6 @@ if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
 }
 
 par(parDefault)
-
-### retention time plot
-if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
 
 ### QUANT. QC PLOTS END
 
@@ -689,16 +661,6 @@ if(exists("sqaProtein")){
 		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
 		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
-		
-#		### per run
-#		tmpOut <- exprs(esetIBAQ)
-#		tmpOut[!is.na(tmpOut)] <- NA
-#		selProts <- intersect(rownames(tmpOut),rownames(esetIBAQ))
-#		tmpOut[selProts,] <- exprs(esetIBAQ)[selProts,]
-#		
-#		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
-#		names(tmpOut) <- paste("iBAQ_",colnames(exprs(esetIBAQ)))
-#		out <- cbind(out,tmpOut)
 		
 	}
 	

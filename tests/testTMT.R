@@ -128,3 +128,29 @@ testCreateExpDesign()
 ### TESTS END
 
 
+
+###### RATIO CORRECTION
+#
+#source("/Users/ahrnee-adm/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R")
+##load("/Users/ahrnee-adm/dev/R/workspace/SafeQuantCaseStudy/data/cristinaProteinCalMixTMT10.rda" )
+#load("/tmp/paired/paired_SQ.rData")
+#
+#esetCalibMix <- .getCalibMixEset(eset)
+#esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+#
+#fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
+#
+#.plotTMTRatioVsRefRatio(esetCalibMixPair)
+#.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair, featureDataColumnName="peptide"))
+#.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair))
+#
+#
+#
+#
+#(fData(eset)$proteinName %in% names(CALIBMIXRATIOS))
+#
+
+
+
+
+

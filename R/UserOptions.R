@@ -110,6 +110,9 @@ option_list <- list(
 	make_option(c("--EProteinQuantOff"), action="store_false", default=TRUE,
 			help='EXPERIMENTAL DESIGN: --EP Disable Protein Level Quantification [default %default]'),
 	
+	make_option(c("--ECorrelatedSamples "), action="store_true", default=FALSE,
+			help='EXPERIMENTAL DESIGN: --EC Apply "paired" statistical tests [default %default]'),
+	
 # EXPERIMENTAL DESIGN (--E) END
 
 # PDF-REPORT (--P) 
@@ -121,37 +124,10 @@ option_list <- list(
 			help="PDF-REPORT: --PQ Qvalue cut-off used for graphics. 
 			High-lighting features with a qval < specified value. [0-1] [default %default]",
 			metavar="Differential expression qvalue cutOff"),	
-	
-#	make_option(c("--PSelectedGraphics"), type="character", default="",
-#			help="PDF-REPORT: --PS Excluded Graphics: give letter for each plot to exclude ex: --PS iv 
-#					(creates all plots but intensity density plots & volcano plot)
-#					experimental design (e)
-#					peptide feature score distrib related plots (f)
-#					intensity distibution plots (i)
-#					volcano plots (v)
-#					hierarchical clustering plots (h)
-#					differential expression fdr plot (d)	
-#					[default (all plots) %default]"),		
-# PDF-REPORT (--P) END
-
-## TSV-REPORT (--T)
-#	
-#	make_option(c("--TFastaFile"), type="character", default="",
-#			help="TSV-REPORT (LFQ PEP): -TF Protein Fasta File used to extract Modification Site Coordinates [default None]",
-#			metavar=".fasta file path"),	
-## TSV-REPORT (--T) END
 
 # ADDITIONAL-REPORTS (--A)
 	make_option(c("--ARDataFile"), action="store_true", default=FALSE,
 		help="ADDITIONAL-REPORTS: --AR Save R objects in 'label'.RData file [default %default]"),
-
-#	make_option(c("--AProtease"), type="character", default="KR",
-#			help="ADDITIONAL-REPORTS: --TP protease [default (trypsin) %default]
-#					1) trypsin
-#					2) lys-c
-#			
-#					Option considered for iBAQ normalization", 
-#	),
 
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS (LFQ PROT): --AI creates .tsv output file
@@ -262,7 +238,6 @@ getUserOptions <- function(version=version){
 		}				
 	}
 	
-	
 # I/O END
 	
 # FILTER (--F)
@@ -346,6 +321,8 @@ getUserOptions <- function(version=version){
 	
 	userOptions$proteinQuant <- cmdOpt$EProteinQuant
 	#userOptions$proteinQuant <- userOptions$selectedModifName != "."
+
+	userOptions$ECorrelatedSamples <- cmdOpt$ECorrelatedSamples
 		
 # EXPERIMENTAL DESIGN END
 
@@ -460,7 +437,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 			| (min(sampleOrder) < 1)
 			| max(as.numeric(sampleOrder)) > nrow(expDesignDefault)
 			){
-		stop("ERROR: getExpDesign, INVALID EXPERIMENTAL DESIGN ",tag,"\n")
+		stop("ERROR: expDesignTagToExpDesign, INVALID EXPERIMENTAL DESIGN ",tag,"\n")
 		
 	}
 	
@@ -470,11 +447,11 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	for(cond in unlist(strsplit(tag,":"))){
 		
 		#cat(as.character(unlist(strsplit(cond,","))), paste("Condition",condNb) , "\n")
-		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb)
+		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb,sep="")
 		condNb <- condNb + 1
 	}       
 	
-	expDesign[ expDesign[,1] == "Condition 1" ,]$isControl <- T
+	expDesign[ expDesign[,1] == "Condition1" ,]$isControl <- T
 	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
 	
 	### get original sample names

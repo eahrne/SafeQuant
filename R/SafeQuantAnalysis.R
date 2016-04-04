@@ -7,10 +7,10 @@
 # created from Expression set (name of controlCondition is specified), adjust. 
 # normalization
 # replace missing values
-# c("global","naRep","rt","pairwise","quantile")
+# c("global","naRep","rt","quantile","pairwise","all)
 #' safeQunat s3 class
 #' @param eset ExpressionSet
-#' @param method c("global","naRep","pairwise")
+#' @param method  c("global","naRep","rt","quantile","pairwise","all)
 #' @export
 safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	

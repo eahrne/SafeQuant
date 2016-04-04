@@ -60,8 +60,9 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	#	C_rep_1         C    F
 	#	C_rep_2         C    F
 	#pData <- new("AnnotatedDataFrame", data=expDesign)
+	expDesign$condition <- as.factor(gsub(" ","",	expDesign$condition )) 
 	pData <- AnnotatedDataFrame(data=expDesign)
-	
+
 	### featureData:add more data to each feature. E.g: Protein Description, Id score etc.
 	
 	return(ExpressionSet(assayData = expressionMatrix
@@ -76,9 +77,9 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 
 #' Perform statistical test (mderated t-test), comparing all case to control
 #' @param eset ExpressionSet
-#' @param method c("pairwise","all") 
 #' @param adjust TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method 
 #' @param log T/F log-transform expression values
+#' @param method c("all","pairwise")
 #' @return ExpressionSet object
 #' @export
 #' @import limma Biobase
@@ -90,55 +91,70 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @examples print("No examples")
 getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 	
+	#### calculate moderated t-statistic, empirical Bayes method, Smyth (2004) 
+	
+	# Question: limma multiple groups comparison produces different pvalue comparing with two group comparsion	
+	# https://support.bioconductor.org/p/44216/	
+	# https://support.bioconductor.org/p/60556/
+	uniqueConditions <- unique(pData(eset)$condition)
+	nbUniqueConditions <- length(uniqueConditions)
 	controlCondition <- .getControlCondition(eset)
-	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
+	caseConditions <- setdiff(uniqueConditions ,controlCondition)
+	
+	# if no condition has replicates reurn NA's
+	if(max(table(pData(eset)$condition)) == 1){
+		return(data.frame( matrix(nrow=nrow(eset), ncol = length(caseConditions), dimnames = list(rownames(eset),caseConditions))))
+	}
+	
+	#@TODO comp ratios
+	#compRatios <- getRatios(eset,method="mean")
 	
 	if(log)(exprs(eset) <- log2(exprs(eset)))
 	
-	#### NON-PAIR-WISE COMPARISONS
+#	#### NON-PAIR-WISE COMPARISONS
 	if("all" %in% method){ 
-
-		# Example 4,5,6 are control		
-		#		> design
-		#		(Intercept) f2 f3 f4 f5 f6
-		#		1            1  1  0  0  0  0
-		#		2            1  1  0  0  0  0
-		#		3            1  1  0  0  0  0
-		#		4            1  0  0  0  0  0
-		#		5            1  0  0  0  0  0
-		#		6            1  0  0  0  0  0
-		#		7            1  0  1  0  0  0
-		#		8            1  0  1  0  0  0
-		#		9            1  0  1  0  0  0
-		#		10           1  0  0  1  0  0
-		#		11           1  0  0  1  0  0
-		#		12           1  0  0  1  0  0
-		#		13           1  0  0  0  1  0
-		#		14           1  0  0  0  1  0
-		#		15           1  0  0  0  1  0
-		#		16           1  0  0  0  0  1
-		#		17           1  0  0  0  0  1
-		#		18           1  0  0  0  0  1
-		#		attr(,"assign")
-		#		[1] 0 1 1 1 1 1
-		#		attr(,"contrasts")
-		#		attr(,"contrasts")$f
-		#		[1] "contr.treatment"
 		
-		condToNb <- data.frame(row.names=unique(pData(eset)$condition))
-		condToNb[as.character(pData(eset)$condition[pData(eset)$isControl])[1],1] <- 1 
-		condToNb[unique(as.character(pData(eset)$condition[!pData(eset)$isControl])),1] <- 2:nrow(condToNb)
-		#nbToCond <- data.frame(row.names=condToNb[,1],rownames(condToNb))
+		# add subject term to allow for paired t-statistic
+		if("subject" %in% names(pData(eset))){
+			# no intercept
+			design <- model.matrix(~0+condition + subject, data=pData(eset))
+		}else{
+			# no intercept
+			design <- model.matrix(~0+condition, data=pData(eset))
+		}
+		colnames(design) <- gsub("^condition","",colnames(design))	
 		
-		f <- factor(condToNb[eset$condition,])
-		design <- model.matrix(~f)
+		fit <- lmFit(eset,design)
+		###  create contract matrix describing desired condition comparisons 
+		# e.g. B-A, C-A	
+		#		contrastMatrix
+		#		#    B  C
+		#		# A -1 -1
+		#		# B  1  0
+		#		# C  0  1
+		contrastMatrix <- makeContrasts(contrasts=paste(caseConditions,"-", controlCondition),levels=design)
+		colnames(contrastMatrix) <- caseConditions
 		
-		#### calculate modified t-statistic, empirical Bayes method, Smyth (2004) 
-		fit <- eBayes(lmFit(eset,design))
-		pvalues <- data.frame(fit$p.value[,2:ncol(fit$p.value)])
+		
+		# fit contrasts coefficients
+		fitContrasts <- eBayes(contrasts.fit(fit,contrastMatrix))
+		pvalues <- data.frame(fitContrasts$p.value[,caseConditions])
 		names(pvalues) <- caseConditions
 		
+		#print(head(round(fitContrasts$coefficients[,caseConditions],3) == round(compRatios[,caseConditions],3)))
+		#print(cbind(fitContrasts$coefficients[,caseConditions[1]],compRatios[,caseConditions[1]]))
+		
 	}else{ 	#### PAIR-WISE COMPARISONS "pairwise" %in% method
+		
+		## REASONING
+		# General case (linera model, anova ..)
+		# Adding additional groups alters all Std. Errors. However if equal variance (homoscedastic) the std.error and p-values should not increase.   
+		#   -> We are increasing the number of samples used to estimate the standard error of the condiiton coefficients	
+		#	-> If equal variance the power increases
+		# 	
+		# limma
+		# The eBayes() is also affected by adding more groups as more data is used to estimated the variance prior (derived from data across genes).
+	
 		pvalues <- data.frame(row.names=featureNames(eset))
 		
 		for(cC in caseConditions){
@@ -146,23 +162,21 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 			### at least one replicate of one condition requires
 			selCol <- unlist(pData(eset)$condition %in% c(controlCondition,cC))
 			if(sum(selCol) > 2 ){
-				
 				esetPair <- eset[,selCol]
-				
-				f <- factor(as.character(esetPair$condition))
-				design <- model.matrix(~f)
-				#### calculate moderated t-statistic, empirical Bayes method, Smyth (2004) 
-				fit <- eBayes(lmFit(esetPair,design))
-				
+				# add subject term to allow for paired t-statistic
+				if("subject" %in% names(pData(eset))){
+					fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition) + subject, data=pData(esetPair)) ) )
+				}else{
+					fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition), data=pData(esetPair)) ) )
+				}
 				p <- fit$p.value[,2]
-				
+
 			}else{
 				p <- rep(NA,nrow(eset))
 			}
 			pvalues <- cbind(pvalues,p)
 		}
 		names(pvalues) <- caseConditions
-			
 	}
 		
 	if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg (1995) method 
@@ -170,14 +184,12 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 			pvalues[,i] <-p.adjust(pvalues[,i],method="BH")
 		}
 	}
-	
 	return(pvalues)	
-	
 }
 
 #' Calculate ratios, comparing all case to control
 #' @param eset ExpressionSet 
-#' @param method median or mean
+#' @param method median, mean, paired
 #' @param log2 transform
 #' @return ExpressionSet object
 #' @export
@@ -188,46 +200,97 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 #' @examples print("No examples")
 getRatios <- function(eset, method="median", log2=T){
 	
+	if(sum(c("median","mean","paired") %in% method)  == 0 ){
+		stop("Unknown method ",method)
+	}
+	if(("paired" %in% method) & !"subject" %in% names(pData(eset))){
+		stop("Invalid method ",method)
+	}
+	
 	controlCondition <- .getControlCondition(eset)
 	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
-	
 	ratios <- data.frame(row.names=featureNames(eset))
-	
-	allConditions <-  pData(eset)$condition
+	eCtrl <- subset(exprs(eset),select=which(pData(eset)$condition == controlCondition))
 	
 	for(cC in caseConditions){
+		eCase <- subset(exprs(eset),select=which(pData(eset)$condition == cC))
 		
-		mCase <- exprs(eset)[,allConditions == cC]
-		mControl <- exprs(eset)[,allConditions == controlCondition]
+		### return paired all paired ratios instead of mean/median per condition
+		if("paired" %in% method){
+			if(log2){
+				ratios <- cbind(ratios,log2(eCase)- log2(eCtrl))	
+			}else{
+				ratios <- cbind(ratios,eCase /	eCtrl)	
+			}
+		}else if(("subject" %in% names(pData(eset))) & !log2 ){ # paired design. note mean(A-B) =mean(A)-mean(B)
+			ratios <- cbind(ratios,apply(2^(log2(eCase) - log2(eCtrl)),1,method, na.rm=T))	
 		
-		if(method == "median"){
-			if(sum(allConditions == cC) > 1){
-				mCase <- unlist(apply(exprs(eset)[,allConditions == cC],1,median, na.rm=T))
+		}else{ # non-paired design
+			if(log2){
+				ratios <- cbind(ratios,apply(log2(eCase),1,method, na.rm=T) - apply(log2(eCtrl),1,method, na.rm=T))	
+			}else{
+				ratios <- cbind(ratios,apply(eCase,1,method, na.rm=T) /	apply(eCtrl,1,method, na.rm=T))	
 			}
-			if(sum(allConditions == controlCondition) > 1){
-				mControl <- unlist(apply(exprs(eset)[,allConditions == controlCondition],1,median, na.rm=T))
-			}
-		}else if(method == "mean"){
-			if(sum(allConditions == cC) > 1){
-				mCase <- unlist(apply(exprs(eset)[,allConditions == cC],1,mean, na.rm=T))
-			}
-			if(sum(allConditions == controlCondition) > 1){
-				mControl <- unlist(apply(exprs(eset)[,allConditions == controlCondition],1,mean, na.rm=T))
-			}
-		}else{
-			stop("Unknown method ",method)
 		}
-		ratios <- cbind(ratios,mCase/ mControl)
 	}
 	
-	names(ratios) <- caseConditions
-	
-	if(log2){
-		return(log2(ratios))
+	if("paired" %in% method){
+		names(ratios) <- rownames(pData(eset))[!pData(eset)$isControl]
 	}else{
-		return(ratios)
+		names(ratios) <- caseConditions	
 	}
+	
+	return(ratios)
 }
+
+#getRatios <- function(eset, method="median", log2=T){
+#	
+#	if(sum(c("median","mean") %in% method)  == 0 ){
+#		stop("Unknown method ",method)
+#	}
+#	
+#	if(log2){
+#		exprs(eset) <- log2(exprs(eset))
+#	}
+#	
+#	controlCondition <- .getControlCondition(eset)
+#	caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
+#	
+#	ratios <- data.frame(row.names=featureNames(eset))
+#	
+#	for(cC in caseConditions){
+#			
+#			mCase <- exprs(eset)[, pData(eset)$condition == cC]
+#			mControl <- exprs(eset)[, pData(eset)$condition == controlCondition]
+#			
+#			if(method == "median"){
+#				if(sum(pData(eset)$condition == cC) > 1){
+#					mCase <- unlist(apply(exprs(eset)[, pData(eset)$condition == cC],1,median, na.rm=T))
+#				}
+#				if(sum(pData(eset)$condition == controlCondition) > 1){
+#					mControl <- unlist(apply(exprs(eset)[,pData(eset)$condition == controlCondition],1,median, na.rm=T))
+#				}
+#			}else if(method == "mean"){
+#				
+#				if(sum(pData(eset)$condition == cC) > 1){
+#					mCase <- unlist(apply(exprs(eset)[,pData(eset)$condition == cC],1,mean, na.rm=T))
+#				}
+#				if(sum(pData(eset)$condition == controlCondition) > 1){
+#					mControl <- unlist(apply(exprs(eset)[,pData(eset)$condition == controlCondition],1,mean, na.rm=T))
+#				}
+#			}			
+#			if(log2){
+#				ratios <- cbind(ratios,mCase - mControl)
+#			}else{
+#				ratios <- cbind(ratios,mCase / mControl)
+#			}
+#		}
+#	
+#		head(ratios)
+#		
+#	names(ratios) <- caseConditions
+#	return(ratios)
+#}
 
 #' Calculate Coefficiant of Variance per feature (Relative standard Deviation) per Condition
 #' @param eset ExpressionSet
@@ -241,21 +304,44 @@ getRatios <- function(eset, method="median", log2=T){
 #' @examples print("No examples")
 getAllCV <- function(eset){
 	
-	allConditions <- unique(pData(eset)$condition)
+	
+	signal <- exprs(eset)
+	conditions <- unique(pData(eset)$condition)
+	expDesign <- pData(eset)
 	cv <- data.frame(row.names=featureNames(eset))
-	for(cond in allConditions){
+	
+	#if paired design 
+	if("subject" %in% names(pData(eset))){
+		#return(data.frame((matrix(nrow = nrow(eset), ncol = length(allConditions), dimnames=list(rownames(eset), allConditions) ))))
+		
+		controlCondition <- .getControlCondition(eset)
+		caseConditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
+		conditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
+		
+		# discard control from expDesign
+		expDesign <- subset(expDesign, condition %in% conditions)
+		# add all NAs for control condition
+		cv <- cbind(cv,rep(NA,nrow(cv)))
+		names(cv) <- controlCondition
+		
+		signal <- getRatios(eset,method="paired",log2=F)
+		
+	}
+		
+	for(cond in conditions){
 		
 		cvTmp <- rep(NA,nrow(cv))
-		colMatch <- pData(eset)$condition ==  cond
+		colMatch <- expDesign$condition ==  cond
 		
 		### if replicates
 		if(sum(colMatch) > 1){
-			cvTmp <- getCV(exprs(eset)[,colMatch])
+			cvTmp <- getCV(signal[,colMatch])
 		}
 		
 		cv <- cbind(cv,cvTmp)
+		names(cv)[ncol(cv)] <- cond
 	}
-	names(cv) <- allConditions
+
 	return(cv)
 }
 
@@ -528,65 +614,83 @@ sqNormalize <- function(eset, method="global"){
 #' @examples print("No examples")
 getSignalPerCondition <- function(eset,method="median"){
 	
-	#conditionNames <- levels(pData(eset)$condition)
 	conditionNames <- unique(as.character(pData(eset)$condition))
-	
 	perCondSignal <- data.frame(row.names=rownames(eset))
 	
-	if(method=="median"){
-		for(cond in conditionNames){
-			condMatch <-  cond== pData(eset)$condition
-			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,median, na.rm=T))
-			}else{
-				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
-			}
-		}
-	}else if(method=="mean"){
-		for(cond in conditionNames){
-			condMatch <-  cond== pData(eset)$condition
-			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,mean, na.rm=T))
-			}else{
-				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
-			}
-		}
+	if(sum(c("median","mean","mean","max", "min","sd") %in% method)  == 0 ){
+		stop("Unknown method ",method)
 	}
-	else if(method=="max"){
-		for(cond in conditionNames){
+	
+	for(cond in conditionNames){
 			condMatch <-  cond== pData(eset)$condition
-			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,max, na.rm=T))
-			}else{
-				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
-			}
-		}
-	}else if(method=="min"){
-		for(cond in conditionNames){
-			condMatch <-  cond== pData(eset)$condition
-			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,min, na.rm=T))
-			}else{
-				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
-			}
-		}
-	}else if(method=="sd"){
-		for(cond in conditionNames){
-			condMatch <-  cond== pData(eset)$condition
-			if(sum(condMatch) > 1){
-				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,sd, na.rm=T))
-			}else{
-				perCondSignal <- cbind(perCondSignal,NA)
-			}
-		}
-	}
-	else{
-		stop("Unknown method: method ")
+			perCondSignal <- cbind(perCondSignal,apply(subset(exprs(eset),select=which(condMatch)),1,method,na.rm=T))
 	}
 	names(perCondSignal) <- conditionNames
 	
 	return(perCondSignal)
 }
+	
+	
+#	}
+#	
+#	
+#	
+#	else if(method=="medianOld"){
+#		for(cond in conditionNames){
+#			condMatch <-  cond== pData(eset)$condition
+#			if(sum(condMatch) > 1){ # @TODO replace by subset function
+#				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,median, na.rm=T))
+#			}else{
+#				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
+#			}
+#		}
+#	}
+#	
+#	
+#	
+#	
+#	else if(method=="mean"){
+#		for(cond in conditionNames){
+#			condMatch <-  cond== pData(eset)$condition
+#			if(sum(condMatch) > 1){
+#				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,mean, na.rm=T))
+#			}else{
+#				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
+#			}
+#		}
+#	}
+#	else if(method=="max"){
+#		for(cond in conditionNames){
+#			condMatch <-  cond== pData(eset)$condition
+#			if(sum(condMatch) > 1){
+#				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,max, na.rm=T))
+#			}else{
+#				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
+#			}
+#		}
+#	}else if(method=="min"){
+#		for(cond in conditionNames){
+#			condMatch <-  cond== pData(eset)$condition
+#			if(sum(condMatch) > 1){
+#				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,min, na.rm=T))
+#			}else{
+#				perCondSignal <- cbind(perCondSignal,exprs(eset)[,condMatch])
+#			}
+#		}
+#	}else if(method=="sd"){
+#		for(cond in conditionNames){
+#			condMatch <-  cond== pData(eset)$condition
+#			if(sum(condMatch) > 1){
+#				perCondSignal <- cbind(perCondSignal,apply(exprs(eset)[,condMatch],1,sd, na.rm=T))
+#			}else{
+#				perCondSignal <- cbind(perCondSignal,NA)
+#			}
+#		}
+#	}
+#	else{
+#		stop("Unknown method: method ")
+#	}
+
 
 
 
@@ -881,5 +985,49 @@ standardise <- function(d){
 		return( (d - mean(d,na.rm=T)) / sd(d,na.rm=T) )
 	}
 }
+
+#> 	pData(eset)
+#condition isControl subject
+#A_rep_1         A     FALSE       1
+#A_rep_2         A     FALSE       2
+#B_rep_1         B     FALSE       1
+#B_rep_2         B     FALSE       2
+#C_rep_1         C      TRUE       1
+#C_rep_2         C      TRUE       2
+#' Create Paired Expdesign
+#' @param eset ExpressionSet
+#' @return ExpressionSet object
+#' @import Biobase 
+#' @export
+#' @note  No note
+#' @details  Add subject colum to phenoData design data.frame
+#' @references NA 
+#' @seealso \code{\link[Biobase]{ExpressionSet}}
+#' @examples print("No examples")
+createPairedExpDesign  <-function(eset){
+	
+	# make sure all conditions include the same number of runs
+	nbRunsPerCond <- unique(table(as.character(pData(eset)$condition)))
+	
+	if(length(nbRunsPerCond) != 1){
+		print(pData(eset))
+		stop("ERROR: createPairedExpDesign failed to create paired expDesign")
+	}
+	
+	# Paired designnot meaningful if no replicates
+	if(table(pData(eset)$condition)[1] == 1){
+		cat("WARNING: createPairedExpDesign Paired experimental design not meaningful when no replicates\n" )
+		return(eset)
+	}
+	
+	pData(eset) <- cbind(pData(eset),subject=as.factor(rep(1:nbRunsPerCond,length(unique(pData(eset)$condition)))))
+	
+	return(eset)
+}
+
+
+
+
+
 
 
