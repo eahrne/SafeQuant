@@ -302,6 +302,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @param expDesign experimental design data.frame
 #' @param method auc (area under curve) or spc (spectral count)
 #' @param expressionColIndices default .getProgenesisCsvExpressionColIndices()
+#' @param uniqueProteins T/F keep unique peptides only
 #' @return ExpressionSet object
 #' @export
 #' @import Biobase
@@ -312,7 +313,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
 parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc", 	
-		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) ){
+		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) , uniqueProteins=F ){
 	
 	# HACK to please CRAN CHECK "rollUp: no visible binding for global variable "Sequence""
 	Sequence <- Score <- resDTIndex <- proteinScore <- Accession <- NULL
@@ -362,7 +363,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	# Grouped accessions (for this sequence)	sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN
 	# Shared accessions (for this sequence)	sp|P12814|ACTN1_HUMAN
 		
-		### 
+	#  Here sp|P35609|ACTN2_HUMAN;sp|Q08043|ACTN3_HUMAN has no other peptides than those shared with (never appears without) sp|O43707|ACTN4_HUMAN
 		
 	#	Feature	Score	Sequence	Accession				All accessions (for this sequence)	Grouped accessions (for this sequence)	Shared accessions (for this sequence)
 	#	1770	62.91	AALSALESFLK	sp|P78527|PRKDC_HUMAN	sp|P78527|PRKDC_HUMAN		
@@ -380,10 +381,12 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	#Check that file includes column "Grouped accessions (for this sequence)"
 	if(!("Grouped accessions (for this sequence)" %in% names(res))) stop("Column \"Grouped accessions (for this sequence)\" missing in file ",file)
 	names(res)[1] <- "Feature"
+	names(res)[grepl("^Grouped",names(res))] <- "Grouped"
 	res$Score <- as.numeric(as.character(res$Score))
 	
 	resDT <-  data.table(res,key="Accession")
-	resDT$"Grouped accessions (for this sequence)" <- as.character(resDT$"Grouped accessions (for this sequence)")
+	resDT$Grouped <- as.character(resDT$Grouped)
+	#resDT$"Grouped accessions (for this sequence)" <- as.character(resDT$"Grouped accessions (for this sequence)")
 	resDT$Accession <- as.character(resDT$Accession)
 	
 	# 1) FIND PROTEIN GROUPS.  A PROTEIN GROUP IS A SET OF PROTEINS THAT A) SHARE THE EXACT SAME PEPTIDES.
@@ -391,20 +394,25 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	# In the Progensis Export "Peptide Measurments", the column "Grouped accessions (for this sequence)"
 	# is defined according to Condition A) only.
 	# "leading" refers to column "Accession" 
-	isGroup <- nchar(resDT$"Grouped accessions (for this sequence)") > 0
+	# Find all accessions that only appears as grouped
+	#isGroup <- nchar(resDT$"Grouped accessions (for this sequence)") > 0
+	isGroup <- nchar(resDT$Grouped) > 0	
+	
 	groupedAccessions <- unique(resDT$Accession[isGroup])
 	nonGroupedAccessions <- unique(resDT$Accession[!isGroup])
 	onlyGrouped <- groupedAccessions[ !(groupedAccessions %in% nonGroupedAccessions) ]
 	isOnlyGrouped <- resDT$Accession %in% onlyGrouped
 	
-	leadingGroupAcTable <- table(unique(data.frame(resDT$Accession[isOnlyGrouped],resDT$"Grouped accessions (for this sequence)"[isOnlyGrouped]))[,1])
+#	leadingGroupAcTable <- table(unique(data.frame(resDT$Accession[isOnlyGrouped],resDT$"Grouped accessions (for this sequence)"[isOnlyGrouped]))[,1])
+	leadingGroupAcTable <- table(unique(data.frame(resDT$Accession[isOnlyGrouped],resDT$Grouped[isOnlyGrouped]))[,1])
 # leading AC only part of one group
 	leadingACTrueGroup <- names(leadingGroupAcTable[leadingGroupAcTable == 1])
 	
 # add column myProteinGroup
 	resDT <- cbind(resDT,myProteinGroup= resDT$Accession )
 	isTrueGroup <- resDT$Accession %in% leadingACTrueGroup
-	resDT$myProteinGroup[isTrueGroup] <- paste(resDT[isTrueGroup,]$Accession,resDT[isTrueGroup,]$"Grouped accessions (for this sequence)",sep=";")
+#	resDT$myProteinGroup[isTrueGroup] <- paste(resDT[isTrueGroup,]$Accession,resDT[isTrueGroup,]$"Grouped accessions (for this sequence)",sep=";")
+	resDT$myProteinGroup[isTrueGroup] <- paste(resDT[isTrueGroup,]$Accession,resDT[isTrueGroup,]$Grouped,sep=";")
 	
 # 2) ASSIGN BEST SCORING PEPTIDE TO EACH FEATURE
 # Note that a peptide can be listed multiple times per 
@@ -435,11 +443,12 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	resDT <- cbind(resDT,resDTIndex=1:nrow(resDT))
 	featureDT <- resDT[resDT[, list(  selectedResDTIndex  = resDTIndex[order(proteinScore,decreasing=T)[1]]), by = key(resDT)]$selectedResDTIndex,]
 	
-	#@TODO add alternative/subset accessions 
 	# 6) Roll-up on peptide level concatenating all proteins matching a given peptide 
 	# create peptide to protein dict
 	setkey(resDT,"Sequence")
-	peptideDT <- resDT[, list(allAccessions = paste(unique(Accession),collapse=";")), by = key(resDT)] # could also include groups..
+	#peptideDT <- resDT[, list(allAccessions = paste(unique(Accession),collapse=";")), by = key(resDT)] # could also include groups..
+	peptideDT <- resDT[, list(allAccessions = paste(unique(c(unlist(strsplit(Grouped,";")),Accession )),collapse=";")), by = key(resDT)]	
+	
 	rownames(peptideDT) <- peptideDT$Sequence 
 	# get allProteins of a given peptide
 	featureDT <- cbind(featureDT,peptideDT[as.character(featureDT$Sequence),]) 
@@ -484,22 +493,34 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 			#		,row.names=res$Accession
 			# added
 			,nbPtmsPerPeptide = nbPtmsPerPeptide
-			,allAccessions = featureDT$allAccessions 	#@TODO add alternative/subset accessions 
+			,allAccessions = featureDT$allAccessions
+			,nbProteinConflicts =  unlist(lapply(featureDT$allAccessions,function(t){length(grep(";",strsplit(t,"")[[1]]))})) # e.g.  sp|Q5T1J5|CHCH9_HUMAN;sp|Q9Y6H1|CHCH2_HUMAN
 	)
 	
 	# discard non peptide annotated rows
 	isPep <- score > 0  
-	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
+	isUnique <- rep(T,nrow(featureAnnotations))
+	
+	if(uniqueProteins){ # keep unique peptides only
+		isUnique <- featureAnnotations$nbProteinConflicts == 0
+	#	cat("INFO: Discarded Non-unique peptide features", sum(!isUnique)," / ", length(isUnique),"\n" ) 
+	}
+	
+	### filter subset
+	subset <- !allColNA & isPep & isUnique
+	featureAnnotations <- subset(featureAnnotations,subset)
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
 	### re-order and exclude channels  
-	if(ncol(expMatrix) > 1){
-		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,rownames(expDesign)])
-	}else{ # to avoid crash when only one run
-		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
-	}
+	expMatrix <- subset(expMatrix,subset=subset, select=rownames(expDesign) )
+
+#	if(ncol(expMatrix) > 1){
+#		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,rownames(expDesign)])
+#	}else{ # to avoid crash when only one run
+#		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
+#	}
 	
 	colnames(expMatrix) <- rownames(expDesign)
 	
@@ -748,7 +769,7 @@ parseScaffoldRawFile <- function(file, expDesign=expDesign,keepFirstAcOnly=FALSE
 	)
 	
 	
-	featureAnnotations <- featureAnnotations[!allColNA,]
+	featureAnnotations <- subset(featureAnnotations,subset=!allColNA)
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))

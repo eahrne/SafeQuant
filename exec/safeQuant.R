@@ -100,7 +100,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
+		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, uniqueProteins=userOptions$FUniquePeptides)
 		
 	}else{ 	#"ProgenesisFeature"
 	
@@ -115,12 +115,28 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	# get default experimental design
 	# six plex or ten plex ?
 	# use default experimental design unless specified by the user
-	if(.getNbPlex(userOptions$inputFile) == 6){
+	nbPlex <- .getNbPlex(userOptions$inputFile) 
+	if(nbPlex == 6){
 		# 6-plex default: 1,2,3:4,5,6 
 		expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3)),sep=""),isControl=sort(rep(c(T,F),3),decreasing=T) )
 	}else{
 		# 10-plex default is "1,4,7,10:2,5,8:3,6,9"
 		expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+		
+	}
+		
+	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+	if(userOptions$TAdjustRatios){
+		if((nbPlex == 10)){ # only possible for tmt-10 plex
+			nbCalMixSpectra <- sum( (fData(eset)$proteinName %in% names(CALIBMIXRATIOS)))
+			if(nbCalMixSpectra < 100) stop("Not enough Calibration Mix spectra were found: ",nbCalMixSpectra, "\n ")
+			cat(": Found  ", nbCalMixSpectra ," Calibration Mix spectra\n")
+			esetCalibMix <- .getCalibMixEset(eset)
+			esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+		}else{
+			stop("Ratio Correction Not implemented for TMT 6-plex")
+		}
 	}
 	
 	# get user specified experimental design
@@ -128,8 +144,11 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		# user specified
 		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,expDesign)
 	}
-
-	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+#	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+	# apply specified experimental design
+	eset <- createExpressionDataset(expressionMatrix=exprs(eset)[,rownames(expDesign)],expDesign=expDesign,featureAnnotations=fData(eset))
 	
 	if(!is.na(userOptions$scaffoldPTMSpectrumReportFile)){
 		
@@ -262,6 +281,11 @@ if(userOptions$verbose){
 
 ############################################################### EXPRESSION ANALYSIS ############################################################### 
 
+# get ratio correction model
+if(userOptions$TAdjustRatios){
+	ratioCorrectionModel <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair, featureDataColumnName="peptide"))
+}
+
 # create paired experiemntal design()
 if(userOptions$ECorrelatedSamples){
 	eset <- createPairedExpDesign(eset)
@@ -286,8 +310,14 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	# roll-up protein level
 	cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered |  isDecoy(fData(esetNorm)$proteinName)
-	sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod)
 	
+	# correct TMT ratios
+	if(userOptions$TAdjustRatios){
+		sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod,ratioCorrectionModel=ratioCorrectionModel )
+	}else{
+		sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod)
+	}
+		
 	fData(sqaProtein$eset)$isFiltered <- fData(sqaProtein$eset)$isFiltered | isDecoy(fData(sqaProtein$eset)$proteinName) | (fData(sqaProtein$eset)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
 }else{
@@ -318,13 +348,27 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 		}else{
 			fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 		}
-		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
+		#sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
 
+		# correct TMT ratios
+		if(userOptions$TAdjustRatios){
+			sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod,ratioCorrectionModel=ratioCorrectionModel )
+		}else{
+			sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
+		}
+		
 	}
 	
 	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | isDecoy(fData(esetPeptide)$proteinName)
 
-	sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
+	#sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
+	# correct TMT ratios
+	if(userOptions$TAdjustRatios){
+		sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod,ratioCorrectionModel=ratioCorrectionModel )
+	}else{
+		sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
+	}
+	
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName) | (fData(esetNorm)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
@@ -444,6 +488,16 @@ if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
 	pairsAnnot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
 }else{
 	.correlationPlot(log10(getSignalPerCondition(sqaDisp$eset[rowSelSqaDisp & !fData(sqaDisp$eset)$isFiltered,]))[,as.character(unique(pData(sqaDisp$eset)$condition)) ],textCol=as.character(CONDITIONCOLORS[as.character(unique(pData(sqaDisp$eset)$condition)),]))
+}
+
+par(parDefault)
+
+
+### TMT calibration mix
+if(exists("esetCalibMixPair")){ 
+	#.plotTMTRatioVsRefRatio(esetCalibMixPair, cex.lab=1.5, cex.axis=1.5, main="spectrum")
+	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair , featureDataColumnName="peptide"), cex.lab=1.5, cex.axis=1.5, , main="PEPTIDE")
+	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair), cex.lab=1.5, cex.axis=1.5, , main="PROTEIN")
 }
 
 par(parDefault)
@@ -596,6 +650,13 @@ if(exists("sqaPeptide")){
 			, pValue
 			, qValue )[!fData(sqaPeptide$eset)$isFiltered,]
 	
+	### paired expDesign ratio export
+	if("subject" %in% names(pData(sqaPeptide$eset))){
+		allRatios <- getRatios(sqaPeptide$eset,method="paired")[!fData(sqaPeptide$eset)$isFiltered,]
+		names(allRatios) <- paste("log2_pairedRatio",names(allRatios),sep="_")
+		out <- cbind(out,allRatios)
+	}
+	
 	write.table(out
 			, file=userOptions$peptideTsvFilePath
 			, sep="\t"
@@ -624,6 +685,7 @@ if(exists("sqaProtein")){
 	qValue <- sqaProtein$qValue
 	if(length(names(qValue)) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
+
 	medianSignalDf <- getSignalPerCondition(sqaProtein$eset)
 	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
 	
@@ -662,6 +724,13 @@ if(exists("sqaProtein")){
 		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
 		
+	}
+	
+	### paired expDesign ratio export
+	if("subject" %in% names(pData(sqaProtein$eset))){
+		allRatios <- getRatios(sqaProtein$eset,method="paired")[!fData(sqaProtein$eset)$isFiltered,]
+		names(allRatios) <- paste("log2_pairedRatio",names(allRatios),sep="_")
+		out <- cbind(out,allRatios)
 	}
 	
 	write.table(out

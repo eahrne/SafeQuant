@@ -8,6 +8,7 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	setwd(dirname(sys.frame(1)$ofile))
 }
 source("initTestSession.R")
+
 ### INIT END
 ### test functions
 
@@ -62,6 +63,18 @@ testCreateExpDesign <- function(){
 	
 }
 
+testGetCalibMixPairedEset <- function(){
+	
+	cat("--- testGetCalibMixPairedEset: --- \n")
+	esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+	
+	stopifnot(ncol(esetCalibMixPair)  == 2 )
+	stopifnot(nrow(esetCalibMixPair)  == nrow(esetCalibMix)*5 )
+	
+	cat("--- testGetCalibMixPairedEset:  PASS ALL TEST  --- \n")
+	
+}
+
 ### compare our impurity correction to MSnbase
 #comparePurityCorrectionToMsnbase <- function(){
 #	
@@ -101,20 +114,40 @@ testCreateExpDesign <- function(){
 #
 #} 
 
+testGetCalibMixEset <- function(){
+	
+	cat("--- testGetCalibMixEset:  --- \n")
+	esetCalibMix <- .getCalibMixEset(esetCalibMix)
+	stopifnot(nrow(esetCalibMix) == 437)
+	cat("--- testGetCalibMixEset:  PASS ALL TEST  --- \n")
+	
+}
+
+testGetCalibMixPairedEset <- function(){
+	
+	cat("--- testGetCalibMixPairedEset:  --- \n")
+	esetCalibMixPair <- .getCalibMixPairedEset(.getCalibMixEset(esetCalibMix))
+	
+	stopifnot(nrow(esetCalibMixPair) == 2185)
+	stopifnot(ncol(esetCalibMixPair) == 2)
+	
+	cat("--- testGetCalibMixPairedEset:  PASS ALL TEST  --- \n")
+	
+}
+
+testGetRatioCorrectionFactorModel <- function(){
+	
+	cat("--- testGetRatioCorrectionFactorModel:  --- \n")
+	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
+	stopifnot(round(coef(fit)[2],1) == 1.4)
+	cat("--- testGetRatioCorrectionFactorModel:  PASS ALL TEST  --- \n")
+	
+}
+
 ### test functions end
 
 # INIT
 
-### CREATE TEST DATA
-
-tmtTestData6Plex <- matrix(rep(10,24),ncol=6)
-tmtTestData6Plex[2,1:3] <- c(9,9,9) 
-tmtTestData6Plex[3,1:3] <- c(100,100,100) 
-tmtTestData6Plex[4,c(1,3,5)] <- c(100,100,100) 
-
-tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
-
-### CREATE TEST DATA END
 
 
 ### INIT END
@@ -124,32 +157,13 @@ tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
 testGetImpuritiesMatrix()
 testPurityCorrectTMT()
 testCreateExpDesign()
+testGetCalibMixEset()
+testGetCalibMixPairedEset()
+testGetRatioCorrectionFactorModel()
+
+
 #comparePurityCorrectionToMsnbase()
 ### TESTS END
-
-
-
-###### RATIO CORRECTION
-#
-#source("/Users/ahrnee-adm/dev/R/workspace/TMTRatioCorrection/TMTRatioCorrection.R")
-##load("/Users/ahrnee-adm/dev/R/workspace/SafeQuantCaseStudy/data/cristinaProteinCalMixTMT10.rda" )
-#load("/tmp/paired/paired_SQ.rData")
-#
-#esetCalibMix <- .getCalibMixEset(eset)
-#esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
-#
-#fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
-#
-#.plotTMTRatioVsRefRatio(esetCalibMixPair)
-#.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair, featureDataColumnName="peptide"))
-#.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair))
-#
-#
-#
-#
-#(fData(eset)$proteinName %in% names(CALIBMIXRATIOS))
-#
-
 
 
 

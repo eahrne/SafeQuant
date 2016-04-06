@@ -56,6 +56,7 @@ progenesisFeatureCsvFile2 <- "testData/2014/peptides2.csv"
 # scaffold
 scaffoldTmt6PlexRawTestFile <- "testData/scaffold_tmt6plex_raw.xls"
 scaffoldTmt10PlexRawTestFile <- "testData/scaffold_tmt10plex_raw.xls"
+scaffoldTmt10PlexCalibMixRawTestFile <- "testData/scaffold_tmt10plex_calibMix_raw.xls"
 
 #scaffoldPtmTMTRawDataFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Raw Data Report for Christoph-LE-Human-pH10fraction-TMT-20150630.xls"
 #scaffoldPtmReportFile1 <- "testData/scaffoldPTM/Christoph-LE-Human-pH10fraction-TMT-20150630/Spectrum Report of Scaffold_PTM_P-TMT-pH10 Experiment.xls"
@@ -151,4 +152,21 @@ exprs(esetPaired)[,4] <- rnorm(nrow(exprs(eset)),2400,2400/10)
 exprs(esetPaired)[,5] <- rnorm(nrow(exprs(eset)),1000,1000/10)
 exprs(esetPaired)[,6] <- rnorm(nrow(exprs(eset)),2000,2000/10)
 esetPaired <- createPairedExpDesign(esetPaired)
+
+
+##### TMT 
+### CREATE TEST DATA
+
+tmtTestData6Plex <- matrix(rep(10,24),ncol=6)
+tmtTestData6Plex[2,1:3] <- c(9,9,9) 
+tmtTestData6Plex[3,1:3] <- c(100,100,100) 
+tmtTestData6Plex[4,c(1,3,5)] <- c(100,100,100) 
+
+tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
+
+esetCalibMix <- parseScaffoldRawFile(file=scaffoldTmt10PlexCalibMixRawTestFile
+	,expDesign=data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) ))
+esetCalibMixPair <- .getCalibMixPairedEset(.getCalibMixEset(esetCalibMix))
+
+### CREATE TEST DATA END
 

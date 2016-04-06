@@ -846,14 +846,14 @@ hClustHeatMap <- function(eset
 	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
 	feature.cor.dist = as.dist(1-feature.cor)
 	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-	feature.tree = hclust(feature.cor.dist, method="ward")
+	feature.tree = hclust(feature.cor.dist, method="ward.D2")
 	
 	### !!!! clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
 	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
 	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
-	msrun.tree = hclust(msrun.cor.pearson.dist, method="ward")
+	msrun.tree = hclust(msrun.cor.pearson.dist, method="ward.D2")
 	
 	### sample colors
 	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
@@ -1517,3 +1517,35 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	par(mar=c(5.1,4.1,4.1,2.1))
 }
 
+# require pairide calibration mix eset
+#' @export
+.plotTMTRatioVsRefRatio <- function(esetCalibMixPair,ylim=c(-2.8,2.8), xlim=c(-2.8,2.8),cex.lab=2, cex.axis=2, ...){
+	
+	calMixDilutionTag <- round(log10(fData(esetCalibMixPair)$calMixDilution)+0.6)
+	plot(0,0
+			,xlab="TMT Ratio (log2)"
+			,ylab="Reference Ratio (log2)"
+			,xlim=xlim
+			,ylim=ylim
+			,type="n"
+			,cex.lab=cex.lab
+#			,xaxt="n"
+#			,yaxt="n"
+			,cex.axis=cex.axis
+			,...
+	)
+	
+	# add diagonal ref line
+	abline(coef=c(0,1), h=0, v=0,lty=2, col="grey")
+	
+	points(	getRatios(esetCalibMixPair)[,1]
+			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)
+			
+			,pch=19
+			,col=calMixDilutionTag+1)
+	
+	fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
+	abline(fit, lwd=1.5)
+	legend("topleft",c(expression(paste("4 (fmol/", mu,"g)")),"20","100"),title="Cal. Mix Concentration",fill=2:4,cex=1.5,box.lwd=F, box.col=0)
+	
+}

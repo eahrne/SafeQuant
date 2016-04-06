@@ -3,6 +3,16 @@
 # Author: erikahrne
 ###############################################################################
 
+CALIBMIXRATIOS <- list()
+CALIBMIXRATIOS [c(
+				"sp|P00489|PYGM_RABIT"
+				,"sp|P02789|TRFE_CHICK"
+				,"sp|P01012|OVAL_CHICK"
+				,"sp|P02666|CASB_BOVIN"
+				,"sp|P00722|BGAL_ECOLI"
+				,"tr|B6V3I5|B6V3I5_BOVIN"
+		)] <- 1/c(4,0.25,2,0.5,2,0.5)
+
 #' Get Thermo TMT impurity matrix
 #' @param plexNb integer, 6 or 10 plex 
 #' @return impurity matrix matrix
@@ -304,6 +314,112 @@ getIntSumPerProtein  <- function(intData,proteinACs,peptides,minNbPeptPerProt=1)
 	ret$peptidesPerProtein <- peptidesPerProtein
 	
 	return(ret)
+	
+}
+
+
+
+### filter for calMix protein and add reference ratios to feature data
+#' @export
+.getCalibMixEset <- function(eset, nbPlex = 10){
+	
+	# select for claib mix proteins
+	esetCalibMix <- eset[(fData(eset)$proteinName %in% names(CALIBMIXRATIOS)) ,]
+	# add refernce ratios to feature data
+	fData(esetCalibMix)$refRatio <- as.vector(unlist(CALIBMIXRATIOS[as.character(fData(esetCalibMix)$proteinName)]))
+	
+	if(nbPlex == 10){
+		# 1:2 20	5:6 4
+		# 3:4 100	1:2,7:8  20
+		# 5:6 4	--> 3:4,9:10 100
+		# 7:8 20	
+		# 9:10 100
+		# 
+		pData(esetCalibMix)$condition <- as.factor(paste("cond",c(1,2,3,4,5,6,1,2,3,4),sep="_"))
+		pData(esetCalibMix)$isControl <- rep(F,10)
+		pData(esetCalibMix)$isControl <- c(T,F,F,F,F,F,T,F,F,F)
+	}else{
+		stop("ERROR: Unkwon nbPLex option", nbPlex)
+	}
+	
+	return(esetCalibMix)
+}
+
+### filter for calMix protein and add reference ratios to feature data
+#' @export
+.getCalibMixPairedEset <- function(esetCalibMix){
+	
+	# make sure input eset only contain claibration mix proteins
+	esetCalibMix <- esetCalibMix[fData(esetCalibMix)$proteinName %in% names(CALIBMIXRATIOS),]
+	
+	# pair up featureData
+	esetPair <- esetCalibMix[,1:2]
+	
+	# add refernce ratios to feature data in case it's not already there
+	if(!("refRatio" %in% names(fData(esetCalibMix)))){
+		fData(esetCalibMix)$refRatio <- as.vector(unlist(CALIBMIXRATIOS[as.character(fData(esetCalibMix)$proteinName)]))
+	}
+	
+	fData(esetPair) <- rbind(fData(esetPair) 
+			, fData(esetPair)
+			, fData(esetPair)
+			, fData(esetPair)
+			, fData(esetPair)
+	)
+	
+	# add calibration mix dilution tag to featureData
+	calMixDilution <- c(rep(20,nrow(esetPair))
+			,rep(100,nrow(esetPair))
+			,rep(4,nrow(esetPair))
+			,rep(20,nrow(esetPair))
+			,rep(100,nrow(esetPair))
+	)
+	fData(esetPair) <- cbind(fData(esetPair),calMixDilution=calMixDilution)
+	
+	#add dilution to peptide and proteinName
+	fData(esetPair)$proteinName <- paste(fData(esetPair)$proteinName,"_",calMixDilution,sep="") 
+	fData(esetPair)$peptide <- paste(fData(esetPair)$peptide,"_",calMixDilution,sep="") 
+	
+	# pair up expression data
+	exprs(esetPair) <- rbind(
+			exprs(esetPair)[,1:2]
+			,exprs(esetCalibMix[,3:4])
+			,exprs(esetCalibMix[,5:6])
+			,exprs(esetCalibMix[,7:8])
+			,exprs(esetCalibMix[,9:10])
+	)
+	rownames(esetPair) <- 1:nrow(esetPair)
+	
+	# get rid of globalNormFactors column
+	pData(esetPair) <- pData(esetPair)[,1:2]
+	
+	return(esetPair)
+	
+}
+
+#' Get linear model explaning log2 ratio as a function of log2 tmt ratio 
+#' @param eset paired calibration mix
+#' @return linear model
+#' @export
+#' @note  No note
+#' @details Uses linear model of log tmt ratio vs  log ref ratio
+#' @references NA 
+#' @examples print("No examples")
+getRatioCorrectionFactorModel <- function(eset){
+	log2RefRatio <- log2(fData(eset)$refRatio)
+	log2TmtRatio <- getRatios(eset)[,1]
+	ok <- is.finite(log2RefRatio) & is.finite(log2TmtRatio)
+	data <- data.frame(refRatio=log2RefRatio[ok],tmtRatio=log2TmtRatio[ok])
+	
+	fit <- lm(  refRatio ~ tmtRatio  ,data=data)
+	
+	if(abs(fit$coefficients[1]) > 0.1){
+		cat("WARN: getRatioCorrectionFactorModel: Large intercept\n")
+		#print(fit)
+	}
+	
+	fit$coefficients[1] <- 0
+	return(fit)
 	
 }
 

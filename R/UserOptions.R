@@ -49,10 +49,10 @@ option_list <- list(
 				help="FILTER (LFQ ONLY): --FF Identification level False Discovery Rate Cutoff.  [0-1] [default %default]",
 				metavar="Peptide/Protein FDR cutoff"),
 		
-		make_option(c("--FCoefficientOfVarianceMax"), type="double", default=Inf,
-				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical 
-				test for differential expression [default %default]",
-				metavar="Coefficent of Variance cutoff"),
+#		make_option(c("--FCoefficientOfVarianceMax"), type="double", default=Inf,
+#				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical 
+#				test for differential expression [default %default]",
+#				metavar="Coefficent of Variance cutoff"),
 		
 		#### peptide analysis specfic
 		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="AUTO SET",
@@ -78,9 +78,25 @@ option_list <- list(
 						Peptide analysis ONLY.",
 				metavar="Min Peptide Length (>=)"),
 		
+		#### 
+		make_option(c("--FUniquePeptides"), action="store_true", default=FALSE,
+				help="FILTER: --FU Discard all peptides mapping to multiple protein entries [default %default]
+			Note that by default all peptides are used for quantification and assigned to proteins using 
+			a Occam's Razor based algorithm.   
+				"),
+		
 		
 # FILTER (--F) END	
+
+# TMT (--T)
 		
+		# correct tmt ratios
+		make_option(c("--TAdjustRatios"), action="store_true", default=FALSE,
+				help="TMT: --TA Adjust TMT ratios using calibration mix proteins [default %default]
+						"),
+
+# TMT (--T) END
+
 # STATISTICS (--S)
 	
 	make_option(c("--SAnchorProtein"), type="character", default=".",
@@ -272,11 +288,11 @@ getUserOptions <- function(version=version){
 	}
 		
 	#FILTER: cvCutOff
-	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
-	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
-		print(paste("ERROR. cvCutOff must be > 0. You specified ", userOptions$cvCutOff))
-		q(status=-1)
-	}
+#	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
+#	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
+#		print(paste("ERROR. cvCutOff must be > 0. You specified ", userOptions$cvCutOff))
+#		q(status=-1)
+#	}
 
 	#FILTER: minNbPeptidesPerProt
 	userOptions$minNbPeptidesPerProt <- cmdOpt$FNumberOfPeptidesPerProteinMin
@@ -299,7 +315,16 @@ getUserOptions <- function(version=version){
 		q(status=-1)
 	}
 	
+	#FILTER: FUniquePeptides
+	userOptions$FUniquePeptides <- cmdOpt$FUniquePeptides
+	
 # FILTER (--F) END
+
+# TMT
+	userOptions$TAdjustRatios <- cmdOpt$TAdjustRatios
+
+# TMT END
+
 
 # STATISTICS
 	

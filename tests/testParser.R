@@ -149,6 +149,10 @@ testParseProgenesisPeptideMeasurementCsv <- function(){
 	
 	stopifnot(sum(grepl(";",fData(eset)$proteinName)) == 2)
 	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
+	stopifnot(all.equal(which(fData(eset)$nbProteinConflicts == 1), c(33,66)))
+	
+	esetUnique <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1), uniqueProteins = T)
+	stopifnot(sum(fData(esetUnique)$nbProteinConflicts) == 0)
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")
 	
@@ -197,25 +201,31 @@ testAddScaffoldPTMFAnnotations <- function(){
 ### TEST FUNCTIONS END
 
 
+
+#testParseProgenesisPeptideMeasurementCsv()
+
 ### TESTS
-testGetFileType()
-
+if(T){
+	testGetFileType()
+	
 # progenesis
-testGetProgenesisCsvExpressionColIndices()
-testGetExpDesignProgenesisCsv()
-testParseProgenesisProteinCsv()
-testParseProgenesisFeatureCsv()
-testParseProgenesisPeptideMeasurementCsv()
-
+	testGetProgenesisCsvExpressionColIndices()
+	testGetExpDesignProgenesisCsv()
+	testParseProgenesisProteinCsv()
+	testParseProgenesisFeatureCsv()
+	testParseProgenesisPeptideMeasurementCsv()
+	
 # scaffold 
-testGetSkipLineNb()
-testParseScaffoldRawFile()
-testGetNbPlex()
-testParseScaffoldPTMReport()
-testAddScaffoldPTMFAnnotations()
-
+	testGetSkipLineNb()
+	testParseScaffoldRawFile()
+	testGetNbPlex()
+	testParseScaffoldPTMReport()
+	testAddScaffoldPTMFAnnotations()
+	
 # max quant
-testParseMaxQuantProteinGroupTxt()
+	testParseMaxQuantProteinGroupTxt()
+}
+
 
 ### TESTS END
 
