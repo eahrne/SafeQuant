@@ -418,9 +418,9 @@ plotVolcano <- function(obj
 		
 		### need at least two condiotions
 		if(length(unique(pData(obj$eset)$condition)) == 1){
-			return(warning("INFO: Only one condition no plotVolcano \n"))
+			return(cat("INFO: Only one condition no plotVolcano \n"))
 		}
-				
+		
 		# ensure the same range on all volcano plots
 		xlim <- range(obj$ratio, na.rm=T)
 		
@@ -1424,8 +1424,15 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 #' @references NA
 #' @examples print("No examples")
 plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
+	
+	### we need at least two conditions
+	if(length(unique(pData(sqa$eset)$condition)) == 1){
+		return(cat("INFO: Only one condition no plotQValueVsPValue \n"))
+	}
+	
 	conditionColors <- .getConditionColors(sqa$eset)
 	conditions <- names(sqa$pValue)
+	
 	
 	plot(0,0,xlab="pValue",ylab="False Discovery Rate (qValue)", type="n", xlim=lim,ylim=lim)
 	grid()

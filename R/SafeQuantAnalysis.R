@@ -11,9 +11,10 @@
 #' safeQunat s3 class
 #' @param eset ExpressionSet
 #' @param ratioCorrectionModel lm (linear model object)
+#' @param fcThrs fold change threshold
 #' @param method  c("global","naRep","rt","quantile","pairwise","all)
 #' @export
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), ratioCorrectionModel=NA){
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), ratioCorrectionModel=NA, fcThrs=1){
 	
 	out <- list()
 	class(out) <- "safeQuantAnalysis"
@@ -61,7 +62,9 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	
 	### we need at least two runs
 	if(length(unique(pData(eset)$condition)) > 1){
-		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
+		
+		adjustFilter <- data.frame((abs(out$ratio) < log2(fcThrs)))
+		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel) )
 	}
 	out$baselineIntensity <- baselineIntensity
 	

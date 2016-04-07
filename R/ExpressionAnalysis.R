@@ -89,7 +89,7 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809} 
 #' @seealso \code{\link[limma]{eBayes}}
 #' @examples print("No examples")
-getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
+getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFilter=matrix(F,nrow=nrow(eset),ncol=length(levels(pData(eset)$condition))-1  ) ){
 	
 	#### calculate moderated t-statistic, empirical Bayes method, Smyth (2004) 
 	
@@ -105,9 +105,6 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 	if(max(table(pData(eset)$condition)) == 1){
 		return(data.frame( matrix(nrow=nrow(eset), ncol = length(caseConditions), dimnames = list(rownames(eset),caseConditions))))
 	}
-	
-	#@TODO comp ratios
-	#compRatios <- getRatios(eset,method="mean")
 	
 	if(log)(exprs(eset) <- log2(exprs(eset)))
 	
@@ -181,7 +178,10 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise"){
 		
 	if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg (1995) method 
 		for(i in 1:ncol(pvalues)){
-			pvalues[,i] <-p.adjust(pvalues[,i],method="BH")
+			
+			pvaluesTmp <-  pvalues[,i]
+			pvaluesTmp[adjustFilter[,i]] <- NA
+			pvalues[,i] <-p.adjust(pvaluesTmp,method="BH")
 		}
 	}
 	return(pvalues)	
@@ -215,16 +215,19 @@ getRatios <- function(eset, method="median", log2=T){
 	for(cC in caseConditions){
 		eCase <- subset(exprs(eset),select=which(pData(eset)$condition == cC))
 		
-		### return paired all paired ratios instead of mean/median per condition
-		if("paired" %in% method){
+		if("subject" %in% names(pData(eset))){
+			
 			if(log2){
-				ratios <- cbind(ratios,log2(eCase)- log2(eCtrl))	
+				rTmp <- log2(eCase) - log2(eCtrl)
 			}else{
-				ratios <- cbind(ratios,eCase /	eCtrl)	
+				rTmp <- eCase /	eCtrl
 			}
-		}else if(("subject" %in% names(pData(eset))) & !log2 ){ # paired design. note mean(A-B) =mean(A)-mean(B)
-			ratios <- cbind(ratios,apply(2^(log2(eCase) - log2(eCtrl)),1,method, na.rm=T))	
-		
+				
+			if("paired" %in% method){ ### return paired all paired ratios instead of mean/median per condition
+					ratios <- cbind(ratios,rTmp)	
+			}else{
+					ratios <- cbind(ratios,apply(rTmp,1,median))
+			}	
 		}else{ # non-paired design
 			if(log2){
 				ratios <- cbind(ratios,apply(log2(eCase),1,method, na.rm=T) - apply(log2(eCtrl),1,method, na.rm=T))	

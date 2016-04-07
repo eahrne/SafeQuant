@@ -49,6 +49,16 @@ testGetAllEBayes <- function(){
 	stopifnot(all(apply(pValPaired,2,sum) < apply(pValNonPaired,2,sum)))
 	stopifnot(all(apply(pValPairedPairwise,2,sum) < apply(pValNonPairedPairwise,2,sum)))
 	
+	# adjustment filter
+	
+	adjustfilter <- data.frame(rep(T,nrow(eset)),rep(T,nrow(eset)) )
+	adjustfilter[1,1] <- F
+	adjustfilter[2,2] <- F
+		
+	pTmp <- getAllEBayes(eset,adjust=T, adjustFilter=adjustfilter)
+	stopifnot(p[1,1] == pTmp[1,1])
+	stopifnot(p[2,2] == pTmp[2,2])
+	stopifnot(is.na(pTmp[3,2]))
 	cat("--- testGetAllEBayes: PASS ALL TEST --- \n")
 
 	# Question: limma multiple groups comparison produces different pvalue comparing with two group comparsion	
@@ -85,6 +95,10 @@ testGetRatios <- function(){
 	# should fail	
 	stopifnot((inherits(try(	getRatios(eset, method="paired"), silent = TRUE), "try-error")))
 
+	
+	stopifnot(all(round(getRatios(esetPaired)[,1],2) ==  round(apply(rPaired[,1:2],1,median),2)))
+	
+	
 	cat("--- testGetRatios: PASS ALL TEST --- \n")
 	
 }
@@ -386,6 +400,7 @@ testCreatePairedExpDesign <- function(){
 #testGetRatios()
 #testGetAllEBayes()
 #testGetSignalPerCondition()
+#testGetRatios()
 
 if(T){
 	testCreateExpressionDataset()

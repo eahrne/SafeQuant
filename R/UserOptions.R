@@ -85,6 +85,10 @@ option_list <- list(
 			a Occam's Razor based algorithm.   
 				"),
 		
+		make_option(c("--FRatioCutOff"), type="double", default=1,
+				help="FILTER: --FR Intensity ratio (fold change) cut-off used for graphics export. >1 [default %default]",
+				metavar="Intensity ratio cutoff"),	
+
 		
 # FILTER (--F) END	
 
@@ -132,11 +136,8 @@ option_list <- list(
 # EXPERIMENTAL DESIGN (--E) END
 
 # PDF-REPORT (--P) 
-	make_option(c("--PRatioCutOff"), type="double", default=1,
-		help="PDF-REPORT: --PR Intensity ratio (fold change) cut-off used for graphics export. >1 [default %default]",
-		metavar="Intensity ratio cutoff"),	
 
-	make_option(c("--PQvaueCutOff"), type="double", default=0.01,
+	make_option(c("--PQvalueCutOff"), type="double", default=0.01,
 			help="PDF-REPORT: --PQ Qvalue cut-off used for graphics. 
 			High-lighting features with a qval < specified value. [0-1] [default %default]",
 			metavar="Differential expression qvalue cutOff"),	
@@ -318,6 +319,13 @@ getUserOptions <- function(version=version){
 	#FILTER: FUniquePeptides
 	userOptions$FUniquePeptides <- cmdOpt$FUniquePeptides
 	
+	#FILTER: ratioCutOff
+	userOptions$ratioCutOff <- cmdOpt$FRatioCutOff
+	if(is.na(userOptions$ratioCutOff) | userOptions$ratioCutOff < 1){
+		cat("ERROR. ratioCutoff must be > 1. You specified",userOptions$ratioCutOff,"\n")
+		q(status=-1)
+	}
+	
 # FILTER (--F) END
 
 # TMT
@@ -353,15 +361,8 @@ getUserOptions <- function(version=version){
 
 # PDF-REPORT (--P)
 
-	# PDF-REPORT: ratioCutOff
-	userOptions$ratioCutOff <- cmdOpt$PRatioCutOff
-	if(is.na(userOptions$ratioCutOff) | userOptions$ratioCutOff < 1){
-		cat("ERROR. ratioCutoff must be > 1. You specified",userOptions$ratioCutOff,"\n")
-		q(status=-1)
-	}
-	
 	# PDF-REPORT: deFdrCutoff
-	userOptions$deFdrCutoff <- cmdOpt$PQvaueCutOff
+	userOptions$deFdrCutoff <- cmdOpt$PQvalueCutOff
 	if(is.na(userOptions$deFdrCutoff) | userOptions$deFdrCutoff <= 0 | userOptions$deFdrCutoff > 1 ){
 		cat("ERROR. deFdrCutoff must be in the range [0-1]. You specified",userOptions$deFdrCutoff,"\n")
 		q(status=-1)

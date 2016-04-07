@@ -53,6 +53,10 @@ testSafequantAnalysis <- function(){
 	stopifnot(round(sqaTMTCorrected$ratio[400,2],2) == round( rTmp[400,2]*coef(fit)[2] ,2))
 	stopifnot(all(safeQuantAnalysis(esetCalibMix, method=c(""))$pValue == sqaTMTCorrected$pValue))
 	
+	# ratio filter multiple testing
+	sqaRatioMT <- safeQuantAnalysis(eset,fcThrs =2^quantile(getRatios(eset)[,1])[2])
+	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) == 496)
+	
 	cat("--- testSafequantAnalysis: PASS ALL TEST --- \n")
 	
 }
