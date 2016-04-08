@@ -1440,6 +1440,11 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 		
 		pVal <- sqa$pValue[,cond]
 		qVal <- sqa$qValue[,cond]
+		
+		# discard NA's
+		pVal <- pVal[!is.na(qVal)]
+		qVal <- qVal[!is.na(qVal)]
+		
 		o <- order(pVal)
 		lines(pVal[o],qVal[o],col= as.character(conditionColors[cond ,]), lwd=2)
 	}
