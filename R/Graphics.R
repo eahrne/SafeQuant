@@ -843,10 +843,12 @@ hClustHeatMap <- function(eset
 	# @TODO adapt to accomaodated paired expDesign 
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 	
-	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
-	feature.cor.dist = as.dist(1-feature.cor)
-	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-	feature.tree = hclust(feature.cor.dist, method="ward.D2")
+#	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
+#	feature.cor.dist = as.dist(1-feature.cor)
+#	feature.cor.dist[is.na(feature.cor.dist)] <- 0
+#	feature.tree = hclust(feature.cor.dist, method="ward.D2")
+	
+	feature.tree = hclust(dist(log2RatioPerMsRun,method = "euclidean"), method="ward.D2")
 	
 	### !!!! clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
 	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
