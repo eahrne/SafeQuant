@@ -4,12 +4,17 @@
 \alias{safeQuantAnalysis}
 \title{safeQunat s3 class}
 \usage{
-safeQuantAnalysis(eset = eset, method = c("global", "naRep", "pairwise"))
+safeQuantAnalysis(eset = eset, method = c("global", "naRep", "pairwise"),
+  ratioCorrectionModel = NA, fcThrs = 1)
 }
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{method}{c("global","naRep","pairwise")}
+\item{method}{c("global","naRep","rt","quantile","pairwise","all)}
+
+\item{ratioCorrectionModel}{lm (linear model object)}
+
+\item{fcThrs}{fold change threshold}
 }
 \description{
 safeQunat s3 class

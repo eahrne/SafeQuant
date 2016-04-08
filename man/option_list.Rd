@@ -4,7 +4,7 @@
 \name{option_list}
 \alias{option_list}
 \title{Command Line Option List}
-\format{\preformatted{List of 25
+\format{\preformatted{List of 27
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr "-i"
   .. ..@ long_flag : chr "--inputFile"
@@ -79,15 +79,6 @@
   .. ..@ metavar   : chr "Peptide/Protein FDR cutoff"
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
-  .. ..@ long_flag : chr "--FCoefficientOfVarianceMax"
-  .. ..@ action    : chr "store"
-  .. ..@ type      : chr "double"
-  .. ..@ dest      : chr "FCoefficientOfVarianceMax"
-  .. ..@ default   : num Inf
-  .. ..@ help      : chr "FILTER: --FC Do not include features with C.V. above this threshold in statistical \\n\\t\\t\\t\\ttest for differential expression ["| __truncated__
-  .. ..@ metavar   : chr "Coefficent of Variance cutoff"
- $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
-  .. ..@ short_flag: chr NA
   .. ..@ long_flag : chr "--FDeltaMassTolerancePrecursor"
   .. ..@ action    : chr "store"
   .. ..@ type      : chr "character"
@@ -124,6 +115,33 @@
   .. ..@ metavar   : chr "Min Peptide Length (>=)"
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
+  .. ..@ long_flag : chr "--FUniquePeptides"
+  .. ..@ action    : chr "store_true"
+  .. ..@ type      : chr "logical"
+  .. ..@ dest      : chr "FUniquePeptides"
+  .. ..@ default   : logi FALSE
+  .. ..@ help      : chr "FILTER: --FU Discard all peptides mapping to multiple protein entries [default \%default]\\n\\t\\t\\tNote that by default all peptid"| __truncated__
+  .. ..@ metavar   : chr(0) 
+ $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
+  .. ..@ short_flag: chr NA
+  .. ..@ long_flag : chr "--FRatioCutOff"
+  .. ..@ action    : chr "store"
+  .. ..@ type      : chr "double"
+  .. ..@ dest      : chr "FRatioCutOff"
+  .. ..@ default   : num 1
+  .. ..@ help      : chr "FILTER: --FR Intensity ratio (fold change) cut-off used for graphics export. >1 [default \%default]"
+  .. ..@ metavar   : chr "Intensity ratio cutoff"
+ $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
+  .. ..@ short_flag: chr NA
+  .. ..@ long_flag : chr "--TAdjustRatios"
+  .. ..@ action    : chr "store_true"
+  .. ..@ type      : chr "logical"
+  .. ..@ dest      : chr "TAdjustRatios"
+  .. ..@ default   : logi FALSE
+  .. ..@ help      : chr "TMT: --TA Adjust TMT ratios using calibration mix proteins [default \%default]\\n\\t\\t\\t\\t\\t\\t"
+  .. ..@ metavar   : chr(0) 
+ $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
+  .. ..@ short_flag: chr NA
   .. ..@ long_flag : chr "--SAnchorProtein"
   .. ..@ action    : chr "store"
   .. ..@ type      : chr "character"
@@ -147,7 +165,7 @@
   .. ..@ type      : chr "logical"
   .. ..@ dest      : chr "SNonPairWiseStatTest"
   .. ..@ default   : logi FALSE
-  .. ..@ help      : chr "STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values [default \%default]"
+  .. ..@ help      : chr "STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values.\\n\\t\\t\\t I.e. variance is pooled, per protein/peptide, acro"| __truncated__
   .. ..@ metavar   : chr(0) 
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
@@ -169,19 +187,19 @@
   .. ..@ metavar   : chr(0) 
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
-  .. ..@ long_flag : chr "--PRatioCutOff"
-  .. ..@ action    : chr "store"
-  .. ..@ type      : chr "double"
-  .. ..@ dest      : chr "PRatioCutOff"
-  .. ..@ default   : num 1
-  .. ..@ help      : chr "PDF-REPORT: --PR Intensity ratio (fold change) cut-off used for graphics export. >1 [default \%default]"
-  .. ..@ metavar   : chr "Intensity ratio cutoff"
+  .. ..@ long_flag : chr "--ECorrelatedSamples "
+  .. ..@ action    : chr "store_true"
+  .. ..@ type      : chr "logical"
+  .. ..@ dest      : chr "ECorrelatedSamples "
+  .. ..@ default   : logi FALSE
+  .. ..@ help      : chr "EXPERIMENTAL DESIGN: --EC Apply \\"paired\\" statistical tests [default \%default]"
+  .. ..@ metavar   : chr(0) 
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
-  .. ..@ long_flag : chr "--PQvaueCutOff"
+  .. ..@ long_flag : chr "--PQvalueCutOff"
   .. ..@ action    : chr "store"
   .. ..@ type      : chr "double"
-  .. ..@ dest      : chr "PQvaueCutOff"
+  .. ..@ dest      : chr "PQvalueCutOff"
   .. ..@ default   : num 0.01
   .. ..@ help      : chr "PDF-REPORT: --PQ Qvalue cut-off used for graphics. \\n\\t\\t\\tHigh-lighting features with a qval < specified value. [0-1] [default"| __truncated__
   .. ..@ metavar   : chr "Differential expression qvalue cutOff"

@@ -4,7 +4,9 @@
 \alias{getAllEBayes}
 \title{Perform statistical test (mderated t-test), comparing all case to control}
 \usage{
-getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise")
+getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise",
+  adjustFilter = matrix(F, nrow = nrow(eset), ncol =
+  length(levels(pData(eset)$condition)) - 1))
 }
 \arguments{
 \item{eset}{ExpressionSet}
@@ -13,7 +15,7 @@ getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise")
 
 \item{log}{T/F log-transform expression values}
 
-\item{method}{c("pairwise","all")}
+\item{method}{c("all","pairwise")}
 }
 \value{
 ExpressionSet object
