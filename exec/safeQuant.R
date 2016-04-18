@@ -294,11 +294,17 @@ if(userOptions$ECorrelatedSamples){
 ### non-pairwise stat test
 statMethod <- c("")
 if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
+if(userOptions$SRawDataAnalysis){ # No Normalization
+	esetNorm <- eset
+}else{
+	esetNorm <- sqNormalize(eset)
+}
 
-esetNorm <- sqNormalize(eset)
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
-exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
+#sel <- is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  
+#exprs(esetNorm)[ sel ] <- abs(runif(sum(sel),0,1))  
+exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
 
 if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){

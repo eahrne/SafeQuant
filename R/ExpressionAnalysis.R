@@ -131,8 +131,7 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
 		#		# C  0  1
 		contrastMatrix <- makeContrasts(contrasts=paste(caseConditions,"-", controlCondition),levels=design)
 		colnames(contrastMatrix) <- caseConditions
-		
-		
+				
 		# fit contrasts coefficients
 		fitContrasts <- eBayes(contrasts.fit(fit,contrastMatrix))
 		pvalues <- data.frame(fitContrasts$p.value[,caseConditions])
@@ -511,13 +510,15 @@ getGlobalNormFactors <- function(eset, method="sum"){
 	if(!is.null(fData(eset)$isNormAnchor) & !is.null(fData(eset)$isFiltered)){
 		
 		### only use feature qunatified in all runs for normalization
-		isAllSignal <- as.vector(apply(is.finite(exprs(eset)),1,sum) == ncol(eset))
+		isAllSignal <- as.vector(apply(is.finite(exprs(eset)),1,sum, na.rm=T) == ncol(eset))
 		
 		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered & isAllSignal
 	
 		if(sum(sel) == 0){
-			stop("Error: getGlobalNormFactors -> Invalid Anchor Protein Selection ")
-		}
+			#stop("Error: getGlobalNormFactors -> Invalid Anchor Protein Selection ")
+			cat("WARNING: getGlobalNormFactors -> No proteins matching Anchor Protein Selection \n ")
+			return(rep(1,ncol(eset)))
+		}						
 	}
 	
 	if(method == "sum"){
@@ -527,9 +528,7 @@ getGlobalNormFactors <- function(eset, method="sum"){
 	}else{
 		stop("Error: Unknown Global Normalization Method", method)		
 	}
-	
 	normFactors = as.numeric(rawDataIdx[1]) / as.numeric(rawDataIdx)
-	
 	return(normFactors)
 	
 }
@@ -574,7 +573,6 @@ sqNormalize <- function(eset, method="global"){
 	if("global" %in% method){
 		
 		globalNormFactors <- getGlobalNormFactors(esetNorm)
-		
 		### add normalization factors to ExpressionSet
 		pData(esetNorm)$globalNormFactors <- globalNormFactors
 		esetNorm <- globalNormalize(esetNorm,globalNormFactors)

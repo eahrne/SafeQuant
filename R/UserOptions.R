@@ -108,6 +108,9 @@ option_list <- list(
 			 [default %default] (use all proteins).",
 			metavar="Protein Accession Reg. expr."),
 	
+	make_option(c("--SRawDataAnalysis"), action="store_true", default=FALSE,
+			help="STATISTICS: --SR No data normalization [default %default]"),
+	
 	make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
 			help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
 	
@@ -339,6 +342,9 @@ getUserOptions <- function(version=version){
 	#STATISTICS: normAC
 	userOptions$normAC <- cmdOpt$SAnchorProtein
 
+	#STATISTICS: SRawDataAnalysis
+	userOptions$SRawDataAnalysis <- cmdOpt$SRawDataAnalysis
+	
 	#STATISTICS: eBayes
 	userOptions$eBayes <- cmdOpt$SPvalueInclude
 	
