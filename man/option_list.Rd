@@ -4,7 +4,7 @@
 \name{option_list}
 \alias{option_list}
 \title{Command Line Option List}
-\format{\preformatted{List of 27
+\format{\preformatted{List of 28
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr "-i"
   .. ..@ long_flag : chr "--inputFile"
@@ -149,6 +149,15 @@
   .. ..@ default   : chr "."
   .. ..@ help      : chr "STATISTICS: --SA Normalize Intensities by selected protein(s) Regular Expression\\n\\t\\t\\t [default \%default] (use all proteins)."| __truncated__
   .. ..@ metavar   : chr "Protein Accession Reg. expr."
+ $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
+  .. ..@ short_flag: chr NA
+  .. ..@ long_flag : chr "--SRawDataAnalysis"
+  .. ..@ action    : chr "store_true"
+  .. ..@ type      : chr "logical"
+  .. ..@ dest      : chr "SRawDataAnalysis"
+  .. ..@ default   : logi FALSE
+  .. ..@ help      : chr "STATISTICS: --SR No data normalization [default \%default]"
+  .. ..@ metavar   : chr(0) 
  $ :Formal class 'OptionParserOption' [package "optparse"] with 8 slots
   .. ..@ short_flag: chr NA
   .. ..@ long_flag : chr "--SPvalueInclude"
