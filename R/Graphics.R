@@ -883,6 +883,9 @@ hClustHeatMap <- function(eset
 			#,KeyValueName="Prob. Response"
 			,breaks=breaks
 			,na.rm=T
+			,key.title=""
+			,key.xlab = "log2 Ratio"
+			,key.ylab=""
 			, ...
 	)
 	
