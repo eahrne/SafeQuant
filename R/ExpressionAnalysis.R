@@ -512,8 +512,11 @@ getGlobalNormFactors <- function(eset, method="sum"){
 		### only use feature qunatified in all runs for normalization
 		isAllSignal <- as.vector(apply(is.finite(exprs(eset)),1,sum, na.rm=T) == ncol(eset))
 		
-		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered & isAllSignal
+		#isCalMix <- fData(eset)$proteinName %in% names(CALIBMIXRATIOS)
+		#sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered & isAllSignal & !isCalMix
 	
+		sel <- fData(eset)$isNormAnchor & !fData(eset)$isFiltered & isAllSignal
+		
 		if(sum(sel) == 0){
 			#stop("Error: getGlobalNormFactors -> Invalid Anchor Protein Selection ")
 			cat("WARNING: getGlobalNormFactors -> No proteins matching Anchor Protein Selection \n ")

@@ -145,8 +145,10 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 			exprs(esetCalibMix)[,10] <- NA
 			
 			esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)			
-			
-			
+		
+			# discard calibration mix proteins
+			eset <- eset[!(fData(eset)$proteinName %in% names(CALIBMIXRATIOS)),]
+						
 		}else{
 			stop("Ratio Correction Not implemented for TMT 6-plex")
 		}
