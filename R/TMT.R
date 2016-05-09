@@ -13,6 +13,9 @@ CALIBMIXRATIOS [c(
 				,"tr|B6V3I5|B6V3I5_BOVIN"
 		)] <- 1/c(4,0.25,2,0.5,2,0.5)
 
+#CALIBMIXRATIOS <- subset(CALIBMIXRATIOS,!grepl("ECOLI",names(CALIBMIXRATIOS)))
+#print(CALIBMIXRATIOS)
+
 #' Get Thermo TMT impurity matrix
 #' @param plexNb integer, 6 or 10 plex 
 #' @return impurity matrix matrix
@@ -411,14 +414,17 @@ getRatioCorrectionFactorModel <- function(eset){
 	ok <- is.finite(log2RefRatio) & is.finite(log2TmtRatio)
 	data <- data.frame(refRatio=log2RefRatio[ok],tmtRatio=log2TmtRatio[ok])
 	
-	fit <- lm(  refRatio ~ tmtRatio  ,data=data)
+
 	
+	fit <- lm(  refRatio ~ tmtRatio  ,data=data)
 	if(abs(fit$coefficients[1]) > 0.1){
 		cat("WARN: getRatioCorrectionFactorModel: Large intercept\n")
 		#print(fit)
 	}
-	
 	fit$coefficients[1] <- 0
+	
+	#fit <- lm( refRatio ~ 0 + tmtRatio  ,data=data)
+	
 	return(fit)
 	
 }

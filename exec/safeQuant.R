@@ -133,7 +133,20 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 			if(nbCalMixSpectra < 100) stop("Not enough Calibration Mix spectra were found: ",nbCalMixSpectra, "\n ")
 			cat("Found  ", nbCalMixSpectra ," Calibration Mix spectra\n")
 			esetCalibMix <- .getCalibMixEset(eset)
-			esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+			
+			#@TODO
+			print("SWAP CAL MIX")
+			tmp <- exprs(esetCalibMix)
+			exprs(esetCalibMix)[,5] <- tmp[,9]
+			exprs(esetCalibMix)[,6] <- tmp[,10]
+			#exprs(esetCalibMix)[,9] <- tmp[,3]
+			#exprs(esetCalibMix)[,10] <- tmp[,4]
+			exprs(esetCalibMix)[,9] <- NA
+			exprs(esetCalibMix)[,10] <- NA
+			
+			esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)			
+			
+			
 		}else{
 			stop("Ratio Correction Not implemented for TMT 6-plex")
 		}
@@ -501,7 +514,7 @@ par(parDefault)
 
 ### TMT calibration mix
 if(exists("esetCalibMixPair")){ 
-	#.plotTMTRatioVsRefRatio(esetCalibMixPair, cex.lab=1.5, cex.axis=1.5, main="spectrum")
+	.plotTMTRatioVsRefRatio(esetCalibMixPair, cex.lab=1.5, cex.axis=1.5, main="spectrum")
 	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair , featureDataColumnName="peptide"), cex.lab=1.5, cex.axis=1.5, , main="PEPTIDE")
 	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair), cex.lab=1.5, cex.axis=1.5, , main="PROTEIN")
 }

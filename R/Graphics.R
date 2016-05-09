@@ -1222,6 +1222,8 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if("abline" %in% disp){
 			abline(coef=c(0,1),lty=2)
 			abline(fit)
+			#library(MASS)
+			#abline(rlm(y[ok] ~ x[ok]))
 		}
 		
 		if("lowess" %in% disp){
@@ -1556,10 +1558,15 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	abline(coef=c(0,1), h=0, v=0,lty=2, col="grey")
 	
 	points(	getRatios(esetCalibMixPair)[,1]
-			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)
-			
+			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
 			,pch=19
 			,col=calMixDilutionTag+1)
+	
+#	text(	getRatios(esetCalibMixPair)[,1]
+#			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
+#			,fData(esetCalibMixPair)$proteinName
+#			,col=calMixDilutionTag+1)
+	
 	
 	fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
 	abline(fit, lwd=1.5)
