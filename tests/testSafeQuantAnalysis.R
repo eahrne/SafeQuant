@@ -45,14 +45,14 @@ testSafequantAnalysis <- function(){
 	stopifnot(sum(sqaRt$pValue < 0.01) < sum(sqaGlobal$pValue < 0.01))
 
 	# TMT ratio correction
-	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
-	sqaTMTCorrected <- safeQuantAnalysis(esetCalibMix, ratioCorrectionModel=fit, method=c(""))
-	rTmp <- getRatios(esetCalibMix)
-	stopifnot(all(abs(sqaTMTCorrected$ratio) >= abs(rTmp)))
-	stopifnot(round(sqaTMTCorrected$ratio[1,2],2) == round( rTmp[1,2]*coef(fit)[2] ,2))
-	stopifnot(round(sqaTMTCorrected$ratio[400,2],2) == round( rTmp[400,2]*coef(fit)[2] ,2))
-	stopifnot(all(safeQuantAnalysis(esetCalibMix, method=c(""))$pValue == sqaTMTCorrected$pValue))
-	
+#	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
+#	sqaTMTCorrected <- safeQuantAnalysis(esetCalibMix, ratioCorrectionModel=fit, method=c(""))
+#	rTmp <- getRatios(esetCalibMix)
+#	stopifnot(all(abs(sqaTMTCorrected$ratio) >= abs(rTmp)))
+#	stopifnot(round(sqaTMTCorrected$ratio[1,2],2) == round( rTmp[1,2]*coef(fit)[2] ,2))
+#	stopifnot(round(sqaTMTCorrected$ratio[400,2],2) == round( rTmp[400,2]*coef(fit)[2] ,2))
+#	stopifnot(all(safeQuantAnalysis(esetCalibMix, method=c(""))$pValue == sqaTMTCorrected$pValue))
+#	
 	# ratio filter multiple testing
 	sqaRatioMT <- safeQuantAnalysis(eset,fcThrs =2^quantile(getRatios(eset)[,1])[2])
 	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) == 496)

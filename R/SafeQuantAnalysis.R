@@ -10,11 +10,11 @@
 # c("global","naRep","rt","quantile","pairwise","all)
 #' safeQunat s3 class
 #' @param eset ExpressionSet
-#' @param ratioCorrectionModel lm (linear model object)
+#' @param intensityAdjustmentObj list
 #' @param fcThrs fold change threshold
 #' @param method  c("global","naRep","rt","quantile","pairwise","all)
 #' @export
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), ratioCorrectionModel=NA, fcThrs=1){
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), intensityAdjustmentObj=NA, fcThrs=1){
 	
 	out <- list()
 	class(out) <- "safeQuantAnalysis"
@@ -38,12 +38,15 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	
 	out$eset <- eset # should the ExpressionSet be stored?
 	out$cv <- getAllCV(eset)
-	out$ratio <- getRatios(eset,log2=T)
+	#out$ratio <- getRatios(eset,log2=T)
 	
 	### correct ratios using calibration mix model (TMT only)
-	if(class(ratioCorrectionModel) == "lm"){
-		cat("INFO: Adjusting Ratios\n")
-		out$ratio <- data.frame(apply(out$ratio,2,function(t){  predict(ratioCorrectionModel, newdata=data.frame(tmtRatio=t)) }))
+	if(class(intensityAdjustmentObj) == "list"){
+		cat("INFO: ADJUSTING RATIOS\n")
+		out$ratio <- getRatios(intensityAdjustmentObj$esetAdjNorm,log2=T)
+		out$unAdjustedRatio <- getRatios(eset,log2=T)
+	}else{
+		out$ratio <- getRatios(eset,log2=T)
 	}
 	
 	### do not perform stat test for filtered out features

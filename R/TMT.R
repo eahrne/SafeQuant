@@ -371,12 +371,19 @@ getIntSumPerProtein  <- function(intData,proteinACs,peptides,minNbPeptPerProt=1)
 	)
 	
 	# add calibration mix dilution tag to featureData
+#	calMixDilution <- c(rep(20,nrow(esetPair))
+#			,rep(100,nrow(esetPair))
+#			,rep(4,nrow(esetPair))
+#			,rep(20,nrow(esetPair))
+#			,rep(100,nrow(esetPair))
+#	)
 	calMixDilution <- c(rep(20,nrow(esetPair))
 			,rep(100,nrow(esetPair))
 			,rep(4,nrow(esetPair))
 			,rep(20,nrow(esetPair))
-			,rep(100,nrow(esetPair))
+			,rep(4,nrow(esetPair))
 	)
+	
 	fData(esetPair) <- cbind(fData(esetPair),calMixDilution=calMixDilution)
 	
 	#add dilution to peptide and proteinName
@@ -421,12 +428,170 @@ getRatioCorrectionFactorModel <- function(eset){
 		cat("WARN: getRatioCorrectionFactorModel: Large intercept\n")
 		#print(fit)
 	}
-	fit$coefficients[1] <- 0
 	
-	#fit <- lm( refRatio ~ 0 + tmtRatio  ,data=data)
+	#fit$coefficients[1] <- 0
+	fit <- lm( refRatio ~ 0 + tmtRatio  ,data=data)
 	
 	return(fit)
 	
 }
 
+# Algorithm
+# N_CM_Pair - Noise in calmix pair 
+# N_CM - Tot noise in cal mix tmt cluster
+# F_N - Fraction Noise in tmt cluster
+# F_N_GLOBAL - Global estimate of Fraction Noise in tmt cluster
+# I_Pair 
+# I_CM_Pair - intenstiy cal mix pair
+# I_CM - intenstiy tot cal mix cluster
+# R_Ref - refernce ratio
+# I - intensity total   
+# N - total interfernece intensity
+# F_I_channel - channel fraction intensity
+# N_channel - channel noise
+# I_channel	- channel intensity
+# I_Adj_channel - adjusted channel intensity
+
+# Each channel pair of all cal mix spectra gives an estimate of the globl cluster interference fraction 
+# Large diffenerces in channel intensity in a channel pair is problemeatic
+# Only use channel pairs where sd(I_channel) / mean(I_Pair) < 15% 
+
+# Estimate interference fraction per reporter ion cluster (using calmix data and non-cal mix data)
+# 1) Calculate interfenece intensity per channel pair A (N_CM_Pair)
+# N_CM_Pair =  (I_CM_Pair_1 - R_Ref*I_CM_Pair_2)/ 	(1-R_Ref)	
+# 2) Calculate total intenference intensity in spectrum	
+# N_CM = N_CM_Pair / (I_Pair / I_Tot)
+# 3) interference fraction per reporter ion cluster
+# F_N = N_CM / I_CM
+
+# Calculate Total interference intensity per reporter ion cluster (Non-cal mix data)
+# N = I *  F_N_GLOBAL
+# Calculate channel  Interference intensity according to Channel Intensity Fractions (Non-cal mix data)
+# N_channel = N * F_I_channel
+# chalcualte adjusted channel intensity
+# I_Adj_channel = I_channel	- N_channel 
+# if  I_Adj_channel < 0.05* I_channel
+#	Then  I_Adj_channel = 0.05* I_channel
+
+
+#' Adjust TMT intensitis discarding estimated intenference (Experimental)
+#' @param eset 10 plex TMT dataset
+#' @param eset calibration mix
+#' @return intensityAdjustment list 
+#' @export
+#' @note  No note
+#' @details  Adjust TMT intensitis discarding estimated intenference (Experimental)
+#' @references NA 
+#' @examples print("No examples")
+.intensityAdjustment <- function(eset,esetCalibMix){
+	
+	# 
+	samplePairVariationThrs <- 0.2
+	minAdjustedIntThrs <- 0.1
+	
+	###################### GET GLOBAL NOISE FRACTION  ######################
+	
+	# channel Intensity Fraction , non cal mix
+	F_I_channel <- apply(exprs(eset),2,sum,na.rm=T) / sum(exprs(eset),na.rm=T)
+	
+	# intenstiy reporter ion cluster cal mix, I_CM (@TODO ignore NAs)
+	I_CM <- apply(exprs(esetCalibMix),1,sum) ### THIS LEADS TO MORE NAs IN F_N_EST
+	
+	# I - reporter ion cluster non cal mix. (How to handle NAs ?)
+	I <- apply(exprs(eset),1,sum,na.rm=T)
+	
+	F_N_EST <- data.frame(row.names=row.names(esetCalibMix))
+	
+	refRatio <- as.vector(unlist(CALIBMIXRATIOS[as.character(fData(esetCalibMix)$proteinName)]))
+	
+	for(i in c(1,3,5,7,9)){
+		
+		# variaiton in sanmple amounts of pais
+		tmp <- F_I_channel[c(i,i+1)]	
+		cv <- sd(tmp) / mean(tmp)
+		
+		# apply different cut-off for sample pairs e.g. [0.3,0.4,0.2,0.3,0.3] (per "i")
+		if(cv > samplePairVariationThrs){
+			F_N_EST <- cbind(F_N_EST, rep(NA,nrow(F_N_EST)))
+			
+			cat("WARN: IGNORED CAL-MIX PAIR ", i,":",i+1, " C.V. ", round(cv,2)*100,"% \n")
+			
+		}else{
+			# 1) Calculate interfenece intensity per channel pair A (N_CM_Pair)
+			# N_CM_Pair =  (I_CM_Pair_1 - R_Ref*I_CM_Pair_2)/ 	(1-R_Ref)	
+			N_CM_Pair <- (exprs(esetCalibMix)[,i+1] - (refRatio*exprs(esetCalibMix)[,i]) )  /(1-refRatio)
+			# set negative interference levels to zero
+			N_CM_Pair[N_CM_Pair < 0] <- NA
+			
+			# 2) Calculate total intenference intensity in spectrum
+			#	 N_CM = N_CM_Pair / (I_Pair / I_Tot)
+			N_CM = (N_CM_Pair) / mean(F_I_channel[c(i,i+1)]) 
+			
+			# 3) interference fraction per reporter ion cluster
+			#	 F_N = N_CM / I_CM
+			F_N = N_CM / I_CM
+			F_N[F_N > 1] <- NA
+			
+			F_N_EST <- cbind(F_N_EST,F_N)
+		}
+	}
+	names(F_N_EST) <- 1:ncol(F_N_EST)
+	
+	#F_N_GLOBAL <- median(apply(F_N_EST,2,median,na.rm=T),na.rm=T)
+	F_N_GLOBAL <- min(apply(F_N_EST,2,median,na.rm=T),na.rm=T)
+	
+	if(is.na(F_N_GLOBAL)){
+		stop("Large Differnces in sample statrting amounts. Ratio Adjustment not possible")
+	}
+	
+	###################### GET GLOBAL NOISE FRACTION END ######################
+	
+	# Calculate Total interference intensity per reporter ion cluster (Non-cal mix data)
+	# N = I * F_N_GLOBAL
+	N = I * F_N_GLOBAL
+	
+	# Calculate channel  Interference intensity according to Channel Intensity Fractions (Non-cal mix data)
+	# N_channel = N * F_I_channel
+	N_channel = N * matrix(rep(F_I_channel,each=nrow(eset)),nrow=nrow(eset))
+	
+	### temp set NA's to Inf (to allow for implementation of minAdjustedIntThrs)
+	I_channel <-  exprs(eset)
+	I_channel[is.na(I_channel)] <- Inf
+	
+	# calcualte adjusted channel intensity
+	# I_Adj_channel = I_channel	- N_channel 
+	# if  I_Adj_channel < 0.05* I_channel
+	#	Then  I_Adj_channel = 0.05* I_channel
+	I_Adj_channel = I_channel - N_channel 
+	I_Adj_channel[I_Adj_channel < (minAdjustedIntThrs* I_channel)] <-  minAdjustedIntThrs* I_channel[I_Adj_channel < (minAdjustedIntThrs * I_channel)]
+	I_Adj_channel[I_Adj_channel == Inf] <- NA
+	
+	esetAdj <- eset
+	exprs(esetAdj) <- I_Adj_channel
+	
+	########################## ADJUST CAL MIX #############################
+	I_CM <- apply(exprs(esetCalibMix),1,sum,na.rm=T)
+	N_CM <- I_CM * F_N_GLOBAL
+	N_CM_channel = N_CM * matrix(rep(F_I_channel,each=nrow(esetCalibMix)),nrow=nrow(esetCalibMix))
+	
+	I_CM_channel <-  exprs(esetCalibMix)
+	I_CM_channel[is.na(I_CM_channel)] <- Inf
+	
+	I_CM_Adj_channel = I_CM_channel - N_CM_channel 
+	I_CM_Adj_channel[I_CM_Adj_channel < (minAdjustedIntThrs* I_CM_channel)] <-  minAdjustedIntThrs* I_CM_channel[I_CM_Adj_channel < (minAdjustedIntThrs * I_CM_channel)]
+	I_CM_Adj_channel[I_CM_Adj_channel == Inf] <- NA
+	
+	esetCalMixAdj <- esetCalibMix
+	exprs(esetCalMixAdj) <- I_CM_Adj_channel
+	
+	########################## ADJUST CAL MIX END ##########################
+	
+	ret <- list()
+	ret$esetAdj <- esetAdj
+	ret$esetCalMixAdj <- esetCalMixAdj
+	ret$noiseFraction <- F_N_EST
+	ret$globalNoiseFraction <- F_N_GLOBAL
+	
+	return(ret)
+}
 
