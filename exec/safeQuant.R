@@ -517,7 +517,13 @@ par(parDefault)
 
 ### TMT calibration mix
 if(exists("intAdjObj")){ 
-	#boxplot(intAdjObj$noiseFraction)
+	
+	# plot adjusted ratios vs org ratio
+	# boxplot noise fraction
+	#if(ncol(sqaDisp$ratio) > 1) par(mfrow=c(2,2))	
+	boxplot(intAdjObj$noiseFraction*100, border=ifelse(intAdjObj$selectedPairs,"blue","black")
+			, ylab="Noise Fraction (%)",xlab="Calibration Mix Pair", cex.axis=1.5,cex.lab=1.5)
+	
 	if(ncol(sqaDisp$ratio) > 1) par(mfrow=c(2,2))	
 	.plotAdjustedVsNonAdjustedRatio(sqaDisp$ratio,sqaDisp$unAdjustedRatio)
 	par(parDefault)

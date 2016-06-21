@@ -485,8 +485,9 @@ getRatioCorrectionFactorModel <- function(eset){
 #' @examples print("No examples")
 .intensityAdjustment <- function(eset,esetCalibMix){
 	
-	# 
-	samplePairVariationThrs <- 0.2
+	#
+	noiseFractionIQRThrs <- 0.4
+	#samplePairVariationThrs <- 1
 	minAdjustedIntThrs <- 0.1
 	
 	###################### GET GLOBAL NOISE FRACTION  ######################
@@ -507,16 +508,16 @@ getRatioCorrectionFactorModel <- function(eset){
 	for(i in c(1,3,5,7,9)){
 		
 		# variaiton in sanmple amounts of pais
-		tmp <- F_I_channel[c(i,i+1)]	
-		cv <- sd(tmp) / mean(tmp)
-		
-		# apply different cut-off for sample pairs e.g. [0.3,0.4,0.2,0.3,0.3] (per "i")
-		if(cv > samplePairVariationThrs){
-			F_N_EST <- cbind(F_N_EST, rep(NA,nrow(F_N_EST)))
-			
-			cat("WARN: IGNORED CAL-MIX PAIR ", i,":",i+1, " C.V. ", round(cv,2)*100,"% \n")
-			
-		}else{
+#		tmp <- F_I_channel[c(i,i+1)]	
+#		cv <- sd(tmp) / mean(tmp)
+#		
+#		# apply different cut-off for sample pairs e.g. [0.3,0.4,0.2,0.3,0.3] (per "i")
+#		if(cv > samplePairVariationThrs){
+#			F_N_EST <- cbind(F_N_EST, rep(NA,nrow(F_N_EST)))
+#			
+#			cat("WARN: IGNORED CAL-MIX PAIR ", i,":",i+1, " C.V. ", round(cv,2)*100,"% \n")
+#			
+#		}else{
 			# 1) Calculate interfenece intensity per channel pair A (N_CM_Pair)
 			# N_CM_Pair =  (I_CM_Pair_1 - R_Ref*I_CM_Pair_2)/ 	(1-R_Ref)	
 			N_CM_Pair <- (exprs(esetCalibMix)[,i+1] - (refRatio*exprs(esetCalibMix)[,i]) )  /(1-refRatio)
@@ -533,12 +534,14 @@ getRatioCorrectionFactorModel <- function(eset){
 			F_N[F_N > 1] <- NA
 			
 			F_N_EST <- cbind(F_N_EST,F_N)
-		}
+#		}
 	}
 	names(F_N_EST) <- 1:ncol(F_N_EST)
 	
 	#F_N_GLOBAL <- median(apply(F_N_EST,2,median,na.rm=T),na.rm=T)
-	F_N_GLOBAL <- min(apply(F_N_EST,2,median,na.rm=T),na.rm=T)
+	selectedPairs <- apply(F_N_EST,2,IQR,na.rm=T) < noiseFractionIQRThrs
+	F_N_GLOBAL <- min(apply(F_N_EST,2,median,na.rm=T)[selectedPairs],na.rm=T)
+
 	
 	if(is.na(F_N_GLOBAL)){
 		stop("Large Differnces in sample statrting amounts. Ratio Adjustment not possible")
@@ -591,6 +594,7 @@ getRatioCorrectionFactorModel <- function(eset){
 	ret$esetCalMixAdj <- esetCalMixAdj
 	ret$noiseFraction <- F_N_EST
 	ret$globalNoiseFraction <- F_N_GLOBAL
+	ret$selectedPairs <- selectedPairs
 	
 	return(ret)
 }

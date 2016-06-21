@@ -173,7 +173,7 @@ testIntensityAdjustment <- function(){
 	expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) )
 	esetTMT10Plex <-  parseScaffoldRawFile(scaffoldTmt10PlexRawTestFile,expDesign = expDesign)
 	intAdjObj2 <- .intensityAdjustment(esetTMT10Plex, esetCalibMix)
-	stopifnot(round(intAdjObj2$globalNoiseFraction,3) == 0.302)
+	stopifnot(round(intAdjObj2$globalNoiseFraction,3) == 0.193)
 	
 	#barplot(apply(exprs(esetTMT10Plex),2,sum,na.rm=T))
 	

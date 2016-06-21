@@ -502,7 +502,7 @@ rtNormalize <- function(eset,rtNormFactors){
 #' @keywords normalization
 #' @references NA 
 #' @examples print("No examples")
-getGlobalNormFactors <- function(eset, method="sum"){
+getGlobalNormFactors <- function(eset, method="median"){
 	
 	sel <- rep(T,nrow(eset))
 	
