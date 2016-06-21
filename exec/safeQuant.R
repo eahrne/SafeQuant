@@ -616,7 +616,54 @@ if(userOptions$eBayes){
 
 ### QUANT. STAT. PLOTS END
 
-par(mfrow=c(1,1))
+par(parDefault)
+
+
+### SOME ADDITIONAL QC PLOTS
+
+if(userOptions$addQC){
+	
+#	if(exists("sqaPeptide")){
+#		plotXYDensity(fData(sqaPeptide$eset)$retentionTime,fData(sqaPeptide$eset)$pMassError, disp=c("")
+#			, xlab="Retention time (min)"
+#			, ylab="Precursor Mass Error (ppm)"
+#			, cex.axis=1.5
+#			, cex.lab=1.5)
+	
+	if( all(c("retentionTime","pMassError")  %in% names(fData(eset)) )){
+		plotXYDensity(fData(eset)$retentionTime,fData(eset)$pMassError, disp=c("")
+			, xlab="Retention time (min)"
+			, ylab="Precursor Mass Error (ppm)"
+			, cex.axis=1.5
+			, cex.lab=1.5)
+	
+		abline(h=c(userOptions$precursorMassFilter[1],0,userOptions$precursorMassFilter[2]),lty=2, lwd=2)
+		
+		# rt vs signal
+		sel <- 1:nrow(esetNorm) %in% sample(nrow(esetNorm),min(c(4000,nrow(esetNorm))) ,replace=F) & (!(fData(esetNorm)$proteinName %in% names(CALIBMIXRATIOS)))
+		plotRTNormSummary(esetNorm[sel,])
+		
+		par(mfrow=c(2,2))
+		plotRTNorm(getRTNormFactors(esetNorm[sel,], minFeaturesPerBin=100),esetNorm[sel,])
+	
+		par(parDefault)
+		
+	}
+	
+	par(mfrow=c(2,2))
+	#all ma plots
+	for(s in colnames(exprs(esetNorm))){
+		sel <- 1:nrow(esetNorm) %in% sample(nrow(esetNorm),min(c(4000,nrow(esetNorm))) ,replace=F) & (!(fData(esetNorm)$proteinName %in% names(CALIBMIXRATIOS)))
+		maPlot(esetNorm[sel,],sample=s)
+	}
+	
+	
+	
+	par(parDefault)
+	
+}
+
+
 
 cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 

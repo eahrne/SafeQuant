@@ -1198,7 +1198,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @export
 #' @references NA
 #' @examples print("No examples")
-plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),  ...){
+plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),pch=20,  ...){
 	
 	df <- data.frame(x,y)
 	
@@ -1212,7 +1212,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 	df$col <- cols[df$densityCol]
 	
 	## Plot it, reordering rows so that densest points are plotted on top
-	plot(y~x, data=df[order(df$densityCol),], pch=20, col=col, cex=2, ...)
+	plot(y~x, data=df[order(df$densityCol),], pch=pch, col=col, ...)
 	
 	### disp linerar model
 	if(isFitLm){
@@ -1386,16 +1386,19 @@ plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors),main="",
 	
 	# get all ratios to sample 1
 	# @TODO How to select reference run?
-	ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
-	#ratios <- log2(exprs(eset)) - log2(apply(exprs(eset),1,median,na.rm=T))
+	#ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
+	ratios <- log2(exprs(eset)) - apply(log2(exprs(eset)),1,mean,na.rm=T)
 	
 	for(samplesNb in samples){
 		plot(fData(eset)$retentionTime,	ratios[,samplesNb]
-				, col="lightgrey"
+				#, col="lightgrey"
+				, col=rgb(0,100,0,50,maxColorValue=255)
 				, xlab="Retention Time (min)"
 				, ylab="log2(Ratio)"
+				, cex.lab=1.5
+				, cex.axis=1.5
 				, main=paste(main,names(rtNormFactors)[samplesNb]), ...)
-		lines(as.numeric(rownames(rtNormFactors)),as.vector(unlist(rtNormFactors[,samplesNb])), ... )
+		lines(as.numeric(rownames(rtNormFactors)),as.vector(unlist(rtNormFactors[,samplesNb])),lwd=2, ... )
 		abline(h=0,lty=2,...)
 	}
 }
@@ -1701,3 +1704,45 @@ plotCalibrationMixRatios <- function(eset, cex.axis=1, cex.lab=1.1,...){
 	}
 }
 
+# plotMA
+#' MA plot
+#' @param eset ExpressionSet
+#' @param sample selected condiiton
+#' @param lwd default 1
+#' @param pch default 1
+#' @param cex.lab default 1.5
+#' @param cex.axis default 1.5
+#' @param col grennn transparent 
+#' @note  No note
+#' @export
+#' @importFrom graphics plot
+#' @references NA
+#' @examples print("No examples")
+maPlot <- function(eset,sample=colnames(exprs(eset))[1]
+		,cex.lab=1.5
+		,cex.axis=1.5
+		,lwd=2
+		,pch=1
+		,col= rgb(0,100,0,50,maxColorValue=255)
+		,...){
+	
+	
+	A <- apply(log2(exprs(eset)),1,mean)
+	M <- log2(exprs(eset)[,sample]) - A
+	
+	plot(M ~ A,
+			,pch=pch
+			, xlab="A"
+			#, ylab= paste("M - " ,sample, sep="" )
+			, ylab= "M"
+			, main=sample
+			, col = col
+			,cex.lab=cex.lab
+			,cex.axis=cex.axis
+			,...)
+#abline(h=c(-1,0,1),lwd=lwd,lty=2)
+	abline(h=c(0),lwd=1,lty=2)
+	lines(lowess(M ~A),lwd=lwd,col="black")
+	
+	
+} 

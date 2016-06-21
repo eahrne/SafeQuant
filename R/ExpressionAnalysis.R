@@ -415,8 +415,8 @@ getRTNormFactors <- function(eset, minFeaturesPerBin=100){
 	
 	# get all ratios to sample 1
 	# @TODO How to select reference run?
-	ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
-	#ratios <- log2(exprs(eset)) - log2(apply(exprs(eset),1,median,na.rm=T))
+	#ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
+	ratios <- log2(exprs(eset)) - apply(log2(exprs(eset)),1,mean,na.rm=T)
 	
 	### get median ratio per minute bin
 	roundedRT <- round(fData(eset)$retentionTime)

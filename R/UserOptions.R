@@ -150,12 +150,15 @@ option_list <- list(
 		help="ADDITIONAL-REPORTS: --AR Save R objects in 'label'.RData file [default %default]"),
 
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS (LFQ PROT): --AI creates .tsv output file
+			help="ADDITIONAL-REPORTS : --AI creates .tsv output file
 					including protein iBAQ values. [default %default]"),
 	
 	make_option(c("--ATop3"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS (LFQ PEP): --AT creates .tsv output file
+			help="ADDITIONAL-REPORTS : --AT creates .tsv output file
 					including protein top3 values. [default %default]"),
+	
+	make_option(c("--AQC"), action="store_true", default=FALSE,
+			help="ADDITIONAL-REPORTS : --AQ adds additional QC plots to .pdf report [default %default]"),
 	
 # ADDITIONAL-REPORTS (--A) END
 
@@ -413,6 +416,9 @@ getUserOptions <- function(version=version){
     #ADDITIONAL-REPORTS top3TsvFile
 	userOptions$top3 <- cmdOpt$ATop3
 #	userOptions$top3File <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_top3.tsv",sep="")
+
+	#ADDITIONAL-REPORTS top3TsvFile
+	userOptions$addQC <- cmdOpt$AQC
 
 	#ADDITIONAL-REPORTS rDataFile, isSaveRObject	
 	userOptions$isSaveRObject <- cmdOpt$ARDataFile

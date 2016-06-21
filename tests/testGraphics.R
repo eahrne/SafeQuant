@@ -129,17 +129,16 @@ if(T){
 	plotQValueVsPValue(sqa, lim=c(0,0.5))
 	.correlationPlot(exprs(eset))
 
-
+	maPlot(eset)
 	
 	graphics.off()
 	
-	
-
-
 	cat("CREATED FILE", tmpFile, "\n")
 	
 }
 ### TESTS END
+
+
 
 
 

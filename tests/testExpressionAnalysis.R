@@ -124,7 +124,7 @@ testGlobalNormalize <- function(){
 	
 	cat("--- testGlobalNormalize: --- \n")
 	
-	globalNormFactors <- getGlobalNormFactors(eset)
+	globalNormFactors <- getGlobalNormFactors(eset,method="sum")
 	### add normalization factors to ExpressionSet
 	pData(eset) <- cbind(pData(eset),globalNormFactors)
 	esetNorm <- globalNormalize(eset,globalNormFactors)
@@ -427,13 +427,4 @@ if(T){
 	testCreatePairedExpDesign()
 	
 }
-
-
-
-
-
-
-
-
-
 
