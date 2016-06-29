@@ -1732,9 +1732,9 @@ maPlot <- function(eset,sample=colnames(exprs(eset))[1]
 	
 	plot(M ~ A,
 			,pch=pch
-			, xlab="A"
+			, xlab="Mean Log2 Intensity"
 			#, ylab= paste("M - " ,sample, sep="" )
-			, ylab= "M"
+			, ylab= "log2 Ratio"
 			, main=sample
 			, col = col
 			,cex.lab=cex.lab

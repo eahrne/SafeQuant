@@ -127,30 +127,19 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
 	
 	if(userOptions$TAdjustRatios){
-		if((nbPlex == 10)){ # only possible for tmt-10 plex
+		#if((nbPlex == 10)){ # only possible for tmt-10 plex
 			nbCalMixSpectra <- sum( (fData(eset)$proteinName %in% names(CALIBMIXRATIOS)))
 			if(nbCalMixSpectra < 100) stop("Not enough Calibration Mix spectra were found: ",nbCalMixSpectra, "\n ")
 			cat("INFO: FOUND  ", nbCalMixSpectra ," Calibration Mix spectra\n")
 			esetCalibMix <- .getCalibMixEset(eset)
 			
-			#@TODO
-#			print("SWAP CAL MIX")
-#			tmp <- exprs(esetCalibMix)
-#			exprs(esetCalibMix)[,5] <- tmp[,9]
-#			exprs(esetCalibMix)[,6] <- tmp[,10]
-#			#exprs(esetCalibMix)[,9] <- tmp[,3]
-#			#exprs(esetCalibMix)[,10] <- tmp[,4]
-#			exprs(esetCalibMix)[,9] <- NA
-#			exprs(esetCalibMix)[,10] <- NA
-#			esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)			
-			
 			# discard calibration mix proteins
 			eset <- eset[!(fData(eset)$proteinName %in% names(CALIBMIXRATIOS)),]
 			intAdjObj <- .intensityAdjustment(eset, esetCalibMix)
 			
-		}else{
-			stop("Ratio Correction Not implemented for TMT 6-plex")
-		}
+		#}else{
+		#	stop("Ratio Correction Not implemented for TMT 6-plex")
+		#}
 	}
 	
 	# get user specified experimental design
