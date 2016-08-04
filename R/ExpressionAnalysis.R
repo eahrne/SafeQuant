@@ -524,9 +524,9 @@ getGlobalNormFactors <- function(eset, method="median"){
 		}						
 	}
 	
-	if(method == "sum"){
+	if("sum" %in% method ){
 		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=sum, na.rm=T)
-	}else if(method == "median"){
+	}else if("median" %in% method ){
 		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=median, na.rm=T)
 	}else{
 		stop("Error: Unknown Global Normalization Method", method)		
@@ -575,7 +575,7 @@ sqNormalize <- function(eset, method="global"){
 	
 	if("global" %in% method){
 		
-		globalNormFactors <- getGlobalNormFactors(esetNorm)
+		globalNormFactors <- getGlobalNormFactors(esetNorm,method=method)
 		### add normalization factors to ExpressionSet
 		pData(esetNorm)$globalNormFactors <- globalNormFactors
 		esetNorm <- globalNormalize(esetNorm,globalNormFactors)

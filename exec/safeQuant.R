@@ -305,8 +305,11 @@ if(userOptions$SRawDataAnalysis){ # No Normalization
 	esetNorm <- eset
 	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- intAdjObj$esetAdj
 }else{
-	esetNorm <- sqNormalize(eset)
-	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- sqNormalize(intAdjObj$esetAdj)
+	method <- c("global","median")
+	# norm based on sum if norm anchor is specified 
+	if(sum(fData(eset)$isNormAnchor) < nrow(eset)) method <- c("global","sum")
+	esetNorm <- sqNormalize(eset, method=method)
+	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- sqNormalize(intAdjObj$esetAdj, method=method )
 }
 
 ### add pseudo (baseline) intensity
