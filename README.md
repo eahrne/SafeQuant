@@ -29,7 +29,7 @@ Make sure you have a working development environment.
     R> library(devtools)
     R> install_github("eahrne/SafeQuant")
     
-**Option 2, install latest [CRAN](https://cran.r-project.org/web/packages/SafeQuant/index.html) version**
+**Option 2, install latest [CRAN](https://CRAN.R-project.org/package=SafeQuant) version**
 
 	R> install.packages("SafeQuant")
 
@@ -93,8 +93,8 @@ https://github.com/eahrne/SafeQuant/blob/master/inst/manuals/SafeQuant-man.pdf
 
 #### Publications
 
-* Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
-Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
-Journal of Proteome Research Just Accepted Manuscript
+* Ahrne, E. et al. Evaluation and Improvement of Quantification Accuracy in Isobaric Mass Tag-Based Protein Quantification Experiments. J Proteome Res 15, 2537–2547 (2016). https://www.ncbi.nlm.nih.gov/pubmed/27345528 
+* Ahrne, E., Molzahn, L., Glatter, T., & Schmidt, A. (2013). Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Proteomics. Journal of Proteome Research Just Accepted Manuscript https://www.ncbi.nlm.nih.gov/pubmed/23794183
+* Glatter, T., Ludwig, C., Ahrne, E., Aebersold, R., Heck, A. J. R., & Schmidt, A. (2012). Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion. https://www.ncbi.nlm.nih.gov/pubmed/23017020
 
 **[questions?](mailto:erik.ahrne@unibas.ch)**

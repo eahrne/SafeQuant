@@ -7,12 +7,14 @@
 # created from Expression set (name of controlCondition is specified), adjust. 
 # normalization
 # replace missing values
-# c("global","naRep","rt","pairwise","quantile")
+# c("global","naRep","rt","quantile","pairwise","all)
 #' safeQunat s3 class
 #' @param eset ExpressionSet
-#' @param method c("global","naRep","pairwise")
+#' @param intensityAdjustmentObj list
+#' @param fcThrs fold change threshold
+#' @param method  c("global","naRep","rt","quantile","pairwise","all)
 #' @export
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), intensityAdjustmentObj=NA, fcThrs=1){
 	
 	out <- list()
 	class(out) <- "safeQuantAnalysis"
@@ -36,7 +38,16 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	out$eset <- eset # should the ExpressionSet be stored?
 	out$cv <- getAllCV(eset)
-	out$ratio <- getRatios(eset,log2=T)
+	#out$ratio <- getRatios(eset,log2=T)
+	
+	### correct ratios using calibration mix model (TMT only)
+	if(class(intensityAdjustmentObj) == "list"){
+		cat("INFO: ADJUSTING RATIOS\n")
+		out$ratio <- getRatios(intensityAdjustmentObj$esetAdjNorm,log2=T)
+		out$unAdjustedRatio <- getRatios(eset,log2=T)
+	}else{
+		out$ratio <- getRatios(eset,log2=T)
+	}
 	
 	### do not perform stat test for filtered out features
 	sel <- !fData(eset)$isFiltered
@@ -54,7 +65,9 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise")){
 	
 	### we need at least two runs
 	if(length(unique(pData(eset)$condition)) > 1){
-		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method)
+		
+		adjustFilter <- data.frame((abs(out$ratio) < log2(fcThrs)))
+		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel) )
 	}
 	out$baselineIntensity <- baselineIntensity
 	

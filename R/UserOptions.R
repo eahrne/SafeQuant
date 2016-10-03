@@ -49,10 +49,10 @@ option_list <- list(
 				help="FILTER (LFQ ONLY): --FF Identification level False Discovery Rate Cutoff.  [0-1] [default %default]",
 				metavar="Peptide/Protein FDR cutoff"),
 		
-		make_option(c("--FCoefficientOfVarianceMax"), type="double", default=Inf,
-				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical 
-				test for differential expression [default %default]",
-				metavar="Coefficent of Variance cutoff"),
+#		make_option(c("--FCoefficientOfVarianceMax"), type="double", default=Inf,
+#				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical 
+#				test for differential expression [default %default]",
+#				metavar="Coefficent of Variance cutoff"),
 		
 		#### peptide analysis specfic
 		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="AUTO SET",
@@ -78,15 +78,38 @@ option_list <- list(
 						Peptide analysis ONLY.",
 				metavar="Min Peptide Length (>=)"),
 		
+		#### 
+		make_option(c("--FUniquePeptides"), action="store_true", default=FALSE,
+				help="FILTER: --FU Discard all peptides mapping to multiple protein entries [default %default]
+			Note that by default all peptides are used for quantification and assigned to proteins using 
+			a Occam's Razor based algorithm.   
+				"),
+		
+		make_option(c("--FRatioCutOff"), type="double", default=1,
+				help="FILTER: --FR Intensity ratio (fold change) cut-off used for graphics export. >1 [default %default]",
+				metavar="Intensity ratio cutoff"),	
+
 		
 # FILTER (--F) END	
+
+# TMT (--T)
 		
+		# correct tmt ratios
+		make_option(c("--TAdjustRatios"), action="store_true", default=FALSE,
+				help="TMT: --TA Adjust TMT ratios using calibration mix proteins [default %default]
+						"),
+
+# TMT (--T) END
+
 # STATISTICS (--S)
 	
 	make_option(c("--SAnchorProtein"), type="character", default=".",
 			help="STATISTICS: --SA Normalize Intensities by selected protein(s) Regular Expression
 			 [default %default] (use all proteins).",
 			metavar="Protein Accession Reg. expr."),
+	
+	make_option(c("--SRawDataAnalysis"), action="store_true", default=FALSE,
+			help="STATISTICS: --SR No data normalization [default %default]"),
 	
 	make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
 			help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
@@ -110,56 +133,32 @@ option_list <- list(
 	make_option(c("--EProteinQuantOff"), action="store_false", default=TRUE,
 			help='EXPERIMENTAL DESIGN: --EP Disable Protein Level Quantification [default %default]'),
 	
+	make_option(c("--ECorrelatedSamples "), action="store_true", default=FALSE,
+			help='EXPERIMENTAL DESIGN: --EC Apply "paired" statistical tests [default %default]'),
+	
 # EXPERIMENTAL DESIGN (--E) END
 
 # PDF-REPORT (--P) 
-	make_option(c("--PRatioCutOff"), type="double", default=1,
-		help="PDF-REPORT: --PR Intensity ratio (fold change) cut-off used for graphics export. >1 [default %default]",
-		metavar="Intensity ratio cutoff"),	
 
-	make_option(c("--PQvaueCutOff"), type="double", default=0.01,
+	make_option(c("--PQvalueCutOff"), type="double", default=0.01,
 			help="PDF-REPORT: --PQ Qvalue cut-off used for graphics. 
 			High-lighting features with a qval < specified value. [0-1] [default %default]",
 			metavar="Differential expression qvalue cutOff"),	
-	
-#	make_option(c("--PSelectedGraphics"), type="character", default="",
-#			help="PDF-REPORT: --PS Excluded Graphics: give letter for each plot to exclude ex: --PS iv 
-#					(creates all plots but intensity density plots & volcano plot)
-#					experimental design (e)
-#					peptide feature score distrib related plots (f)
-#					intensity distibution plots (i)
-#					volcano plots (v)
-#					hierarchical clustering plots (h)
-#					differential expression fdr plot (d)	
-#					[default (all plots) %default]"),		
-# PDF-REPORT (--P) END
-
-## TSV-REPORT (--T)
-#	
-#	make_option(c("--TFastaFile"), type="character", default="",
-#			help="TSV-REPORT (LFQ PEP): -TF Protein Fasta File used to extract Modification Site Coordinates [default None]",
-#			metavar=".fasta file path"),	
-## TSV-REPORT (--T) END
 
 # ADDITIONAL-REPORTS (--A)
 	make_option(c("--ARDataFile"), action="store_true", default=FALSE,
 		help="ADDITIONAL-REPORTS: --AR Save R objects in 'label'.RData file [default %default]"),
 
-#	make_option(c("--AProtease"), type="character", default="KR",
-#			help="ADDITIONAL-REPORTS: --TP protease [default (trypsin) %default]
-#					1) trypsin
-#					2) lys-c
-#			
-#					Option considered for iBAQ normalization", 
-#	),
-
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS (LFQ PROT): --AI creates .tsv output file
+			help="ADDITIONAL-REPORTS : --AI creates .tsv output file
 					including protein iBAQ values. [default %default]"),
 	
 	make_option(c("--ATop3"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS (LFQ PEP): --AT creates .tsv output file
+			help="ADDITIONAL-REPORTS : --AT creates .tsv output file
 					including protein top3 values. [default %default]"),
+	
+	make_option(c("--AQC"), action="store_true", default=FALSE,
+			help="ADDITIONAL-REPORTS : --AQ adds additional QC plots to .pdf report [default %default]"),
 	
 # ADDITIONAL-REPORTS (--A) END
 
@@ -262,7 +261,6 @@ getUserOptions <- function(version=version){
 		}				
 	}
 	
-	
 # I/O END
 	
 # FILTER (--F)
@@ -297,11 +295,11 @@ getUserOptions <- function(version=version){
 	}
 		
 	#FILTER: cvCutOff
-	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
-	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
-		print(paste("ERROR. cvCutOff must be > 0. You specified ", userOptions$cvCutOff))
-		q(status=-1)
-	}
+#	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
+#	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
+#		print(paste("ERROR. cvCutOff must be > 0. You specified ", userOptions$cvCutOff))
+#		q(status=-1)
+#	}
 
 	#FILTER: minNbPeptidesPerProt
 	userOptions$minNbPeptidesPerProt <- cmdOpt$FNumberOfPeptidesPerProteinMin
@@ -324,13 +322,32 @@ getUserOptions <- function(version=version){
 		q(status=-1)
 	}
 	
+	#FILTER: FUniquePeptides
+	userOptions$FUniquePeptides <- cmdOpt$FUniquePeptides
+	
+	#FILTER: ratioCutOff
+	userOptions$ratioCutOff <- cmdOpt$FRatioCutOff
+	if(is.na(userOptions$ratioCutOff) | userOptions$ratioCutOff < 1){
+		cat("ERROR. ratioCutoff must be > 1. You specified",userOptions$ratioCutOff,"\n")
+		q(status=-1)
+	}
+	
 # FILTER (--F) END
+
+# TMT
+	userOptions$TAdjustRatios <- cmdOpt$TAdjustRatios
+
+# TMT END
+
 
 # STATISTICS
 	
 	#STATISTICS: normAC
 	userOptions$normAC <- cmdOpt$SAnchorProtein
 
+	#STATISTICS: SRawDataAnalysis
+	userOptions$SRawDataAnalysis <- cmdOpt$SRawDataAnalysis
+	
 	#STATISTICS: eBayes
 	userOptions$eBayes <- cmdOpt$SPvalueInclude
 	
@@ -346,20 +363,15 @@ getUserOptions <- function(version=version){
 	
 	userOptions$proteinQuant <- cmdOpt$EProteinQuant
 	#userOptions$proteinQuant <- userOptions$selectedModifName != "."
+
+	userOptions$ECorrelatedSamples <- cmdOpt$ECorrelatedSamples
 		
 # EXPERIMENTAL DESIGN END
 
 # PDF-REPORT (--P)
 
-	# PDF-REPORT: ratioCutOff
-	userOptions$ratioCutOff <- cmdOpt$PRatioCutOff
-	if(is.na(userOptions$ratioCutOff) | userOptions$ratioCutOff < 1){
-		cat("ERROR. ratioCutoff must be > 1. You specified",userOptions$ratioCutOff,"\n")
-		q(status=-1)
-	}
-	
 	# PDF-REPORT: deFdrCutoff
-	userOptions$deFdrCutoff <- cmdOpt$PQvaueCutOff
+	userOptions$deFdrCutoff <- cmdOpt$PQvalueCutOff
 	if(is.na(userOptions$deFdrCutoff) | userOptions$deFdrCutoff <= 0 | userOptions$deFdrCutoff > 1 ){
 		cat("ERROR. deFdrCutoff must be in the range [0-1]. You specified",userOptions$deFdrCutoff,"\n")
 		q(status=-1)
@@ -404,6 +416,9 @@ getUserOptions <- function(version=version){
     #ADDITIONAL-REPORTS top3TsvFile
 	userOptions$top3 <- cmdOpt$ATop3
 #	userOptions$top3File <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_top3.tsv",sep="")
+
+	#ADDITIONAL-REPORTS top3TsvFile
+	userOptions$addQC <- cmdOpt$AQC
 
 	#ADDITIONAL-REPORTS rDataFile, isSaveRObject	
 	userOptions$isSaveRObject <- cmdOpt$ARDataFile
@@ -460,7 +475,7 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 			| (min(sampleOrder) < 1)
 			| max(as.numeric(sampleOrder)) > nrow(expDesignDefault)
 			){
-		stop("ERROR: getExpDesign, INVALID EXPERIMENTAL DESIGN ",tag,"\n")
+		stop("ERROR: expDesignTagToExpDesign, INVALID EXPERIMENTAL DESIGN ",tag,"\n")
 		
 	}
 	
@@ -470,11 +485,11 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 	for(cond in unlist(strsplit(tag,":"))){
 		
 		#cat(as.character(unlist(strsplit(cond,","))), paste("Condition",condNb) , "\n")
-		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb)
+		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb,sep="")
 		condNb <- condNb + 1
 	}       
 	
-	expDesign[ expDesign[,1] == "Condition 1" ,]$isControl <- T
+	expDesign[ expDesign[,1] == "Condition1" ,]$isControl <- T
 	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
 	
 	### get original sample names
@@ -495,9 +510,13 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 			#stop("SPLIT")
 		} 
 	}
-	
-	# get original condition names
-	expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
+
+	### make sure a single condirion has not been split into two
+	# I.e there should be just as many conditions before and anfter retreival of orginial condition names
+	if(length(unique(	expDesign$condition)) == length(unique(	 expDesignDefault[rownames(expDesign),]$condition)) ){
+		# get original condition names
+		expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
+	}
 	
 	return(expDesign)
 	

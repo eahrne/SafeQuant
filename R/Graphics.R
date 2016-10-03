@@ -288,8 +288,19 @@ COLORS <- as.character(c(
 ){
 	
 	colorPalette <- rev(rich.colors(32))
-	dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
+
+	# no p/q-values
+	if(!all(is.finite(ylim))){
+		ylim <-c(0,1)
+	}
 	
+	# if d[,3] is all NA
+	if(all(!is.finite(d[,3]))){
+		dotColors <- rep("darkgrey",nrow(d))
+	}else{
+		dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
+	}
+		
 	par(fig=c(0,1,0.18,1))
 	plot(0,0
 			, xlab= paste("log2(",caseCondition,"/",controlCondition,")", sep="" )
@@ -313,9 +324,11 @@ COLORS <- as.character(c(
 	#points(d$ratio[higlightSel],abs(log10(d[,2]))[higlightSel],col="darkgrey")
 	
 	### add heat color bar
-	par(fig=c(0,1,0,0.3), new=TRUE)
-	.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
-	par(mfrow=c(1,1))
+	if(!all(!is.finite(d[,3]))){
+		par(fig=c(0,1,0,0.3), new=TRUE)
+		.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
+		par(mfrow=c(1,1))
+	}
 	
 }
 
@@ -353,18 +366,18 @@ COLORS <- as.character(c(
 			, addgrid.col="white" 
 			,...
 	)
-	legend("bottomleft"
-			, labels
-			, fill=unique(textCol)
-			#, fill=textCol
-			, box.col="white"
-	)
-	legend("topright"
-			, c("","",as.expression(bquote(R^2*"        ")))
-			#, fill=unique(textCol)
-			#, fill=textCol
-			, box.col="white"
-	)
+#	legend("bottomleft"
+#			, labels
+#			, fill=unique(textCol)
+#			#, fill=textCol
+#			, box.col="white"
+#	)
+#	legend("topright"
+#			, c("","",as.expression(bquote(R^2*"        ")))
+#			#, fill=unique(textCol)
+#			#, fill=textCol
+#			, box.col="white"
+#	)
 }
 
 #' @export
@@ -405,9 +418,9 @@ plotVolcano <- function(obj
 		
 		### need at least two condiotions
 		if(length(unique(pData(obj$eset)$condition)) == 1){
-			return(warning("INFO: Only one condition no plotVolcano \n"))
+			return(cat("INFO: Only one condition no plotVolcano \n"))
 		}
-				
+		
 		# ensure the same range on all volcano plots
 		xlim <- range(obj$ratio, na.rm=T)
 		
@@ -416,14 +429,9 @@ plotVolcano <- function(obj
 		}else{
 			ylim <- range(abs(log10(obj$pValue)),na.rm=T)
 		}
+		
 		# ensure same scale on color legend
 		cvMax <- max(as.vector(unlist(obj$cv)),na.rm=T)
-		
-		### avoid crash if no pValues (when no replicates)
-		if(sum(!is.finite(c(ylim,cvMax))) > 0 ){
-			cvMax <- 100
-			ylim <- c(0,1)
-		}
 		
 		controlCondition <- .getControlCondition(obj$eset)
 		for(caseCondition in colnames(obj$pValue)){
@@ -808,7 +816,7 @@ plotMSSignalDistributions <- function(d, col=1:100,ylab="Frequnecy", xlab="MS-Si
 #' @param ... see plot
 #' @import gplots
 #' @importFrom graphics legend
-#' @importFrom stats hclust as.dist as.dendrogram
+#' @importFrom stats dist hclust as.dist as.dendrogram
 #' @export
 #' @note  No note
 #' @details No details
@@ -835,24 +843,26 @@ hClustHeatMap <- function(eset
 	# @TODO adapt to accomaodated paired expDesign 
 	log2RatioPerMsRun <- log2(exprs(eset)) - log2(getSignalPerCondition(eset,method="median")[,.getControlCondition(eset)])
 	
-	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
-	feature.cor.dist = as.dist(1-feature.cor)
-	feature.cor.dist[is.na(feature.cor.dist)] <- 0
-	feature.tree = hclust(feature.cor.dist, method="ward")
+#	feature.cor = cor(t(log2RatioPerMsRun), use="pairwise.complete.obs", method="pearson")
+#	feature.cor.dist = as.dist(1-feature.cor)
+#	feature.cor.dist[is.na(feature.cor.dist)] <- 0
+#	feature.tree = hclust(feature.cor.dist, method="ward.D2")
+	
+	feature.tree = hclust(dist(log2RatioPerMsRun,method = "euclidean"), method="ward.D2")
 	
 	### !!!! clustering runs based on ratios is not a good idea as ratio corrrealtion of control runs is not expected to be high
 	msrun.cor.pearson = cor(log2(exprs(eset)), use="pairwise.complete.obs", method="pearson")
 	msrun.cor.pearson.dist = as.dist(1-msrun.cor.pearson)
 	### to avoid error when replicates of the same condition are identical, DOES THIS EVER HAPPEN?
 	msrun.cor.pearson.dist[is.na(msrun.cor.pearson.dist)] <- 0
-	msrun.tree = hclust(msrun.cor.pearson.dist, method="ward")
+	msrun.tree = hclust(msrun.cor.pearson.dist, method="ward.D2")
 	
 	### sample colors
 	samplecolors =  as.vector(unlist(conditionColors[pData(eset)$condition,]))
 	labRow <- rownames(log2RatioPerMsRun)
 	
 	### do not display feature names if too many
-	if(nrow(log2RatioPerMsRun) > 50){
+	if(nrow(log2RatioPerMsRun) > 300){
 		labRow <- rep("",(nrow(log2RatioPerMsRun)))
 	}
 	
@@ -873,6 +883,9 @@ hClustHeatMap <- function(eset
 			#,KeyValueName="Prob. Response"
 			,breaks=breaks
 			,na.rm=T
+			,key.title=""
+			,key.xlab = "log2 Ratio"
+			,key.ylab=""
 			, ...
 	)
 	
@@ -1176,6 +1189,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @param isFitLm fit linear model
 #' @param disp  c("abline","R","Rc") display options 
 #' @param legendPos see legend
+#' @param pch see plot
 #' @param ... see plot
 #' @import epiR
 #' @importFrom graphics plot lines abline legend
@@ -1185,7 +1199,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @export
 #' @references NA
 #' @examples print("No examples")
-plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),  ...){
+plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),pch=20,  ...){
 	
 	df <- data.frame(x,y)
 	
@@ -1199,7 +1213,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 	df$col <- cols[df$densityCol]
 	
 	## Plot it, reordering rows so that densest points are plotted on top
-	plot(y~x, data=df[order(df$densityCol),], pch=20, col=col, cex=2, ...)
+	plot(y~x, data=df[order(df$densityCol),], pch=pch, col=col, ...)
 	
 	### disp linerar model
 	if(isFitLm){
@@ -1209,6 +1223,8 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if("abline" %in% disp){
 			abline(coef=c(0,1),lty=2)
 			abline(fit)
+			#library(MASS)
+			#abline(rlm(y[ok] ~ x[ok]))
 		}
 		
 		if("lowess" %in% disp){
@@ -1371,16 +1387,19 @@ plotRTNorm <- function(rtNormFactors,eset,samples=1:ncol(rtNormFactors),main="",
 	
 	# get all ratios to sample 1
 	# @TODO How to select reference run?
-	ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
-	#ratios <- log2(exprs(eset)) - log2(apply(exprs(eset),1,median,na.rm=T))
+	#ratios <- log2(exprs(eset)) - log2(exprs(eset)[,1])
+	ratios <- log2(exprs(eset)) - apply(log2(exprs(eset)),1,mean,na.rm=T)
 	
 	for(samplesNb in samples){
 		plot(fData(eset)$retentionTime,	ratios[,samplesNb]
-				, col="lightgrey"
+				#, col="lightgrey"
+				, col=rgb(0,100,0,50,maxColorValue=255)
 				, xlab="Retention Time (min)"
 				, ylab="log2(Ratio)"
+				, cex.lab=1.5
+				, cex.axis=1.5
 				, main=paste(main,names(rtNormFactors)[samplesNb]), ...)
-		lines(as.numeric(rownames(rtNormFactors)),as.vector(unlist(rtNormFactors[,samplesNb])), ... )
+		lines(as.numeric(rownames(rtNormFactors)),as.vector(unlist(rtNormFactors[,samplesNb])),lwd=2, ... )
 		abline(h=0,lty=2,...)
 	}
 }
@@ -1416,8 +1435,15 @@ plotNbIdentificationsVsRT <- function(eset, cex.axis=1.25,cex.lab=1.25, col="blu
 #' @references NA
 #' @examples print("No examples")
 plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
+	
+	### we need at least two conditions
+	if(length(unique(pData(sqa$eset)$condition)) == 1){
+		return(cat("INFO: Only one condition no plotQValueVsPValue \n"))
+	}
+	
 	conditionColors <- .getConditionColors(sqa$eset)
 	conditions <- names(sqa$pValue)
+	
 	
 	plot(0,0,xlab="pValue",ylab="False Discovery Rate (qValue)", type="n", xlim=lim,ylim=lim)
 	grid()
@@ -1425,6 +1451,11 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 		
 		pVal <- sqa$pValue[,cond]
 		qVal <- sqa$qValue[,cond]
+		
+		# discard NA's
+		pVal <- pVal[!is.na(qVal)]
+		qVal <- qVal[!is.na(qVal)]
+		
 		o <- order(pVal)
 		lines(pVal[o],qVal[o],col= as.character(conditionColors[cond ,]), lwd=2)
 	}
@@ -1432,6 +1463,47 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	abline(coef=c(0,1),lty=2)
 	legend("bottomright", conditions, fill=as.character(conditionColors[conditions,]), cex=0.6)
 }
+
+
+#' Plot adjusted tmt ratios vs original ratios
+#' @param ratio data.frame 
+#' @param unAdjustedRatio data.frame
+#' @note  No note
+#' @details plot adjusted tmt ratios vs original ratios
+#' @references NA
+#' @examples print("No examples")
+#' @export
+plotAdjustedVsNonAdjustedRatio <- function(ratio,unAdjustedRatio){
+	
+	for(i in 1:ncol(ratio)){
+		lim <- range(ratio)
+		lim <- c(-max(lim),max(lim)) 
+		plot(unAdjustedRatio[,i],ratio[,i]
+				, xlim=lim
+				, ylim=lim
+				, cex.axis=1.25
+				, cex.lab=1.5
+				, pch=19
+				, col="grey"
+				, xlab="TMT Ratio"
+				, ylab="Adjusted TMT Ratio" 
+		)
+		abline(coef=c(0,1), lty=2,lwd=1.5)
+		fit <- lm(ratio[,i] ~ unAdjustedRatio[,i] )
+		abline(fit, lwd=1.5)
+		
+		# R2
+		legd <- c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
+		# slope
+		legd <- c(legd,as.expression(bquote(K*"" == .(round(coef(fit)[2],2)))))
+		
+		legend("bottomright"
+				,legend= legd
+				,text.col=1, box.col="transparent", cex=1.5
+		)
+	}
+}
+
 
 
 
@@ -1509,3 +1581,180 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	par(mar=c(5.1,4.1,4.1,2.1))
 }
 
+## require pairide calibration mix eset
+## @export
+#.plotTMTRatioVsRefRatio <- function(esetCalibMixPair,ylim=c(-2.8,2.8), xlim=c(-2.8,2.8),cex.lab=2, cex.axis=2, ...){
+#	
+#	calMixDilutionTag <- round(log10(fData(esetCalibMixPair)$calMixDilution)+0.6)
+#	plot(0,0
+#			,xlab="TMT Ratio (log2)"
+#			,ylab="Reference Ratio (log2)"
+#			,xlim=xlim
+#			,ylim=ylim
+#			,type="n"
+#			,cex.lab=cex.lab
+##			,xaxt="n"
+##			,yaxt="n"
+#			,cex.axis=cex.axis
+#			,...
+#	)
+#	
+#	# add diagonal ref line
+#	abline(coef=c(0,1), h=0, v=0,lty=2, col="grey")
+#	
+#	points(	getRatios(esetCalibMixPair)[,1]
+#			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
+#			,pch=19
+#			,col=calMixDilutionTag+1)
+#	
+##	text(	getRatios(esetCalibMixPair)[,1]
+##			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
+##			,gsub("^[sptr]{2}\\|","",fData(esetCalibMixPair)$proteinName)
+##			,col=calMixDilutionTag+1
+##			,pos=1:4
+##			,cex=0.6
+##		)
+#	
+#	
+#	fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
+#	abline(fit, lwd=1.5)
+#	legend("topleft",c(expression(paste("4 (fmol/", mu,"g)")),"20","100"),title="Cal. Mix Concentration",fill=2:4,cex=1.5,box.lwd=F, box.col=0)
+#	
+#}
+
+## Plot (boxplot) spectrum ratio distributions per protein and Claibration Mix Concentration 
+## @param eset
+## @export
+## @note  No note
+## @details No details
+## @references NA 
+## @examples print("No examples")
+#plotCalibrationMixRatios <- function(eset, cex.axis=1, cex.lab=1.1,...){
+## assuming tenplex mix	
+#	for(targetProtein in names(CALIBMIXRATIOS)){
+#		
+#		c1 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),1]
+#		c2 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),2]
+#		c3 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),3]
+#		c4 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),4]
+#		c5 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),5]
+#		c6 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),6]
+#		c7 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),7]
+#		c8 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),8]
+#		c9 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),9]
+#		c10 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),10]
+#		
+#		r1 <- c2 / c1
+#		r2 <- c4 / c3 
+#		r3 <- c6 / c5 
+#		r4 <- c8 / c7 
+#		r5 <- c10 / c9 
+#		
+#		nbDp <- length(r1)
+#		xlab <- expression(paste("Calibration Mix Conc. ","(fmol/",mu,"g)",sep=""))
+#		
+#		ylab <- "Fold Change"
+#		names <- c(4,4,20,20,100)
+#		ylim <- c(0.2,5)
+#		
+#		if(nbDp > 9){
+#			# per channel pair
+#			boxplot(r3,r5,r1,r4,r2, ylim=ylim, main=paste(targetProtein,"\nN=",length(c1),sep="")
+#					, col=c(2,2,3,3,4),ylab=ylab,names=names,xlab=xlab,cex.axis=cex.axis,cex.lab=cex.lab,log="y", ...)
+#			# per condiiton pair
+#			#boxplot(log2(r3), log2(c(r1,r4)),log2(c(r2,r5)), ylim=c(-2,2), main=main, col=2:4,ylab="log2(RATIO)",names=c(4,20,100),xlab="Mix Conc.")
+#		}else{ ### fewer than X data points, the plot points 
+#			
+#			
+#			##Plot first set of data.
+#			##Need to check for sensible ranges
+#			##Use the jitter function to spread data out.
+#			plot(jitter(rep(0,nbDp),amount=0.2),r3 ,
+#					xlim=range(-0.5,4.5)
+#					,ylim=ylim
+#					,xaxt="n"
+#					,frame.plot=TRUE
+#					,col=2
+#					,main=targetProtein
+#					,xlab=xlab
+#					,ylab=ylab
+#					,log="y"
+#					,cex.lab=cex.lab
+#					,cex.axis=cex.axis
+#					, pch=19
+#					,...
+#			)
+#			points(jitter(rep(1,nbDp), amount=0.2), r5, col=2, pch=19)
+#			points(jitter(rep(2,nbDp), amount=0.2), r1, col=3, pch=19)
+#			points(jitter(rep(3,nbDp), amount=0.2), r4, col=3, pch=19)
+#			points(jitter(rep(4,nbDp), amount=0.2), r2, col=4, pch=19)
+#			
+#			##Add in the x-axis
+#			axis(1, at=0:4,labels=names	,cex.axis=cex.axis)
+#			
+#			medianR1 <- median(r1,na.rm=T)
+#			medianR2 <- median(r2,na.rm=T)
+#			medianR3 <- median(r3,na.rm=T)
+#			medianR4 <- median(r4,na.rm=T)
+#			medianR5 <- median(r5,na.rm=T)
+#			
+#			##Add in the medians
+#			segments(-0.25, medianR3, 0.25, medianR3,lwd=2)
+#			segments(0.75, medianR5, 1.25, medianR5,lwd=2)
+#			segments(1.75, medianR1, 2.25, medianR1,lwd=2)
+#			segments(2.75, medianR4, 3.25, medianR4,lwd=2)
+#			segments(3.75, medianR2, 4.25, medianR2,lwd=2)
+#			
+#		}
+#		
+#		refRatio <- fData(eset)[fData(eset)$proteinName %in% targetProtein,]$refRatio[1]
+#		abline(h=refRatio,lwd=1.5)
+#		abline(h=1,lty=2,lwd=1.5)
+#		
+#	}
+#}
+
+
+#' @title ma-plot
+#' @description ma-plot
+#' @note  No note
+#' @references NA
+#' @examples print("No examples")
+#' @export
+#' @param eset ExpressionSet
+#' @param sample selected condition
+#' @param lwd default 2
+#' @param pch default 1
+#' @param cex.lab default 1.5
+#' @param cex.axis default 1.5
+#' @param col green transparent
+#' @param ... see plot 
+maPlotSQ <- function(eset
+		,sample=colnames(exprs(eset))[1]
+		,cex.lab=1.5
+		,cex.axis=1.5
+		,lwd=2
+		,pch=1
+		,col= rgb(0,100,0,50,maxColorValue=255)
+		,...){
+	
+	
+	A <- apply(log2(exprs(eset)),1,mean)
+	M <- log2(exprs(eset)[,sample]) - A
+	
+	plot(M ~ A,
+			,pch=pch
+			, xlab="Mean Log2 Intensity"
+			#, ylab= paste("M - " ,sample, sep="" )
+			, ylab= "log2 Ratio"
+			, main=sample
+			, col = col
+			,cex.lab=cex.lab
+			,cex.axis=cex.axis
+			,...)
+#abline(h=c(-1,0,1),lwd=lwd,lty=2)
+	abline(h=c(0),lwd=1,lty=2)
+	lines(lowess(M ~A),lwd=lwd,col="black")
+	
+	
+} 

@@ -8,6 +8,7 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	setwd(dirname(sys.frame(1)$ofile))
 }
 source("initTestSession.R")
+
 ### INIT END
 ### test functions
 
@@ -62,6 +63,18 @@ testCreateExpDesign <- function(){
 	
 }
 
+testGetCalibMixPairedEset <- function(){
+	
+	cat("--- testGetCalibMixPairedEset: --- \n")
+	esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+	
+	stopifnot(ncol(esetCalibMixPair)  == 2 )
+	stopifnot(nrow(esetCalibMixPair)  == nrow(esetCalibMix)*5 )
+	
+	cat("--- testGetCalibMixPairedEset:  PASS ALL TEST  --- \n")
+	
+}
+
 ### compare our impurity correction to MSnbase
 #comparePurityCorrectionToMsnbase <- function(){
 #	
@@ -101,30 +114,106 @@ testCreateExpDesign <- function(){
 #
 #} 
 
+testGetCalibMixEset <- function(){
+	
+	cat("--- testGetCalibMixEset:  --- \n")
+	esetCalibMix <- .getCalibMixEset(esetCalibMix)
+	stopifnot(nrow(esetCalibMix) == 437)
+	cat("--- testGetCalibMixEset:  PASS ALL TEST  --- \n")
+	
+}
+
+testGetCalibMixPairedEset <- function(){
+	
+	cat("--- testGetCalibMixPairedEset:  --- \n")
+	esetCalibMixPair <- .getCalibMixPairedEset(.getCalibMixEset(esetCalibMix))
+	
+	stopifnot(nrow(esetCalibMixPair) == 2185)
+	stopifnot(ncol(esetCalibMixPair) == 2)
+	
+	cat("--- testGetCalibMixPairedEset:  PASS ALL TEST  --- \n")
+	
+}
+
+#testGetRatioCorrectionFactorModel <- function(){
+#	
+#	cat("--- testGetRatioCorrectionFactorModel:  --- \n")
+#	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
+#	#stopifnot(round(coef(fit)[2],1) == 1.4)
+#	cat("--- testGetRatioCorrectionFactorModel:  PASS ALL TEST  --- \n")
+#	
+#}
+
+testIntensityAdjustment <- function(){
+	
+	cat("--- testIntensityAdjustment:  --- \n")
+	
+	if(F){
+		load("/Users/ahrnee-adm/dev/R/workspace/SafeQuantTestData/rData/tmtRatioAdjTest.rData")
+		
+		intAdjObj <- .intensityAdjustment(eset, esetCalibMix)
+		ratio <- getRatios(rollUp(sqNormalize(eset)))
+		ratioAdj <- getRatios(rollUp(sqNormalize(intAdjObj$esetAdj)))
+		
+		lim <-c(-5,5)
+		plot(ratio[,3], ratioAdj[,3], ylim=lim, xlim=lim )
+		abline(coef=c(0,1),lty=2)
+		
+		cor(as.vector(unlist(ratio[,1])), as.vector(unlist(ratioAdj[,1])))^2
+		
+		lm( ratioAdj[,1] ~ ratio[,1])
+		
+		esetCalMixAdjPaired <- .getCalibMixPairedEset(intAdjObj$esetCalMixAdj)
+		lim <-c(-4,4)
+		.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair, featureDataColumnName="proteinName"), ylim=lim, xlim=lim)
+		.plotTMTRatioVsRefRatio(rollUp(esetCalMixAdjPaired, featureDataColumnName="proteinName"), ylim=lim, xlim=lim)
+	}
+	
+	
+	expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+	esetTMT10Plex <-  parseScaffoldRawFile(scaffoldTmt10PlexRawTestFile,expDesign = expDesign)
+	intAdjObj2 <- .intensityAdjustment(esetTMT10Plex, esetCalibMix)
+	stopifnot(round(intAdjObj2$globalNoiseFraction,3) == 0.193)
+	
+	#barplot(apply(exprs(esetTMT10Plex),2,sum,na.rm=T))
+	
+	cat("--- testIntensityAdjustment:  PASS ALL TEST  --- \n")
+}
+
+
 ### test functions end
 
 # INIT
 
-### CREATE TEST DATA
-
-tmtTestData6Plex <- matrix(rep(10,24),ncol=6)
-tmtTestData6Plex[2,1:3] <- c(9,9,9) 
-tmtTestData6Plex[3,1:3] <- c(100,100,100) 
-tmtTestData6Plex[4,c(1,3,5)] <- c(100,100,100) 
-
-tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
-
-### CREATE TEST DATA END
 
 
 ### INIT END
 
 ### TESTS
 
-testGetImpuritiesMatrix()
-testPurityCorrectTMT()
-testCreateExpDesign()
+
+
+if(T){
+	testGetImpuritiesMatrix()
+	testPurityCorrectTMT()
+	testCreateExpDesign()
+	testGetCalibMixEset()
+	testGetCalibMixPairedEset()
+	#testGetRatioCorrectionFactorModel()
+	testIntensityAdjustment()
+	
+	
+}
+
+
 #comparePurityCorrectionToMsnbase()
 ### TESTS END
+
+
+
+
+
+
+#CALIBMIXRATIOS
 
 

@@ -67,11 +67,12 @@ if(T){
 	pairsAnnot(exprs(eset), main="pairsAnnot")
 	pairsAnnot(getSignalPerCondition(eset), main="pairsAnnot")
 	
-	
-	
 	plotMSSignalDistributions(exprs(eset),col=COLORS, cex=1, cex.axis=1.5, cex.lab=1.5, ylab="binned count", xlab="AUC", main="plotMSSignalDistributions")
 	barplotMSSignal(eset,cex.lab=1.5,main="barplotMSSignal")
 	
+	### TMT calibration mix
+#	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair , featureDataColumnName="peptide"), cex.lab=1.5, cex.axis=1.5)
+#	
 	##quant differential abundance related plots
 	
 	### plot volcanos for all case control comparisons
@@ -99,6 +100,13 @@ if(T){
 			,cex.lab=1.2
 	)
 	
+	plotVolcano(safeQuantAnalysis(esetPaired)
+			,main= "plotVolcano created from safeQuantAnalysis object (esetPaired)"
+			,cex.axis=1.2
+			,cex.lab=1.2
+			,adjust=F
+	)
+	
 	hClustHeatMap(eset)
 	hClustHeatMap(eset, dendogram="both")
 	
@@ -118,19 +126,19 @@ if(T){
 	plotRTNorm(rtNormFactors,esetTmp, samples=2, main="plotRTNorm")
 	
 	missinValueBarplot(eset)
-	
 	plotQValueVsPValue(sqa, lim=c(0,0.5))
-		
 	.correlationPlot(exprs(eset))
+
+	maPlotSQ(eset)
 	
 	graphics.off()
 	
-	
-
 	cat("CREATED FILE", tmpFile, "\n")
 	
 }
 ### TESTS END
+
+
 
 
 

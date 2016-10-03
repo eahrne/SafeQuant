@@ -38,7 +38,7 @@ sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
 if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	
 	sourceDir <- ifelse(file.exists(sourceDirOSX),sourceDirOSX,sourceDirTPP)
-		
+	
 	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
 	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
 	source(paste(sourceDir,"Graphics.R",sep=""))
@@ -56,7 +56,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	stop("SafeQuant Package not installed\n")
 }
 
-VERSION <- 2.2
+VERSION <- 2.3
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
@@ -80,8 +80,6 @@ if(userOptions$verbose) cat("PARSING INPUT FILE \n")
 # get file type
 fileType <- .getFileType(userOptions$inputFile)
 
-normMethod <- c("global")
-
 ### Progenesis Export
 if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide")){
 	
@@ -93,7 +91,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		# user specified
 		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,expDesign)		
 	}
-
+	
 	if(fileType == "ProgenesisProtein"){
 		cat("INFO: PARSING PROGENESIS PROTEIN EXPORT FILE ",userOptions$inputFile, "\n" )
 		eset <- parseProgenesisProteinCsv(file=userOptions$inputFile,expDesign=expDesign)
@@ -102,19 +100,13 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		#normMethod <- c("rt")
-		#normMethod <- c("global")
-		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign)
+		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, uniqueProteins=userOptions$FUniquePeptides)
 		
 	}else{ 	#"ProgenesisFeature"
-	
+		
 		cat("INFO: PARSING PROGENESIS FEATURE EXPORT FILE ",userOptions$inputFile, "\n" )
-		#normMethod <- c("rt")
-		#normMethod <- c("global")
 		eset <- parseProgenesisFeatureCsv(file=userOptions$inputFile,expDesign=expDesign)
 	}
-	
-	
 	
 # Scaffold Export (TMT data)
 }else if(fileType == "ScaffoldTMT"){
@@ -123,12 +115,32 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 	# get default experimental design
 	# six plex or ten plex ?
 	# use default experimental design unless specified by the user
-	if(.getNbPlex(userOptions$inputFile) == 6){
+	nbPlex <- .getNbPlex(userOptions$inputFile) 
+	if(nbPlex == 6){
 		# 6-plex default: 1,2,3:4,5,6 
-		expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3))),isControl=sort(rep(c(T,F),3),decreasing=T) )
+		expDesign <- data.frame(condition=paste("Condition",sort(rep(c(1,2),3)),sep=""),isControl=sort(rep(c(T,F),3),decreasing=T) )
 	}else{
 		# 10-plex default is "1,4,7,10:2,5,8:3,6,9"
-		expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1)),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+		expDesign <- data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) )
+	}
+	
+	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+	if(userOptions$TAdjustRatios){
+		#if((nbPlex == 10)){ # only possible for tmt-10 plex
+			nbCalMixSpectra <- sum( (fData(eset)$proteinName %in% names(CALIBMIXRATIOS)))
+			if(nbCalMixSpectra < 100) stop("Not enough Calibration Mix spectra were found: ",nbCalMixSpectra, "\n ")
+			cat("INFO: FOUND  ", nbCalMixSpectra ," Calibration Mix spectra\n")
+			esetCalibMix <- .getCalibMixEset(eset)
+			
+			# discard calibration mix proteins
+			eset <- eset[!(fData(eset)$proteinName %in% names(CALIBMIXRATIOS)),]
+			
+			intAdjObj <- .intensityAdjustment(eset, esetCalibMix)
+			
+		#}else{
+		#	stop("Ratio Correction Not implemented for TMT 6-plex")
+		#}
 	}
 	
 	# get user specified experimental design
@@ -136,8 +148,10 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		# user specified
 		expDesign <- expDesignTagToExpDesign(userOptions$expDesignTag,expDesign)
 	}
-
-	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	
+#	eset <- parseScaffoldRawFile(file=userOptions$inputFile,expDesign=expDesign)
+	# apply specified experimental design
+	eset <- createExpressionDataset(expressionMatrix=exprs(eset)[,rownames(expDesign)],expDesign=expDesign,featureAnnotations=fData(eset))
 	
 	if(!is.na(userOptions$scaffoldPTMSpectrumReportFile)){
 		
@@ -145,9 +159,9 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		eset <- addScaffoldPTMFAnnotations(eset,userOptions$scaffoldPTMSpectrumReportFile)
 		
 	}
-
+	
 }else if(fileType == "MaxQuantProteinGroup"){
-
+	
 	# get user specified experimental design
 	if(!is.na(userOptions$expDesignTag)){
 		# user specified
@@ -214,15 +228,15 @@ if("ptm" %in% names(fData(eset))){
 	# add motif-X and ptm coordinates
 	if(exists("proteinDB")){
 		
-			cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
-			#format 1) progensis  2) scaffold
-			eset <- .addPTMCoord(eset,proteinDB,motifLength=6, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
-	
+		cat("INFO: EXTRACTING PTM COORDINATES AND MOTIFS\n")
+		#format 1) progensis  2) scaffold
+		eset <- .addPTMCoord(eset,proteinDB,motifLength=6, isProgressBar=T,format= (fileType == "ScaffoldTMT") +1)
+		
 	}
 	filter <- cbind(filter
-					, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))
-					, nbPtmsPerPeptide = (fData(eset)$nbPtmsPerPeptide > userOptions$maxNbPtmsPerPeptide) )
-
+			, ptm = !(grepl(userOptions$selectedModifName,as.character(fData(eset)$ptm),ignore.case=T))
+			, nbPtmsPerPeptide = (fData(eset)$nbPtmsPerPeptide > userOptions$maxNbPtmsPerPeptide) )
+	
 }
 
 if("peptide" %in% names(fData(eset))){
@@ -240,7 +254,8 @@ if(!("nbPeptides" %in% names(fData(eset)))){
 filter <- cbind(filter,nbPeptides=(fData(eset)$nbPeptides < userOptions$minNbPeptidesPerProt))
 
 # do not filter TMT data
-if(("idScore" %in% names(fData(eset))) && (fileType != "ScaffoldTMT")){
+#if(("idScore" %in% names(fData(eset))) && (fileType != "ScaffoldTMT")){
+if(("idScore" %in% names(fData(eset)))){
 	eset <- addIdQvalues(eset)
 	filter <- cbind(filter,qvalue=fData(eset)$idQValue > userOptions$fdrCutoff)
 }
@@ -270,42 +285,63 @@ if(userOptions$verbose){
 
 ############################################################### EXPRESSION ANALYSIS ############################################################### 
 
+# create paired experiemntal design()
+if(userOptions$ECorrelatedSamples){
+	eset <- createPairedExpDesign(eset)
+}
+
+# add filters etc to adjusted expressionSet
+# update expDesign of intAdjObj$esetAd
+if(exists("intAdjObj")){
+	fData(intAdjObj$esetAdj) <- fData(eset)
+	pData(intAdjObj$esetAdj) <- pData(eset)
+	exprs(intAdjObj$esetAdj) <- exprs(intAdjObj$esetAdj)[,colnames(exprs(eset))]
+} 
+
+
 ### non-pairwise stat test
 statMethod <- c("")
 if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
-
-### normalize eset
-#cat("INFO: NORMALIZING DATA USING '",normMethod ,"' METHOD \n",sep="")
-
-### if user has specified anchor proteins -> always use global method 
-if(sum(fData(eset)$isNormAnchor == FALSE, na.rm=T ) > 0 ){
-	cat("INFO: 'GLOBAL' Normalization always used in combination with SAnchorProtein option \n")	
-	normMethod <- "global"
+if(userOptions$SRawDataAnalysis){ # No Normalization
+	esetNorm <- eset
+	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- intAdjObj$esetAdj
+}else{
+	method <- c("global","median")
+	# norm based on sum if norm anchor is specified 
+	if(sum(fData(eset)$isNormAnchor) < nrow(eset)) method <- c("global","sum")
+	esetNorm <- sqNormalize(eset, method=method)
+	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- sqNormalize(intAdjObj$esetAdj, method=method )
 }
-esetNorm <- sqNormalize(eset,method=normMethod)
+
 ### add pseudo (baseline) intensity
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
-exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
+exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
-
-#exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < 0)  ] <- 0 
-#baselineIntensity <- .getBaselineIntensityTMT(exprs(esetNorm)[,1]) 
-#exprs(esetNorm)[is.na(exprs(esetNorm)) | (exprs(esetNorm) < baselineIntensity)  ] <- baselineIntensity 
-
-### ProgenesisProtein -> NO ROLL-UP
-### ProgenesisFeature -> ROLL-UP PEPTIDE (ROLL-UP PROTEIN UNLESS USER SPECIFIED )
-### ScaffoldTMT -> ROLL-UP PROTEIN
+if(exists("intAdjObj")){
+	baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(intAdjObj$esetAdjNorm)[,1])),promille=5)
+	exprs(intAdjObj$esetAdjNorm)[  is.na(exprs(intAdjObj$esetAdjNorm)) | (exprs(intAdjObj$esetAdjNorm) <= 0)  ] <- 0
+	exprs(intAdjObj$esetAdjNorm) <- exprs(intAdjObj$esetAdjNorm) + baselineIntensity
+}
 
 if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered  | isDecoy(fData(esetNorm)$proteinName)
-	sqaProtein <- safeQuantAnalysis(esetNorm, method=statMethod)
+	sqaProtein <- safeQuantAnalysis(esetNorm, method=statMethod, fcThrs=userOptions$ratioCutOff)
 }else if((fileType == "ScaffoldTMT") && is.na(userOptions$scaffoldPTMSpectrumReportFile)){
-
+	
 	# roll-up protein level
 	cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered |  isDecoy(fData(esetNorm)$proteinName)
-	sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod)
+	
+	# correct TMT ratios
+	if(userOptions$TAdjustRatios){
+		fData(intAdjObj$esetAdjNorm)$isFiltered <- fData(esetNorm)$isFiltered
+		intAdjObjProt <- intAdjObj
+		intAdjObjProt$esetAdjNorm <- rollUp(intAdjObj$esetAdjNorm,featureDataColumnName= c("proteinName"))
+		sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod,intensityAdjustmentObj=intAdjObjProt, fcThrs=userOptions$ratioCutOff )
+	}else{
+		sqaProtein <- safeQuantAnalysis(rollUp(esetNorm,featureDataColumnName= c("proteinName")), method=statMethod , fcThrs=userOptions$ratioCutOff)
+	}
 	
 	fData(sqaProtein$eset)$isFiltered <- fData(sqaProtein$eset)$isFiltered | isDecoy(fData(sqaProtein$eset)$proteinName) | (fData(sqaProtein$eset)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
@@ -313,11 +349,14 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 	
 	# roll-up peptide level
 	cat("INFO: ROLL-UP PEPTIDE LEVEL\n")
-		
+	
+	# correct TMT ratios
+	if(userOptions$TAdjustRatios){
+		cat("WARN: Ratio correction not yet implemented in this anlysis mode \n")			
+	}
+	
 	esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"))
-	#print(system.time(esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)))
-	#esetPeptide <- rollUp(esetNorm,featureDataColumnName= c("peptide","ptm"),isProgressBar=T)
-
+	
 	# fdr filter
 	# replace qValues by rollUp level qValues ()
 	esetPeptide <- addIdQvalues(esetPeptide)
@@ -328,7 +367,7 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 		# update filter to exclude peptide level hight qValues
 		fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | (fData(esetPeptide)$idQValue > userOptions$fdrCutoff) | (fData(esetPeptide)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	}
-
+	
 	if(userOptions$proteinQuant){
 		cat("INFO: ROLL-UP PROTEIN LEVEL\n")
 		esetProtein <- rollUp(esetPeptide,featureDataColumnName= c("proteinName"))
@@ -339,12 +378,12 @@ if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
 		}else{
 			fData(esetProtein)$isFiltered <- fData(esetProtein)$isFiltered | (fData(esetProtein)$idQValue > userOptions$fdrCutoff) | isDecoy(fData(esetProtein)$proteinName) | (fData(esetProtein)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 		}
-		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod)
-
+		sqaProtein <- safeQuantAnalysis(esetProtein, method=statMethod, fcThrs=userOptions$ratioCutOff)
+		
 	}
 	
 	fData(esetPeptide)$isFiltered <- fData(esetPeptide)$isFiltered | isDecoy(fData(esetPeptide)$proteinName)
-	sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod)
+	sqaPeptide <- safeQuantAnalysis(esetPeptide, method=statMethod, fcThrs=userOptions$ratioCutOff)
 	
 	fData(esetNorm)$isFiltered <- fData(esetNorm)$isFiltered | isDecoy(fData(esetNorm)$proteinName) | (fData(esetNorm)$nbPeptides <  userOptions$minNbPeptidesPerProt)
 	
@@ -406,20 +445,15 @@ plotExpDesign(esetNorm, version=VERSION)
 
 ### IDENTIFICATION PLOTS
 if(userOptions$verbose) cat("INFO: IDENTIFICATION PLOTS \n")
-#if(fileType == "ProgenesisProtein") layout(rbind(c(1, 1), c(2, 3)) )
-#if(fileType == "ProgenesisProtein")
 par(mfrow=c(2,2))
-#if(fileType == "ScaffoldTMT") par(mfrow=c(2,2))
-#if(fileType == "ProgenesisFeature")layout(rbind(c(1,1,1,2,2,2), c(3,3, 4,4,5,5)))
-#if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")) par(mfrow=c(2,2))
 
 #.idOverviewPlots()
 #@ NOT CRAN COMPATIBLE	
 .idOverviewPlots(userOptions=userOptions
-					,esetNorm=esetNorm
-					,fileType=fileType
-					,sqaPeptide= ifelse(exists("sqaPeptide"),list(sqaPeptide),list(NA))[[1]]# HACK to pass check
-					,sqaProtein= ifelse(exists("sqaProtein"),list(sqaProtein),list(NA))[[1]] # HACK to pass check
+		,esetNorm=esetNorm
+		,fileType=fileType
+		,sqaPeptide= ifelse(exists("sqaPeptide"),list(sqaPeptide),list(NA))[[1]]# HACK to pass check
+		,sqaProtein= ifelse(exists("sqaProtein"),list(sqaProtein),list(NA))[[1]] # HACK to pass check
 )
 
 if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
@@ -473,8 +507,23 @@ if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
 
 par(parDefault)
 
-### retention time plot
-if("rt" %in% normMethod ) plotRTNormSummary(eset,lwd=2)
+
+### TMT calibration mix
+if(exists("intAdjObj")){ 
+	
+	# plot adjusted ratios vs org ratio
+	# boxplot noise fraction
+	#if(ncol(sqaDisp$ratio) > 1) par(mfrow=c(2,2))	
+	boxplot(intAdjObj$noiseFraction*100, border=ifelse(intAdjObj$selectedPairs,"blue","black")
+			, ylab="Noise Fraction (%)",xlab="Calibration Mix Pair", cex.axis=1.5,cex.lab=1.5)
+	
+	if(ncol(sqaDisp$ratio) > 1) par(mfrow=c(2,2))	
+	plotAdjustedVsNonAdjustedRatio(sqaDisp$ratio,sqaDisp$unAdjustedRatio)
+	par(parDefault)
+
+}
+
+
 
 ### QUANT. QC PLOTS END
 
@@ -520,7 +569,7 @@ plotVolcano(sqaDisp
 
 
 if(userOptions$eBayes){
-
+	
 	par(mfrow=c(1,2))
 	plotNbValidDeFeaturesPerFDR(sqaDisp,
 			upRegulated=F
@@ -560,7 +609,54 @@ if(userOptions$eBayes){
 
 ### QUANT. STAT. PLOTS END
 
-par(mfrow=c(1,1))
+par(parDefault)
+
+
+### SOME ADDITIONAL QC PLOTS
+
+if(userOptions$addQC){
+	
+#	if(exists("sqaPeptide")){
+#		plotXYDensity(fData(sqaPeptide$eset)$retentionTime,fData(sqaPeptide$eset)$pMassError, disp=c("")
+#			, xlab="Retention time (min)"
+#			, ylab="Precursor Mass Error (ppm)"
+#			, cex.axis=1.5
+#			, cex.lab=1.5)
+	
+	if( all(c("retentionTime","pMassError")  %in% names(fData(eset)) )){
+		plotXYDensity(fData(eset)$retentionTime,fData(eset)$pMassError, disp=c("")
+			, xlab="Retention time (min)"
+			, ylab="Precursor Mass Error (ppm)"
+			, cex.axis=1.5
+			, cex.lab=1.5)
+	
+		abline(h=c(userOptions$precursorMassFilter[1],0,userOptions$precursorMassFilter[2]),lty=2, lwd=2)
+		
+		# rt vs signal
+		sel <- 1:nrow(esetNorm) %in% sample(nrow(esetNorm),min(c(4000,nrow(esetNorm))) ,replace=F) & (!(fData(esetNorm)$proteinName %in% names(CALIBMIXRATIOS)))
+		plotRTNormSummary(esetNorm[sel,])
+		
+		par(mfrow=c(2,2))
+		plotRTNorm(getRTNormFactors(esetNorm[sel,], minFeaturesPerBin=100),esetNorm[sel,])
+	
+		par(parDefault)
+		
+	}
+	
+	par(mfrow=c(2,2))
+	#all ma plots
+	for(s in colnames(exprs(esetNorm))){
+		sel <- 1:nrow(esetNorm) %in% sample(nrow(esetNorm),min(c(4000,nrow(esetNorm))) ,replace=F) & (!(fData(esetNorm)$proteinName %in% names(CALIBMIXRATIOS)))
+		maPlot(esetNorm[sel,],sample=s)
+	}
+	
+	
+	
+	par(parDefault)
+	
+}
+
+
 
 cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 
@@ -571,9 +667,9 @@ graphics.off()
 ### TSV EXPORT
 
 if(exists("sqaPeptide")){ 
-
+	
 	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
-						,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
+			,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 
 	
 	### add modif coord
@@ -606,7 +702,7 @@ if(exists("sqaPeptide")){
 	ratio <- sqaPeptide$ratio
 	
 	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
-
+	
 	pValue <- sqaPeptide$pValue
 	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaPeptide$qValue
@@ -624,15 +720,29 @@ if(exists("sqaPeptide")){
 			, pValue
 			, qValue )[!fData(sqaPeptide$eset)$isFiltered,]
 	
+	### add unadjusted ratios if TMT ratio correction
+	if(userOptions$TAdjustRatios){
+		unadjPeptideRatios <- sqaPeptide$unAdjustedRatio[!fData(sqaPeptide$eset)$isFiltered,]
+		names(unadjPeptideRatios) <- paste("log2_unadjRatio",names(sqaPeptide$ratio),sep="_")
+		out <- cbind(out,unadjPeptideRatios)
+	}
+	
+	### paired expDesign ratio export
+	if("subject" %in% names(pData(sqaPeptide$eset))){
+		allRatios <- getRatios(sqaPeptide$eset,method="paired")[!fData(sqaPeptide$eset)$isFiltered,]
+		names(allRatios) <- paste("log2_pairedRatio",names(allRatios),sep="_")
+		out <- cbind(out,allRatios)
+	}
+	
 	write.table(out
 			, file=userOptions$peptideTsvFilePath
 			, sep="\t"
 			, row.names=F
-		)
-
+	)
+	
 	cat("INFO: CREATED FILE ", userOptions$peptideTsvFilePath,"\n")	
 }	
-	
+
 if(exists("sqaProtein")){
 	
 	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides")
@@ -668,7 +778,7 @@ if(exists("sqaProtein")){
 	if(exists("esetTop3")){
 		
 		tmpOut <- medianSignalDf
-	 	tmpOut[!is.na(tmpOut)] <- NA
+		tmpOut[!is.na(tmpOut)] <- NA
 		selProts <- intersect(rownames(tmpOut),rownames(esetTop3))
 		tmpOut[selProts,] <- getSignalPerCondition(esetTop3)[selProts,]
 		
@@ -690,16 +800,21 @@ if(exists("sqaProtein")){
 		names(tmpOut) <- gsub("medianInt","iBAQ",names(medianSignalDf))
 		out <- cbind(out,tmpOut)
 		
-#		### per run
-#		tmpOut <- exprs(esetIBAQ)
-#		tmpOut[!is.na(tmpOut)] <- NA
-#		selProts <- intersect(rownames(tmpOut),rownames(esetIBAQ))
-#		tmpOut[selProts,] <- exprs(esetIBAQ)[selProts,]
-#		
-#		tmpOut <- data.frame(tmpOut[!fData(sqaProtein$eset)$isFiltered,])
-#		names(tmpOut) <- paste("iBAQ_",colnames(exprs(esetIBAQ)))
-#		out <- cbind(out,tmpOut)
-		
+	}
+	
+	### add unadjusted ratios if TMT ratio correction
+	if(userOptions$TAdjustRatios){
+		unadjProteinRatios <- sqaProtein$unAdjustedRatio[!fData(sqaProtein$eset)$isFiltered,]
+		names(unadjProteinRatios) <- paste("log2_unadjRatio",names(sqaProtein$ratio),sep="_")
+		out <- cbind(out,unadjProteinRatios)
+	}
+	
+	
+	### paired expDesign ratio export
+	if("subject" %in% names(pData(sqaProtein$eset))){
+		allRatios <- getRatios(sqaProtein$eset,method="paired")[!fData(sqaProtein$eset)$isFiltered,]
+		names(allRatios) <- paste("log2_pairedRatio",names(allRatios),sep="_")
+		out <- cbind(out,allRatios)
 	}
 	
 	write.table(out
@@ -715,13 +830,13 @@ if(exists("sqaProtein")){
 
 ### EXPORT PARAMS
 write.table(data.frame(
-					param=row.names(data.frame(unlist(userOptions[names(userOptions)])))
-					,value=as.vector((unlist(userOptions[names(userOptions)])))
-			)
-	,file=userOptions$paramsFilePath
-	,sep="\t"
-	,row.names=F
-	,quote=F
+				param=row.names(data.frame(unlist(userOptions[names(userOptions)])))
+				,value=as.vector((unlist(userOptions[names(userOptions)])))
+		)
+		,file=userOptions$paramsFilePath
+		,sep="\t"
+		,row.names=F
+		,quote=F
 )
 
 cat("INFO: CREATED FILE ", userOptions$paramsFilePath,"\n")	
