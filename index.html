@@ -1,33 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>SafeQuant by eahrne</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-dark.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+
+    <title>SafeQuant by eahrne</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
+    <header>
+      <div class="inner">
         <h1>SafeQuant</h1>
-        <p>A Toolbox for analysis of Proteomics Data</p>
-        <p class="view"><a href="https://github.com/eahrne/SafeQuant">View the Project on GitHub <small>eahrne/SafeQuant</small></a></p>
-        <ul>
-          <li><a href="https://github.com/eahrne/SafeQuant/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/eahrne/SafeQuant/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/eahrne/SafeQuant">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <p>The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.</p>
+        <h2>A Toolbox for analysis of Proteomics Data</h2>
+        <a href="https://github.com/eahrne/SafeQuant" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <p>The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM) Proteomics data.</p>
 
 <h3>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
@@ -64,7 +65,7 @@ R&gt; library(devtools)
 R&gt; install_github("eahrne/SafeQuant")
 </code></pre>
 
-<p><strong>Option 2, install latest <a href="https://cran.r-project.org/web/packages/SafeQuant/index.html">CRAN</a> version</strong></p>
+<p><strong>Option 2, install latest <a href="https://CRAN.R-project.org/package=SafeQuant">CRAN</a> version</strong></p>
 
 <pre><code>R&gt; install.packages("SafeQuant")
 </code></pre>
@@ -178,20 +179,34 @@ This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C
 <a id="publications" class="anchor" href="#publications" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Publications</h4>
 
 <ul>
-<li>Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion
-Timo Glatter, Christina Ludwig, Erik Ahrne, Ruedi Aebersold, Albert J.R. Heck, and Alexander Schmidt
-Journal of Proteome Research Just Accepted Manuscript</li>
+<li>Ahrne, E. et al. Evaluation and Improvement of Quantification Accuracy in Isobaric Mass Tag-Based Protein Quantification Experiments. J Proteome Res 15, 2537–2547 (2016). <a href="https://www.ncbi.nlm.nih.gov/pubmed/27345528">https://www.ncbi.nlm.nih.gov/pubmed/27345528</a> </li>
+<li>Ahrne, E., Molzahn, L., Glatter, T., &amp; Schmidt, A. (2013). Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Proteomics. Journal of Proteome Research Just Accepted Manuscript <a href="https://www.ncbi.nlm.nih.gov/pubmed/23794183">https://www.ncbi.nlm.nih.gov/pubmed/23794183</a>
+</li>
+<li>Glatter, T., Ludwig, C., Ahrne, E., Aebersold, R., Heck, A. J. R., &amp; Schmidt, A. (2012). Large-scale quantitative assessment of different in-solution protein digestion protocols reveals superior cleavage efficiency of tandem Lys-C/trypsin proteolysis over trypsin digestion. <a href="https://www.ncbi.nlm.nih.gov/pubmed/23017020">https://www.ncbi.nlm.nih.gov/pubmed/23017020</a>
+</li>
 </ul>
 
 <p><strong><a href="mailto:erik.ahrne@unibas.ch">questions?</a></strong></p>
-      </section>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/eahrne/SafeQuant/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/eahrne/SafeQuant/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/eahrne/SafeQuant"></a> is maintained by <a href="https://github.com/eahrne">eahrne</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/eahrne">eahrne</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-              <script type="text/javascript">
+
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
