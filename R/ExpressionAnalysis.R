@@ -47,7 +47,7 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 	
 	### make sure that only one unique condition is specified as control
 	if(length(unique(as.character(expDesign$condition[expDesign$isControl])) ) > 1){
-		stop("Invalid experimental design")	
+		stop("ERROR: createExpressionDataset, Invalid experimental design")	
 	}
 	
 	### phenoData: stores expDesign
@@ -504,6 +504,12 @@ rtNormalize <- function(eset,rtNormFactors){
 #' @examples print("No examples")
 getGlobalNormFactors <- function(eset, method="median"){
 	
+	if("sum" %in% method){
+		method <- "sum"
+	}else{
+		method <- "median"
+	}
+	
 	sel <- rep(T,nrow(eset))
 	
 	### check if isNormAnchor and isFiltered columns are defined, if -> get normalization factors from nonFiltered anchor proteins
@@ -524,13 +530,8 @@ getGlobalNormFactors <- function(eset, method="median"){
 		}						
 	}
 	
-	if("sum" %in% method ){
-		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=sum, na.rm=T)
-	}else if("median" %in% method ){
-		rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=median, na.rm=T)
-	}else{
-		stop("Error: Unknown Global Normalization Method", method)		
-	}
+	rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=method, na.rm=T)
+
 	normFactors = as.numeric(rawDataIdx[1]) / as.numeric(rawDataIdx)
 	return(normFactors)
 	

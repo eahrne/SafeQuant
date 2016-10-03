@@ -510,9 +510,13 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 			#stop("SPLIT")
 		} 
 	}
-	
-	# get original condition names
-	expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
+
+	### make sure a single condirion has not been split into two
+	# I.e there should be just as many conditions before and anfter retreival of orginial condition names
+	if(length(unique(	expDesign$condition)) == length(unique(	 expDesignDefault[rownames(expDesign),]$condition)) ){
+		# get original condition names
+		expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
+	}
 	
 	return(expDesign)
 	

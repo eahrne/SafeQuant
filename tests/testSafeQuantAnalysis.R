@@ -55,7 +55,7 @@ testSafequantAnalysis <- function(){
 #	
 	# ratio filter multiple testing
 	sqaRatioMT <- safeQuantAnalysis(eset,fcThrs =2^quantile(getRatios(eset)[,1])[2])
-	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) == 496)
+	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) > 400)
 	
 	cat("--- testSafequantAnalysis: PASS ALL TEST --- \n")
 	

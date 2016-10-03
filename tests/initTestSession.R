@@ -132,6 +132,8 @@ featureAnnotations <- data.frame(
 		,row.names=peptideName)
 
 eset <- createExpressionDataset(expressionMatrix=m,expDesign=expDesign,featureAnnotations=featureAnnotations)
+
+
 sqa <- safeQuantAnalysis(eset)
 
 # ABS. QUANT SIM. DATA 
