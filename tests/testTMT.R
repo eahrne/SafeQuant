@@ -135,14 +135,14 @@ testGetCalibMixPairedEset <- function(){
 	
 }
 
-testGetRatioCorrectionFactorModel <- function(){
-	
-	cat("--- testGetRatioCorrectionFactorModel:  --- \n")
-	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
-	#stopifnot(round(coef(fit)[2],1) == 1.4)
-	cat("--- testGetRatioCorrectionFactorModel:  PASS ALL TEST  --- \n")
-	
-}
+#testGetRatioCorrectionFactorModel <- function(){
+#	
+#	cat("--- testGetRatioCorrectionFactorModel:  --- \n")
+#	fit <- getRatioCorrectionFactorModel(rollUp(esetCalibMixPair))
+#	#stopifnot(round(coef(fit)[2],1) == 1.4)
+#	cat("--- testGetRatioCorrectionFactorModel:  PASS ALL TEST  --- \n")
+#	
+#}
 
 testIntensityAdjustment <- function(){
 	
@@ -199,7 +199,7 @@ if(T){
 	testCreateExpDesign()
 	testGetCalibMixEset()
 	testGetCalibMixPairedEset()
-	testGetRatioCorrectionFactorModel()
+	#testGetRatioCorrectionFactorModel()
 	testIntensityAdjustment()
 	
 	

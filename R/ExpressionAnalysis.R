@@ -80,6 +80,7 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @param adjust TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method 
 #' @param log T/F log-transform expression values
 #' @param method c("all","pairwise")
+#' @param adjustFilter matrix T/F do not adjust for multiple testing
 #' @return ExpressionSet object
 #' @export
 #' @import limma Biobase
@@ -872,20 +873,20 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 	
 	if(method =="sum"){
 		rDT <- DT[, lapply(.SD, sum, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
-		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		rolledAssayData <- data.frame(rDT,row.names=1, check.names=F)
 	}else if(method =="median"){
 		rDT <- DT[, lapply(.SD, median, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
-		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		rolledAssayData <- data.frame(rDT,row.names=1, check.names=F)
 		
 	}else if(method =="mean"){
 		rDT <- DT[, lapply(.SD, mean, na.rm=TRUE), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
-		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		rolledAssayData <- data.frame(rDT,row.names=1, check.names=F)
 	}else if(method =="top3"){
 		rDT <- DT[, lapply(.SD, getTopX, topX=3), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
-		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		rolledAssayData <- data.frame(rDT,row.names=1, check.names=F)
 	}else if(method =="top1"){
 		rDT <- DT[, lapply(.SD, getTopX, topX=1), by=idx, .SDcols=c(2:(ncol(eset)+1)) ]
-		rolledAssayData <- data.frame(rDT,row.names=rDT[,1], check.names=F)
+		rolledAssayData <- data.frame(rDT,row.names=1, check.names=F)
 	}
 	
 	# idScore

@@ -2,10 +2,11 @@ Package: SafeQuant
 Type: Package
 Title: A Toolbox for the Analysis of Proteomics Data
 Version: 2.3
-Date: 2016-04-08
+Date: 2016-09-04
 Author: Erik Ahrne
 Maintainer: Erik Ahrne <erik.ahrne@unibas.ch>
-Description: Tools for the statistical analysis and visualization of (relative and absolute) quantitative (LFQ,TMT,HRM) Proteomics data.
+Description: Tools for the statistical analysis and visualization of (relative
+    and absolute) quantitative (LFQ,TMT,HRM) Proteomics data.
 Imports:
     limma,
     gplots,
@@ -14,5 +15,6 @@ Imports:
     optparse,
     data.table,
     epiR,
-    Biobase	
+    Biobase
 License: GPL-3
+RoxygenNote: 5.0.1

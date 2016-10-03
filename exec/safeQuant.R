@@ -135,6 +135,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 			
 			# discard calibration mix proteins
 			eset <- eset[!(fData(eset)$proteinName %in% names(CALIBMIXRATIOS)),]
+			
 			intAdjObj <- .intensityAdjustment(eset, esetCalibMix)
 			
 		#}else{
@@ -517,7 +518,7 @@ if(exists("intAdjObj")){
 			, ylab="Noise Fraction (%)",xlab="Calibration Mix Pair", cex.axis=1.5,cex.lab=1.5)
 	
 	if(ncol(sqaDisp$ratio) > 1) par(mfrow=c(2,2))	
-	.plotAdjustedVsNonAdjustedRatio(sqaDisp$ratio,sqaDisp$unAdjustedRatio)
+	plotAdjustedVsNonAdjustedRatio(sqaDisp$ratio,sqaDisp$unAdjustedRatio)
 	par(parDefault)
 
 }

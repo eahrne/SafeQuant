@@ -816,7 +816,7 @@ plotMSSignalDistributions <- function(d, col=1:100,ylab="Frequnecy", xlab="MS-Si
 #' @param ... see plot
 #' @import gplots
 #' @importFrom graphics legend
-#' @importFrom stats hclust as.dist as.dendrogram
+#' @importFrom stats dist hclust as.dist as.dendrogram
 #' @export
 #' @note  No note
 #' @details No details
@@ -1189,6 +1189,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @param isFitLm fit linear model
 #' @param disp  c("abline","R","Rc") display options 
 #' @param legendPos see legend
+#' @param pch see plot
 #' @param ... see plot
 #' @import epiR
 #' @importFrom graphics plot lines abline legend
@@ -1464,6 +1465,47 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 }
 
 
+#' Plot adjusted tmt ratios vs original ratios
+#' @param ratio data.frame 
+#' @param unAdjustedRatio data.frame
+#' @note  No note
+#' @details plot adjusted tmt ratios vs original ratios
+#' @references NA
+#' @examples print("No examples")
+#' @export
+plotAdjustedVsNonAdjustedRatio <- function(ratio,unAdjustedRatio){
+	
+	for(i in 1:ncol(ratio)){
+		lim <- range(ratio)
+		lim <- c(-max(lim),max(lim)) 
+		plot(unAdjustedRatio[,i],ratio[,i]
+				, xlim=lim
+				, ylim=lim
+				, cex.axis=1.25
+				, cex.lab=1.5
+				, pch=19
+				, col="grey"
+				, xlab="TMT Ratio"
+				, ylab="Adjusted TMT Ratio" 
+		)
+		abline(coef=c(0,1), lty=2,lwd=1.5)
+		fit <- lm(ratio[,i] ~ unAdjustedRatio[,i] )
+		abline(fit, lwd=1.5)
+		
+		# R2
+		legd <- c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
+		# slope
+		legd <- c(legd,as.expression(bquote(K*"" == .(round(coef(fit)[2],2)))))
+		
+		legend("bottomright"
+				,legend= legd
+				,text.col=1, box.col="transparent", cex=1.5
+		)
+	}
+}
+
+
+
 
 ### @TODO add unit test
 #' @export
@@ -1539,186 +1581,156 @@ plotQValueVsPValue <- function(sqa, lim=c(0,1), ...){
 	par(mar=c(5.1,4.1,4.1,2.1))
 }
 
-# require pairide calibration mix eset
-#' @export
-.plotTMTRatioVsRefRatio <- function(esetCalibMixPair,ylim=c(-2.8,2.8), xlim=c(-2.8,2.8),cex.lab=2, cex.axis=2, ...){
-	
-	calMixDilutionTag <- round(log10(fData(esetCalibMixPair)$calMixDilution)+0.6)
-	plot(0,0
-			,xlab="TMT Ratio (log2)"
-			,ylab="Reference Ratio (log2)"
-			,xlim=xlim
-			,ylim=ylim
-			,type="n"
-			,cex.lab=cex.lab
-#			,xaxt="n"
-#			,yaxt="n"
-			,cex.axis=cex.axis
-			,...
-	)
-	
-	# add diagonal ref line
-	abline(coef=c(0,1), h=0, v=0,lty=2, col="grey")
-	
-	points(	getRatios(esetCalibMixPair)[,1]
-			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
-			,pch=19
-			,col=calMixDilutionTag+1)
-	
-#	text(	getRatios(esetCalibMixPair)[,1]
+## require pairide calibration mix eset
+## @export
+#.plotTMTRatioVsRefRatio <- function(esetCalibMixPair,ylim=c(-2.8,2.8), xlim=c(-2.8,2.8),cex.lab=2, cex.axis=2, ...){
+#	
+#	calMixDilutionTag <- round(log10(fData(esetCalibMixPair)$calMixDilution)+0.6)
+#	plot(0,0
+#			,xlab="TMT Ratio (log2)"
+#			,ylab="Reference Ratio (log2)"
+#			,xlim=xlim
+#			,ylim=ylim
+#			,type="n"
+#			,cex.lab=cex.lab
+##			,xaxt="n"
+##			,yaxt="n"
+#			,cex.axis=cex.axis
+#			,...
+#	)
+#	
+#	# add diagonal ref line
+#	abline(coef=c(0,1), h=0, v=0,lty=2, col="grey")
+#	
+#	points(	getRatios(esetCalibMixPair)[,1]
 #			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
-#			,gsub("^[sptr]{2}\\|","",fData(esetCalibMixPair)$proteinName)
-#			,col=calMixDilutionTag+1
-#			,pos=1:4
-#			,cex=0.6
-#		)
-	
-	
-	fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
-	abline(fit, lwd=1.5)
-	legend("topleft",c(expression(paste("4 (fmol/", mu,"g)")),"20","100"),title="Cal. Mix Concentration",fill=2:4,cex=1.5,box.lwd=F, box.col=0)
-	
-}
+#			,pch=19
+#			,col=calMixDilutionTag+1)
+#	
+##	text(	getRatios(esetCalibMixPair)[,1]
+##			,log2(fData(esetCalibMixPair)$refRatio)+(calMixDilutionTag/10 - 0.2)			
+##			,gsub("^[sptr]{2}\\|","",fData(esetCalibMixPair)$proteinName)
+##			,col=calMixDilutionTag+1
+##			,pos=1:4
+##			,cex=0.6
+##		)
+#	
+#	
+#	fit <- getRatioCorrectionFactorModel(esetCalibMixPair)
+#	abline(fit, lwd=1.5)
+#	legend("topleft",c(expression(paste("4 (fmol/", mu,"g)")),"20","100"),title="Cal. Mix Concentration",fill=2:4,cex=1.5,box.lwd=F, box.col=0)
+#	
+#}
 
-#' Plot (boxplot) spectrum ratio distributions per protein and Claibration Mix Concentration 
-#' @param eset
-#' @export
+## Plot (boxplot) spectrum ratio distributions per protein and Claibration Mix Concentration 
+## @param eset
+## @export
+## @note  No note
+## @details No details
+## @references NA 
+## @examples print("No examples")
+#plotCalibrationMixRatios <- function(eset, cex.axis=1, cex.lab=1.1,...){
+## assuming tenplex mix	
+#	for(targetProtein in names(CALIBMIXRATIOS)){
+#		
+#		c1 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),1]
+#		c2 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),2]
+#		c3 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),3]
+#		c4 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),4]
+#		c5 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),5]
+#		c6 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),6]
+#		c7 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),7]
+#		c8 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),8]
+#		c9 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),9]
+#		c10 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),10]
+#		
+#		r1 <- c2 / c1
+#		r2 <- c4 / c3 
+#		r3 <- c6 / c5 
+#		r4 <- c8 / c7 
+#		r5 <- c10 / c9 
+#		
+#		nbDp <- length(r1)
+#		xlab <- expression(paste("Calibration Mix Conc. ","(fmol/",mu,"g)",sep=""))
+#		
+#		ylab <- "Fold Change"
+#		names <- c(4,4,20,20,100)
+#		ylim <- c(0.2,5)
+#		
+#		if(nbDp > 9){
+#			# per channel pair
+#			boxplot(r3,r5,r1,r4,r2, ylim=ylim, main=paste(targetProtein,"\nN=",length(c1),sep="")
+#					, col=c(2,2,3,3,4),ylab=ylab,names=names,xlab=xlab,cex.axis=cex.axis,cex.lab=cex.lab,log="y", ...)
+#			# per condiiton pair
+#			#boxplot(log2(r3), log2(c(r1,r4)),log2(c(r2,r5)), ylim=c(-2,2), main=main, col=2:4,ylab="log2(RATIO)",names=c(4,20,100),xlab="Mix Conc.")
+#		}else{ ### fewer than X data points, the plot points 
+#			
+#			
+#			##Plot first set of data.
+#			##Need to check for sensible ranges
+#			##Use the jitter function to spread data out.
+#			plot(jitter(rep(0,nbDp),amount=0.2),r3 ,
+#					xlim=range(-0.5,4.5)
+#					,ylim=ylim
+#					,xaxt="n"
+#					,frame.plot=TRUE
+#					,col=2
+#					,main=targetProtein
+#					,xlab=xlab
+#					,ylab=ylab
+#					,log="y"
+#					,cex.lab=cex.lab
+#					,cex.axis=cex.axis
+#					, pch=19
+#					,...
+#			)
+#			points(jitter(rep(1,nbDp), amount=0.2), r5, col=2, pch=19)
+#			points(jitter(rep(2,nbDp), amount=0.2), r1, col=3, pch=19)
+#			points(jitter(rep(3,nbDp), amount=0.2), r4, col=3, pch=19)
+#			points(jitter(rep(4,nbDp), amount=0.2), r2, col=4, pch=19)
+#			
+#			##Add in the x-axis
+#			axis(1, at=0:4,labels=names	,cex.axis=cex.axis)
+#			
+#			medianR1 <- median(r1,na.rm=T)
+#			medianR2 <- median(r2,na.rm=T)
+#			medianR3 <- median(r3,na.rm=T)
+#			medianR4 <- median(r4,na.rm=T)
+#			medianR5 <- median(r5,na.rm=T)
+#			
+#			##Add in the medians
+#			segments(-0.25, medianR3, 0.25, medianR3,lwd=2)
+#			segments(0.75, medianR5, 1.25, medianR5,lwd=2)
+#			segments(1.75, medianR1, 2.25, medianR1,lwd=2)
+#			segments(2.75, medianR4, 3.25, medianR4,lwd=2)
+#			segments(3.75, medianR2, 4.25, medianR2,lwd=2)
+#			
+#		}
+#		
+#		refRatio <- fData(eset)[fData(eset)$proteinName %in% targetProtein,]$refRatio[1]
+#		abline(h=refRatio,lwd=1.5)
+#		abline(h=1,lty=2,lwd=1.5)
+#		
+#	}
+#}
+
+
+#' @title ma-plot
+#' @description ma-plot
 #' @note  No note
-#' @details No details
-#' @references NA 
+#' @references NA
 #' @examples print("No examples")
-plotCalibrationMixRatios <- function(eset, cex.axis=1, cex.lab=1.1,...){
-# assuming tenplex mix	
-	for(targetProtein in names(CALIBMIXRATIOS)){
-		
-		c1 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),1]
-		c2 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),2]
-		c3 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),3]
-		c4 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),4]
-		c5 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),5]
-		c6 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),6]
-		c7 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),7]
-		c8 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),8]
-		c9 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),9]
-		c10 <- exprs(eset)[(fData(eset)$proteinName %in% targetProtein),10]
-		
-		r1 <- c2 / c1
-		r2 <- c4 / c3 
-		r3 <- c6 / c5 
-		r4 <- c8 / c7 
-		r5 <- c10 / c9 
-		
-		nbDp <- length(r1)
-		xlab <- expression(paste("Calibration Mix Conc. ","(fmol/",mu,"g)",sep=""))
-		
-		ylab <- "Fold Change"
-		names <- c(4,4,20,20,100)
-		ylim <- c(0.2,5)
-		
-		if(nbDp > 9){
-			# per channel pair
-			boxplot(r3,r5,r1,r4,r2, ylim=ylim, main=paste(targetProtein,"\nN=",length(c1),sep="")
-					, col=c(2,2,3,3,4),ylab=ylab,names=names,xlab=xlab,cex.axis=cex.axis,cex.lab=cex.lab,log="y", ...)
-			# per condiiton pair
-			#boxplot(log2(r3), log2(c(r1,r4)),log2(c(r2,r5)), ylim=c(-2,2), main=main, col=2:4,ylab="log2(RATIO)",names=c(4,20,100),xlab="Mix Conc.")
-		}else{ ### fewer than X data points, the plot points 
-			
-			
-			##Plot first set of data.
-			##Need to check for sensible ranges
-			##Use the jitter function to spread data out.
-			plot(jitter(rep(0,nbDp),amount=0.2),r3 ,
-					xlim=range(-0.5,4.5)
-					,ylim=ylim
-					,xaxt="n"
-					,frame.plot=TRUE
-					,col=2
-					,main=targetProtein
-					,xlab=xlab
-					,ylab=ylab
-					,log="y"
-					,cex.lab=cex.lab
-					,cex.axis=cex.axis
-					, pch=19
-					,...
-			)
-			points(jitter(rep(1,nbDp), amount=0.2), r5, col=2, pch=19)
-			points(jitter(rep(2,nbDp), amount=0.2), r1, col=3, pch=19)
-			points(jitter(rep(3,nbDp), amount=0.2), r4, col=3, pch=19)
-			points(jitter(rep(4,nbDp), amount=0.2), r2, col=4, pch=19)
-			
-			##Add in the x-axis
-			axis(1, at=0:4,labels=names	,cex.axis=cex.axis)
-			
-			medianR1 <- median(r1,na.rm=T)
-			medianR2 <- median(r2,na.rm=T)
-			medianR3 <- median(r3,na.rm=T)
-			medianR4 <- median(r4,na.rm=T)
-			medianR5 <- median(r5,na.rm=T)
-			
-			##Add in the medians
-			segments(-0.25, medianR3, 0.25, medianR3,lwd=2)
-			segments(0.75, medianR5, 1.25, medianR5,lwd=2)
-			segments(1.75, medianR1, 2.25, medianR1,lwd=2)
-			segments(2.75, medianR4, 3.25, medianR4,lwd=2)
-			segments(3.75, medianR2, 4.25, medianR2,lwd=2)
-			
-		}
-		
-		refRatio <- fData(eset)[fData(eset)$proteinName %in% targetProtein,]$refRatio[1]
-		abline(h=refRatio,lwd=1.5)
-		abline(h=1,lty=2,lwd=1.5)
-		
-	}
-}
-
-#' @export	
-.plotAdjustedVsNonAdjustedRatio <- function(ratio,unAdjustedRatio){
-	
-	for(i in 1:ncol(ratio)){
-		lim <- range(ratio)
-		lim <- c(-max(lim),max(lim)) 
-		plot(unAdjustedRatio[,i],ratio[,i]
-				, xlim=lim
-				, ylim=lim
-				, cex.axis=1.25
-				, cex.lab=1.5
-				, pch=19
-				, col="grey"
-				, xlab="TMT Ratio"
-				, ylab="Adjusted TMT Ratio" 
-		)
-		abline(coef=c(0,1), lty=2,lwd=1.5)
-		fit <- lm(ratio[,i] ~ unAdjustedRatio[,i] )
-		abline(fit, lwd=1.5)
-		
-		# R2
-		legd <- c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
-		# slope
-		legd <- c(legd,as.expression(bquote(K*"" == .(round(coef(fit)[2],2)))))
-		
-		legend("bottomright"
-				,legend= legd
-				,text.col=1, box.col="transparent", cex=1.5
-		)
-	}
-}
-
-# plotMA
-#' MA plot
+#' @export
 #' @param eset ExpressionSet
-#' @param sample selected condiiton
-#' @param lwd default 1
+#' @param sample selected condition
+#' @param lwd default 2
 #' @param pch default 1
 #' @param cex.lab default 1.5
 #' @param cex.axis default 1.5
-#' @param col grennn transparent 
-#' @note  No note
-#' @export
-#' @importFrom graphics plot
-#' @references NA
-#' @examples print("No examples")
-maPlot <- function(eset,sample=colnames(exprs(eset))[1]
+#' @param col green transparent
+#' @param ... see plot 
+maPlotSQ <- function(eset
+		,sample=colnames(exprs(eset))[1]
 		,cex.lab=1.5
 		,cex.axis=1.5
 		,lwd=2

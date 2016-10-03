@@ -71,8 +71,8 @@ if(T){
 	barplotMSSignal(eset,cex.lab=1.5,main="barplotMSSignal")
 	
 	### TMT calibration mix
-	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair , featureDataColumnName="peptide"), cex.lab=1.5, cex.axis=1.5)
-	
+#	.plotTMTRatioVsRefRatio(rollUp(esetCalibMixPair , featureDataColumnName="peptide"), cex.lab=1.5, cex.axis=1.5)
+#	
 	##quant differential abundance related plots
 	
 	### plot volcanos for all case control comparisons
@@ -129,7 +129,7 @@ if(T){
 	plotQValueVsPValue(sqa, lim=c(0,0.5))
 	.correlationPlot(exprs(eset))
 
-	maPlot(eset)
+	maPlotSQ(eset)
 	
 	graphics.off()
 	
