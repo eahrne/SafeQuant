@@ -316,7 +316,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) , uniqueProteins=F ){
 	
 	# HACK to please CRAN CHECK "rollUp: no visible binding for global variable "Sequence""
-	Sequence <- Score <- resDTIndex <- proteinScore <- Accession <- NULL
+	Grouped <- Sequence <- Score <- resDTIndex <- proteinScore <- Accession <- NULL
 	
 	### stop if not all samples labelled with a given condition are assigned as control
 # Example:

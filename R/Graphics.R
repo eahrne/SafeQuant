@@ -901,10 +901,11 @@ hClustHeatMap <- function(eset
 #' @param upRegulated TRUE/FALSE select for upregulated features 
 #' @param log2RatioCufOff log2 ratio cut-off
 #' @param pvalCutOff pValue/qValue cut-off 
-#' @param pvalRange pValue/qValue range
 #' @param isLegend TRUE/FALSE display legend
 #' @param isAdjusted TRUE/FALSE qValues/pValue on x-axis
 #' @param ylab default  Nb. Features
+#' @param xlim see plot
+#' @param ylim see plot
 #' @param ... see plot
 #' @note  No note
 #' @export
@@ -912,8 +913,8 @@ hClustHeatMap <- function(eset
 #' @details No details
 #' @references NA
 #' @examples print("No examples")
-plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1),pvalRange=c(0,0.3)
-		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", ... ){
+plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1)
+		,pvalCutOff=1, isLegend=T,isAdjusted=T,ylab="Nb. Features", xlim=NA, ylim=NA, ... ){
 	
 	### we need at least two conditions
 	if(length(unique(pData(sqa$eset)$condition)) == 1){
@@ -931,7 +932,11 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 	ratiosPerCond <- sqa$ratio
 	conditionColors <- .getConditionColors(sqa$eset)
 	
-	pvalCutOffs <- seq(pvalRange[1],pvalRange[2], length.out=10)
+	if(is.na(xlim[1])){
+		xlim=c(0,0.3)
+	}
+	
+	pvalCutOffs <- seq(xlim[1],xlim[2], length.out=10)
 	conditions <- names(pvaluesPerCond)
 	
 	### create data farme of roc curve per condition
@@ -961,8 +966,13 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 	
 	names(nbPassingCutOffsPerCond) <- conditions
 	
+	
+	if(is.na(ylim[1])){
+		ylim=c(0,max(nbPassingCutOffsPerCond))
+	}
+	
 	# plot roc curves	
-	plot(0,0, ylim=c(0,max(nbPassingCutOffsPerCond)), xlim= c(min(pvalCutOffs) , max(pvalCutOffs)), type="n",ylab=ylab,xlab=xlab,  ...)
+	plot(0,0, ylim=ylim, xlim= xlim, type="n",ylab=ylab,xlab=xlab,  ...)
 	grid()
 	for(cond in conditions){
 		lines(pvalCutOffs,nbPassingCutOffsPerCond[,cond], col= as.character(conditionColors[cond ,]), lwd=2)

@@ -322,7 +322,9 @@ getAllCV <- function(eset){
 		conditions <- setdiff(unique(pData(eset)$condition) ,controlCondition)
 		
 		# discard control from expDesign
-		expDesign <- subset(expDesign, condition %in% conditions)
+		#expDesign <- subset(expDesign, condition %in% conditions) # not accepted by CRAN
+		expDesign <- expDesign[expDesign$condition %in% conditions,]
+		
 		# add all NAs for control condition
 		cv <- cbind(cv,rep(NA,nrow(cv)))
 		names(cv) <- controlCondition
