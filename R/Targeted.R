@@ -1,4 +1,100 @@
 
+
+#' Return dilution curve limit of detection
+#' @param dCurve data.frame
+#' @param method c("blank","low")
+#' @return lod
+#' @export
+#' @note  No note
+#' @details 
+#' @references NA 
+#' @examples print("No examples")
+getLOD = function(dCurve,method="blank"){
+  
+  ### getLOD 
+  maxConc =  max(dCurve$concentration,na.rm=T)
+  blankInt = dCurve[dCurve$concentration == 0,]$intensity 
+  maxIntMedian =  median( dCurve[dCurve$concentration %in% maxConc,]$intensity ,na.rm=T) 
+  
+  #### translate intenstiy to concentration
+  # based on max con intensity only
+  #blankMeasuredConc = (blankInt/maxIntMedian)*maxConc # scale intensities
+  # using regression of high conc (above median conc) data
+  slope = (lm( concentration ~ intensity  , data = subset(dCurve, concentration > concentration %>% unique %>% median(.,na.rm=T)  )) %>% coef)[2]
+  blankMeasuredConc = blankInt*slope
+  
+  if("blank" %in% method ){
+    lod = 3.29 * sd(blankMeasuredConc,na.rm=T)
+    return(lod)
+  }else{
+    lowConc = min(dCurve$concentration[dCurve$concentration > 0],na.rm=T)
+    lowInt = dCurve[dCurve$concentration %in% lowConc,]$intensity
+    lowMeasuredConc = (lowInt/maxIntMedian)*maxConc
+    n = length(blankMeasuredConc)+length(lowMeasuredConc)
+    lod = mean(blankMeasuredConc,na.rm=T) +  (qt(0.95,n-1) * (sd(blankMeasuredConc,na.rm=T)+sd(lowMeasuredConc,na.rm=T))/sqrt(n))
+    return(lod)
+  }
+}
+
+#' Return dotProduct of two vectors
+#' @param u vector 1
+#' @param v vector 2
+#' @param normalize dp TRUE/FALSE 
+#' @return dp
+#' @export
+#' @note  No note
+#' @details 
+#' @references NA 
+#' @examples print("No examples")
+dotProduct <- function(u,v,norm=F){
+  
+  dp <- v %*% u
+  
+  if(norm){
+    # dpNorm = (u * v) / (sqrt(v*v) * sqrt(u*u) )  
+    dpNorm <- dp / (sqrt(dotProduct(v,v))* sqrt(dotProduct(u,u)))
+    # dp norm is the dp of uN * vN, where uN is u scaled to unit length
+    # i.e. uN = u / sqrt(u*u)  
+    
+    # OR
+    # cos(alpha), where alpha is the angle between u and v
+    return(as.vector(unlist(dpNorm)))
+  }
+  
+  return(as.vector(unlist(dp)))
+  
+}
+
+#' Return dotProducts to most transition intensities of most intense runs 
+#' @param eset ExpressionSet
+#' @param u vector 1
+#' @param v vector 2
+#' @param nbRefRuns (default top  4) 
+#' @param dp matrix of dp's per peptide and run 
+#' @return dp
+#' @export
+#' @note  No note
+#' @details 
+#' @references NA 
+#' @examples print("No examples")
+getAllDotProduct = function(eset, nbRefRuns = 4){
+  dp = data.frame()
+  allPeptides = unique(fData(eset)$peptide)
+  for(peptide in  allPeptides){
+    
+    intensities = subset(exprs(eset), fData(eset)$peptide == peptide )
+    intensities[is.na(intensities)] = 0  
+    
+    # ref Vec is sum across 4 most intenst runs
+    refVec =  intensities[,order(colSums(intensities,na.rm=T),decreasing=T)][,1:min(nbRefRuns,ncol(intensities))] %>% rowSums(.,na.rm=T)
+    dp %<>% rbind(apply(intensities,2,function(v){dotProduct(v,refVec, norm=T)}))
+  }
+  colnames(dp) = colnames(intensities)
+  rownames(dp) = allPeptides
+  return(dp)
+}
+
+
 #calibrationCurve <- function(eset,method="blank"){
 #	
 #	out <- list()

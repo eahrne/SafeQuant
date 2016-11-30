@@ -19,98 +19,107 @@ source("initTestSession.R")
 
 ### INIT
 skylineExportFile <- "testData/skyline_transition_results.csv"
+df = read.csv(skylineExportFile)
+df$sample = substr(df$Replicate.Name,1,3)
 
-### parse
-skylineData <- read.csv(skylineExportFile,sep=",")
+### create transition  eset
 
-### HACK replace concentration 
-#if(F){
-	#concentration <- gsub("B15\\-01....\\_NRX..\\_WB_GFPl:*_*1:" ,"",as.character(skylineData$Replicate.Name))
-	concentration <- gsub("B15\\-0...._.*:" ,"",as.character(skylineData$Replicate.Name))
-	#concentration <- gsub("B15\\-[0-9]*" ,"",as.character(skylineData$Replicate.Name))
-	#concentration <- gsub("^_" ,"",concentration)
-	concentration <- gsub("_WB.*","",concentration)
-	concentration <- gsub("B15.*","",concentration)
-	concentration <- gsub("_.*","",concentration)
-	concentration <- 1/as.numeric(concentration)
-	concentration[is.na(concentration)] <- 0
-		
-	#repConc <- data.frame( rev(c(79.55384267,16.04907907,3.352755873,0.71222776,0.278683489,0)),row.names=sort(unique(concentration)))
-	repConc <- data.frame( rev(c(68.80773399,	14.13167898,	 2.878151306,	 0.608765369,	 0.167507442, 0)),row.names=sort(unique(concentration)))
+# list all transitions "y10:1:IADFGLATQLK"  etc.
+transitionsLabels = subset(df,Replicate.Name == df$Replicate.Name[1], select=c(8,7,1)) %>% apply(.,1,paste0,collapse=":") %>%  as.vector
 
-	concentration <- repConc[as.character(concentration),]
-	rev(sort(unique(concentration)))
-	data.frame(concentration,skylineData$Replicate.Name)
-	
-#}
-	
-skylineData <- cbind(skylineData,concentration)
-skylineData <- skylineData[!grepl("N",skylineData$Area),]
-skylineData$Area <- as.numeric(as.character(skylineData$Area))
+# create feature data  "peptide"          "proteinName"      "Precursor.Mz"     "Precursor.Charge" "Product.Mz"       "Product.Charge"   "Fragment.Ion"     "sample"           "isFiltered"  
+transFetureData = subset(df,Replicate.Name == df$Replicate.Name[1])
+transFetureData =  subset(transFetureData, select=which(!(names(transFetureData) %in%  c("Replicate.Name","Area","Background","Peak.Rank","Retention.Time"))) )
+transFetureData$isFiltered = F
+names(transFetureData)[names(transFetureData) == "Peptide.Sequence"] = "peptide"
+names(transFetureData)[names(transFetureData) == "Protein.Name"] = "proteinName"
+row.names(transFetureData) =transitionsLabels 
 
-### rollUp -> create ExpressionSet
-nbReplicates <- 3
-peptideChargeMzStateConc <-  paste(skylineData$Peptide.Sequence,skylineData$Precursor.Charge,round(skylineData$Precursor.Mz),skylineData$concentration,sep="_")
-uniquePeptideChargeStateConc <-  unique(peptideChargeMzStateConc)
-
-expressionMatrix <- data.frame(matrix(nrow=length(unique(unique(peptideChargeMzStateConc))),ncol=nbReplicates),row.names=unique(peptideChargeMzStateConc))
-featureAnnotations <- data.frame()
-for(pcsc in uniquePeptideChargeStateConc){
-	
-	peptideChargeMzStateConcSubset <- skylineData[peptideChargeMzStateConc %in% pcsc,]
-	
-	### add feature data
-	c <- 1
-	for(rep in unique(peptideChargeMzStateConcSubset$Replicate.Name)){
-		expressionMatrix[pcsc,c] <-sum(peptideChargeMzStateConcSubset[peptideChargeMzStateConcSubset$Replicate.Name %in% rep,]$Area)
-			c <- c+1
-	}
-
-	### add assay data
-	featureAnnotations  <- rbind(featureAnnotations,peptideChargeMzStateConcSubset[1,c(1,2,4,5,9,13)])
-	
+### create expression matrix ( each column is a run, i.e. dilution replicate)
+transExpressionMatrix = data.frame( row.names=transitionsLabels )
+for(repName in unique(df$Replicate.Name)){
+  #transExpressionMatrix = cbind(transExpressionMatrix,subset(df,Replicate.Name == repName)$Area )
+  transExpressionMatrix = cbind(transExpressionMatrix, df[df$Replicate.Name == repName,]$Area %>% as.character %>% as.numeric )
 }
+names(transExpressionMatrix) = unique(df$Replicate.Name)
+transExpressionMatrix = as.matrix(transExpressionMatrix) 
 
-featureAnnotations <-cbind(featureAnnotations,dilutionCurveId=paste(featureAnnotations$Peptide.Sequence,featureAnnotations$Precursor.Charge,round(featureAnnotations$Precursor.Mz),sep="_")) 
-expressionMatrix[expressionMatrix == 0] <- NA 
-row.names(featureAnnotations) <- unique(peptideChargeMzStateConc)	
-expDesign <- data.frame(condition=rep(1,3),isControl=rep(T,3))
-names(expressionMatrix) <- rownames(expDesign)
+### create expe design
+expDesign = data.frame(row.names=colnames(transExpressionMatrix), isControl=colnames(transExpressionMatrix) %>% grepl("HEK",.), condition=  colnames(transExpressionMatrix) %>% substr(.,1,3)   )
+# add concentration per sample to pheno data
+expDesign$concentration = c( rep(10^(1:7),2) %>% sort, rep(0,4))
+transEset = createExpressionDataset(expressionMatrix=transExpressionMatrix,expDesign=expDesign,featureAnnotations=transFetureData)
 
-### rollUp -> create ExpressionSet END
-esetCalibCurve <- createExpressionDataset(expressionMatrix=as.matrix(expressionMatrix),expDesign=expDesign,featureAnnotations=featureAnnotations)
+### create peptide  eset
+peptideEset = rollUp(transEset, featureDataColumnName = "peptide")
+
+
+# > pData(peptideEset)
+# isControl condition concentration
+# 002_DC081116             FALSE       002         1e+01
+# 002_DC081116_Rep         FALSE       002         1e+01
+# 005_DC081116             FALSE       005         1e+02
+# 005_DC081116_Rep         FALSE       005         1e+02
+# 008_DC081116_C16         FALSE       008         1e+03
+# 008_DC081116_Rep_C16     FALSE       008         1e+03
+# 011_DC081116_C16         FALSE       011         1e+04
+# 011_DC081116_Rep_C16     FALSE       011         1e+04
+# 014_DC081116_C16         FALSE       014         1e+05
+# 014_DC081116_Rep_C16     FALSE       014         1e+05
+# 017_DC081116_C16         FALSE       017         1e+06
+# 017_DC081116_Rep_C16     FALSE       017         1e+06
+# 020_DC081116_C16         FALSE       020         1e+07
+# 020_DC081116_Rep_C16     FALSE       020         1e+07
+# HEK05_DC081116            TRUE       HEK         0e+00
+# HEK06_DC081116            TRUE       HEK         0e+00
+# HEK07_DC081116            TRUE       HEK         0e+00
+# HEK08_DC081116            TRUE       HEK         0e+00
+
 ### INIT END
 
 
-testCalibrationCurve <- function(){
+testGetLOD <- function(){
 	
-	cat(" --- testcalibrationCurve --- \n")
-	
-	calibCurve <- calibrationCurve(esetCalibCurve[fData(esetCalibCurve)$dilutionCurveId == unique(fData(esetCalibCurve)$dilutionCurveId)[2], ])
-	stopifnot(all.equal(round(calibCurve$lod,2),0.44))
-	cat(" --- testcalibrationCurve: PASS ALL TEST  --- \n")
+	cat(" --- testGetLOD --- \n")
+  df = data.frame(concentration= pData(peptideEset)$concentration,intensity=exprs(peptideEset)[2,])
+  method= "blank"
+  stopifnot(round(getLOD(df,method="blank")) == 1928)
+  stopifnot(round(getLOD(df,method="low")) == 4012)
+	cat(" --- testGetLOD: PASS ALL TEST  --- \n")
 	
 }
 
+testGetDotProduc = function(){
+  
+  cat(" --- testGetDotProduc --- \n")
+
+  A = 1:3 
+  B = 2*A 
+  stopifnot(dotProduct(A,B,norm=T) == 1)
+  
+  cat(" --- testGetDotProduc: PASS ALL TEST  --- \n")
+  
+}
+
+testGetAllDotProduc = function(){
+  
+  cat(" --- testGetAllDotProduc --- \n")
+  stopifnot(which.max(getAllDotProduct(transEset)[1,]) == 14)
+  cat(" --- testGetAllDotProduc: PASS ALL TEST  --- \n")
+  
+}
+
+
 ### RUN TESTS
 
-testCalibrationCurve()
-
-tmpEset =  esetCalibCurve[fData(esetCalibCurve)$dilutionCurveId == unique(fData(esetCalibCurve)$dilutionCurveId)[2], ]
-
-#pData(tmpEset)
-#exprs(tmpEset)
+testGetLOD()
+testGetDotProduc()
+testGetAllDotProduc()
 
 
-### RUN TESTS END
 
-### GRAPHICS
 
-#indices <- as.character(fData(esetCalibCurve)$dilutionCurveId)
-#plot(calibrationCurve(esetCalibCurve[indices == unique(indices)[2], ],method="low"), xlab="Concentration (fmol/ul)")
-#plot(calibrationCurve(esetCalibCurve[indices == unique(indices)[2], ],method="blank"), xlab="Concentration (fmol/ul)")
 
-print("DONE")
 
 
 
