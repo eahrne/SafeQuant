@@ -18,7 +18,7 @@ source("initTestSession.R")
 
 
 ### INIT
-skylineExportFile <- "testData/skyline_dilution_curve.csv"
+skylineExportFile <- "testData/skyline_transition_results.csv"
 
 ### parse
 skylineData <- read.csv(skylineExportFile,sep=",")
@@ -96,6 +96,12 @@ testCalibrationCurve <- function(){
 
 testCalibrationCurve()
 
+tmpEset =  esetCalibCurve[fData(esetCalibCurve)$dilutionCurveId == unique(fData(esetCalibCurve)$dilutionCurveId)[2], ]
+
+#pData(tmpEset)
+#exprs(tmpEset)
+
+
 ### RUN TESTS END
 
 ### GRAPHICS
@@ -105,4 +111,6 @@ testCalibrationCurve()
 #plot(calibrationCurve(esetCalibCurve[indices == unique(indices)[2], ],method="blank"), xlab="Concentration (fmol/ul)")
 
 print("DONE")
+
+
 

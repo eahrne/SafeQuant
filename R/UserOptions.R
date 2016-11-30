@@ -42,7 +42,7 @@ option_list <- list(
 		#### peptide analysis specfic
 		make_option(c("--FModificationSelection"), type="character", default="",
 				help="FILTER (LFQ PEP ONLY): --FM Only keep Peptides with modifications matching Regular Expression [default %default]
-				 (all features kept). Peptide analysis ONLY",
+				 (all features kept).",
 				metavar="modification name Reg. expr."),
 		
 		make_option(c("--FFdrCutoff"), type="double", default=0.01,
@@ -86,7 +86,7 @@ option_list <- list(
 				"),
 		
 		make_option(c("--FRatioCutOff"), type="double", default=1,
-				help="FILTER: --FR Intensity ratio (fold change) cut-off used for graphics export. >1 [default %default]",
+				help="FILTER: --FR Intensity ratio cut-off. [default %default]",
 				metavar="Intensity ratio cutoff"),	
 
 		
