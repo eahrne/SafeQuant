@@ -77,7 +77,6 @@ peptideEset = rollUp(transEset, featureDataColumnName = "peptide")
 
 ### INIT END
 
-
 testGetLOD <- function(){
 	
 	cat(" --- testGetLOD --- \n")

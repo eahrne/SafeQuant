@@ -6,7 +6,7 @@
 #' @return lod
 #' @export
 #' @note  No note
-#' @details 
+#' @import magrittr
 #' @references NA 
 #' @examples print("No examples")
 getLOD = function(dCurve,method="blank"){
@@ -24,9 +24,27 @@ getLOD = function(dCurve,method="blank"){
   blankMeasuredConc = blankInt*slope
   
   if("blank" %in% method ){
+    
+    #		# LIMIT OF DETECTION & LIMIT OF QUANTIFICATION
+    #		
+    #		# Blank Sample Method, Mani et al. http://www.biomedcentral.com/1471-2105/13/S16/S9
+    #		# Assuming that random measurement errors are normally distributed, and with 5% 
+    #		# risk of incorrectly claiming detection in the absence of analyte (alpha) or missing the detection of analyte (beta),
+    #		# LOD = 3.29 sdB and LOQ = 3 x LOD = 10 sigmaB where sigmaB is the standard deviation of the blank sample.
+    #		#
+    #		# OR
+    #		#Currie LA: Limits for qualitative detection and quantitative determination. Application to radiochemistry. Analytical Chemistry 1968, 40(3):586-593.
+    #		
+    #		# In Mani et al. the LOD is calculated as the sd of "blank (light r.t. region) to heavy peptide ratio". This given the lod as a fraction of the heavy peptide concentration.
+    #		# We calculate the LOD as a fraction of the most intense peptide concentration
+    
     lod = 3.29 * sd(blankMeasuredConc,na.rm=T)
     return(lod)
   }else{
+    
+    #		# Blank and low Concentration Sample Method, Mani et al. http://www.biomedcentral.com/1471-2105/13/S16/S9 and http://www.nature.com/nbt/journal/v27/n7/full/nbt.1546.html
+    #		# LOD = meanB +t(1-b) (sdB + sdS)/sqrt(n)
+    
     lowConc = min(dCurve$concentration[dCurve$concentration > 0],na.rm=T)
     lowInt = dCurve[dCurve$concentration %in% lowConc,]$intensity
     lowMeasuredConc = (lowInt/maxIntMedian)*maxConc
@@ -43,7 +61,6 @@ getLOD = function(dCurve,method="blank"){
 #' @return dp
 #' @export
 #' @note  No note
-#' @details 
 #' @references NA 
 #' @examples print("No examples")
 dotProduct <- function(u,v,norm=F){
@@ -73,8 +90,8 @@ dotProduct <- function(u,v,norm=F){
 #' @param dp matrix of dp's per peptide and run 
 #' @return dp
 #' @export
+#' @import magrittr, Biobase
 #' @note  No note
-#' @details 
 #' @references NA 
 #' @examples print("No examples")
 getAllDotProduct = function(eset, nbRefRuns = 4){
