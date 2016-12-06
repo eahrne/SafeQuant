@@ -193,7 +193,7 @@ testIntensityAdjustment <- function(){
 
 
 
-if(T){
+if(F){
 	testGetImpuritiesMatrix()
 	testPurityCorrectTMT()
 	testCreateExpDesign()
