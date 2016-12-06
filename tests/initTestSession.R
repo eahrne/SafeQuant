@@ -12,6 +12,8 @@ library(data.table)
 library(epiR)
 library(corrplot)
 library(Biobase)
+library(ggplot2)
+library(magrittr)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
@@ -26,6 +28,7 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
 	source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
 	source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
+	source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
 	
 }else{ # CHECK mode
 	### wd already set to tests when running CHECK
