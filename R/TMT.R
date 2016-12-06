@@ -469,10 +469,10 @@ getIntSumPerProtein  <- function(intData,proteinACs,peptides,minNbPeptPerProt=1)
 
 ### filter for calMix protein and add reference ratios to feature data
 #' @export
-.getCalibMixPairedEset <- function(esetCalibMix){
+.getCalibMixPairedEset <- function(eset){
 	
 	# make sure input eset only contain claibration mix proteins
-	esetCalibMix <- esetCalibMix[fData(esetCalibMix)$proteinName %in% names(CALIBMIXRATIOS),]
+	esetCalibMix <- eset[fData(eset)$proteinName %in% names(CALIBMIXRATIOS),]
 	
 	# pair up featureData
 	esetPair <- esetCalibMix[,1:2]

@@ -12,8 +12,6 @@ library(data.table)
 library(epiR)
 library(corrplot)
 library(Biobase)
-library(magrittr)
-library(ggplot2)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
@@ -167,7 +165,8 @@ tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
 
 esetCalibMix <- parseScaffoldRawFile(file=scaffoldTmt10PlexCalibMixRawTestFile
 	,expDesign=data.frame(condition=paste("Condition",c(1,2,3,1,2,3,1,2,3,1),sep=""),isControl=c(T,F,F,T,F,F,T,F,F,T) ))
-esetCalibMixPair <- .getCalibMixPairedEset(.getCalibMixEset(esetCalibMix))
+
+#esetCalibMixPair <- .getCalibMixPairedEset(.getCalibMixEset(esetCalibMix))
 
 ### CREATE TEST DATA END
 
