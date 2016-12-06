@@ -29,9 +29,6 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
 	source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
 	
-	source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
-	
-	
 }else{ # CHECK mode
 	### wd already set to tests when running CHECK
 	library(SafeQuant)
