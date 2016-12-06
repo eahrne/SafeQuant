@@ -12,6 +12,8 @@ library(data.table)
 library(epiR)
 library(corrplot)
 library(Biobase)
+library(magrittr)
+library(ggplot2)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
