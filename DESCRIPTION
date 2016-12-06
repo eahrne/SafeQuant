@@ -16,6 +16,7 @@ Imports:
     data.table,
     epiR,
     Biobase,
-    magrittr
+    magrittr,
+    ggplot2
 License: GPL-3
 RoxygenNote: 5.0.1

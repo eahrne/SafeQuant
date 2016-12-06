@@ -49,6 +49,9 @@ expDesign = data.frame(row.names=colnames(transExpressionMatrix), isControl=coln
 # add concentration per sample to pheno data
 expDesign$concentration = c( rep(10^(1:7),2) %>% sort, rep(0,4))
 transEset = createExpressionDataset(expressionMatrix=transExpressionMatrix,expDesign=expDesign,featureAnnotations=transFetureData)
+            
+# discard blank run      
+transEset = transEset[,pData(transEset)$concentration != 10^7]
 
 ### create peptide  eset
 peptideEset = rollUp(transEset, featureDataColumnName = "peptide")
@@ -82,8 +85,8 @@ testGetLOD <- function(){
 	cat(" --- testGetLOD --- \n")
   df = data.frame(concentration= pData(peptideEset)$concentration,intensity=exprs(peptideEset)[2,])
   method= "blank"
-  stopifnot(round(getLOD(df,method="blank")) == 1928)
-  stopifnot(round(getLOD(df,method="low")) == 4012)
+  stopifnot(round(getLOD(df,method="blank")) == 354)
+  stopifnot(round(getLOD(df,method="low")) == 713)
 	cat(" --- testGetLOD: PASS ALL TEST  --- \n")
 	
 }
@@ -103,10 +106,22 @@ testGetDotProduc = function(){
 testGetAllDotProduc = function(){
   
   cat(" --- testGetAllDotProduc --- \n")
-  stopifnot(which.max(getAllDotProduct(transEset)[1,]) == 14)
+  stopifnot(which.max(getAllDotProduct(transEset)[1,]) == 11)
   cat(" --- testGetAllDotProduc: PASS ALL TEST  --- \n")
   
 }
+
+testGgDilutionCurve = function(){
+  
+  cat(" --- testGgDilutionCurve --- \n")
+
+  df = data.frame(concentration= pData(peptideEset)$concentration,intensity=exprs(peptideEset)[6,])
+  ggDilutionCurve(subset(df, concentration > 0), lod=getLOD(df))
+  
+  cat(" --- testGgDilutionCurve: PASS ALL TEST  --- \n")
+  
+}
+
 
 
 ### RUN TESTS
@@ -114,9 +129,23 @@ testGetAllDotProduc = function(){
 testGetLOD()
 testGetDotProduc()
 testGetAllDotProduc()
+testGgDilutionCurve()
+
+
+#for(i in 1:nrow(peptideEset)){
+  
 
 
 
+# 
+# 
+#     
+#   ### add R2
+#   ### redefine range
+#   
+#   ggsave(p,file="~/tmp/tmp.pdf")
+  
+#}
 
 
 

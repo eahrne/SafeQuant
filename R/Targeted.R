@@ -111,6 +111,78 @@ getAllDotProduct = function(eset, nbRefRuns = 4){
   return(dp)
 }
 
+#' Plot dilution curve
+#' @param dCurve data.frame columns concentration, intensity
+#' @param lod limit of detection
+#' @return 
+#' @export
+#' @import magrittr, ggplot2
+#' @note  No note
+#' @references NA 
+#' @examples print("No examples")
+ggDilutionCurve = function(dCurve,lod, title=""){
+  
+  lodNq = data.frame(limit=c(lod,lod*3) %>% round(1) ,type=c("lod","loq"))
+  
+  p = ggplot(dCurve,
+             aes( x =concentration , y=intensity)) 
+  
+  # add title
+  p = p +ggtitle(label =title )
+  
+  # add points
+  p = p + geom_point(size=3)
+  
+  # log scale
+  p = p + scale_x_log10(name="fmol on Column")
+  p = p + scale_y_log10(name="ms1 Intensity", limits=range(df$intensity))
+  
+  # ablines
+  if(!is.na(lod)){
+    p = p + geom_vline(data=lodNq 
+                       ,aes(xintercept = limit, color=type)
+                       ,linetype="longdash"
+                       ,size=1)
+  }
+  # legend
+  # p = p + scale_color_manual(values=c("red","blue","black")
+  #                            , labels=c(paste("LOD:",lodNq$limit[1] %>% signif(.,3)  %>% format(., scientific=T)) ,paste("LOQ:",lodNq$limit[2] %>% signif(.,3)  %>% format(., scientific=T) ), "R2") ) 
+  # 
+  #if(!is.na(lod)){
+    p = p + scale_color_manual(values=c("red","blue")
+                               , labels=c(paste("LOD:",lodNq$limit[1] %>% signif(.,3)  %>% format(., scientific=T)) ,paste("LOQ:",lodNq$limit[2] %>% signif(.,3)  %>% format(., scientific=T) )) )
+    
+  #}
+  
+  
+  # reg curve
+  p = p + geom_smooth(data =subset(dCurve, concentration > lodNq$limit[2])
+                      , method = "lm"
+                      , se = F
+                      , fullrange=T
+                      , color="grey"
+                      ,size=1
+  )
+
+  # r2 labels
+  p = p + annotate("text", x = min(dCurve$concentration) , y = max(dCurve$intensity)
+                   , label = paste("R^2: ", with(log(dCurve), cor(concentration,intensity,use="pairwise.complete.obs"))^2 %>% round(.,2)) 
+                   , parse=T, size=8, hjust=0, vjust=1)  
+  # theme
+  p = p + theme_bw()
+  p = p + theme(title=element_text(size=12, face='bold')
+                ,axis.title = element_text(size = 20)
+                ,axis.text =  element_text(size = 20)
+                ,axis.text.y =  element_text(angle=45)
+                ,legend.text = element_text(size = 20)
+                ,legend.title = element_blank()
+                ,legend.justification=c(1,0)
+                ,legend.position=c(0.975,0.1)
+                ,legend.background = element_rect(fill="transparent")
+  ) 
+  return(p)  
+}
+
 
 #calibrationCurve <- function(eset,method="blank"){
 #	
