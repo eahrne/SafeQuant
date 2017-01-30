@@ -575,3 +575,85 @@ getAAProteinCoordinates <- function(peptideSeq,proteinSeq, aaRegExpr="[STY]"){
 	return((modifPos+pepStartPos-1))
 	
 }
+
+#' Get motif matching frequnecy of each phospho peptide subsequnece
+#' @param phosphoSeqs vector of phospho peptide sub sequneces 'PARVVRpSRREEEE'
+#' @return ExpressionSet object
+#' @export
+#' @note  No note
+#' @details
+#' @references NA 
+#' @seealso 
+#' @examples print("No examples")
+getMotifFreq = function(phosphoSeqs){
+
+  # if DEV mode  
+  if(!exists("kinaseMotif")){
+    data(kinaseMotif)
+  }
+
+  nbMatchesPerMotif = lapply(kinaseMotif$regExpr,  function(t){ grepl(t, phosphoSeqs ) %>% sum   }) %>% unlist
+  return(cbind(kinaseMotif[,c(2,1)],nbMatchesPerMotif))
+}
+
+#' Get kinase matching frequnecy of each phospho peptide subsequnece
+#' @param phosphoSeqs vector of phospho peptide sub sequneces 'PARVVRpSRREEEE'
+#' @return ExpressionSet object
+#' @export
+#' @note  No note
+#' @details
+#' @references NA 
+#' @seealso 
+#' @examples print("No examples")
+getKinaseFreq = function(phosphoSeqs){
+  
+  # if DEV mode  
+  if(!exists("kinaseMotif")){
+    data(kinaseMotif)
+  }
+
+  
+  lapply(phosphoSeqs, function(t){
+    r = getKinases(t)
+    
+    #hits = lapply(1:nrow(kinaseMotif),  function(i){ (grepl(kinaseMotif$regExpr[i], phosphoSeq )) }) %>% unlist
+    #r = kinaseMotif[hits,]
+    
+    if(is.null(dim(r)) ){
+      return(r)
+    }else{
+      return(unique(r$kinase))
+    }
+    
+
+    
+  } 
+  ) %>% unlist %>% table %>% return
+  
+}
+
+#' Get all kinases matching phospho peptide sub sequnece
+#' @param phosphoSeq scalar  peptide sub sequnece 'PARVVRpSRREEEE'
+#' @return ExpressionSet object
+#' @export
+#' @note  No note
+#' @details
+#' @references NA 
+#' @seealso 
+#' @examples print("No examples")
+getKinases = function(phosphoSeq){
+  
+  # if DEV mode  
+  if(!exists("kinaseMotif")){
+    data(kinaseMotif)
+  }
+  
+  hits = lapply(1:nrow(kinaseMotif),  function(i){ (grepl(kinaseMotif$regExpr[i], phosphoSeq )) }) %>% unlist
+  
+  if(sum(hits) > 0){
+    return(kinaseMotif[hits,] %>% cbind(phosphoSeq,.))
+  }else{
+    return(NA)
+  }
+}
+

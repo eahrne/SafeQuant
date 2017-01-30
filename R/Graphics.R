@@ -1251,7 +1251,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if(length(legd) > 0 ){
 			legend(legendPos
 					,legend= legd
-					,text.col=1, box.col="transparent", cex=2
+					,text.col=1, box.col="transparent", cex=2, bty="n"
 			)
 		}
 		
@@ -1768,3 +1768,46 @@ maPlotSQ <- function(eset
 	
 	
 } 
+
+# import motifStack
+#' Plot sequence logo 
+#' @param motif list of target residue centered motfis
+#' @param bgPeptides peptides used to calculate residue background frequency (default uniform )
+#' @param main see plot
+#' @param targetResidues default [STY]
+#' @param ic.scale   logical. If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.
+#' @note  No note
+#' @references NA
+#' @examples print("No examples")
+#' @export
+plotLogo <- function(motif, bgPeptides="ACDEFGHIKLMNPQRSTVWY", main="", targetResidues=c("S","T","Y"), ic.scale=F, ...){
+	
+	# discard short motifs
+	nc = nchar(motif)
+	motif = motif[nc == max(nc,na.rm=T)]  
+	
+	motifMatrix = do.call(rbind, strsplit(motif,""))
+	motifMatrix = motifMatrix[motifMatrix[,round((nchar(motif[1])+1)/2)] %in% targetResidues,]
+	
+	aas = c("A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y")
+	aaFreq =  data.frame()
+	for(pos in 1:ncol(motifMatrix)){
+		aaFreq = rbind(aaFreq,table(motifMatrix[,pos])[aas])
+	}
+	names(aaFreq) = aas
+	aaFreq[is.na(aaFreq)] = 0
+	aaFreq = t(aaFreq)
+	
+	bgFreq = table(as.vector(unlist(strsplit(as.character(bgPeptides),"")))) 
+	bgFreq = bgFreq / sum(bgFreq)
+	
+	pfm=pcm2pfm(aaFreq)
+	pfm=new("pfm", mat=pfm, name=main, 
+			color=colorset(alphabet="AA",colorScheme="chemistry")
+	)
+	slot(pfm,"background")[aas] = as.numeric(bgFreq)
+	
+	plot(pfm, ic.scale=ic.scale,...)
+	
+} 
+

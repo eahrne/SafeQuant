@@ -21,14 +21,15 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	setwd(dirname(sys.frame(1)$ofile))
 	sqRootDir <- dirname(getwd())
 	
-	source(paste(sqRootDir,"/R/ExpressionAnalysis.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/SafeQuantAnalysis.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/Graphics.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/IdentificationAnalysis.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/Parser.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/TMT.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/UserOptions.R",collapse="",sep=""))
-	source(paste(sqRootDir,"/R/Targeted.R",collapse="",sep=""))
+	source(paste0(sqRootDir,"/R/ExpressionAnalysis.R"))
+	source(paste0(sqRootDir,"/R/SafeQuantAnalysis.R"))
+	source(paste0(sqRootDir,"/R/Graphics.R"))
+	source(paste0(sqRootDir,"/R/IdentificationAnalysis.R"))
+	source(paste0(sqRootDir,"/R/Parser.R"))
+	source(paste0(sqRootDir,"/R/TMT.R"))
+	source(paste0(sqRootDir,"/R/UserOptions.R"))
+	source(paste0(sqRootDir,"/R/Targeted.R"))
+	load(paste0(sqRootDir,"/data/kinaseMotif.rda"))
 	
 }else{ # CHECK mode
 	### wd already set to tests when running CHECK
@@ -68,6 +69,9 @@ maxQuantProteinFileTxt <- "testData/maxquant_protein_groups.csv"
 
 # db
 fastaFile <- "testData/mouse_proteins.fasta"
+
+# phospho motif 
+phosphoMotifFile <- "testData/motifs.xls"
 
 ### INIT END
 

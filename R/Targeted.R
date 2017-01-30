@@ -132,7 +132,7 @@ ggDilutionCurve = function(dCurve,lod, title=""){
   p = p + geom_point(size=3)
   
   # log scale
-  p = p + scale_x_log10(name="fmol on Column")
+  p = p + scale_x_log10(name="amol on Column")
   p = p + scale_y_log10(name="ms2 Intensity", limits=range(df$intensity))
   
   # ablines

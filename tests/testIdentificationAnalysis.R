@@ -18,6 +18,8 @@ proteinSeq4 <- "RKR"
 ### read protein db
 proteinDB <- read.fasta(fastaFile,seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
 
+# read phospho motif example file
+phosphoMotifs = read.csv(phosphoMotifFile, sep="\t")
 ### INIT END
 
 ### TEST FUNCTIONS
@@ -245,18 +247,58 @@ testStripACs <- function(){
 	cat("--- testStripACs: PASS ALL TEST --- \n")
 }
 
-### TEST FUNCTIONS END
-
 testGetAAProteinCoordinates <- function(){
-	
-	cat("--- testGetAAProteinCoordinates: --- \n")
-	peptide <- "SSDAEMAVFGEAAPYLR"
-	protein <-  "MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK"
-	stopifnot(length(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","S")) == 2)
-	stopifnot(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","Y") == 23)
-	cat("--- testGetAAProteinCoordinates: PASS ALL TEST --- \n")	
-	
+  
+  cat("--- testGetAAProteinCoordinates: --- \n")
+  peptide <- "SSDAEMAVFGEAAPYLR"
+  protein <-  "MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK"
+  stopifnot(length(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","S")) == 2)
+  stopifnot(getAAProteinCoordinates("SSDAEMAVFGEAAPYLR","MPEPTIDESSDAEMAVFGEAAPYLRKSEKERIEAQNKPFDAK","Y") == 23)
+  cat("--- testGetAAProteinCoordinates: PASS ALL TEST --- \n")	
+  
 }
+
+testGetMotifFreq = function(){
+  
+  # VEVNTNSGEIIHK -> VEVNTNpSGEIIHK
+  motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
+  cat("--- testGetMotifFreq: --- \n")
+  motifFreq = getMotifFreq( motifs )
+  stopifnot(sum(motifFreq$nbMatchesPerMotif == 0) == 56)
+  cat("--- testGetMotifFreq: PASS ALL TEST --- \n")	
+  
+  # rownames(motifFreq) = motifFreq$motif
+  # 
+  # tmp = table(motifFreq$motif)[table(motifFreq$motif) > 1]
+  # 
+  # unique(kinaseMotif[ kinaseMotif$motif %in% names(tmp),])
+  
+}
+
+
+testGetKinaseFreq = function(){
+  
+  # VEVNTNSGEIIHK -> VEVNTNpSGEIIHK
+  motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
+  cat("--- testGetKinaseFreq: --- \n")
+  kinaseStats = getKinaseFreq( motifs[1:10] )
+  stopifnot(sum(kinaseStats) == 30)
+  cat("--- testGetKinaseFreq: PASS ALL TEST --- \n")	
+
+}
+
+testGetKinases = function(){
+  
+  # VEVNTNSGEIIHK -> VEVNTNpSGEIIHK
+  motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
+  cat("--- testGetKinases: --- \n")
+  stopifnot(    nrow(getKinases( motifs[1] )) == 11)
+  cat("--- testGetKinases: PASS ALL TEST --- \n")	
+  
+}
+
+
+### TEST FUNCTIONS END
 
 ### TESTS
 
@@ -278,9 +320,19 @@ testGetMeanCenteredRange()
 testIsStrippedACs()
 testStripACs()
 testGetAAProteinCoordinates()
+testGetMotifFreq()
+testGetKinaseFreq()
+testGetKinases()
+
 
 ### TESTS END
 
 
+##### phospho kinase motif analysis 
 
+#phosphoMotifs = read.csv(file="~/dev/R/workspace/SafeQuant/tests/testData/motifs.xls",sep="\t")
+
+
+
+ 
 
