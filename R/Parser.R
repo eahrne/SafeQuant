@@ -447,7 +447,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	# create peptide to protein dict
 	setkey(resDT,"Sequence")
 	#peptideDT <- resDT[, list(allAccessions = paste(unique(Accession),collapse=";")), by = key(resDT)] # could also include groups..
-	peptideDT <- resDT[, list(allAccessions = paste(unique(c(unlist(strsplit(Grouped,";")),Accession )),collapse=";")), by = key(resDT)]	
+	peptideDT <- resDT[, list(allAccessions = paste(unique(c(unlist(strsplit(Grouped,";")),Accession ) %>% na.omit  ),collapse=";")), by = key(resDT)]	
 	
 	rownames(peptideDT) <- peptideDT$Sequence 
 	# get allProteins of a given peptide

@@ -12,6 +12,7 @@
 #	corrplot
 #	optparse
 #	data.table
+# magrittr
 
 # Author: ahrnee-adm
 ###############################################################################
@@ -30,6 +31,7 @@ suppressWarnings(suppressPackageStartupMessages(library(seqinr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(magrittr, quiet=T)))
 
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
@@ -416,8 +418,8 @@ if(userOptions$verbose) cat("INFO: CREATED DIRECTORY",  userOptions$outputDir,"\
 
 ##I/O: set export file paths
 userOptions$pdfFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,".pdf",sep=""))
-userOptions$peptideTsvFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_PEPTIDE.tsv",sep=""))
-userOptions$proteinTsvFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_PROTEIN.tsv",sep=""))
+userOptions$peptideReportFilePath <- file.path(userOptions$outputDir, paste0(userOptions$resultsFileLabel,"_PEPTIDE.",userOptions$sSheetExtension))
+userOptions$proteinReportFilePath <- file.path(userOptions$outputDir, paste0(userOptions$resultsFileLabel,"_PROTEIN.",userOptions$sSheetExtension))
 userOptions$paramsFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ_PARAMS.TXT",sep=""))
 userOptions$rDataFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ.rData",sep=""))
 
@@ -647,7 +649,7 @@ if(userOptions$addQC){
 	#all ma plots
 	for(s in colnames(exprs(esetNorm))){
 		sel <- 1:nrow(esetNorm) %in% sample(nrow(esetNorm),min(c(4000,nrow(esetNorm))) ,replace=F) & (!(fData(esetNorm)$proteinName %in% names(CALIBMIXRATIOS)))
-		maPlot(esetNorm[sel,],sample=s)
+		maPlotSQ(esetNorm[sel,],sample=s)
 	}
 	
 	
@@ -664,7 +666,7 @@ graphics.off()
 
 ############################### GRAPHICS END
 
-### TSV EXPORT
+### SPREADSHEET EXPORT
 
 if(exists("sqaPeptide")){ 
 	
@@ -735,12 +737,12 @@ if(exists("sqaPeptide")){
 	}
 	
 	write.table(out
-			, file=userOptions$peptideTsvFilePath
-			, sep="\t"
+			, file=userOptions$peptideReportFilePath
+			, sep=userOptions$sSheetExportDelimiter
 			, row.names=F
 	)
 	
-	cat("INFO: CREATED FILE ", userOptions$peptideTsvFilePath,"\n")	
+	cat("INFO: CREATED FILE ", userOptions$peptideReportFilePath,"\n")	
 }	
 
 if(exists("sqaProtein")){
@@ -821,15 +823,15 @@ if(exists("sqaProtein")){
 	}
 	
 	write.table(out
-			, file=userOptions$proteinTsvFilePath
-			, sep="\t"
+			, file=userOptions$proteinReportFilePath
+			, sep=userOptions$sSheetExportDelimiter
 			, row.names=F
 	)
 	
-	cat("INFO: CREATED FILE ", userOptions$proteinTsvFilePath,"\n")	
+	cat("INFO: CREATED FILE ", userOptions$proteinReportFilePath,"\n")	
 } 
 
-### TSV EXPORT END
+### SPREADSHEET EXPORT END
 
 ### EXPORT PARAMS
 write.table(data.frame(

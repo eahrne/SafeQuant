@@ -32,6 +32,10 @@ option_list <- list(
 				help="I/O:  Scaffold PTM Spectrum Report File [default ./]",
 		),
 		
+		make_option(c("-d","--spreadsheetExportDelimiter"), type="integer", default=1,
+		            help="I/O: Spreadsheet Export Delimiter 1) <tab> 2) <,> [default %default]",
+    ),
+		
 ### I/O END
 		
 # FILTER (--F)
@@ -150,12 +154,10 @@ option_list <- list(
 		help="ADDITIONAL-REPORTS: --AR Save R objects in 'label'.RData file [default %default]"),
 
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS : --AI creates .tsv output file
-					including protein iBAQ values. [default %default]"),
+			help="ADDITIONAL-REPORTS : --AI add iBAQ values to results spreadsheet. [default %default]"),
 	
 	make_option(c("--ATop3"), action="store_true", default=FALSE,
-			help="ADDITIONAL-REPORTS : --AT creates .tsv output file
-					including protein top3 values. [default %default]"),
+			help="ADDITIONAL-REPORTS : --AT add Top3 values to results spreadsheet. [default %default]"),
 	
 	make_option(c("--AQC"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS : --AQ adds additional QC plots to .pdf report [default %default]"),
@@ -259,6 +261,15 @@ getUserOptions <- function(version=version){
 			cat("ERROR. File does not exist",cmdOpt$scaffoldPTMSpectrumReportFile,"\n")
 			q(status=-1)
 		}				
+	}
+	
+	#I/O: spreadsheetExportDelimiter
+	if(cmdOpt$spreadsheetExportDelimiter == 1){
+	  userOptions$sSheetExtension = "tsv"
+	  userOptions$sSheetExportDelimiter = "\t"
+	}else{
+	  userOptions$sSheetExtension = "csv"
+	  userOptions$sSheetExportDelimiter = ","
 	}
 	
 # I/O END
@@ -409,15 +420,13 @@ getUserOptions <- function(version=version){
 
 # ADDITIONAL-REPORTS (--A)
 
-	#ADDITIONAL-REPORTS iBaqTsvFile
+	#ADDITIONAL-REPORTS iBaq
 	userOptions$iBAQ <- cmdOpt$AIbaq
-#	userOptions$iBAQFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_iBAQ.tsv",sep="")
 
-    #ADDITIONAL-REPORTS top3TsvFile
+    #ADDITIONAL-REPORTS top3
 	userOptions$top3 <- cmdOpt$ATop3
-#	userOptions$top3File <- paste(userOptions$outputDir,userOptions$resultsFileLabel,"_top3.tsv",sep="")
 
-	#ADDITIONAL-REPORTS top3TsvFile
+	#ADDITIONAL-REPORTS additional QC plots
 	userOptions$addQC <- cmdOpt$AQC
 
 	#ADDITIONAL-REPORTS rDataFile, isSaveRObject	
