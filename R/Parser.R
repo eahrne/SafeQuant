@@ -379,7 +379,11 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	cat("INFO: ASSIGNING PEPTIDES TO PROTEINS APPLYING OCCAM'S RAZOR \n" )	
 	
 	#Check that file includes column "Grouped accessions (for this sequence)"
-	if(!("Grouped accessions (for this sequence)" %in% names(res))) stop("Column \"Grouped accessions (for this sequence)\" missing in file ",file)
+	#if(!("Grouped accessions (for this sequence)" %in% names(res))) stop("Column \"Grouped accessions (for this sequence)\" missing in file ",file)
+	if(!("Grouped accessions (for this sequence)" %in% names(res))){
+	  res$'Grouped accessions (for this sequence)' = ""
+	}
+	
 	names(res)[1] <- "Feature"
 	names(res)[grepl("^Grouped",names(res))] <- "Grouped"
 	res$Score <- as.numeric(as.character(res$Score))
