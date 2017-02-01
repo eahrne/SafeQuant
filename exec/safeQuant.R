@@ -58,7 +58,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	stop("SafeQuant Package not installed\n")
 }
 
-VERSION <- "2.3.1"
+VERSION <- "2.3.2"
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
