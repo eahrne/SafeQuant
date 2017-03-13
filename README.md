@@ -59,7 +59,7 @@ To run (with minimal arguments)
 
 Note that the experimental design needs to be specified (column numbers refer to listing order in .txt).
  
-	> Rscript "c:\Program Files\SafeQuant\safeQuant.R"  -i ../../SafeQuantTestData/Scaffold --EX 1,2,3,4,5:6,7,8,9,10
+	> Rscript "c:\Program Files\SafeQuant\safeQuant.R"  -i ../../SafeQuantTestData/TMT_10-Plex_Scaffold_Raw_Export_Example.xls --EX 1,2,3,4,5:6,7,8,9,10
 
 ##### MaxQuant (experimental support)
 
