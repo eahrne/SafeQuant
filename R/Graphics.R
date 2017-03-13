@@ -84,7 +84,7 @@ COLORS <- as.character(c(
 
 	
 	### charge state
-	if("charge" %in% names(fData(esetNorm))){
+	if("charge" %in% names(fData(esetNorm)) & (sum(!is.na(fData(esetNorm)$charge),na.rm=T)>0) ){
 		if(userOptions$verbose) cat("CHARGE STATE PLOT \n")
 		chargeTable <- table(fData(esetNorm)$charge[!fData(esetNorm)$isFiltered] )
 		barplot2(chargeTable, xlab="Charge State", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
@@ -1108,6 +1108,9 @@ plotROC <- function(qvals
 #' @examples print("No examples")
 plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10), ...){
 	
+	# do nothing if all NA
+	if(sum(is.finite(fData(eset)$pMassError)) == 0 ){return(NA)}
+	
 #	par(mar = c(5, 4, 4.1, 3.5))
 #	plot(rnorm(50), rnorm(50), col=c("steelblue", "indianred"), pch=20)
 #	outerLegend("right", legend=c("Foo", "Bar"), pch=20, 
@@ -1166,6 +1169,9 @@ plotPrecMassErrorDistrib <- function(eset,pMassTolWindow=c(-10,10), ...){
 #' @references NA
 #' @examples print("No examples")
 plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
+	
+	# do nothing if all NA
+	if(sum(is.finite(fData(eset)$pMassError)) == 0 ){return(NA)}
 	
 	pMassError <- fData(eset)$pMassError
 	idScore <- fData(eset)$idScore

@@ -466,8 +466,8 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	# discard features where all intensities are NA (i.e. 0)
 	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
 	
-	### Mass filed missing in old Progenesis Feature export
-	if(is.null(featureDT$Mass)){featureDT$Mass <- rep(NA,nrow(expMatrix))}
+	### Mass field missing in old Progenesis Feature export
+	#if(is.null(featureDT$Mass)){featureDT$Mass <- rep(NA,nrow(expMatrix))}
 	
 	# added
 	ptm <- featureDT$Modifications
@@ -481,26 +481,38 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	### non scored entries are assigned a score of zero
 	score[is.na(score)] <- 0
 	
+	measuredMass = featureDT$"Measured mass"
+	massError = featureDT$"Mass error (ppm)"
+	mz = featureDT$"m/z"
+	rt = featureDT$"Retention time (min)"
+
+	
+	if(is.null(measuredMass)){measuredMass <- rep(NA,nrow(expMatrix))}
+	if(is.null(massError)){massError <- rep(NA,nrow(expMatrix))}
+	if(is.null(mz)){mz <- rep(NA,nrow(expMatrix))}
+	if(is.null(rt)){rt <- rep(NA,nrow(expMatrix))}
+	if(!is.null(featureDT$Charge)){charge = as.numeric(featureDT$Charge)}else{charge =  rep(NA,nrow(expMatrix))}
+	
 	featureAnnotations <- data.frame(
 			proteinName=featureDT$myProteinGroup
 			,proteinDescription=featureDT$Description
 			,peptide=featureDT$Sequence
 			,idScore= score
-			,mass=featureDT$"Measured mass"
-			,pMassError=featureDT$"Mass error (ppm)"
-			,mz=featureDT$"m/z"
-			,retentionTime=featureDT$"Retention time (min)"
-			,charge=as.numeric(featureDT$Charge)
+			,mass=measuredMass
+			,pMassError=massError
+			,mz=mz
+			,retentionTime=rt
+ 			,charge=charge
 			,ptm=ptm
 			,isNormAnchor=rep(T,nrow(expMatrix))
 			,isFiltered=rep(F,nrow(expMatrix))
-			#		,row.names=res$Accession
-			# added
 			,nbPtmsPerPeptide = nbPtmsPerPeptide
 			,allAccessions = featureDT$allAccessions
 			,nbProteinConflicts =  unlist(lapply(featureDT$allAccessions,function(t){length(grep(";",strsplit(t,"")[[1]]))})) # e.g.  sp|Q5T1J5|CHCH9_HUMAN;sp|Q9Y6H1|CHCH2_HUMAN
+			#		,row.names=res$Accession
+			# added
 	)
-	
+
 	# discard non peptide annotated rows
 	isPep <- score > 0  
 	isUnique <- rep(T,nrow(featureAnnotations))

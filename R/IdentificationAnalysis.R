@@ -252,7 +252,7 @@ addIdQvalues <- function(eset=eset){
 #' @examples print("No examples")
 isCon <- function(ac){
 	ac <- as.character(ac)
-	return(regexpr("\\Wcon_",ac,ignore.case=TRUE, perl=TRUE) > -1 | regexpr("^con_",ac,ignore.case=TRUE, perl=TRUE) > -1 | regexpr("_con",ac,ignore.case=TRUE, perl=TRUE) > -1 )
+	return(grepl("(\\Wcon_)|(^con_)|(_con)",ac,ignore.case=TRUE))
 }
 
 ### check if protein is a Decoy
@@ -266,10 +266,7 @@ isCon <- function(ac){
 #' @examples print("No examples")
 isDecoy <-function(ac){
 	
-	return(((regexpr("^rev_",ac,ignore.case=TRUE) > -1)
-						| (regexpr("^decoy_",ac,ignore.case=TRUE) > -1)
-						| (regexpr("^revipi",ac,ignore.case=TRUE) > -1)
-						| (regexpr("^reverse_",ac,ignore.case=TRUE) > -1)))
+	return(grepl("(^rev_)|(^decoy_)|(^revipi_)|(^reverse_)|(\\|REV)",ac,ignore.case=TRUE))
 	
 }
 
