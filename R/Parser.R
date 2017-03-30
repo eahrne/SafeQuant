@@ -793,8 +793,8 @@ parseScaffoldRawFile <- function(file, expDesign=expDesign,keepFirstAcOnly=FALSE
 	#print(head(expMatrix))	
 
 	eset <- createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations)
-	#rownames(eset) <- fData(eset)$spectrumName # spectrum names are not always unique (?)
-	
+#	#rownames(eset) <- fData(eset)$spectrumName # spectrum names are not always unique (?)
+
 	return(eset)
 }
 
