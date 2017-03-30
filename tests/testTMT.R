@@ -21,7 +21,7 @@ testGetImpuritiesMatrix <- function(){
 	stopifnot(all.equal(0.004 , round(getImpuritiesMatrix(10)[1,2],3)))
 	cat(" --- testGetImpuritiesMatrix: PASS ALL TEST --- \n")
 	
-	
+	getImpuritiesMatrix()
 	#getImpuritiesMatrix(test=T)
 	# getImpuritiesMatrix(test=T)
 	#       [,1]  [,2]  [,3]  [,4]  [,5]  [,6]
