@@ -264,7 +264,7 @@ testGetMotifFreq = function(){
   motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
   cat("--- testGetMotifFreq: --- \n")
   motifFreq = getMotifFreq( motifs )
-  stopifnot(sum(motifFreq$nbMatchesPerMotif == 0) == 56)
+  stopifnot(sum(motifFreq$nbMatchesPerMotif == 0) == 170)
   cat("--- testGetMotifFreq: PASS ALL TEST --- \n")	
   
   # rownames(motifFreq) = motifFreq$motif
@@ -282,7 +282,7 @@ testGetKinaseFreq = function(){
   motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
   cat("--- testGetKinaseFreq: --- \n")
   kinaseStats = getKinaseFreq( motifs[1:10] )
-  stopifnot(sum(kinaseStats) == 30)
+  stopifnot(sum(kinaseStats) == 45)
   cat("--- testGetKinaseFreq: PASS ALL TEST --- \n")	
 
 }
@@ -292,7 +292,7 @@ testGetKinases = function(){
   # VEVNTNSGEIIHK -> VEVNTNpSGEIIHK
   motifs = gsub("(.{6})([STY].{6})",paste0("\\1","p","\\2"),phosphoMotifs$motif)
   cat("--- testGetKinases: --- \n")
-  stopifnot(    nrow(getKinases( motifs[1] )) == 11)
+  stopifnot(    nrow(getKinases( motifs[1] )) == 14)
   cat("--- testGetKinases: PASS ALL TEST --- \n")	
   
 }

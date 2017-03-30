@@ -2,7 +2,7 @@ Package: SafeQuant
 Type: Package
 Title: A Toolbox for the Analysis of Proteomics Data
 Version: 2.3.2
-Date: 2017-02-01
+Date: 2017-03-30
 Author: Erik Ahrne
 Maintainer: Erik Ahrne <erik.ahrne@unibas.ch>
 Description: Tools for the statistical analysis and visualization of (relative
