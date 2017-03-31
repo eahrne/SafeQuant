@@ -24,6 +24,8 @@
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
+
+#suppressWarnings(suppressPackageStartupMessages(library(stringr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("affy", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("limma", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(gplots, quiet=T)))

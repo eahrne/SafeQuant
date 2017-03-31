@@ -654,3 +654,15 @@ getKinases = function(phosphoSeq){
   }
 }
 
+#' Extract Gene Name from uniprot fasta header description
+#' @param proteinDescription vector of descriptions
+#' @return vector of gene names
+#' @export
+#' @import stringr
+#' @note  No note
+#' @details ATP synthase subunit beta OS=Salmonella typhimurium (strain SL1344) GN=atpD -> atpD
+#' @examples print("No examples")
+getGeneName = function(proteinDescription){
+  return(str_extract(all, "(GN=)[^\\s]*") %>% substr(.,start=4,stop=1000))
+}
+

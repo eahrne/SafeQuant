@@ -4,6 +4,8 @@
 ###############################################################################
 
 ### load / source
+
+library(stringr)
 library("limma")
 library(gplots) # volcano plot
 library(seqinr)

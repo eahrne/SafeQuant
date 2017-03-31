@@ -297,6 +297,23 @@ testGetKinases = function(){
   
 }
 
+testGetGeneName = function(){
+  ### parse gene name
+  description1 = "ATP synthase subunit beta OS=Salmonella typhimurium (strain SL1344) GN=atpD"
+  description2 = "14-3-3 protein zeta/delta OS=Mus musculus GN=Ywhaz PE=1 SV=1"
+  description3 = "14-3-3 protein zeta/delta OS=Mus musculus PE=1 SV=1"
+  description4 = ""
+  description5 = NA
+  
+  cat("--- testGetGeneName: --- \n")
+  
+  all = c(description1,description2,description3,description4,description5)
+  res = getGeneName(all)
+  stopifnot( all(na.omit(res) == c("atpD","Ywhaz")))
+  
+  cat("--- testGetGeneName: --- \n")
+
+}
 
 ### TEST FUNCTIONS END
 
@@ -323,7 +340,7 @@ testGetAAProteinCoordinates()
 testGetMotifFreq()
 testGetKinaseFreq()
 testGetKinases()
-
+testGetGeneName()
 
 ### TESTS END
 
