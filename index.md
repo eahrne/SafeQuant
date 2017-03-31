@@ -6,12 +6,12 @@ The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM
 
 A) Install CRAN library dependencies (open R)
 
-	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR"))
+	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR","ggplot2","magrittr"))
 
 B) Install BioConductor library dependencies (open R)
 
 	R> source("http://bioconductor.org/biocLite.R")
-	R> biocLite(c("limma","affy"))
+	R> biocLite(c("limma"))
 
 #### 2) Install SafeQuant from sources
 
@@ -33,7 +33,7 @@ Make sure you have a working development environment.
 
 	R> install.packages("SafeQuant")
 
-#### 3) To run safeQuant.R (Post-process Progenesis LFQ datasets or Scaffold TMT datasets)
+#### 3) Running safeQuant.R 
 
 A) locate file safeQuant.R (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\safeQuant.R ) 
 This is the SafeQuant main script. Copy it to an appropriate directory, e.g. c:\Program Files\SafeQuant\
@@ -46,21 +46,28 @@ To run (with minimal arguments)
 
 	> Rscript "c:\Program Files\SafeQuant\safeQuant.R" -i "c:\Program Files\SafeQuant\testData\peptide_measurement.csv" -o "c:\Program Files\SafeQuant\out"
 
-#### Tips
+##### Progenesis
 
-I) If using Progenesis QI we advice running SafeQuant on "Peptide Measurement" Exports. 
+**Input file:** "Peptide Measurement" .CSV file
+
 - File -> Export Peptide Measurements.  This option is available once you have reached the "Resolve Conflicts" Step in Progenesis QI
 - When choosing properties to be included in the exported file check the "Grouped accessions (for this sequence)" check box.
 
-II) When working with Progenesis "Feature Exports" it is advisable to discard all features (rows) not annotated with a peptide, to speed up SafeQuant analysis.
-This can be done using the "filterLargeProgenesisPeptideFile.pl" perl script. (C:\Users\ahrnee-adm\Downloads\SafeQuant\exec\filterLargeProgenesisPeptideFile.pl) 
+##### Scaffold (TMT, experimental support)
 
-A) install perl (or activePerl for windows http://www.activestate.com/activeperl)
-	
-B) open terminal
+**Input file:** "Raw Export" .XLS
 
-	> perl "C:\Program Files\SafeQuant\filterLargeProgenesisPeptideFile.pl" "C:\Program Files\SafeQuant\testData\features.csv"
-This will create a new versions of the feature file called with the extension "_FILTERED" features.csv -> features_FILTERED.csv
+Note that the experimental design needs to be specified (column numbers refer to listing order in .txt).
+ 
+	> Rscript "c:\Program Files\SafeQuant\safeQuant.R"  -i ../../SafeQuantTestData/TMT_10-Plex_Scaffold_Raw_Export_Example.xls --EX 1,2,3,4,5:6,7,8,9,10
+
+##### MaxQuant (experimental support)
+
+**Input file:** proteinGroups.txt
+
+Note that the experimental design needs to be specified (column numbers refer to listing order in .txt).
+ 
+	> Rscript "c:\Program Files\SafeQuant\safeQuant.R"  -i ../../SafeQuantTestData/misc/maxQuant/proteinGroups.txt --EX 1,2,3:6,7,8 
 
 #### Basic functionality of the safeQuant.R script
 
