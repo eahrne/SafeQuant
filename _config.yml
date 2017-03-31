@@ -1,0 +1,8 @@
+title: SafeQuant
+description: A Toolbox for analysis of Proteomics Data
+google_analytics: UA-76528980-1
+show_downloads: true
+theme: jekyll-theme-modernist
+
+gems:
+  - jekyll-mentions
