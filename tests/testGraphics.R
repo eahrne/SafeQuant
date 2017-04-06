@@ -131,12 +131,54 @@ if(T){
 
 	maPlotSQ(eset)
 	
+	eset <-  parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1)) 
+	cysteinFreqBarplot(fData(eset)$peptide)
+	
 	graphics.off()
 	
 	cat("CREATED FILE", tmpFile, "\n")
 	
 }
 ### TESTS END
+
+library(SafeQuant)
+library(stringr)
+
+ecoliDb =  read.fasta("/Volumes/pcf01$/Schmidt_Group/Databases/Latest_UniProt/uniprot-ecoli.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+humanDb =  read.fasta("/Volumes/pcf01$/Schmidt_Group/Databases/Latest_UniProt/uniprot-Human_301014.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+mouseDb =  read.fasta("/Volumes/pcf01$/Schmidt_Group/Databases/Latest_UniProt/uniprot-Mouse_301014.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+yeastDb =  read.fasta("/Volumes/pcf01$/Schmidt_Group/Databases/Latest_UniProt/uniprot-yeast_301014.fasta",seqtype = "AA",as.string = TRUE, set.attributes = FALSE)
+
+
+ecoliPeptides = lapply(ecoliDb, getPeptides ) %>% unlist %>% unique
+ecoliPeptidesLength = nchar(ecoliPeptides)
+ecoliPeptides = subset(ecoliPeptides ,ecoliPeptidesLength > 6 & ecoliPeptidesLength < 20  )
+ecoliCFreq = str_detect(ecoliPeptides,"C") %>% sum / length(ecoliPeptides)
+
+humanPeptides = lapply(humanDb, getPeptides ) %>% unlist %>% unique
+humanPeptidesLength = nchar(humanPeptides)
+humanPeptides = subset(humanPeptides ,humanPeptidesLength > 6 & humanPeptidesLength < 20  )
+humanCFreq = str_detect(humanPeptides,"C") %>% sum / length(humanPeptides)
+
+mousePeptides = lapply(mouseDb, getPeptides ) %>% unlist %>% unique
+mousePeptidesLength = nchar(mousePeptides)
+mousePeptides = subset(mousePeptides ,mousePeptidesLength > 6 & mousePeptidesLength < 20  )
+mouseCFreq = str_detect(mousePeptides,"C") %>% sum / length(mousePeptides)
+
+yeastPeptides = lapply(yeastDb, getPeptides ) %>% unlist %>% unique
+yeastPeptidesLength = nchar(yeastPeptides)
+yeastPeptides = subset(yeastPeptides ,yeastPeptidesLength > 6 & yeastPeptidesLength < 20  )
+yeastCFreq = str_detect(yeastPeptides,"C") %>% sum / length(yeastPeptides)
+
+#getNbMisCleavages(fData(esetNorm)$peptide)
+
+
+
+
+
+
+
+
 
 
 

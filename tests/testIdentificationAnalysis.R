@@ -311,8 +311,26 @@ testGetGeneName = function(){
   res = getGeneName(all)
   stopifnot( all(na.omit(res) == c("atpD","Ywhaz")))
   
-  cat("--- testGetGeneName: --- \n")
+  cat("--- testGetGeneName: PASS ALL TEST --- \n")
 
+}
+
+
+testGetAccessionNumber = function(){
+  
+  cat("--- testAccessionNumber: --- \n")
+  
+  proteinName = c("sp|A0JLT2|MED19_HUMAN","sp|A0MZ66-1|SHOT1_HUMAN", "myProtein", "P25665","tr|B4DRR0|B4DRR0_CON-HUMAN","tr|A0A022YWF9|E1WHQ6_SALTS","tr|E1WHQ6|E1WHQ6_SALTS,sp|A0A022YWF9|MED19_HUMAN",NA,"cust|Tet1CD|AlainWeber","P0CG47;P0CG48;P62979;P62987")
+# 
+#   stripped = str_replace_all(proteinName, "(^.{2}\\|)|(\\|.*)","")
+#   # make sure UniProtKB accession numbers consist of 6 or 10 alphanumerical characters
+#   str_extract(stripped, "^[A-Z][0-9][A-Z 0-9]{3}[0-9][A-Z 0-9]{0,4}(\\-){0,1}[0-9]{0,2}$")
+#   
+  res = getAccessionNumber(proteinName)
+  stopifnot( all( c("A0JLT2","A0MZ66-1",NA,"P25665","B4DRR0","A0A022YWF9","E1WHQ6",NA,NA,"P0CG47")  ==  res) %>% na.omit )
+
+  cat("--- testAccessionNumber: PASS ALL TEST --- \n")
+  
 }
 
 ### TEST FUNCTIONS END
@@ -341,7 +359,7 @@ testGetMotifFreq()
 testGetKinaseFreq()
 testGetKinases()
 testGetGeneName()
-
+testGetAccessionNumber()
 ### TESTS END
 
 

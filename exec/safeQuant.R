@@ -25,7 +25,7 @@
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
 
-#suppressWarnings(suppressPackageStartupMessages(library(stringr, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(stringr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("affy", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("limma", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(gplots, quiet=T)))
@@ -672,7 +672,7 @@ graphics.off()
 
 if(exists("sqaPeptide")){ 
 	
-	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
+	selFDataCol <- c("peptide","proteinName", "ac","geneName", "proteinDescription", "idScore","idQValue"
 			,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 
 	
@@ -749,7 +749,7 @@ if(exists("sqaPeptide")){
 
 if(exists("sqaProtein")){
 	
-	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides")
+	selFDataCol <- c("proteinName","ac","geneName","proteinDescription","idScore","idQValue","nbPeptides")
 	selFDataCol <- selFDataCol[selFDataCol %in%  names(fData(sqaProtein$eset))] 
 	
 	### add allAccessions

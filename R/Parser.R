@@ -142,6 +142,8 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 	
 	featureAnnotations <- data.frame(
 			proteinName=res$Accession
+			,geneName=  res$Description %>% as.character %>% getGeneName() 
+			,ac=  res$Accession %>% as.character %>% getAccessionNumber()
 			,proteinDescription=res$Description
 			,idScore=res[,"Confidence score"]
 			#	,nbPeptides=res[,"Peptides used for quantitation"] ### old Progenesis 
@@ -234,6 +236,8 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	
 	featureAnnotations <- data.frame(
 			proteinName=res$Protein
+			,geneName=  res$Description %>% as.character %>% getGeneName()
+			,ac=  res$Protein %>% as.character %>% getAccessionNumber()
 			,proteinDescription=res$Description
 			,peptide=res$Sequence
 			,idScore=as.numeric(as.character(res$Score))
@@ -486,33 +490,34 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	mz = featureDT$"m/z"
 	rt = featureDT$"Retention time (min)"
 
-	
 	if(is.null(measuredMass)){measuredMass <- rep(NA,nrow(expMatrix))}
 	if(is.null(massError)){massError <- rep(NA,nrow(expMatrix))}
 	if(is.null(mz)){mz <- rep(NA,nrow(expMatrix))}
 	if(is.null(rt)){rt <- rep(NA,nrow(expMatrix))}
 	if(!is.null(featureDT$Charge)){charge = as.numeric(featureDT$Charge)}else{charge =  rep(NA,nrow(expMatrix))}
 	
-	featureAnnotations <- data.frame(
-			proteinName=featureDT$myProteinGroup
-			,proteinDescription=featureDT$Description
-			,peptide=featureDT$Sequence
-			,idScore= score
-			,mass=measuredMass
-			,pMassError=massError
-			,mz=mz
-			,retentionTime=rt
- 			,charge=charge
-			,ptm=ptm
-			,isNormAnchor=rep(T,nrow(expMatrix))
-			,isFiltered=rep(F,nrow(expMatrix))
-			,nbPtmsPerPeptide = nbPtmsPerPeptide
-			,allAccessions = featureDT$allAccessions
-			,nbProteinConflicts =  unlist(lapply(featureDT$allAccessions,function(t){length(grep(";",strsplit(t,"")[[1]]))})) # e.g.  sp|Q5T1J5|CHCH9_HUMAN;sp|Q9Y6H1|CHCH2_HUMAN
-			#		,row.names=res$Accession
-			# added
-	)
-
+  featureAnnotations <- data.frame(
+		proteinName=featureDT$myProteinGroup
+		,ac=  featureDT$myProteinGroup %>% as.character %>% getAccessionNumber()
+		,proteinDescription=featureDT$Description
+		,geneName=  featureDT$Description %>% as.character %>% getGeneName() 
+		,peptide=featureDT$Sequence
+		,idScore= score
+		,mass=measuredMass
+		,pMassError=massError
+		,mz=mz
+		,retentionTime=rt
+		,charge=charge
+		,ptm=ptm
+		,isNormAnchor=rep(T,nrow(expMatrix))
+		,isFiltered=rep(F,nrow(expMatrix))
+		,nbPtmsPerPeptide = nbPtmsPerPeptide
+		,allAccessions = featureDT$allAccessions
+		,nbProteinConflicts =  unlist(lapply(featureDT$allAccessions,function(t){length(grep(";",strsplit(t,"")[[1]]))})) # e.g.  sp|Q5T1J5|CHCH9_HUMAN;sp|Q9Y6H1|CHCH2_HUMAN
+		#		,row.names=res$Accession
+		# added
+  )
+  
 	# discard non peptide annotated rows
 	isPep <- score > 0  
 	isUnique <- rep(T,nrow(featureAnnotations))
@@ -770,6 +775,8 @@ parseScaffoldRawFile <- function(file, expDesign=expDesign,keepFirstAcOnly=FALSE
 	
 	featureAnnotations <- data.frame(
 			proteinName=res$Accession.Numbers
+			,ac=  res$Accession.Numbers %>% as.character %>% getAccessionNumber()
+			,geneName=  res$Protein.Name %>% as.character %>% getGeneName()
 			,proteinDescription=res$Protein.Name 
 			,peptide=res$Peptide.Sequence
 			#,idScore=res$Score
@@ -896,6 +903,8 @@ parseMaxQuantProteinGroupTxt <- function(file=file,expDesign=expDesign, method="
 	
 	featureAnnotations <- data.frame(
 			proteinName=res[,"Protein IDs"]
+			,ac=  res[,"Protein IDs"] %>% as.character %>% getAccessionNumber()
+			,geneName=  res[,"Fasta headers"] %>% as.character %>% getGeneName()
 			,proteinDescription=res[,"Fasta headers"]
 			,idScore=res[,"Q-value"]
 			#	,nbPeptides=res[,"Peptides used for quantitation"] ### old Progenesis 

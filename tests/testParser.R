@@ -68,7 +68,7 @@ testParseProgenesisProteinCsv <- function(){
 	
 	eset <- parseProgenesisProteinCsv(file=progenesisProteinCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisProteinCsvFile1))
 	stopifnot(983 == nrow(eset))
-	stopifnot(6 == ncol(fData(eset)))
+	stopifnot(8 == ncol(fData(eset)))
 	stopifnot(4 == nrow(pData(eset)))
 	
 	expDesign <- getExpDesignProgenesisCsv(progenesisProteinCsvFile1)[c(3,2),]
@@ -87,7 +87,7 @@ testParseProgenesisFeatureCsv <- function(){
 	eset <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile1,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile1))
 	stopifnot(97 == nrow(eset))
 	#names(fData(eset))
-	stopifnot(13 == ncol(fData(eset)))
+	stopifnot(15 == ncol(fData(eset)))
 	stopifnot(18 == nrow(pData(eset)))
 	
 #	expDesign <- getExpDesignProgenesisCsv(progenesisFeatureCsvFile1)[c(3,4:8),]
@@ -143,7 +143,7 @@ testGetFileType <- function(){
 testParseProgenesisPeptideMeasurementCsv <- function(){
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv --- \n")
-	eset <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1))
+	eset <-  parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1)) 
 	stopifnot(ncol(exprs(eset)) == 1)
 	stopifnot(nrow(eset) == 92)
 	
@@ -151,7 +151,7 @@ testParseProgenesisPeptideMeasurementCsv <- function(){
 	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
 	stopifnot(all.equal(which(fData(eset)$nbProteinConflicts == 1), c(33,66)))
 	
-	esetUnique <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1), uniqueProteins = T)
+	esetUnique <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1), uniqueProteins = T) 
 	stopifnot(sum(fData(esetUnique)$nbProteinConflicts) == 0)
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")
@@ -166,7 +166,7 @@ testParseMaxQuantProteinGroupTxt <- function(){
 	expDesign <- data.frame(row.names=1:20,isControl=c(rep(T,5),rep(F,15)),condition=sort(rep(paste("condition",1:4,sep="_"),5)))
 	eset <- parseMaxQuantProteinGroupTxt(maxQuantProteinFileTxt,expDesign=expDesign, method="auc")
 	
-	stopifnot(ncol(fData(eset)) == 7)
+	stopifnot(ncol(fData(eset)) == 9)
 	stopifnot(ncol(eset) == 20)
 	stopifnot( nrow(parseMaxQuantProteinGroupTxt(maxQuantProteinFileTxt,expDesign=expDesign, method="spc")) == 996 )
 
@@ -199,8 +199,6 @@ testAddScaffoldPTMFAnnotations <- function(){
 }
 
 ### TEST FUNCTIONS END
-
-
 
 #testParseProgenesisPeptideMeasurementCsv()
 

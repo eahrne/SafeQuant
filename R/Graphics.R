@@ -140,7 +140,9 @@ COLORS <- as.character(c(
 			nbPtmPerPeptideTable <- table(fData(sqaPeptide$eset)$nbPtmsPerPeptide[!fData(sqaPeptide$eset)$isFiltered])
 			barplot2(nbPtmPerPeptideTable, xlab="Nb. PTM per Peptide", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 		}
-		
+	
+		cysteinFreqBarplot(fData(sqaPeptide$eset)$peptide)
+			
 	}else if("peptide" %in% names(fData(esetNorm))){
 		if(userOptions$verbose) cat("INFO: NB. MIS-CLEAVAGES PLOT 2 \n")	
 		### mis-cleavage
@@ -180,6 +182,8 @@ COLORS <- as.character(c(
 	if(exists("sqaPeptide") && ("retentionTime"  %in% names(fData(sqaPeptide$eset)))) plotNbIdentificationsVsRT(sqaPeptide$eset)
 	
 
+
+	
 }
 
 
@@ -1817,3 +1821,20 @@ plotLogo <- function(motif, bgPeptides="ACDEFGHIKLMNPQRSTVWY", main="", targetRe
 	
 } 
 
+#' Plot Cystein Frequency 
+#' @param peptides vector
+#' @param ... see plot 
+#' @export
+#' @note  No note
+#' @details Selecting for peptides of length 7-19
+#' @references NA
+#' @examples print("No examples")
+cysteinFreqBarplot = function(peptides, ...){
+  
+  peptides = peptides %>% unique %>% as.character
+  peptidesLength = nchar(peptides)
+  peptides = subset(peptides ,peptidesLength > 6 & peptidesLength < 20  )
+  cFreq = str_detect(peptides,"C") %>% sum / length(peptides)
+  
+  barplot(c(cFreq,0.1148966,0.1326964,0.2126175)*100, col =c("blue",rep("lightgrey",3)), names=c("this sample","e.coli","yeast","human"), ylab ="Cystein containig peptides (%)", las=2, ... )
+} 

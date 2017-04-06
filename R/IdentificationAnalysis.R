@@ -663,6 +663,22 @@ getKinases = function(phosphoSeq){
 #' @details ATP synthase subunit beta OS=Salmonella typhimurium (strain SL1344) GN=atpD -> atpD
 #' @examples print("No examples")
 getGeneName = function(proteinDescription){
-  return(str_extract(all, "(GN=)[^\\s]*") %>% substr(.,start=4,stop=1000))
+  return(str_extract(proteinDescription, "(GN=)[^\\s]*") %>% substr(.,start=4,stop=1000))
 }
 
+#' Extract accession numbers from Uniprot proteinNames
+#' @param proteinName vector of protein names
+#' @return vector of uniprot accession numbers
+#' @export
+#' @import stringr
+#' @note  No note
+#' @details sp|A0MZ66|SHOT1_HUMAN -> A0MZ66
+#' @examples print("No examples")
+getAccessionNumber = function(proteinName){
+  
+  stripped = str_replace_all(proteinName, "(^.{2}\\|)|(\\|.*)|([\\:\\;].*)","")
+  # make sure UniProtKB accession numbers consist of 6 or 10 alphanumerical characters
+  return(str_extract(stripped, "^[A-Z][0-9][A-Z 0-9]{3}[0-9][A-Z 0-9]{0,4}(\\-){0,1}[0-9]{0,2}$"))
+  
+
+}
