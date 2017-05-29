@@ -12,4 +12,3 @@ getMaxIndex(v)
 \description{
 get index of max in vecotr of numeric values
 }
-

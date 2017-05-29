@@ -41,4 +41,3 @@ NA
 \seealso{
 \code{\link[Biobase]{ExpressionSet}}
 }
-

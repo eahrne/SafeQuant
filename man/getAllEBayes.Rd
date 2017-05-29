@@ -40,4 +40,3 @@ Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16
 \seealso{
 \code{\link[limma]{eBayes}}
 }
-

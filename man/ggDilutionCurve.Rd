@@ -14,7 +14,7 @@ ggDilutionCurve(dCurve, lod, title = "")
 \item{title}{plot title}
 }
 \value{
-ggplot
+ggplot2
 }
 \description{
 Plot dilution curve
@@ -28,4 +28,3 @@ print("No examples")
 \references{
 NA
 }
-

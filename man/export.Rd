@@ -31,4 +31,3 @@ NA
 \seealso{
 \code{\link{safeQuantAnalysis}}
 }
-

@@ -18,4 +18,3 @@ Human Protein Reference Database Serine/Threonine motifs
  The variables are as follows:
 }
 \keyword{datasets}
-

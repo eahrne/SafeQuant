@@ -19,4 +19,3 @@ safeQuantAnalysis(eset = eset, method = c("global", "naRep", "pairwise"),
 \description{
 safeQunat s3 class
 }
-

@@ -485,10 +485,10 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	### non scored entries are assigned a score of zero
 	score[is.na(score)] <- 0
 	
-	measuredMass = featureDT$"Measured mass"
-	massError = featureDT$"Mass error (ppm)"
-	mz = featureDT$"m/z"
-	rt = featureDT$"Retention time (min)"
+	measuredMass = featureDT$"Measured mass"  %>% as.character  %>% as.numeric  
+	massError = featureDT$"Mass error (ppm)"  %>% as.character  %>% as.numeric  
+	mz = featureDT$"m/z" %>% as.character  %>% as.numeric 
+	rt = featureDT$"Retention time (min)" %>% as.character  %>% as.numeric 
 
 	if(is.null(measuredMass)){measuredMass <- rep(NA,nrow(expMatrix))}
 	if(is.null(massError)){massError <- rep(NA,nrow(expMatrix))}

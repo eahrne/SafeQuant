@@ -29,4 +29,3 @@ print("No examples")
 \seealso{
 \code{\link{getIdLevelQvals}}
 }
-

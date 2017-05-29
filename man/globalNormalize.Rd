@@ -33,4 +33,3 @@ NA
 getGlobalNormFactors
 }
 \keyword{normalization}
-

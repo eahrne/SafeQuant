@@ -12,7 +12,6 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	source("testIdentificationAnalysis.R")
 	source("testExpressionAnalysis.R")
 
-
 	source("testSafeQuantAnalysis.R")
 	source("testTMT.R")
 
@@ -20,6 +19,8 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	source("testGraphics.R")
 	
 	source("testTargeted.R")
+  
+  source("testGGGraphics.R")
 	
 	cat("\n ---------------------- ALL TESTS PASSED ------------------ \n")
 	

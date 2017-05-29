@@ -16,6 +16,8 @@ library(corrplot)
 library(Biobase)
 library(ggplot2)
 library(magrittr)
+library(ggrepel)
+library(plotly)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
@@ -31,6 +33,9 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste0(sqRootDir,"/R/TMT.R"))
 	source(paste0(sqRootDir,"/R/UserOptions.R"))
 	source(paste0(sqRootDir,"/R/Targeted.R"))
+	
+	source(paste0(sqRootDir,"/R/GGGraphics.R"))
+	
 	load(paste0(sqRootDir,"/data/kinaseMotif.rda"))
 	
 }else{ # CHECK mode
