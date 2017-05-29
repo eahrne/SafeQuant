@@ -28,7 +28,7 @@ ggVolcanoPlot = function(data=data
 		, ylab = "-log10 pValue"
 		, textSize = 20
 		, xlim = range(data$ratio,na.rm=T)
-		, ylim = range(-log10(pValue),na.rm=T)
+		, ylim = range(-log10(data$pValue),na.rm=T)
 ){
 	
 	# plotted data	

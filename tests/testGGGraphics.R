@@ -27,10 +27,7 @@ tmpFile <- paste(tempdir(),"/tmp_ggplot.pdf",collapse="",sep="")
 
 pdf(tmpFile)
 
-
 plot(ggVolcanoPlot(data=ggDf,pValueThrs=pValueThrs,log2RatioThrs=log2RatioThrs,thrsLineCol = "lightgrey",thrsLineLty = 2, title="test title"))
-
-
 
 dev.off()
 
