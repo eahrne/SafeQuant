@@ -587,12 +587,12 @@ sqNormalize <- function(eset, method="global"){
 	if("rt" %in% method){
 			
 			rtNormFactors <- getRTNormFactors(esetNorm, minFeaturesPerBin=100)
-			esetNorm <- rtNormalize(eset,rtNormFactors)
+			esetNorm <- rtNormalize(esetNorm,rtNormFactors)
 			
 	}
 	if("quantile" %in% method){
 		# limma
-		exprs(eset) <- normalizeQuantiles(exprs(eset))	
+		exprs(esetNorm) <- normalizeQuantiles(exprs(esetNorm))	
 	}
 	
 	### @ experimental
