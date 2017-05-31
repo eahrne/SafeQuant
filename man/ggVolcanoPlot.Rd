@@ -7,8 +7,8 @@
 ggVolcanoPlot(data = data, title = "", pValueThrs = 0.05,
   log2RatioThrs = 0.5849625, thrsLineCol = "lightgrey", thrsLineLty = 2,
   xlab = "log2 ratio", ylab = "-log10 pValue", textSize = 20,
-  xlim = range(data$ratio, na.rm = T), ylim = range(-log10(pValue), na.rm =
-  T))
+  xlim = range(data$ratio, na.rm = T), ylim = range(-log10(data$pValue),
+  na.rm = T), abline = c("both"), topNlabels = 10)
 }
 \arguments{
 \item{data}{data.frame}
@@ -30,6 +30,8 @@ ggVolcanoPlot(data = data, title = "", pValueThrs = 0.05,
 \item{xlim}{xlim}
 
 \item{ylim}{ylim}
+
+\item{abline}{c("none","both","ratio","pvalue")}
 
 \item{defalut}{2}
 }

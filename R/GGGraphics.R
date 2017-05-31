@@ -10,6 +10,8 @@
 #' @param title default no title
 #' @param xlim xlim
 #' @param ylim ylim
+#' @param abline c("none","both","ratio","pvalue")
+#' @params topNlabels default 10, label top proteins/peptides ordered by p-value
 #' @param textSize default 20
 #' @return ggplot2 object
 #' @import ggplot2 ggrepel
@@ -29,6 +31,8 @@ ggVolcanoPlot = function(data=data
 		, textSize = 20
 		, xlim = range(data$ratio,na.rm=T)
 		, ylim = range(-log10(data$pValue),na.rm=T)
+		, abline = c("both")
+		, topNlabels = 10
 ){
 	
 	# plotted data	
@@ -45,11 +49,11 @@ ggVolcanoPlot = function(data=data
 	p = p + scale_x_continuous(limits =xlim)
 	p = p + scale_y_continuous(limits =ylim)
 	
-	# thresholds		
+	# abline		
 	#	 pvalue thrs
-	p =  p + geom_abline(intercept = -log10(pValueThrs),slope=0, lty=thrsLineLty, col=thrsLineCol)
+	if(abline %in% c("pvalue","both") ) p =  p + geom_abline(intercept = -log10(pValueThrs),slope=0, lty=thrsLineLty, col=thrsLineCol)
 	# ratio thrs
-	p =  p + geom_vline(xintercept=c(-log2RatioThrs,log2RatioThrs), lty=thrsLineLty, col=thrsLineCol)	   
+	if(abline %in% c("ratio","both") )p =  p + geom_vline(xintercept=c(-log2RatioThrs,log2RatioThrs), lty=thrsLineLty, col=thrsLineCol)	   
 	
 	# point style
 	p = p + geom_point() 
@@ -66,15 +70,47 @@ ggVolcanoPlot = function(data=data
 	)
 	
 	
-	
 	# add labels
 	# geom_GeomTextRepel() has yet to be implemented in plotly (status at v. 4.5.6).
 	# disp geneName above thrs 
-	dfLab = subset(data, (pValue < pValueThrs) & (abs(ratio) > log2RatioThrs))
+	labPvalueThrs = ifelse(topNlabels > 0,sort(data$pValue)[min(topNlabels,length(data$pValue))],0)
+	dfLab = subset(data, (pValue <= min(labPvalueThrs,pValueThrs) ) & (abs(ratio) >= log2RatioThrs))
 	if(nrow(dfLab) > 0){
 		p = p + geom_text_repel(data= dfLab,aes(x =ratio,y=-log10(pValue),label=geneName ))
 	}
 	
 	return(p)
 	
+}
+
+
+#' Plots volcano of all condition comparisons
+#' @param sqa SafeQuantAnalysis object
+#' @param isAdjusted (T/F) plot adjusted pvalues
+#' @param see ggVolcanoPlot
+#' @return ggplot2 object
+#' @import ggplot2 ggrepel
+#' @export
+#' @note  No note
+#' @details data.frame input object should contain columns ("ratio","pValue","geneName","ac","cv", "description")
+#' @references NA
+#' @examples print("No examples")
+plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
+  # plot all volcanoes
+  ctrlCondition = pData(sqa$eset)$condition[pData(sqa$eset)$isControl][1] %>% as.character
+  caseConditions = setdiff(pData(sqa$eset)$condition %>% unique, ctrlCondition)
+  for(cond in caseConditions){
+    
+    # compile df
+    cv = apply(sqa$cv[, c(ctrlCondition,cond) ],1,max, na.rm=T)*100
+    ggDf = data.frame(ratio = sqa$ratio[,cond], geneName = fData(sqa$eset)$geneName ,  ac=fData(sqa$eset)$ac, cv = cv, description=fData(sqa$eset)$proteinDescription  )
+    if(isAdjusted){
+      ggDf$pValue = sqa$qValue[,cond]
+    }else{
+      ggDf$pValue = sqa$pValue[,cond]
+    }
+    
+    #plot
+    plot(ggVolcanoPlot(data=ggDf, xlab = paste("log2", cond,"/",ctrlCondition ), ... ))
+  }
 }
