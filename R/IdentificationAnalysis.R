@@ -682,3 +682,57 @@ getAccessionNumber = function(proteinName){
   
 
 }
+
+
+#' Get Go term data for a list of uniprot accession numbers
+#' @param taxId uniprot taxon identifier
+#' @param acs vector uniprot accession numbers
+#' @return data.frame "UNIPROTKB" "GO-ID"     "ccIds"     "mfIds"     "bpIds"     "ccTerms"   "mfTerms"   "bpTerms"
+#' @export
+#' @import UniProt.ws GO.db
+#' @note  No note
+#' @details
+#' @references NA 
+#' @seealso 
+#' @examples print("No examples")
+getGoTermDF = function(taxId=taxId, acs=acs){
+	
+	# get proteome
+	proteome <- UniProt.ws(taxId=taxId)
+	
+	columns <- c("GO-ID")
+	kt <- "UNIPROTKB"
+	goRes = UniProt.ws::select(proteome, acs, columns, kt)
+	rownames(goRes) = acs
+	
+	# convert go-ids to terms (if term is cellular component)
+	ccIds = c()
+	mfIds = c()
+	bpIds = c()
+	
+	ccTerms = c()
+	mfTerms = c()
+	bpTerms = c()
+	for(goids in goRes$"GO-ID"){
+		
+		goids = unlist(strsplit(goids,"; "))
+		goterm = Term(goids)
+		ontology = Ontology(goids)
+		ccIds = c(ccIds,paste(goids[ontology %in% "CC"] ,collapse = ";"))
+		mfIds = c(mfIds,paste(goids[ontology %in% "MF"] ,collapse = ";"))
+		bpIds = c(bpIds,paste(goids[ontology %in% "BP"] ,collapse = ";"))
+		
+		ccTerms = c(ccTerms,paste(goterm[ontology %in% "CC"] ,collapse = ";"))
+		mfTerms = c(mfTerms,paste(goterm[ontology %in% "MF"] ,collapse = ";"))
+		bpTerms = c(bpTerms,paste(goterm[ontology %in% "BP"] ,collapse = ";"))
+	}
+	goRes$ccIds = ccIds
+	goRes$mfIds = mfIds
+	goRes$bpIds = bpIds
+	
+	goRes$ccTerms = ccTerms
+	goRes$mfTerms = mfTerms
+	goRes$bpTerms = bpTerms
+	
+	return(goRes)
+}

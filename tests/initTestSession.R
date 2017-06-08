@@ -5,6 +5,8 @@
 
 ### load / source
 
+library(UniProt.ws)
+library(GO.db)
 library(stringr)
 library("limma")
 library(gplots) # volcano plot
@@ -18,6 +20,7 @@ library(ggplot2)
 library(magrittr)
 library(ggrepel)
 library(plotly)
+
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 

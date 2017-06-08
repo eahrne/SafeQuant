@@ -69,12 +69,12 @@ ggVolcanoPlot = function(data=data
 	
 	)
 	
-	
 	# add labels
 	# geom_GeomTextRepel() has yet to be implemented in plotly (status at v. 4.5.6).
 	# disp geneName above thrs 
 	labPvalueThrs = ifelse(topNlabels > 0,sort(data$pValue)[min(topNlabels,length(data$pValue))],0)
 	dfLab = subset(data, (pValue <= min(labPvalueThrs,pValueThrs) ) & (abs(ratio) >= log2RatioThrs))
+	dfLab = dfLab[1:min(10,nrow(dfLab)),]
 	if(nrow(dfLab) > 0){
 		p = p + geom_text_repel(data= dfLab,aes(x =ratio,y=-log10(pValue),label=geneName ))
 	}
@@ -99,18 +99,23 @@ plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
   # plot all volcanoes
   ctrlCondition = pData(sqa$eset)$condition[pData(sqa$eset)$isControl][1] %>% as.character
   caseConditions = setdiff(pData(sqa$eset)$condition %>% unique, ctrlCondition)
+  
+  if(isAdjusted){
+    allPValue = sqa$qValue
+  }else{
+    allPValue = sqa$pValue
+  }
+  
+  xlim  = range(sqa$ratio, na.rm=T)
+  ylim = range(abs(log10(allPValue)), na.rm=T)
+  
   for(cond in caseConditions){
     
     # compile df
     cv = apply(sqa$cv[, c(ctrlCondition,cond) ],1,max, na.rm=T)*100
-    ggDf = data.frame(ratio = sqa$ratio[,cond], geneName = fData(sqa$eset)$geneName ,  ac=fData(sqa$eset)$ac, cv = cv, description=fData(sqa$eset)$proteinDescription  )
-    if(isAdjusted){
-      ggDf$pValue = sqa$qValue[,cond]
-    }else{
-      ggDf$pValue = sqa$pValue[,cond]
-    }
-    
+    ggDf = data.frame(ratio = sqa$ratio[,cond], pValue=allPValue[,cond] ,geneName = fData(sqa$eset)$geneName ,  ac=fData(sqa$eset)$ac, cv = cv, description=fData(sqa$eset)$proteinDescription  )
+  
     #plot
-    plot(ggVolcanoPlot(data=ggDf, xlab = paste("log2", cond,"/",ctrlCondition ), ... ))
+    plot(ggVolcanoPlot(data=ggDf, xlab = paste("log2", cond,"/",ctrlCondition ),xlim=xlim,ylim=ylim,  ... ))
   }
 }

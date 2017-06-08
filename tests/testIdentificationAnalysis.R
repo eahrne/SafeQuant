@@ -333,6 +333,25 @@ testGetAccessionNumber = function(){
   
 }
 
+testGetGoTermDF = function(){
+	
+	cat("--- testGetGoTermDF: --- \n")
+	
+	taxId = 83333 # ecoli
+	acs = c("P00350","P00363","P00370")
+	
+	goTermDf = getGoTermDF(taxId,acs)
+	
+	stopifnot(nrow(goTermDf) == 3)
+	
+	cat("--- testGetGoTermDF: PASS ALL TEST --- \n")
+	
+}
+
+
+
+
+
 ### TEST FUNCTIONS END
 
 ### TESTS
@@ -360,6 +379,7 @@ testGetKinaseFreq()
 testGetKinases()
 testGetGeneName()
 testGetAccessionNumber()
+testGetGoTermDF()
 ### TESTS END
 
 

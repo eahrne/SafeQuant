@@ -34,6 +34,8 @@ suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(magrittr, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(ggplot2, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(ggrepel, quiet=T)))
 
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
@@ -46,6 +48,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
 	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
 	source(paste(sourceDir,"Graphics.R",sep=""))
+	source(paste(sourceDir,"GGGraphics.R",sep=""))
 	source(paste(sourceDir,"IdentificationAnalysis.R",sep=""))
 	source(paste(sourceDir,"Parser.R",sep=""))
 	source(paste(sourceDir,"TMT.R",sep=""))
@@ -565,12 +568,19 @@ plotNbValidDeFeaturesPerFDR(sqaDisp,
 
 par(parDefault)
 
-plotVolcano(sqaDisp
-		, main=paste(lab,"Level")
-		, ratioThrs= userOptions$ratioCutOff
-		, pValueThreshold= userOptions$deFdrCutoff
-		, adjusted = T)
+# plotVolcano(sqaDisp
+# 		, main=paste(lab,"Level")
+# 		, ratioThrs= userOptions$ratioCutOff
+# 		, pValueThreshold= userOptions$deFdrCutoff
+# 		, adjusted = T)
 
+plotAllGGVolcanoes(sqaDisp
+                   ,log2RatioThrs =userOptions$ratioCutOff %>% log2
+                   ,pValueThrs= userOptions$deFdrCutoff
+                   ,ylab = "log10 Adj. P-Value"
+                   ,title = paste(lab,"Level")
+                   ,textSize = 15
+)
 
 if(userOptions$eBayes){
 	
@@ -598,11 +608,20 @@ if(userOptions$eBayes){
 	)
 	par(parDefault)
 	
-	plotVolcano(sqaDisp
-			, main=paste(lab,"Level")
-			, ratioThrs= userOptions$ratioCutOff
-			, pValueThreshold= userOptions$deFdrCutoff
-			, adjusted = F)
+	# plotVolcano(sqaDisp
+	# 		, main=paste(lab,"Level")
+	# 		, ratioThrs= userOptions$ratioCutOff
+	# 		, pValueThreshold= userOptions$deFdrCutoff
+	# 		, adjusted = F)
+	
+	plotAllGGVolcanoes(sqaDisp
+	                   ,log2RatioThrs =userOptions$ratioCutOff %>% log2
+	                   ,pValueThrs= userOptions$deFdrCutoff
+	                   ,ylab = "log10 P-Value"
+	                   ,title = paste(lab,"Level")
+	                   ,textSize = 15
+	                   ,isAdjusted = F
+	)
 	
 	par(mfrow=c(2,2))
 	if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
