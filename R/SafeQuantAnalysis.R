@@ -49,26 +49,36 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 		out$ratio <- getRatios(eset,log2=T)
 	}
 	
-	### do not perform stat test for filtered out features
+	### eBayes 
 	sel <- !fData(eset)$isFiltered
-	
+  ## moderated t-test
+	# do not perform stat test for filtered out features
+
 	out$pValue <- out$ratio
-	out$pValue[rownames(out$pValue),] <- NA
+  out$pValue[match(rownames(eset) , rownames(out$pValue)),] = NA
+	out$qValue <- 	out$pValue 
+	out$FPValue <-  rep(NA,nrow(out$pValue))
+	out$FQValue <-  rep(NA,nrow(out$pValue))
 	
-	### we need at least two conditions
+	## we need at least two conditions
 	if(length(unique(pData(eset)$condition)) > 1){
-		out$pValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
-	}
 	
-	out$qValue <- out$ratio
-	out$qValue[rownames(out$qValue),] <- NA
-	
-	### we need at least two runs
-	if(length(unique(pData(eset)$condition)) > 1){
+	  out$pValue[match(rownames(eset)[sel] , rownames(out$pValue)),] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
+		#out$pValue[rownames(eset)[sel], ] <- getAllEBayes(eset[sel, ], adjust = F, method = method)
 		
+	  # apply ratio cut-off for adjustment. 
 		adjustFilter <- data.frame((abs(out$ratio) < log2(fcThrs)))
-		out$qValue[rownames(eset)[sel],] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel) )
+		out$qValue[match(rownames(eset)[sel] , rownames(out$qValue)) ,] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel) )
+		#out$qValue[rownames(eset)[sel], ] <- getAllEBayes(eset[sel, ], adjust = T, method = method, adjustFilter = subset(adjustFilter, subset = sel))
+	
+		out$FPValue[sel] = getFTestPValue(eset[sel,])
+		
+		# apply ratio cut-off for adjustment. Keep if one cond meets ratio cut cut-off critera 
+		adjustFilterF = rowSums(!adjustFilter) > 0
+ 		out$FQValue[adjustFilterF & sel] = p.adjust(out$FPValue[adjustFilterF & sel],method="BH")
+		
 	}
+
 	out$baselineIntensity <- baselineIntensity
 	
 	return(out)
@@ -96,6 +106,9 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	tmpNames <- names(sqa$cv )
 	sqa$cv <- data.frame(sqa$cv[filter,],row.names=rownames(sqa$eset))
 	names(sqa$cv) <- tmpNames
+	
+	sqa$FPValue = sqa$FPValue[filter,]
+	sqa$FQValue = sqa$FQValue[filter,]
 	
 	return(sqa)
 	
@@ -129,7 +142,7 @@ export <- function(sqa,nbRows=nrow(sqa$pValue), file=NA){
 	)
 	
 	# add feature annotations
-	out <- cbind(fData(sqa$eset),exprs(sqa$eset),out)
+	out <- cbind(fData(sqa$eset),exprs(sqa$eset),out, FTestPValue = sqa$FPValue, FTestQValue = sqa$FQValue)
 	
 	### export to file
 	if(!is.na(file)){

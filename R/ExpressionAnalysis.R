@@ -81,7 +81,7 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @param log T/F log-transform expression values
 #' @param method c("all","pairwise")
 #' @param adjustFilter matrix T/F do not adjust for multiple testing
-#' @return ExpressionSet object
+#' @return data.frame of pvalues per condition comparison
 #' @export
 #' @import limma Biobase
 #' @importFrom stats model.matrix p.adjust
@@ -102,7 +102,7 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
 	controlCondition <- .getControlCondition(eset)
 	caseConditions <- setdiff(uniqueConditions ,controlCondition)
 	
-	# if no condition has replicates reurn NA's
+	# if no condition has replicates return NA's
 	if(max(table(pData(eset)$condition)) == 1){
 		return(data.frame( matrix(nrow=nrow(eset), ncol = length(caseConditions), dimnames = list(rownames(eset),caseConditions))))
 	}
@@ -1034,6 +1034,41 @@ createPairedExpDesign  <-function(eset){
 }
 
 
+#' Perform statistical test (mderated F-test)
+#' @param eset ExpressionSet
+#' @param adjust TRUE/FALSE adjust for multiple testing using Benjamini & Hochberg  (1995) method 
+#' @param log T/F log-transform expression values
+#' @return list of pvalues 
+#' @export
+#' @import limma Biobase
+#' @importFrom stats model.matrix p.adjust
+#' @note  No note
+#' @details No details
+#' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809} 
+#' @seealso \code{\link[limma]{eBayes}}
+#' @examples print("No examples")
+getFTestPValue = function(eset, adjust=F, log=T){
+  
+  pValues = list()
 
+  # if no condition has replicates reurn NA's
+  if(max(table(pData(eset)$condition)) == 1){
+    pValues = rep(NA,nrow(eset))
+    names(pValues) = rownames(eset)
+    return(pValues)
+  }
+
+  if(log)(exprs(eset) <- log2(exprs(eset)))
+  
+  fit =eBayes(lmFit(eset,model.matrix(~condition, data=pData(eset)) ))[,-1]
+  pValues = list()
+  pValues = fit$F.p.value 
+  names(pValues) = rownames(eset)
+  
+  if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg (1995) method 
+    pValues <-p.adjust(pValues,method="BH")
+  }
+  return(pValues)
+}
 
 

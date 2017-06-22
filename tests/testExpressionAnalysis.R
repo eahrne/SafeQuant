@@ -394,6 +394,46 @@ testCreatePairedExpDesign <- function(){
 	
 }
 
+testGetFTestPValue <- function(){
+  
+  cat(" --- testGetFTestPValue:  --- \n")
+  
+  set.seed(1234)
+  # creat test dataset
+  nbFeatures <- 100
+  AA1 <-rnorm(nbFeatures,100,100*0.1)
+  AA2 <-rnorm(nbFeatures,100,100*0.1)
+  BB1 <- rnorm(nbFeatures,100,100*0.1)
+  BB2 <- rnorm(nbFeatures,100,100*0.1)
+  CC1 <-rnorm(nbFeatures,100,100*0.1)
+  CC2 <- rnorm(nbFeatures,100,100*0.1)
+  AA1[1:10] <- AA1[1:10]*2
+  AA2[1:10] <- AA2[1:10]*2
+  BB1[11:20] <- BB1[11:20]*3
+  BB2[11:20] <- BB2[11:20]*3
+  
+  mF <- log10(as.matrix(data.frame(AA1,AA2,BB1,BB2,CC1,CC2) ))
+  colnames(mF) <- c("A_rep_1","A_rep_2","B_rep_1","B_rep_2","C_rep_1","C_rep_2")
+  expDesign <- data.frame(condition=c("A","A","B","B","C","C"),isControl=c(T,T,F,F,F,F),row.names=colnames(m))
+  
+  featureAnnotations <- data.frame(row.names=as.character(1:nbFeatures), bla=as.character(1:nbFeatures), blabla=1:nbFeatures)
+  esetF <- createExpressionDataset(expressionMatrix=mF,expDesign=expDesign,featureAnnotations=featureAnnotations)
+  
+  pValueF = getFTestPValue(esetF, log=F, adjust=F)
+  
+  stopifnot(!all(pValueF[21:100] < 0.001))
+  stopifnot(all(pValueF[1:20] < 0.001))
+  
+  # plot dataset
+  #gplots::heatmap.2(exprs(esetF), dendrogram = "row",trace = "none")
+  
+  # low p-values should be assigned 1:20
+  #plot( pValueF , log="y", col=c( rep("red",10),rep("blue",10),rep("grey",80)), pch =19, ylab ="p-value" )
+  
+  cat(" --- testGetFTestPValue: PASS ALL TEST  --- \n")
+  
+}
+
 ### TEST FUNCTIONS END
 
 #### TESTS
@@ -426,5 +466,12 @@ if(T){
 	
 	testCreatePairedExpDesign()
 	
+	testGetFTestPValue()
+	
+	
 }
+
+
+
+
 

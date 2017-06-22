@@ -514,7 +514,6 @@ if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
 
 par(parDefault)
 
-
 ### TMT calibration mix
 if(exists("intAdjObj")){ 
 	
@@ -529,8 +528,6 @@ if(exists("intAdjObj")){
 	par(parDefault)
 
 }
-
-
 
 ### QUANT. QC PLOTS END
 
@@ -673,13 +670,9 @@ if(userOptions$addQC){
 		maPlotSQ(esetNorm[sel,],sample=s)
 	}
 	
-	
-	
 	par(parDefault)
 	
 }
-
-
 
 cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 
@@ -720,16 +713,15 @@ if(exists("sqaPeptide")){
 		selFDataCol <- c(selFDataCol,"ptmLocMascotConfidence")
 	}
 	
+	# add sqa object data 
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio
-	
-	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
-	
+	if(ncol(ratio) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
 	pValue <- sqaPeptide$pValue
-	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(ncol(pValue) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaPeptide$qValue
-	if(length(names(qValue)) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(ncol(qValue) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	medianSignalDf <- getSignalPerCondition(sqaPeptide$eset)
 	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
@@ -741,7 +733,10 @@ if(exists("sqaPeptide")){
 			, cv
 			, ratio	
 			, pValue
-			, qValue )[!fData(sqaPeptide$eset)$isFiltered,]
+			, qValue
+			, FTestPValue = sqaPeptide$FPValue
+			, FTestQValue = sqaPeptide$FQValue
+			)[!fData(sqaPeptide$eset)$isFiltered,]
 	
 	### add unadjusted ratios if TMT ratio correction
 	if(userOptions$TAdjustRatios){
@@ -776,14 +771,15 @@ if(exists("sqaProtein")){
 		selFDataCol <- c(selFDataCol,"allAccessions")
 	}
 	
+	# add sqa object data 
 	cv <- sqaProtein$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaProtein$ratio
-	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
+	if(ncol(ratio) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
 	pValue <- sqaProtein$pValue
-	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(ncol(pValue) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaProtein$qValue
-	if(length(names(qValue)) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(ncol(qValue) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	medianSignalDf <- getSignalPerCondition(sqaProtein$eset)
 	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
@@ -795,7 +791,10 @@ if(exists("sqaProtein")){
 			, cv
 			, ratio	
 			, pValue
-			, qValue )[!fData(sqaProtein$eset)$isFiltered,]
+			, qValue 
+			, FTestPValue = sqaProtein$FPValue
+			, FTestQValue = sqaProtein$FQValue
+			)[!fData(sqaProtein$eset)$isFiltered,]
 	
 	# add median top3
 	if(exists("esetTop3")){

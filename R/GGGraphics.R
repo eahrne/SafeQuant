@@ -78,9 +78,7 @@ ggVolcanoPlot = function(data=data
 	if(nrow(dfLab) > 0){
 		p = p + geom_text_repel(data= dfLab,aes(x =ratio,y=-log10(pValue),label=geneName ))
 	}
-	
 	return(p)
-	
 }
 
 
@@ -96,6 +94,7 @@ ggVolcanoPlot = function(data=data
 #' @references NA
 #' @examples print("No examples")
 plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
+ 
   # plot all volcanoes
   ctrlCondition = pData(sqa$eset)$condition[pData(sqa$eset)$isControl][1] %>% as.character
   caseConditions = setdiff(pData(sqa$eset)$condition %>% unique, ctrlCondition)
@@ -105,10 +104,13 @@ plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
   }else{
     allPValue = sqa$pValue
   }
-  
-  xlim  = range(sqa$ratio, na.rm=T)
-  ylim = range(abs(log10(allPValue)), na.rm=T)
-  
+
+  # avoid crash if no caseConditions
+  if(length(caseConditions) > 0){
+    xlim  = range(sqa$ratio, na.rm=T)
+    ylim = range(abs(log10(allPValue)), na.rm=T)
+  }
+
   for(cond in caseConditions){
     
     # compile df
