@@ -20,7 +20,7 @@ library(ggplot2)
 library(magrittr)
 library(ggrepel)
 library(plotly)
-
+library(Hmisc)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
@@ -38,6 +38,7 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste0(sqRootDir,"/R/Targeted.R"))
 	
 	source(paste0(sqRootDir,"/R/GGGraphics.R"))
+	source(paste0(sqRootDir,"/R/DIA.R"))
 	
 	load(paste0(sqRootDir,"/data/kinaseMotif.rda"))
 	

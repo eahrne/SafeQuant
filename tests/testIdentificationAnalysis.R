@@ -385,9 +385,16 @@ testGetGoTermDF()
 
 ##### phospho kinase motif analysis 
 
-#phosphoMotifs = read.csv(file="~/dev/R/workspace/SafeQuant/tests/testData/motifs.xls",sep="\t")
 
 
 
- 
+
+
+
+
+
+
+
+
+
 
