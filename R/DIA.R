@@ -11,7 +11,7 @@
 #' @examples print("No examples")
 getSwaths = function(mzs,nbSwaths=30,lowerOverlap = 2){
   
-  swathCoord = levels(cut2(mzs,g=nbSwaths, digits=5)) %>% gsub("(\\[)|(\\)|( )|(\\]))","",.) %>% strsplit(",") %>% data.frame %>% t() %>% apply(.,2,as.numeric) %>% data.frame
+  swathCoord = levels(cut2(mzs,g=nbSwaths, digits=4)) %>% gsub("(\\[)|(\\)|( )|(\\]))","",.) %>% strsplit(",") %>% data.frame %>% t() %>% apply(.,2,as.numeric) %>% data.frame
   colnames(swathCoord) = c("lower","upper")
   swathCoord = cbind(binMean=rowMeans(swathCoord),swathCoord )
   swathCoord$delta = swathCoord$binMean - swathCoord$lower

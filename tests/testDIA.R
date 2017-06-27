@@ -19,8 +19,9 @@ tesGetSwaths <- function(){
   nbSwaths = 4
   swaths = getSwaths(mzs,nbSwaths = nbSwaths, lowerOverlap=2 )
   
-  hUnAdjusted = hist(mzs,breaks= c(min(mzs), swaths$lower[2:nbSwaths] , max(mzs)),freq = T )
+  hUnAdjusted = suppressWarnings(hist(mzs,breaks= c(min(mzs), swaths$lower[2:nbSwaths] , max(mzs)),freq = T, plot=F ))
   
+  # appox 25 peaks per swath (not exactly due to rounding)
   all(hUnAdjusted$counts >= 24) %>% stopifnot
   
   # plot
