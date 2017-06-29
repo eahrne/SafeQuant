@@ -11,7 +11,7 @@
 #' @param xlim xlim
 #' @param ylim ylim
 #' @param abline c("none","both","ratio","pvalue")
-#' @params topNlabels default 10, label top proteins/peptides ordered by p-value
+#' @param topNlabels default 10, label top proteins/peptides ordered by p-value
 #' @param textSize default 20
 #' @return ggplot2 object
 #' @import ggplot2 ggrepel

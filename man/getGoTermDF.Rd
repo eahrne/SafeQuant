@@ -17,6 +17,9 @@ data.frame "UNIPROTKB" "GO-ID"     "ccIds"     "mfIds"     "bpIds"     "ccTerms"
 \description{
 Get Go term data for a list of uniprot accession numbers
 }
+\details{
+NA
+}
 \note{
 No note
 }
@@ -24,5 +27,8 @@ No note
 print("No examples")
 }
 \references{
+NA
+}
+\seealso{
 NA
 }

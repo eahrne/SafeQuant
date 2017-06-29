@@ -33,6 +33,8 @@ ggVolcanoPlot(data = data, title = "", pValueThrs = 0.05,
 
 \item{abline}{c("none","both","ratio","pvalue")}
 
+\item{topNlabels}{default 10, label top proteins/peptides ordered by p-value}
+
 \item{defalut}{2}
 }
 \value{

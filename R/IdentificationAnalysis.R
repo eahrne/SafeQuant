@@ -578,9 +578,9 @@ getAAProteinCoordinates <- function(peptideSeq,proteinSeq, aaRegExpr="[STY]"){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getMotifFreq = function(phosphoSeqs){
 
@@ -598,9 +598,9 @@ getMotifFreq = function(phosphoSeqs){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getKinaseFreq = function(phosphoSeqs){
   
@@ -634,9 +634,9 @@ getKinaseFreq = function(phosphoSeqs){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getKinases = function(phosphoSeq){
   
@@ -691,9 +691,9 @@ getAccessionNumber = function(proteinName){
 #' @export
 #' @import UniProt.ws GO.db
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getGoTermDF = function(taxId=taxId, acs=acs){
 	

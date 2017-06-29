@@ -15,6 +15,9 @@ ExpressionSet object
 \description{
 Get motif matching frequnecy of each phospho peptide subsequnece
 }
+\details{
+NA
+}
 \note{
 No note
 }
@@ -22,5 +25,8 @@ No note
 print("No examples")
 }
 \references{
+NA
+}
+\seealso{
 NA
 }
