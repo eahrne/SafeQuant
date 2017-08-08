@@ -8,11 +8,6 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 source("initTestSession.R")
 ### INIT END
 
-
-
-
-
-
 pValueThrs = 0.01
 log2RatioThrs=0.001
 thrsLineCol = "lightgrey"
@@ -33,3 +28,9 @@ dev.off()
 cat("CREATED FILE", tmpFile, "\n")
 
 
+# userOptions = list()
+# userOptions$resultsFileLabel = "resultsFileLabel"
+# 
+# VERSION <- "2.3.3"
+# library('rmarkdown')
+# rmarkdown::render('test_call_rmarkdown.Rmd')

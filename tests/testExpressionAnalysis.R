@@ -473,5 +473,113 @@ if(T){
 
 
 
+############# IMPUTAITON OF MISSING VALUES (SAM)
+# http://statweb.stanford.edu/~tibs/SAM/sam.pdf p. 13
+# 6 Handling Missing Data
+# SAM imputes missing values via a K-Nearest Neighbor algorithm normalization. Full details may
+# be found in [4] and [8]. The user specifies the number of neighbors k (default=10). Here is how it
+# works:
+#   1. For each gene i having at least one missing value:
+#   (a) Let Si be the samples for which gene i has no missing values.
+#   (b) Find the k nearest neighbors to gene i, using only samples Si to compute the Euclidean distance. 
+#   When computing the Euclidean distances, other genes may have missing values for some of the samples Si; 
+#   the distance is averaged over the non-missing entries in each comparison.
+#   (c) Impute the missing sample values in gene i, using the averages of the non-missing
+#   entries for the corresponding sample from the k nearest neighbors.
+# 
+# 2. If a gene still has missing values after the above steps, impute the missing values using the
+# average (non-missing) expression for that gene.
+
+# If the number of genes is large, the near-neighbor computations above can take too long. To
+# overcome this, we combine the K-Nearest Neighbor imputation algorithm with a Recursive TwoMeans
+# Clustering procedure:
+#  1. If number of genes p is greater than pmax (default 1500):
+#  (a) Run a two-means clustering algorithm in gene space, to divide the genes into two more
+# homogeneous groups. The distance calculations use averages over non-missing entries, as do the mean calculations.
+#  (b) Form two smaller expression arrays, using the two subsets of genes found in (a). For each of these, recursively repeat step 1.
+#  2. If p is less than pmax, impute the missing genes using K-Nearest-Neighbor averaging
+
+### see also
+# [4] T. Hastie, O. Alter, G. Sherlock, M. Eisen, R. Tibshirani, D. Botstein, and P. Brown. Imputation
+# of missing values in dna microarrays. Technical report, 1999. Working draft.
+# and
+# [8] O. Troyanskaya, M. Cantor, G. Sherlock, P. Brown, T. Hastie, R. Tibshirani, D. Botstein, and
+# R.B. Altman. Missing value estimation methods for dna microarrays. Bioinformatics, 16:520–
+# 525.
+
+### PCA METHOD
+# http://bioconductor.org/packages/devel/bioc/vignettes/pcaMethods/inst/doc/missingValues.pdf
+
+library(pcaMethods)
+data(metaboliteData)
+mD <- metaboliteData
+sum(is.na(mD))
+
+pc <- pca(mD, nPcs=3, method="ppca")
+imputed <- completeObs(pc)
+
+data(metaboliteDataComplete)
+mdComp <- metaboliteDataComplete
+sum((mdComp[is.na(mD)] - imputed[is.na(mD)])^2) / sum(mdComp[is.na(mD)]^2)
+
+### evaluate by randomly discarding data
 
 
+
+file1 = "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/ChristianArquint_191/20170531-141508_MLN1/Progenesis/ENigg_CA_MLN_DDA_20170710/peptide_scaffold_ProtFDR1.csv"
+eset = parseProgenesisPeptideMeasurementCsv(file1,expDesign = getExpDesignProgenesisCsv(file1))
+
+exprs(eset) = log10(exprs(eset))
+
+esetRef = eset[, seq(1,20,2)  ]
+esetTest = esetRef
+
+tmp = exprs( eset[, seq(2,20,2)  ])
+colnames(tmp) =  colnames(esetTest)
+exprs(esetTest) = tmp
+
+
+pc <- pca(esetTest, nPcs=5, method="ppca")
+esetTestImp <- asExprSet(pc, esetTest)
+
+esetTestImp2 <- esetTest
+baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetTest)[,1])),promille=5)
+exprs(esetTestImp2)[  is.na(exprs(esetTestImp2)) | (exprs(esetTestImp2) <= 0)  ] <- 0
+exprs(esetTestImp2) <- exprs(esetTestImp2) + baselineIntensity
+
+library(impute)
+esetTestImp3 <- esetTest
+exprs(esetTestImp3) = impute.knn(exprs(esetTestImp3))$data
+
+cor(exprs(esetTestImp))^2 %>% sum
+cor(exprs(esetTestImp2))^2 %>% sum
+
+plotXYDensity(exprs(esetRef)[,2], exprs(esetTestImp)[,2])
+plotXYDensity(exprs(esetRef)[,2], exprs(esetTestImp2)[,2])
+plotXYDensity(exprs(esetRef)[,2], exprs(esetTestImp3)[,2])
+
+par(mfrow=c(1,1))
+
+.correlationPlot(exprs(esetTestImp))
+.correlationPlot(exprs(esetTest))
+
+
+
+
+
+# 
+# featureMedianInt = rowMedians(exprs(esetRef), na.rm=T )%>% log10 %>% scale
+# 
+ df = data.frame(featureMedianInt, binnedMedianInt = cut(featureMedianInt,20), nbNA= apply(exprs(eset),1, function(t)(is.na(t) %>% sum  ))  )
+ df$hasNA = df$nbNA > 0
+ 
+ 
+ naFreq = table(df$binnedMedianInt,df$hasNA)
+ 
+ par(mfrow=c(3,1))
+ barplot(naFreq[,2] / rowSums(naFreq) ,las=2)
+ boxplot( nbNA/ncol(eset) ~ binnedMedianInt ,  data=df, las=2)
+ plot(density(featureMedianInt))
+
+
+ 

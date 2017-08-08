@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     magrittr,
     UniProt.ws,
-    GO.db
+    GO.db,
+    Hmisc
 License: GPL-3
 RoxygenNote: 6.0.1

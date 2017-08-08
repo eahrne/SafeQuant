@@ -4,7 +4,6 @@
 #' @param lowerOverlap default 2 lower bound overlap preceeding window
 #' @return data.frame "binMean","lower","upper","delta"
 #' @export
-#' @import Hmisc
 #' @note  No note
 #' @details No details
 #' @references No ref

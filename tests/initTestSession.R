@@ -138,6 +138,8 @@ featureAnnotations <- data.frame(
 		 peptide
 		, charge		 	
 		,proteinName
+		,ac = NA
+		,geneName = NA
 		,proteinDescription
 		,idScore
 		,ptm

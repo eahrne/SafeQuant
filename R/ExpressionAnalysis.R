@@ -1061,7 +1061,7 @@ getFTestPValue = function(eset, adjust=F, log=T){
   if(log)(exprs(eset) <- log2(exprs(eset)))
   
   fit =eBayes(lmFit(eset,model.matrix(~condition, data=pData(eset)) ))[,-1]
-  pValues = list()
+  #pValues = list()
   pValues = fit$F.p.value 
   names(pValues) = rownames(eset)
   

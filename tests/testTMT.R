@@ -66,7 +66,9 @@ testCreateExpDesign <- function(){
 testGetCalibMixPairedEset <- function(){
 	
 	cat("--- testGetCalibMixPairedEset: --- \n")
-	esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
+	
+  #debug(.getCalibMixPairedEset)
+  esetCalibMixPair <- .getCalibMixPairedEset(esetCalibMix)
 	
 	stopifnot(ncol(esetCalibMixPair)  == 2 )
 	stopifnot(nrow(esetCalibMixPair)  == nrow(esetCalibMix)*5 )
@@ -191,9 +193,9 @@ testIntensityAdjustment <- function(){
 
 ### TESTS
 
+#testGetCalibMixPairedEset()
 
-
-if(F){
+if(T){
 	testGetImpuritiesMatrix()
 	testPurityCorrectTMT()
 	testCreateExpDesign()

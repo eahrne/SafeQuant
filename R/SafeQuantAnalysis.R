@@ -107,8 +107,8 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	sqa$cv <- data.frame(sqa$cv[filter,],row.names=rownames(sqa$eset))
 	names(sqa$cv) <- tmpNames
 	
-	sqa$FPValue = sqa$FPValue[filter,]
-	sqa$FQValue = sqa$FQValue[filter,]
+	sqa$FPValue = sqa$FPValue[filter]
+	sqa$FQValue = sqa$FQValue[filter]
 	
 	return(sqa)
 	

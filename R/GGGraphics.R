@@ -74,6 +74,7 @@ ggVolcanoPlot = function(data=data
 	# disp geneName above thrs 
 	labPvalueThrs = ifelse(topNlabels > 0,sort(data$pValue)[min(topNlabels,length(data$pValue))],0)
 	dfLab = subset(data, (pValue <= min(labPvalueThrs,pValueThrs) ) & (abs(ratio) >= log2RatioThrs))
+	dfLab = dfLab[order(dfLab$pValue,decreasing = F), ]
 	dfLab = dfLab[1:min(10,nrow(dfLab)),]
 	if(nrow(dfLab) > 0){
 		p = p + geom_text_repel(data= dfLab,aes(x =ratio,y=-log10(pValue),label=geneName ))
