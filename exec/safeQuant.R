@@ -36,6 +36,7 @@ suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(magrittr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(ggplot2, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(ggrepel, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(dplyr, quiet=T)))
 
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
 sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
@@ -305,14 +306,13 @@ if(exists("intAdjObj")){
 	exprs(intAdjObj$esetAdj) <- exprs(intAdjObj$esetAdj)[,colnames(exprs(eset))]
 } 
 
-
 ### non-pairwise stat test
 statMethod <- c("")
-if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
+if(userOptions$SNonPairWiseStatTest) statMethod <- c("all") #@TODO what about 'naRep'
 if(userOptions$SRawDataAnalysis){ # No Normalization
 	esetNorm <- eset
 	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- intAdjObj$esetAdj
-}else{
+}else{ # NORMALIZE
 	method <- c("global","median")
 	# norm based on sum if norm anchor is specified 
 	if(sum(fData(eset)$isNormAnchor) < nrow(eset)) method <- c("global","sum")
@@ -320,7 +320,7 @@ if(userOptions$SRawDataAnalysis){ # No Normalization
 	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- sqNormalize(intAdjObj$esetAdj, method=method )
 }
 
-### add pseudo (baseline) intensity
+### MISSING VALUES IMPUTATION
 baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
 exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
 exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
