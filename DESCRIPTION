@@ -15,6 +15,7 @@ Imports:
     epiR,
     Biobase,
     ggplot2,
+    ggrepel,
     magrittr,
     Hmisc,
     pcaMethods,
@@ -22,6 +23,7 @@ Imports:
     dplyr,
     GO.db,
     UniProt.ws,
-    data.table
+    data.table,
+    affy
 License: GPL-3
 RoxygenNote: 6.0.1
