@@ -12,7 +12,7 @@
 #' @param eset ExpressionSet
 #' @param intensityAdjustmentObj list
 #' @param fcThrs fold change threshold
-#' @param method  c("global","naRep","rt","quantile","pairwise","all)
+#' @param method  c("global","naRep","rt","quantile","pairwise","all")
 #' @export
 safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), intensityAdjustmentObj=NA, fcThrs=1){
 	
@@ -26,15 +26,8 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	### normalize
 	eset <- sqNormalize(eset, method=method)
 	
-	baselineIntensity <- NA
 	# replace missing values
-	if("naRep" %in% method ){
-		baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(eset)[,1])),promille=5)
-		### add pseudo (baseline) intensity
-		exprs(eset)[is.na(exprs(eset)) | (exprs(eset) < 0)  ] <- 0 
-		exprs(eset) <- exprs(eset) + baselineIntensity
-		
-	}
+	if("naRep" %in% method )  eset = sqImpute(eset, method="knn")
 	
 	out$eset <- eset # should the ExpressionSet be stored?
 	out$cv <- getAllCV(eset)
@@ -79,7 +72,7 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 		
 	}
 
-	out$baselineIntensity <- baselineIntensity
+	#out$baselineIntensity <- baselineIntensity
 	
 	return(out)
 	
@@ -167,10 +160,10 @@ print.safeQuantAnalysis <- function(x, ... ){
 	
 	cat("\nStatistical Analysis:\n")
 	print(export(x,nbRows=10))
-	if(!is.na(x$baselineIntensity)){
-		cat("\nBaseline Intensity:\n")
-		cat(x$baselineIntensity,"\n")
-	}
+	# if(!is.na(x$baselineIntensity)){
+	# 	cat("\nBaseline Intensity:\n")
+	# 	cat(x$baselineIntensity,"\n")
+	# }
 	
 }
 

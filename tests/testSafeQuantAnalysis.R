@@ -23,7 +23,7 @@ testSafequantAnalysis <- function(){
 	
 	cat("--- testSafequantAnalysis: --- \n")
 	sqa <- safeQuantAnalysis(eset)
-	stopifnot(sum(c("eset", "cv", "ratio", "pValue","qValue","baselineIntensity")  %in%  names(sqa)) == 6)
+	stopifnot(sum(c("eset", "cv", "ratio", "pValue","qValue")  %in%  names(sqa)) == 5)
 	stopifnot(nrow(sqa$pValue) == nrow(sqa$eset) )
 	
 	### filter our first 10 peptides
@@ -55,7 +55,7 @@ testSafequantAnalysis <- function(){
 #	
 	# ratio filter multiple testing
 	sqaRatioMT <- safeQuantAnalysis(eset,fcThrs =2^quantile(getRatios(eset)[,1])[2])
-	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) > 400)
+	stopifnot(sum(is.na(sqaRatioMT$qValue[,1])) > 270)
 	
 	cat("--- testSafequantAnalysis: PASS ALL TEST --- \n")
 	

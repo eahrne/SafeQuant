@@ -112,15 +112,26 @@ option_list <- list(
 			 [default %default] (use all proteins).",
 			metavar="Protein Accession Reg. expr."),
 	
+  make_option(c("--SMissingValuesImutationMethod"), type="character", default="knn",
+            help="STATISTICS: --SM 'ppca', 'knn','gMin','lMin','gMean,'lMean',
+            [default %default] (use all proteins).",
+            metavar=" ppca: probabilistic pca
+                            knn: k-nearest neighbour
+                            gMin: global minimum
+                            lMin: local minimum
+                            gMean: global mean
+                            lMean: local mean
+            "),
+
+  make_option(c("--SNonPairWiseStatTest"), action="store_true", default=FALSE,
+            help="STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values.
+              I.e. variance is pooled, per protein/peptide, across all runs of the study [default %default]"),
+
+  make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
+            help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
+
 	make_option(c("--SRawDataAnalysis"), action="store_true", default=FALSE,
 			help="STATISTICS: --SR No data normalization [default %default]"),
-	
-	make_option(c("--SPvalueInclude"), action="store_true", default=FALSE,
-			help="STATISTICS: --SP output eBayes moderated t-statistic p-values [default %default]"),
-	
-	make_option(c("--SNonPairWiseStatTest"), action="store_true", default=FALSE,
-			help="STATISTICS: --SN non pairwise eBayes moderated t-statistic p-values.
-			 I.e. variance is pooled, per protein/peptide, across all runs of the study [default %default]"),
 	
 # STATISTICS (--S) END
 
@@ -356,14 +367,17 @@ getUserOptions <- function(version=version){
 	#STATISTICS: normAC
 	userOptions$normAC <- cmdOpt$SAnchorProtein
 
-	#STATISTICS: SRawDataAnalysis
-	userOptions$SRawDataAnalysis <- cmdOpt$SRawDataAnalysis
+	#STATISTICS: SMissingValuesImutationMethod
+	userOptions$SMissingValuesImutationMethod <- cmdOpt$SMissingValuesImutationMethod
+	
+	#STATISTICS: SNonPairWiseStatTest
+	userOptions$SNonPairWiseStatTest <- cmdOpt$SNonPairWiseStatTest
 	
 	#STATISTICS: eBayes
 	userOptions$eBayes <- cmdOpt$SPvalueInclude
 	
-	#STATISTICS: SNonPairWiseStatTest
-	userOptions$SNonPairWiseStatTest <- cmdOpt$SNonPairWiseStatTest
+	#STATISTICS: SRawDataAnalysis
+	userOptions$SRawDataAnalysis <- cmdOpt$SRawDataAnalysis
 	
 # STATISTICS END	
 	

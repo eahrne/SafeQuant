@@ -1,26 +1,7 @@
 #!/usr/local/bin/Rscript
 
-###
-# 0) Update SHEBANG ('#!/usr/bin/Rscript') to match location of your R installation
-# 1) INSTALL SafeQuant
-#	- or SET sqDirPath 
-# 2) INSTALL PACKAGES
-#	affy
-#	limma
-#	gplots
-#	seqinr
-#	corrplot
-#	optparse
-#	data.table
-# magrittr
-
 # Author: ahrnee-adm
-###############################################################################
-
-# TEST FILE
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
+###############################################################  
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
@@ -321,13 +302,18 @@ if(userOptions$SRawDataAnalysis){ # No Normalization
 }
 
 ### MISSING VALUES IMPUTATION
-baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
-exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
-exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
+# baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
+# exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
+# exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
+# if(exists("intAdjObj")){
+# 	baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(intAdjObj$esetAdjNorm)[,1])),promille=5)
+# 	exprs(intAdjObj$esetAdjNorm)[  is.na(exprs(intAdjObj$esetAdjNorm)) | (exprs(intAdjObj$esetAdjNorm) <= 0)  ] <- 0
+# 	exprs(intAdjObj$esetAdjNorm) <- exprs(intAdjObj$esetAdjNorm) + baselineIntensity
+# }
+
+esetNorm = sqImpute(esetNorm,method=userOptions$SMissingValuesImutationMethod)
 if(exists("intAdjObj")){
-	baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(intAdjObj$esetAdjNorm)[,1])),promille=5)
-	exprs(intAdjObj$esetAdjNorm)[  is.na(exprs(intAdjObj$esetAdjNorm)) | (exprs(intAdjObj$esetAdjNorm) <= 0)  ] <- 0
-	exprs(intAdjObj$esetAdjNorm) <- exprs(intAdjObj$esetAdjNorm) + baselineIntensity
+   intAdjObj$esetAdjNorm = sqImpute(intAdjObj$esetAdjNorm,method=userOptions$SMissingValuesImutationMethod )
 }
 
 if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
@@ -428,7 +414,7 @@ userOptions$proteinReportFilePath <- file.path(userOptions$outputDir, paste0(use
 userOptions$paramsFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ_PARAMS.TXT",sep=""))
 userOptions$rDataFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ.rData",sep=""))
 
-############################### GRAPHICS
+############################################################### GRAPHICS ############################################################### 
 
 # plot protein or peptide level results
 if(exists("sqaProtein")){
@@ -484,7 +470,6 @@ if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
 	plotPrecMassErrorVsScore(eset[rowSelEset,], pMassTolWindow=userOptions$precursorMassFilter)
 	par(parDefault)
 }
-
 
 layout(rbind(c(1,2), c(3,3)))
 ### missing values
@@ -680,7 +665,7 @@ graphics.off()
 
 ############################### GRAPHICS END
 
-### SPREADSHEET EXPORT
+############################################################### SPREADSHEET EXPORT ############################################################### 
 
 if(exists("sqaPeptide")){ 
 	
@@ -732,6 +717,7 @@ if(exists("sqaPeptide")){
 			, medianSignalDf
 			, cv
 			, ratio	
+			, fracImputed = getNAFraction(sqaPeptide$eset,method="cond") 
 			, pValue
 			, qValue
 			, FTestPValue = sqaPeptide$FPValue
@@ -790,6 +776,7 @@ if(exists("sqaProtein")){
 			, medianSignalDf
 			, cv
 			, ratio	
+			, fracImputed = getNAFraction(sqaProtein$eset,method="cond") 
 			, pValue
 			, qValue 
 			, FTestPValue = sqaProtein$FPValue
@@ -853,7 +840,7 @@ if(exists("sqaProtein")){
 
 ### SPREADSHEET EXPORT END
 
-### EXPORT PARAMS
+############################################################### PARAMS EXPORT ############################################################### 
 write.table(data.frame(
 				param=row.names(data.frame(unlist(userOptions[names(userOptions)])))
 				,value=as.vector((unlist(userOptions[names(userOptions)])))
@@ -868,7 +855,7 @@ cat("INFO: CREATED FILE ", userOptions$paramsFilePath,"\n")
 
 ### EXPORT PARAMS
 
-### EXPORT RDATA
+############################################################### RDATA EXPORT ############################################################### 
 
 if(userOptions$isSaveRObject){
 	save.image(file=userOptions$rDataFilePath)

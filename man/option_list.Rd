@@ -4,7 +4,7 @@
 \name{option_list}
 \alias{option_list}
 \title{Command Line Option List}
-\format{An object of class \code{list} of length 30.}
+\format{An object of class \code{list} of length 31.}
 \usage{
 option_list
 }

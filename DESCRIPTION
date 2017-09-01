@@ -12,13 +12,16 @@ Imports:
     seqinr,
     corrplot,
     optparse,
-    data.table,
     epiR,
     Biobase,
     ggplot2,
     magrittr,
-    UniProt.ws,
+    Hmisc,
+    pcaMethods,
+    impute,
+    dplyr,
     GO.db,
-    Hmisc
+    UniProt.ws,
+    data.table
 License: GPL-3
 RoxygenNote: 6.0.1

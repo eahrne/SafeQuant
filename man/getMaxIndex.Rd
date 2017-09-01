@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExpressionAnalysis.R
 \name{getMaxIndex}
 \alias{getMaxIndex}
-\title{get index of max in vecotr of numeric values}
+\title{get index of max in vecotor of numeric values}
 \usage{
 getMaxIndex(v)
 }
@@ -10,5 +10,5 @@ getMaxIndex(v)
 \item{v}{vector}
 }
 \description{
-get index of max in vecotr of numeric values
+get index of max in vecotor of numeric values
 }

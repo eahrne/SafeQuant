@@ -689,7 +689,8 @@ getAccessionNumber = function(proteinName){
 #' @param acs vector uniprot accession numbers
 #' @return data.frame "UNIPROTKB" "GO-ID"     "ccIds"     "mfIds"     "bpIds"     "ccTerms"   "mfTerms"   "bpTerms"
 #' @export
-#' @import UniProt.ws GO.db
+#' @import GO.db
+#' @importFrom UniProt.ws select
 #' @note  No note
 #' @details NA
 #' @references NA 

@@ -177,36 +177,52 @@ testRollUp <- function(){
   
   cat(" --- testRollUp --- \n")
   
-  rollUpEset1 <- rollUpDT(eset,featureDataColumnName= c("proteinName"), method=c("sum"))
-  stopifnot( length( unique( fData(eset)$proteinName ) ) == nrow(rollUpEset1)) 
+  uProt = unique( fData(eset)$proteinName )
+  rollUpEset1 <- rollUp(eset,featureDataColumnName= c("proteinName"), method=c("sum"))
+  stopifnot( length( uProt ) == nrow(rollUpEset1)) 
+  t1 = subset(exprs(eset),fData(eset)$proteinName %in% uProt[115] ) %>% colSums
+  stopifnot( all(t1 == subset(exprs(rollUpEset1),fData(rollUpEset1)$proteinName %in% uProt[115] )))
+  t2 = subset(exprs(eset),fData(eset)$proteinName %in% uProt[23] ) %>% colSums
+  stopifnot( all(t2 == subset(exprs(rollUpEset1),fData(rollUpEset1)$proteinName %in% uProt[23] )))
   
-  rollUpEset2 <- rollUpDT(eset ,featureDataColumnName= c("ptm"), method=c("sum"))
+  rollUpEset2 <- rollUp(eset ,featureDataColumnName= c("ptm"), method=c("sum"))
   stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
   
-  rollUpEset3 <- rollUpDT(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"))
+  rollUpEset3 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("ptm"), method=c("mean"))
   stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset3)) 
-  
+
   #print(exprs(rollUpEset2))
   
   stopifnot(all.equal(sum(exprs(rollUpEset2)),sum(exprs(rollUpEset1)))) ### test sum
   stopifnot(sum(exprs(rollUpEset1)) != sum(exprs(rollUpEset3))) ### test mean
   
-  rollUpEset4 <- rollUpDT(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))
+  rollUpEset4 <- rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))
   stopifnot(sum(exprs(rollUpEset3)) != sum(exprs(rollUpEset4))  ) ### test top 3
   
-  cat(" --- testRollUp: PASS ALL TEST  --- \n")
-  
-  #	progenesisFeatureCsvFile3 <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/2014/peptides2.csv"
-  #	d <- parseProgenesisFeatureCsv(file=progenesisFeatureCsvFile3,expDesign=getExpDesignProgenesisCsv(progenesisFeatureCsvFile3))
-  #	system.time(e <- rollUpDT(d, method="sum", isProgressBar=T, featureDataColumnName= c("peptide")))
-  #	system.time(e <- rollUpDT(d, method="sum",  featureDataColumnName= c("peptide")))
-  #	
   esetTmp <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1))
+  uProt3 = unique( fData(esetTmp)$proteinName )
+  t3 = subset(exprs(esetTmp),fData(esetTmp)$proteinName %in% uProt3[2] ) %>% colSums
+  stopifnot( all(t3 == subset(exprs(esetTmp),fData(esetTmp)$proteinName %in% uProt[2] )))
   
-  fData(esetTmp)
   
-  rollUpEsetProteinAllAccessions <- rollUpDT(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
-  stopifnot(fData(rollUpEsetProteinAllAccessions)$allAccessionsTMP[68] == "sp|E9PAV3|NACAM_HUMAN;sp|Q9BZK3|NACP1_HUMAN")
+  # test rollup of NA_IMP
+  stopifnot(ncol(getImputedIntensities(rollUp(rollUp(eset ,featureDataColumnName= c("peptide","ptm"), method=c("sum"))))) == ncol(eset))
+  esetImp = eset
+  exprs(esetImp)[1:20,1] = NA
+  exprs(esetImp)[1:20,3] = NA
+  exprs(esetImp)[21:30,2] = NA
+  esetGMin = sqImpute(esetImp, method="gmin")
+  rolledEsetGMin = rollUp(esetGMin)
+  
+  impInt = getImputedIntensities(esetGMin)
+  impIntRolled = getImputedIntensities(rolledEsetGMin)
+  stopifnot(all(colSums(impInt) == colSums(impIntRolled))) 
+
+    # check single proteins
+  stopifnot(impIntRolled[match(uProt[6], rownames(impIntRolled) ),] ==   colSums(impInt[fData(esetGMin)$proteinName %in% uProt[6]  ,]))
+  stopifnot(impIntRolled[match(uProt[16], rownames(impIntRolled) ),] ==   colSums(impInt[fData(esetGMin)$proteinName %in% uProt[16]  ,]))
+  
+  cat(" --- testRollUp: PASS ALL TEST  --- \n")
   
 }
 
@@ -239,9 +255,9 @@ testTopX <- function(){
   # 1 col
   stopifnot(all.equal(getTopX(entryData1)[[1]],getTopX(entryData1[,1])))
   
-  top1 <- apply(exprs(rollUpDT(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"))),1,sum)
-  top3 <- apply(exprs(rollUpDT(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))),1,sum)
-  meanInt <- apply(exprs(rollUpDT(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("mean"))),1,sum)
+  top1 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top1"))),1,sum)
+  top3 <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("top3"))),1,sum)
+  meanInt <- apply(exprs(rollUp(eset[!fData(eset)$isFiltered,] ,featureDataColumnName= c("proteinName"), method=c("mean"))),1,sum)
   
   stopifnot(sum(top1 >=  top3 ) == length(top3))
   stopifnot(sum(top1) > sum(top3))
@@ -447,8 +463,100 @@ testRollUpDT <- function(){
   # rollUpEsetProteinAllAccessions <- rollUpDT(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
   # rollUpDTEsetProteinAllAccessions <- rollUpDT(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
   
-
+  
 }
+
+testSqImpute <-function(){
+  
+  esetImp = eset
+
+  exprs(esetImp)[1:20,1] = NA
+  exprs(esetImp)[1:20,3] = NA
+  exprs(esetImp)[21:30,2] = NA
+
+  cat(" --- testSqImpute:  --- \n")
+  esetGMin = sqImpute(esetImp, method="gmin")
+  esetLMin = sqImpute(esetImp, method="lmin")
+  esetKNN = sqImpute(esetImp, method="knn")
+  esetPPCA = sqImpute(esetImp, method="ppca")
+  esetGMean = sqImpute(esetImp, method="gmean")
+  esetLMean = sqImpute(esetImp, method="lmean")
+  
+  stopifnot(sum(is.na(exprs(esetGMin))) == 0)
+  stopifnot(sum(is.na(exprs(esetLMin))) == 0)
+  stopifnot(sum(is.na(exprs(esetKNN))) == 0)
+  stopifnot(sum(is.na(exprs(esetPPCA))) == 0)
+  stopifnot(sum(is.na(exprs(esetGMean))) == 0)
+  stopifnot(sum(is.na(exprs(esetLMean))) == 0)
+  
+  # fData(esetGMin)[ grepl("^NA\\_IMP",names(fData(esetGMin)))  ] %>% head
+  # fData(esetGMean)[ grepl("^NA\\_IMP",names(fData(esetGMean)))  ] %>% head
+  # fData(esetKNN)[ grepl("^NA\\_IMP",names(fData(esetKNN)))  ] %>% head
+  # fData(esetPPCA)[ grepl("^NA\\_IMP",names(fData(esetPPCA)))  ]  %>% head
+  #
+  
+
+  
+  cat(" --- testSqImpute: PASS ALL TEST  --- \n")
+  
+}
+
+
+
+
+testGetImputedIntensities = function(){
+  
+  cat(" --- testGetImputedIntensities: --- \n")
+  
+  # no imputed values
+  stopifnot(all(getImputedIntensities(eset) == 0 ))
+  
+  # with imputed values
+  
+  esetImp = eset
+  exprs(esetImp)[1:20,1] = NA
+  exprs(esetImp)[1:20,3] = NA
+  exprs(esetImp)[21:30,2] = NA
+  esetGMin = sqImpute(esetImp, method="gmin")
+  isNA = is.na(exprs(esetImp))
+  mImp =   getImputedIntensities(esetGMin)
+  stopifnot(all(mImp[isNA] > 0))
+  stopifnot(all(mImp[!isNA] == 0))
+  
+  cat(" --- testGetImputedIntensities: PASS ALL TEST  --- \n")
+  
+}
+
+testGetNAFraction = function(){
+  
+  cat(" --- testGetNAFraction:  --- \n")
+  
+  esetImp = eset
+  exprs(esetImp)[1:20,1] = NA
+  exprs(esetImp)[1:20,3] = NA
+  exprs(esetImp)[21:30,2] = NA
+  esetGMin = sqImpute(esetImp, method="gmin")
+  
+  fracRun = getNAFraction(esetGMin, method="run") 
+  fracCond =  getNAFraction(esetGMin, method="cond")
+  fracRatio =  getNAFraction(esetGMin) 
+  
+  stopifnot(ncol(fracRun) == 6 )
+  stopifnot(ncol(fracCond) == 3 )
+  stopifnot(ncol(fracRatio) == 2 )
+  
+  # run
+  stopifnot(all(colSums(fracRun[1:30,1:3]) == c(20,10,20)))
+  # ratio
+  stopifnot(sum(exprs(esetGMin)[3,c(1)]) / sum(exprs(esetGMin)[3,c(1,2,5,6)]) == fracRatio[3,1])
+  # cond
+  stopifnot(sum(exprs(esetGMin)[20,c(3)]) / sum(exprs(esetGMin)[20,3:4]) == fracCond[20,2]) 
+  
+  cat(" --- testGetNAFraction: PASS ALL TEST  --- \n")
+  
+}
+
+testGetNAFraction()
 
 ### TEST FUNCTIONS END
 
@@ -458,7 +566,10 @@ testRollUpDT <- function(){
 #testGetSignalPerCondition()
 #testGetRatios()
 
-if(T){
+#testRollUp()
+
+
+if(F){
   testCreateExpressionDataset()
   testGetAllEBayes()
   testGetRatios()
@@ -481,40 +592,14 @@ if(T){
   testCreatePairedExpDesign()
   testGetFTestPValue()
   
-}
-
-
-if(F){
-
-  #file1 = "/Volumes/pcf01$/Schmidt_Group/ProjectSQ/ENigg/ChristianArquint_191/20170531-141508_MLN1/Progenesis/ENigg_CA_MLN_DDA_20170710/peptide_scaffold_ProtFDR1.csv"
-  file1 = "~/Desktop/tmp/peptide_scaffold_ProtFDR1.csv"
-  eset = parseProgenesisPeptideMeasurementCsv(file1,expDesign = getExpDesignProgenesisCsv(file1))
-  
-  require(dplyr)
-  require(tictoc)
-
-  tic()
-  esetProteinDT = rollUpDT(eset)
-  esetPeptideDT = rollUpDT(eset, featureDataColumnName = c("peptide","ptm"))
-  toc()
-  
-  tic()
-  #debug(rollUpDT)
-  esetProtein = rollUpDT(eset, featureDataColumnName="proteinName", method="sum")
-  eRPPeptide = rollUpDT(eset, featureDataColumnName=c("peptide","ptm"), method="sum")
-  toc()
+  testSqImpute()
+  testGetImputedIntensities()
   
 }
 
-file = "~/dev/R/workspace/SafeQuantTestData/Progenesis/v2/peptide_measurements7.csv"
-esetTmp <- parseProgenesisPeptideMeasurementCsv(file,expDesign= getExpDesignProgenesisCsv(file))
+### get fraction missing values per peptide and protein.
 
-tic()
-rollUpEsetProteinAllAccessions <- rollUp(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
-toc()
-tic()
-rollUpDTEsetProteinAllAccessions <- rollUpDT(esetTmp,featureDataColumnName= c("proteinName"), method=c("sum"))
-toc()
 
-na.omit(exprs(rollUpEsetProteinAllAccessions) == exprs(rollUpDTEsetProteinAllAccessions)[match(rownames(rollUpEsetProteinAllAccessions),rownames(rollUpDTEsetProteinAllAccessions)) , ] ) %>% apply(.,2,all)
-na.omit(fData(rollUpEsetProteinAllAccessions) == fData(rollUpDTEsetProteinAllAccessions[match(rownames(rollUpEsetProteinAllAccessions),rownames(rollUpDTEsetProteinAllAccessions)) , ])) %>% apply(.,2,all)
+
+
+

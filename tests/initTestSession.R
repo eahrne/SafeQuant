@@ -21,6 +21,7 @@ library(magrittr)
 library(ggrepel)
 library(plotly)
 library(Hmisc)
+library(dplyr)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 

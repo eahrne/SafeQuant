@@ -10,7 +10,7 @@ safeQuantAnalysis(eset = eset, method = c("global", "naRep", "pairwise"),
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{method}{c("global","naRep","rt","quantile","pairwise","all)}
+\item{method}{c("global","naRep","rt","quantile","pairwise","all")}
 
 \item{intensityAdjustmentObj}{list}
 

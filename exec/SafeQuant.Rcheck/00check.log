@@ -1,9 +1,0 @@
-* using log directory ‘/Users/ahrnee-adm/dev/R/workspace/SafeQuant/exec/SafeQuant.Rcheck’
-* using R version 3.3.3 (2017-03-06)
-* using platform: x86_64-apple-darwin13.4.0 (64-bit)
-* using session charset: UTF-8
-* using option ‘--as-cran’
-* checking for file ‘SafeQuant/DESCRIPTION’ ... OK
-* checking extension type ... Package
-* this is package ‘SafeQuant’ version ‘2.3.2’
-* checking CRAN incoming feasibility ...

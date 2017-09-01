@@ -650,7 +650,7 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 	
 	eset <- eset[!fData(eset)$isFiltered,]
 	
-	d <- apply(exprs(eset),2, function(t){ (sum(is.na(t)) / length(t))*100 } )
+	d = (colSums(is.na(exprs(eset))) / nrow(eset)) * 100
 	ylim <- c(0,range(d)[2])
 	if(max(d,na.rm=T) == 0) ylim <- c(0,100)
 	

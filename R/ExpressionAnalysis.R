@@ -1009,11 +1009,14 @@ getFTestPValue = function(eset, adjust=F, log=T){
 #' @return ExpressionSet object
 #' @export
 #' @details featureDataColumnName = c("peptide","charge","ptm"), method= c("sum"), sums up intensities per peptie modification charge state
-#' @import Biobase dplyr
+#' @import Biobase 
 #' @note  No note
 #' @references No references
 #' @examples print("No examples")
 rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinName") ){
+  
+  ### apply filter
+  eset <- eset[!fData(eset)$isFiltered,] 
   
   # create rollup index (row names)
   if(length(featureDataColumnName) > 1 ){
@@ -1022,21 +1025,8 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
     rnames = fData(eset)[,featureDataColumnName] 
   }
   
-  # rollup 
-  df = data.frame(exprs(eset),rnames )
-  if(method =="sum"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(sum(.,na.rm=T))  ) 
-  }else if(method =="median"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(median(.,na.rm=T))  ) 
-  }else if(method =="mean"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(mean(.,na.rm=T))  ) 
-  }else if(method =="top3"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.))  ) 
-  }else if(method =="top1"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.,topX = 1))  ) 
-  }
-  # store index as rownames
-  eRP =  data.frame( eRP[-1], row.names=eRP[1] %>% unlist )
+  
+  # rollup feature data  
   
   # add column of zero scores if no scores (to be dropped)
   if(!("idScore" %in% names(fData(eset)))) fData(eset)$idScore = 0
@@ -1049,8 +1039,8 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
                                                            
   )
   
-  ### get fData of highest scoring row per rollUP level
-  rolledFData = data.frame(fData(eset)[fdSummary$idx,],  row.names=fdSummary$rnames)
+  ### get fData of highest scoring row per rollUP level (do not include NA_IMP colummns)
+  rolledFData = data.frame(fData(eset)[fdSummary$idx, !(colnames(fData(eset)) %>% grepl("^NA_IMP\\.",.)) ],  row.names=fdSummary$rnames)
   # replace idScore colum, by summed score, drop idScore column if all 0
   if(!all(fdSummary$idScore == 0)) rolledFData$idScore=fdSummary$idScore
   rolledFData$allAccessions=fdSummary$allAccessions
@@ -1070,9 +1060,194 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
     rolledFData$isFiltered <- F
   }
   
+  # rollup expression data  
+  df = data.frame(exprs(eset),rnames )
+  if(method =="sum"){
+    
+    # add NA intensties if tracked in fData
+    df = data.frame(df,  getImputedIntensities(eset) )
+    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(sum(.,na.rm=T))  ) 
+    
+    # add imputed intensities to rolledFData and rolled intensites to eset
+    eRPCol = 1:(ncol(eset)+1)
+    mImp = eRP[ !((1:ncol(eRP)) %in% eRPCol)] 
+
+    rolledFData = cbind(rolledFData,NA_IMP=mImp[match(rownames(rolledFData),eRP$rnames), ]  )
+    eRP = eRP[, eRPCol]
+
+  }else if(method =="median"){
+    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(median(.,na.rm=T))  ) 
+  }else if(method =="mean"){
+    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(mean(.,na.rm=T))  ) 
+  }else if(method =="top3"){
+    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.))  ) 
+  }else if(method =="top1"){
+    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.,topX = 1))  ) 
+  }
+  # store index as rownames
+  eRP =  data.frame( eRP[-1], row.names=eRP[1] %>% unlist )
+  colnames(eRP) = colnames(eset)
+  
   # "X005_MLN.3.DDA_C17" -> "005_MLN-3-DDA_C17" issue
   names(eRP) = rownames(pData(eset))
-  return(createExpressionDataset(expressionMatrix=eRP %>% as.matrix ,expDesign=pData(eset),featureAnnotations=rolledFData))
+  return(createExpressionDataset(expressionMatrix=eRP %>% as.matrix ,expDesign=pData(eset),featureAnnotations=rolledFData[match(rownames(eRP),rownames(rolledFData)),] ))
   
+}
+
+
+#' Impute missing values
+#' @param eset ExpressionSet
+#' @param method c("knn","ppca","gMin",lMin) 
+#' @return ExpressionSet
+#' @export
+#' @import impute 
+#' @importFrom  pcaMethods pca
+#' @note  No note
+#' @details 
+#' \itemize{
+#' \item{gMin: half global minimum (0.1 percentile)}
+#' \item{lMin: half local minimum}
+#' \item{gMean: half global mean}
+#' \item{lMean: half local mean}
+#' \item{knn: Nearest neighbour averaging, as implemented in the impute::impute.knn function}
+#' \item{ppca: An iterative method using a probabilistic model to handle missing values, as implemented in the pcaMethods::pca function.}
+#' }
+#' @references Accounting for the Multiple Natures of Missing Values in Label-Free Quantitative Proteomics Data Sets to Compare Imputation Strategies, Lazar et al (2016), \url{http://pubs.acs.org/doi/abs/10.1021/acs.jproteome.5b00981} 
+#' @seealso No note
+#' @examples print("No examples")
+sqImpute = function(eset,method="gmin"){
+  
+  esetImp = eset
+  
+  isNA = is.na(exprs(esetImp))
+  if(sum(isNA) == 0) return(eset)
+  
+  if(ncol(esetImp) < 6){
+    method="gmin"
+    cat("INFO: sqImpute: method set to 'gmin'. nb. runs < 6\n")
+  } 
+    
+  # ignore case
+  method = tolower(method)
+  
+  #exprs(esetImp) = log2(exprs(esetImp))
+  
+  # get value at 0.3%
+  gmin = (sample(exprs(esetImp),min(nrow(esetImp)*ncol(esetImp),10000))  %>% quantile(seq(0,1,0.001),na.rm=T))[4]
+  
+  if(method == "gmin"){
+
+    exprs(esetImp)[is.na(exprs(esetImp))] = 0
+    exprs(esetImp) = exprs(esetImp) + gmin
+    
+  }else if(method == "ppca"){
+    suppressWarnings(suppressPackageStartupMessages(require(pcaMethods,warn.conflicts = F))) 
+    cat("INFO: Imputing missing values using ppca \n")
+    # log transform to avoid neg imputed values
+    #exprs(esetImp) =  exprs(esetImp) %>% log
+    pc <- pcaMethods::pca(esetImp, nPcs=2, method="ppca")
+    esetImp <- asExprSet(pc, esetImp)
+    #exprs(esetImp) =  exprs(esetImp) %>% exp
+    # neg values not accepted
+    exprs(esetImp)[  exprs(esetImp) < 0 ] <- gmin
+    
+  }else if(method == "knn"){
+    suppressWarnings(suppressPackageStartupMessages(require(impute,warn.conflicts = F)))
+    cat("INFO: Imputing missing values using knn \n")
+    exprs(esetImp) =  exprs(esetImp) %>% log
+    invisible(capture.output(exprs(esetImp) <-  impute::impute.knn(exprs(esetImp), maxp=30000)$data))
+    exprs(esetImp) =  exprs(esetImp) %>% exp
+  }else if(method == "lmin"){
+    rowImp = apply(exprs(esetImp),1,min,  na.rm=T)/2
+    exprs(esetImp) = exprs(esetImp) -  rowImp
+    exprs(esetImp)[  is.na(exprs(esetImp)) ] <- 0
+    exprs(esetImp) = exprs(esetImp) +  rowImp
+  }else if(method == "gmean"){
+    exprs(esetImp)[  is.na(exprs(esetImp)) ] <- mean(exprs(esetImp),  na.rm=T)
+  }else if(method == "lmean"){  
+    rowImp = rowMeans(exprs(esetImp),  na.rm=T)
+    exprs(esetImp) = exprs(esetImp) -  rowImp
+    exprs(esetImp)[  is.na(exprs(esetImp)) ] <- 0
+    exprs(esetImp) = exprs(esetImp) +  rowImp
+  }else{
+    stop("sqImpute: Unknown imputation method specified")
+  }
+  
+  #exprs(esetImp) = 2^exprs(esetImp) 
+  
+  # set NA's to half mean if more than 50% NA's per row
+  if(method %in% c("knn","ppca")){
+    idxHalfNA = ((is.na(exprs(eset)) %>% rowSums) >  (ncol(eset) / 2)) %>% which
+    for(i in idxHalfNA){
+      t = exprs(eset)[i,]
+      exprs(esetImp)[i,][is.na(t)] = mean(t,na.rm=T)/2
+    }
+  }
+  
+  # store imputed missing values
+  impMatrix = exprs(esetImp)
+  impMatrix[impMatrix != 0] = 0
+  impMatrix[isNA] = exprs(esetImp)[isNA]
+  fData(esetImp) = cbind(fData(esetImp), NA_IMP=impMatrix)  
+  
+  return(esetImp)
+  
+}
+
+#' Get matrix of imputed valeus in ExpressionSet matrix
+#' @param eset ExpressionSet
+#' @return matrix
+#' @export
+#' @note  No note
+#' @details 
+#' @seealso No note
+#' @examples print("No examples")
+getImputedIntensities = function(eset){
+  
+  isImpCol = grepl("^NA_IMP\\.",fData(eset) %>% colnames)
+  
+  if(sum(isImpCol) > 0){
+    m = subset(fData(eset), select= isImpCol   )
+    colnames(m) = colnames(eset)
+  }else{
+    m = exprs(eset)
+    m[is.finite(exprs(eset)) | is.na(exprs(eset))] = 0
+  }
+  return(m)
+}
+
+
+#' Get fraction missing values per ratio/condition/run 
+#' @param eset ExpressionSet
+#' @param method c("ratio","cond","run")
+#' @return matrix
+#' @export
+#' @note  No note
+#' @details 
+#' @seealso No note
+#' @examples print("No examples")
+getNAFraction = function(eset, method="ratio"){
+  if(method == "run"){
+    return((getImputedIntensities(eset) / exprs(eset)) %>% as.matrix) 
+  }else{ # ratio or cond
+    esetImp = eset
+    exprs(esetImp) = getImputedIntensities(eset) %>% as.matrix
+    intPerCond = getSignalPerCondition(eset) 
+    naIntPerCond = getSignalPerCondition(esetImp) 
+    
+    if(method == "cond"){
+      return((naIntPerCond/ intPerCond) %>% as.matrix)
+    }else{ # ratio
+      controlCond = eset$condition[eset$isControl][1]
+      caseCond = eset$condition[!(eset$condition %in% controlCond)] %>% unique
+      
+      m = data.frame(row.names=rownames(eset))
+      for(cond in caseCond){
+        m = cbind(m,cond= (naIntPerCond[controlCond] + naIntPerCond[cond]) / (intPerCond[controlCond] + intPerCond[cond]))
+      }
+      names(m) = caseCond
+      return(m %>% as.matrix )
+    }
+  }
 }
 
