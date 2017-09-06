@@ -1070,7 +1070,7 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
     
     # add NA intensties if tracked in fData
     df = data.frame(df,  getImputationMatrix(eset), getImputationMatrix(eset,method="count") )
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(sum(.,na.rm=T))  ) 
+    eRP = summarise_all(group_by_(df , .dots="rnames"  ) , funs(sum(.,na.rm=T))  ) 
     
     # add imputed intensities to rolledFData and rolled intensites to eset
     eRPCol = 1:(ncol(eset)+1)
@@ -1083,13 +1083,13 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
     eRP = eRP[, eRPCol]
 
   }else if(method =="median"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(median(.,na.rm=T))  ) 
+    eRP = summarise_all(group_by_(df , .dots="rnames"  ) , funs(median(.,na.rm=T))  ) 
   }else if(method =="mean"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(mean(.,na.rm=T))  ) 
+    eRP = summarise_all(group_by_(df , .dots="rnames"  ) , funs(mean(.,na.rm=T))  ) 
   }else if(method =="top3"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.))  ) 
+    eRP = summarise_all(group_by_(df , .dots="rnames"  ) , funs(getTopX(.))  ) 
   }else if(method =="top1"){
-    eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(getTopX(.,topX = 1))  ) 
+    eRP = summarise_all(group_by_(df , .dots="rnames"  ) , funs(getTopX(.,topX = 1))  ) 
   }
   # store index as rownames
   eRP =  data.frame( eRP[-1], row.names=eRP[1] %>% unlist )
