@@ -185,6 +185,11 @@ testRollUp <- function(){
   t2 = subset(exprs(eset),fData(eset)$proteinName %in% uProt[23] ) %>% colSums
   stopifnot( all(t2 == subset(exprs(rollUpEset1),fData(rollUpEset1)$proteinName %in% uProt[23] )))
   
+  # check single proteins nbFeatures
+  stopifnot(fData(rollUpEset1)[match("prot159", rownames(rollUpEset1)),] $nbFeatures  == sum(fData(eset)$proteinName == "prot159"))
+  stopifnot(fData(rollUpEset1)[match("REV_prot159", rownames(rollUpEset1)),] $nbFeatures  == sum(fData(eset)$proteinName == "REV_prot159"))
+  stopifnot(fData(rollUpEset1)[match("sp|Q60876|4EBP1_MOUSE", rownames(rollUpEset1)),] $nbFeatures  == sum(fData(eset)$proteinName == "sp|Q60876|4EBP1_MOUSE"))
+   
   rollUpEset2 <- rollUp(eset ,featureDataColumnName= c("ptm"), method=c("sum"))
   stopifnot( length( unique( fData(eset)$ptm ) ) == nrow(rollUpEset2)) 
   
@@ -206,7 +211,7 @@ testRollUp <- function(){
   
   
   # test rollup of NA_IMP
-  stopifnot(ncol(getImputedIntensities(rollUp(rollUp(eset ,featureDataColumnName= c("peptide","ptm"), method=c("sum"))))) == ncol(eset))
+  stopifnot(ncol(getImputationMatrix(rollUp(rollUp(eset ,featureDataColumnName= c("peptide","ptm"), method=c("sum"))))) == ncol(eset))
   esetImp = eset
   exprs(esetImp)[1:20,1] = NA
   exprs(esetImp)[1:20,3] = NA
@@ -214,13 +219,23 @@ testRollUp <- function(){
   esetGMin = sqImpute(esetImp, method="gmin")
   rolledEsetGMin = rollUp(esetGMin)
   
-  impInt = getImputedIntensities(esetGMin)
-  impIntRolled = getImputedIntensities(rolledEsetGMin)
+  # imputed intensities
+  impInt = getImputationMatrix(esetGMin)
+  impIntRolled = getImputationMatrix(rolledEsetGMin)
   stopifnot(all(colSums(impInt) == colSums(impIntRolled))) 
 
-    # check single proteins
+  # check single proteins
   stopifnot(impIntRolled[match(uProt[6], rownames(impIntRolled) ),] ==   colSums(impInt[fData(esetGMin)$proteinName %in% uProt[6]  ,]))
   stopifnot(impIntRolled[match(uProt[16], rownames(impIntRolled) ),] ==   colSums(impInt[fData(esetGMin)$proteinName %in% uProt[16]  ,]))
+  
+  # imputed feature count
+  impCnt = getImputationMatrix(esetGMin, method ="count")
+  impCntRolled = getImputationMatrix(rolledEsetGMin, method ="count")
+  stopifnot(all(colSums(impCnt) == colSums(impCntRolled))) 
+  
+  # check single proteins
+  stopifnot(impCntRolled[match(uProt[6], rownames(impCntRolled) ),] ==   colSums(is.na(exprs(esetImp))[fData(esetImp)$proteinName %in% uProt[6]  ,]))
+  stopifnot(impCntRolled[match(uProt[10], rownames(impCntRolled) ),] ==   colSums(is.na(exprs(esetImp))[fData(esetImp)$proteinName %in% uProt[10]  ,]))
   
   cat(" --- testRollUp: PASS ALL TEST  --- \n")
   
@@ -495,7 +510,9 @@ testSqImpute <-function(){
   # fData(esetPPCA)[ grepl("^NA\\_IMP",names(fData(esetPPCA)))  ]  %>% head
   #
   
-
+  stopifnot(all(is.na(exprs(esetImp)) == getImputationMatrix(esetLMean,method="count")))
+  
+  
   
   cat(" --- testSqImpute: PASS ALL TEST  --- \n")
   
@@ -504,12 +521,12 @@ testSqImpute <-function(){
 
 
 
-testGetImputedIntensities = function(){
+testGetImputationMatrix = function(){
   
-  cat(" --- testGetImputedIntensities: --- \n")
+  cat(" --- testGetImputationMatrix: --- \n")
   
   # no imputed values
-  stopifnot(all(getImputedIntensities(eset) == 0 ))
+  stopifnot(all(getImputationMatrix(eset) == 0 ))
   
   # with imputed values
   
@@ -519,11 +536,11 @@ testGetImputedIntensities = function(){
   exprs(esetImp)[21:30,2] = NA
   esetGMin = sqImpute(esetImp, method="gmin")
   isNA = is.na(exprs(esetImp))
-  mImp =   getImputedIntensities(esetGMin)
+  mImp =   getImputationMatrix(esetGMin)
   stopifnot(all(mImp[isNA] > 0))
   stopifnot(all(mImp[!isNA] == 0))
   
-  cat(" --- testGetImputedIntensities: PASS ALL TEST  --- \n")
+  cat(" --- testGetImputationMatrix: PASS ALL TEST  --- \n")
   
 }
 
@@ -537,8 +554,8 @@ testGetNAFraction = function(){
   exprs(esetImp)[21:30,2] = NA
   esetGMin = sqImpute(esetImp, method="gmin")
   
-  fracRun = getNAFraction(esetGMin, method="run") 
-  fracCond =  getNAFraction(esetGMin, method="cond")
+  fracRun = getNAFraction(esetGMin, method=c("run","intensity") ) 
+  fracCond =  getNAFraction(esetGMin, method=c("cond","intensity") )
   fracRatio =  getNAFraction(esetGMin) 
   
   stopifnot(ncol(fracRun) == 6 )
@@ -552,11 +569,37 @@ testGetNAFraction = function(){
   # cond
   stopifnot(sum(exprs(esetGMin)[20,c(3)]) / sum(exprs(esetGMin)[20,3:4]) == fracCond[20,2]) 
   
+  #### count
+  
+  fracRunCount = getNAFraction(esetGMin, method=c("run","count") )
+  fracCondCount =  getNAFraction(esetGMin, method=c("cond","count") )
+  fracRatioCount =  getNAFraction(esetGMin, method=c("ratio","count")) 
+
+  stopifnot(all(fracRunCount == is.na(exprs(esetImp))))
+  stopifnot(fracCondCount[3,2] == 0.5)
+  stopifnot(fracRatioCount[3,2] == 0.25)
+  
   cat(" --- testGetNAFraction: PASS ALL TEST  --- \n")
   
 }
 
-testGetNAFraction()
+
+testGetNbRolledUpFeatures = function(){
+  
+  cat(" --- testGetNbRolledUpFeatures:  --- \n")
+  
+  rolledEset = rollUp(eset)
+  stopifnot(sum(getNbRolledUpFeatures(eset, method="vector")) == nrow(eset))
+  nbFeaturesMatrix = getNbRolledUpFeatures(rolledEset,method="matrix")
+  
+  stopifnot(all(nbFeaturesMatrix[match("prot159",rownames(nbFeaturesMatrix)),] == 1))
+  stopifnot(all(nbFeaturesMatrix[match("prot16",rownames(nbFeaturesMatrix)),] == 3))
+  stopifnot(all(colSums(nbFeaturesMatrix) == nrow(eset)) )
+  
+  cat(" --- testGetNbRolledUpFeatures: PASS ALL TEST  --- \n")
+  
+}
+
 
 ### TEST FUNCTIONS END
 
@@ -569,7 +612,7 @@ testGetNAFraction()
 #testRollUp()
 
 
-if(F){
+if(T){
   testCreateExpressionDataset()
   testGetAllEBayes()
   testGetRatios()
@@ -593,11 +636,19 @@ if(F){
   testGetFTestPValue()
   
   testSqImpute()
-  testGetImputedIntensities()
-  
+  testGetImputationMatrix()
+  testGetNAFraction()
+  testGetNbRolledUpFeatures()
 }
 
 ### get fraction missing values per peptide and protein.
+
+
+
+
+
+
+
 
 
 

@@ -4,12 +4,12 @@
 \alias{getNAFraction}
 \title{Get fraction missing values per ratio/condition/run}
 \usage{
-getNAFraction(eset, method = "ratio")
+getNAFraction(eset, method = c("ratio", "intensity"))
 }
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{method}{c("ratio","cond","run")}
+\item{method}{c("ratio","cond","run","count","intensity")}
 }
 \value{
 matrix

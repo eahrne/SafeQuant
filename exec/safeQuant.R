@@ -717,7 +717,7 @@ if(exists("sqaPeptide")){
 			, medianSignalDf
 			, cv
 			, ratio	
-			, fracImputed = getNAFraction(sqaPeptide$eset,method="cond") 
+			, fracNAFeatures = getNAFraction(sqaPeptide$eset,method=c("cond","count"))
 			, pValue
 			, qValue
 			, FTestPValue = sqaPeptide$FPValue
@@ -776,7 +776,7 @@ if(exists("sqaProtein")){
 			, medianSignalDf
 			, cv
 			, ratio	
-			, fracImputed = getNAFraction(sqaProtein$eset,method="cond") 
+			, fracNAFeatures = getNAFraction(sqaProtein$eset,method=c("cond","count"))
 			, pValue
 			, qValue 
 			, FTestPValue = sqaProtein$FPValue

@@ -9,7 +9,7 @@ getSignalPerCondition(eset, method = "median")
 \arguments{
 \item{eset}{ExpressionSet}
 
-\item{method}{median (default), mean, max, min, sd}
+\item{method}{median (default), mean, max, min, sd, sum}
 }
 \value{
 data.frame of per condition signals

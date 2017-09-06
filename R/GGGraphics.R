@@ -35,9 +35,7 @@ ggVolcanoPlot = function(data=data
 		, topNlabels = 10
 ){
 	
-  
-  
-	# plotted data	
+  # plotted data	
 	p =  ggplot(data,aes(x = ratio,y=-log10(pValue)
 					,label=pValue
 					,label2=geneName
@@ -61,7 +59,7 @@ ggVolcanoPlot = function(data=data
 	p = p + geom_point() 
 	p = p + scale_colour_gradientn(colours=c("yellow","blue"), name="Max Int\n(rank)" ) +
 	  geom_point(subset(data,naHighLightSel &  (pValue <= pValueThrs)  & (abs(ratio) >= log2RatioThrs) ), mapping= aes(shape = naCat), col="grey",size=3) +
-	  scale_shape_manual(values = c(2, 6, 11),name="NA Int\n(>50%) ")
+	  scale_shape_manual(values = c(2, 6, 11),name="NA Features\n(>=50%) ")
 	#p=plabs
 	# theme
 	p = p + theme(text = element_text(size=textSize)
@@ -119,7 +117,7 @@ plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
   }
 
   # highlight features with >50% NA Int
-  aboveNAThrs = getNAFraction(sqa$eset,method="cond") > 0.5
+  aboveNAThrs = getNAFraction(sqa$eset,method=c("cond","count")) >= 0.5
 
   for(cond in caseConditions){
     

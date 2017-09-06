@@ -564,7 +564,7 @@ sqNormalize <- function(eset, method="global"){
 
 #' Summarize replicate signal per condition (min)
 #' @param eset ExpressionSet
-#' @param method median (default), mean, max, min, sd
+#' @param method median (default), mean, max, min, sd, sum
 #' @return data.frame of per condition signals
 #' @export
 #' @note  No note
@@ -576,7 +576,7 @@ getSignalPerCondition <- function(eset,method="median"){
   conditionNames <- unique(as.character(pData(eset)$condition))
   perCondSignal <- data.frame(row.names=rownames(eset))
   
-  if(sum(c("median","mean","mean","max", "min","sd") %in% method)  == 0 ){
+  if(sum(c("median","mean","mean","max", "min","sd","sum") %in% method)  == 0 ){
     stop("Unknown method ",method)
   }
   
@@ -1028,22 +1028,26 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
   
   # rollup feature data  
   
-  # add column of zero scores if no scores (to be dropped)
+  # add column of zero scores if no scores 
   if(!("idScore" %in% names(fData(eset)))) fData(eset)$idScore = 0
+  
+  # add column of ones if nbFeatures doesn't exist 
+  if(!("nbFeatures" %in% names(fData(eset)))) fData(eset)$nbFeatures = 1
   
   # add index (integers)  and rnames columns to fData 
   fData(eset) = cbind(fData(eset),index=1:nrow(eset),rnames)
   fdSummary = group_by( fData(eset), rnames) %>% summarise(idx=index[max(idScore) == idScore][1] 
                                                            ,idScore = sum(idScore,na.rm=T)
                                                            ,allAccessions = paste(proteinName[!duplicated(proteinName)] ,collapse=";")
-                                                           
+                                                           ,nbFeatures = sum(nbFeatures)
   )
   
   ### get fData of highest scoring row per rollUP level (do not include NA_IMP colummns)
-  rolledFData = data.frame(fData(eset)[fdSummary$idx, !(colnames(fData(eset)) %>% grepl("^NA_IMP\\.",.)) ],  row.names=fdSummary$rnames)
-  # replace idScore colum, by summed score, drop idScore column if all 0
+  rolledFData = data.frame(fData(eset)[fdSummary$idx, !(colnames(fData(eset)) %>% grepl("^NA_IMP_[CI]NT\\.",.)) ],  row.names=fdSummary$rnames)
+  # replace idScore column, by summed score, drop idScore column if all 0
   if(!all(fdSummary$idScore == 0)) rolledFData$idScore=fdSummary$idScore
   rolledFData$allAccessions=fdSummary$allAccessions
+  rolledFData$nbFeatures=fdSummary$nbFeatures
   
   ### set peptides per protein
   rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
@@ -1065,14 +1069,17 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
   if(method =="sum"){
     
     # add NA intensties if tracked in fData
-    df = data.frame(df,  getImputedIntensities(eset) )
+    df = data.frame(df,  getImputationMatrix(eset), getImputationMatrix(eset,method="count") )
     eRP = summarise_each(group_by_(df , .dots="rnames"  ) , funs(sum(.,na.rm=T))  ) 
     
     # add imputed intensities to rolledFData and rolled intensites to eset
     eRPCol = 1:(ncol(eset)+1)
     mImp = eRP[ !((1:ncol(eRP)) %in% eRPCol)] 
+    # set NA_IMP colnames 
+    colnames(mImp) = c(paste0("NA_IMP_INT.",colnames(eset)), paste0("NA_IMP_CNT.",colnames(eset)))
 
-    rolledFData = cbind(rolledFData,NA_IMP=mImp[match(rownames(rolledFData),eRP$rnames), ]  )
+    #rolledFData = cbind(rolledFData,NA_IMP_INT=mImp[match(rownames(rolledFData),eRP$rnames), ]  )
+    rolledFData = cbind(rolledFData,mImp[match(rownames(rolledFData),eRP$rnames), ]  )
     eRP = eRP[, eRPCol]
 
   }else if(method =="median"){
@@ -1180,7 +1187,7 @@ sqImpute = function(eset,method="gmin"){
     idxHalfNA = ((is.na(exprs(eset)) %>% rowSums) >  (ncol(eset) / 2)) %>% which
     for(i in idxHalfNA){
       t = exprs(eset)[i,]
-      exprs(esetImp)[i,][is.na(t)] = mean(t,na.rm=T)/2
+      exprs(esetImp)[i,][is.na(t)] = min(t,na.rm=T)/2
     }
   }
   
@@ -1188,7 +1195,7 @@ sqImpute = function(eset,method="gmin"){
   impMatrix = exprs(esetImp)
   impMatrix[impMatrix != 0] = 0
   impMatrix[isNA] = exprs(esetImp)[isNA]
-  fData(esetImp) = cbind(fData(esetImp), NA_IMP=impMatrix)  
+  fData(esetImp) = cbind(fData(esetImp), NA_IMP_INT=impMatrix, NA_IMP_CNT=isNA*1)  
   
   return(esetImp)
   
@@ -1196,15 +1203,20 @@ sqImpute = function(eset,method="gmin"){
 
 #' Get matrix of imputed valeus in ExpressionSet matrix
 #' @param eset ExpressionSet
+#' @param method c("intensity","count") default intensity
 #' @return matrix
 #' @export
 #' @note  No note
 #' @details 
 #' @seealso No note
 #' @examples print("No examples")
-getImputedIntensities = function(eset){
+getImputationMatrix = function(eset, method="intensity"){
   
-  isImpCol = grepl("^NA_IMP\\.",fData(eset) %>% colnames)
+  # count or int
+  regExpr = "^NA_IMP_INT\\."
+  if(method == "count") regExpr = "^NA_IMP_CNT\\."
+  
+  isImpCol = grepl(regExpr,fData(eset) %>% colnames)
   
   if(sum(isImpCol) > 0){
     m = subset(fData(eset), select= isImpCol   )
@@ -1219,23 +1231,35 @@ getImputedIntensities = function(eset){
 
 #' Get fraction missing values per ratio/condition/run 
 #' @param eset ExpressionSet
-#' @param method c("ratio","cond","run")
+#' @param method c("ratio","cond","run","count","intensity")
 #' @return matrix
 #' @export
 #' @note  No note
 #' @details 
 #' @seealso No note
 #' @examples print("No examples")
-getNAFraction = function(eset, method="ratio"){
-  if(method == "run"){
-    return((getImputedIntensities(eset) / exprs(eset)) %>% as.matrix) 
+getNAFraction = function(eset, method=c("ratio","intensity")){
+  
+  LEVELS = c("ratio","cond","run")
+  SIGNALS = c("intensity","count")
+  
+  level = LEVELS[LEVELS %in% method]
+  signal = SIGNALS[SIGNALS %in% method]
+  
+  if(signal == "count" ){
+    exprs(eset) = getNbRolledUpFeatures(eset,method="matrix")
+  }
+
+  if(level == "run"){
+    return((getImputationMatrix(eset, method = signal) / exprs(eset)) %>% as.matrix) 
   }else{ # ratio or cond
     esetImp = eset
-    exprs(esetImp) = getImputedIntensities(eset) %>% as.matrix
-    intPerCond = getSignalPerCondition(eset) 
-    naIntPerCond = getSignalPerCondition(esetImp) 
+    exprs(esetImp) = getImputationMatrix(eset, method = signal) %>% as.matrix
+    # medians
+    intPerCond = getSignalPerCondition(eset,method ="sum" ) 
+    naIntPerCond = getSignalPerCondition(esetImp, method="sum") 
     
-    if(method == "cond"){
+    if(level == "cond"){
       return((naIntPerCond/ intPerCond) %>% as.matrix)
     }else{ # ratio
       controlCond = eset$condition[eset$isControl][1]
@@ -1250,4 +1274,31 @@ getNAFraction = function(eset, method="ratio"){
     }
   }
 }
+
+
+#' Get number rolled up features per row
+#' @param eset ExpressionSet
+#' @param method c("vector","matrix") default vector
+#' @return matrix
+#' @export
+#' @note  No note
+#' @details 
+#' @seealso No note
+#' @examples print("No examples")
+getNbRolledUpFeatures = function(eset, method = "vector"){
+  
+  nbFeatures = rep(1,nrow(eset))
+  if("nbFeatures" %in% colnames(fData(eset))  ){
+    nbFeatures = fData(eset)$nbFeatures
+  }
+  
+  if(method == "matrix"){
+    nbFeatures = matrix(rep(nbFeatures,ncol(eset)),ncol=ncol(eset))
+    colnames(nbFeatures) = colnames(eset)
+    rownames(nbFeatures) = rownames(eset)
+  }
+  
+  return(nbFeatures)
+}
+
 
