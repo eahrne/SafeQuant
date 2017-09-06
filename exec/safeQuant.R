@@ -1,4 +1,4 @@
-#!/usr/local/bin/Rscript
+#!/usr/bin/Rscript
 
 # Author: ahrnee-adm
 ###############################################################  
@@ -20,7 +20,7 @@ suppressWarnings(suppressPackageStartupMessages(library(ggrepel, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(dplyr, quiet=T)))
 
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
-sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
+sourceDirTPP <-  "/home/pcfuser/R/SafeQuant/R/"
 
 # first check if dev or tpp mode
 if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
