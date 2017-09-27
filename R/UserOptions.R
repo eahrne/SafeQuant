@@ -83,8 +83,8 @@ option_list <- list(
 				metavar="Min Peptide Length (>=)"),
 		
 		#### 
-		make_option(c("--FUniquePeptides"), action="store_true", default=FALSE,
-				help="FILTER: --FU Discard all peptides mapping to multiple protein entries [default %default]
+		make_option(c("--FExclusivePeptides"), action="store_true", default=FALSE,
+				help="FILTER: --FE Discard all peptides mapping to multiple protein entries [default %default]
 			Note that by default all peptides are used for quantification and assigned to proteins using 
 			a Occam's Razor based algorithm.   
 				"),
@@ -344,8 +344,8 @@ getUserOptions <- function(version=version){
 		q(status=-1)
 	}
 	
-	#FILTER: FUniquePeptides
-	userOptions$FUniquePeptides <- cmdOpt$FUniquePeptides
+	#FILTER: FExclusivePeptides
+	userOptions$FExclusivePeptides <- cmdOpt$FExclusivePeptides
 	
 	#FILTER: ratioCutOff
 	userOptions$ratioCutOff <- cmdOpt$FRatioCutOff

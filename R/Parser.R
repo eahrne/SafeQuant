@@ -130,7 +130,7 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
 	# discard features where all intensities are NA (i.e. 0)
-	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
+	# allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
 	
 	row.names(expMatrix) <- res$Accession
 	
@@ -152,13 +152,21 @@ parseProgenesisProteinCsv <- function(file=file,expDesign=expDesign, method="auc
 			,isFiltered=rep(F,nrow(expMatrix))
 			,row.names=res$Accession)
 	
-	featureAnnotations <- featureAnnotations[!allColNA,]
-	
+	#featureAnnotations <- featureAnnotations[!allColNA,]
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
-	
 	### re-order and exclude channels 
-	expMatrix <- as.matrix(expMatrix[!allColNA ,rownames(expDesign)])
+	#expMatrix <- as.matrix(expMatrix[!allColNA ,rownames(expDesign)])
+	
+	
+	### re-order and exclude runs in agreement with experimental design
+	expMatrix <- subset(expMatrix,select=rownames(expDesign) )
+	
+	### filter subset
+	subset <-  !((rowSums(!is.na(expMatrix)) == 0) %>% as.vector)            
+	expMatrix <- subset(expMatrix,subset=subset )
+	featureAnnotations <- subset(featureAnnotations,subset)
+	
 	colnames(expMatrix) <- rownames(expDesign)
 	
 	return(createExpressionDataset(expressionMatrix=expMatrix,expDesign=expDesign,featureAnnotations=featureAnnotations))
@@ -199,7 +207,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
 	# discard features where all intensities are NA (i.e. 0)
-	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
+	#allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
 	
 	### Mass filed missing in old Progenesis Feature export
 	if(is.null(res$Mass)){res$Mass <- rep(NA,nrow(expMatrix))}
@@ -254,44 +262,29 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 			,nbPtmsPerPeptide = nbPtmsPerPeptide
 	)
 	
-	### strip off added .1  A11.03216.1 -> A11.03216
-	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
-	## @TODO what if "X001_Yewtivya" "001_Yewtivya"
-	#grepl("X[0-9]",colnames(expMatrix))
-	
-	### re-order and exclude channels  
-	#expMatrix <- expMatrix[,rownames(expDesign)]
-	
-	#return(createExpressionDataset(expressionMatrix=expMatrix[!allColNA,],expDesign=expDesign,featureAnnotations=featureAnnotations[!allColNA,]))
-	
-	#@TODO 
-	#allColNA <- rep(F,length(allColNA))
-	
 
-
-	# discard non peptide annotated rows
-	isPep <- !is.na(featureAnnotations$idScore) 
 	
+	### re-order and exclude runs in agreement with experimental design
+	expMatrix <- subset(expMatrix,select=rownames(expDesign) )
 	
-#	print(head(featureAnnotations))
-#	print(nrow(featureAnnotations))
-#	print(length(allColNA))
-#	print(length(isPep))
-#	print(head(expMatrix))
-#	print(nrow(expMatrix))
-#	print(rownames(expDesign))
+	### filter subset
+	isPep <- !is.na(featureAnnotations$idScore) # discard non peptide annotated rows
+	allColNA <-  (rowSums(!is.na(expMatrix)) == 0) %>% as.vector            
+	subset <- !allColNA & isPep 
+	expMatrix <- subset(expMatrix,subset=subset )
+	featureAnnotations <- subset(featureAnnotations,subset)
 	
-	featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
+	#featureAnnotations <- data.frame(featureAnnotations)[!allColNA & isPep,]
 		
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 		
-	### re-order and exclude channels  
-	if(ncol(expMatrix) > 1){
-		expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])
-	}else{ # to avoid crash when only one run
-		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
-	}
+	# ### re-order and exclude channels  
+	# if(ncol(expMatrix) > 1){
+	# 	expMatrix <- as.matrix(expMatrix[!allColNA & isPep ,rownames(expDesign)])
+	# }else{ # to avoid crash when only one run
+	# 	expMatrix <- as.matrix(expMatrix[!allColNA & isPep,])
+	# }
 	
 	colnames(expMatrix) <- rownames(expDesign)
 	
@@ -306,7 +299,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @param expDesign experimental design data.frame
 #' @param method auc (area under curve) or spc (spectral count)
 #' @param expressionColIndices default .getProgenesisCsvExpressionColIndices()
-#' @param uniqueProteins T/F keep unique peptides only
+#' @param specificPeptides T/F keep specific peptides only
 #' @return ExpressionSet object
 #' @export
 #' @import Biobase
@@ -317,7 +310,7 @@ parseProgenesisFeatureCsv <- function(file=file,expDesign=getExpDesignProgenesis
 #' @seealso \code{\link[Biobase]{ExpressionSet}}
 #' @examples print("No examples")
 parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	method="auc", 	
-		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) , uniqueProteins=F ){
+		expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method=method) , exclusivePeptides=F ){
 	
 	# HACK to please CRAN CHECK "rollUp: no visible binding for global variable "Sequence""
 	Grouped <- Sequence <- Score <- resDTIndex <- proteinScore <- Accession <- NULL
@@ -467,9 +460,7 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
 	# set 0 features to NA
 	expMatrix[expMatrix == 0] <- NA
-	# discard features where all intensities are NA (i.e. 0)
-	allColNA <-  as.vector(apply(expMatrix,1,function(r){ return(sum(!is.na(r)) == 0)}))
-	
+
 	### Mass field missing in old Progenesis Feature export
 	#if(is.null(featureDT$Mass)){featureDT$Mass <- rep(NA,nrow(expMatrix))}
 	
@@ -520,22 +511,27 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
   
 	# discard non peptide annotated rows
 	isPep <- score > 0  
-	isUnique <- rep(T,nrow(featureAnnotations))
+	isExclusive <- rep(T,nrow(featureAnnotations))
 	
-	if(uniqueProteins){ # keep unique peptides only
-		isUnique <- featureAnnotations$nbProteinConflicts == 0
-	#	cat("INFO: Discarded Non-unique peptide features", sum(!isUnique)," / ", length(isUnique),"\n" ) 
+	if(exclusivePeptides){ # keep unique peptides only
+	  isExclusive <- featureAnnotations$nbProteinConflicts == 0
+	#	cat("INFO: Discarded Non-unique peptide features", sum(!isExclusive)," / ", length(isExclusive),"\n" ) 
 	}
 	
+	### re-order and exclude runs in agreement with experimental design
+	expMatrix <- subset(expMatrix,select=rownames(expDesign) )
+	
 	### filter subset
-	subset <- !allColNA & isPep & isUnique
+	allColNA <-  (rowSums(!is.na(expMatrix)) == 0) %>% as.vector            
+	subset <- !allColNA & isPep & isExclusive
+	expMatrix <- subset(expMatrix,subset=subset )
 	featureAnnotations <- subset(featureAnnotations,subset)
 	
 	### strip off added .1  A11.03216.1 -> A11.03216
 	#colnames(expMatrix) <- gsub("\\.1$","",colnames(expMatrix))
 	
 	### re-order and exclude channels  
-	expMatrix <- subset(expMatrix,subset=subset, select=rownames(expDesign) )
+	#expMatrix <- subset(expMatrix,subset=subset, select=rownames(expDesign) )
 
 #	if(ncol(expMatrix) > 1){
 #		expMatrix <- as.matrix(expMatrix[!allColNA & isPep,rownames(expDesign)])

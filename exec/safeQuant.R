@@ -89,7 +89,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, uniqueProteins=userOptions$FUniquePeptides)
+		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, exclusivePeptides=userOptions$FExclusivePeptides)
 		
 	}else{ 	#"ProgenesisFeature"
 		

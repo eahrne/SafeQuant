@@ -151,7 +151,7 @@ testParseProgenesisPeptideMeasurementCsv <- function(){
 	stopifnot("sp|Q9Y6H1|CHCH2_HUMAN;sp|Q5T1J5|CHCH9_HUMAN" %in% fData(eset)$proteinName)
 	stopifnot(all.equal(which(fData(eset)$nbProteinConflicts == 1), c(33,66)))
 	
-	esetUnique <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1), uniqueProteins = T) 
+	esetUnique <- parseProgenesisPeptideMeasurementCsv(progenesisPeptideMeasurementCsvFile1,expDesign= getExpDesignProgenesisCsv(progenesisPeptideMeasurementCsvFile1), exclusivePeptides = T) 
 	stopifnot(sum(fData(esetUnique)$nbProteinConflicts) == 0)
 	
 	cat(" --- testParseProgenesisPeptideMeasurementCsv: PASS ALL TEST  --- \n")

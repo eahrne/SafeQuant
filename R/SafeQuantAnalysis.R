@@ -65,7 +65,7 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 		#out$qValue[rownames(eset)[sel], ] <- getAllEBayes(eset[sel, ], adjust = T, method = method, adjustFilter = subset(adjustFilter, subset = sel))
 	
 		out$FPValue[sel] = getFTestPValue(eset[sel,])
-		
+
 		# apply ratio cut-off for adjustment. Keep if one cond meets ratio cut cut-off critera 
 		adjustFilterF = rowSums(!adjustFilter) > 0
  		out$FQValue[adjustFilterF & sel] = p.adjust(out$FPValue[adjustFilterF & sel],method="BH")

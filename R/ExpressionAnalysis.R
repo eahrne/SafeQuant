@@ -981,7 +981,7 @@ getFTestPValue = function(eset, adjust=F, log=T){
   
   pValues = list()
   
-  # if no condition has replicates reurn NA's
+  # if no condition has replicates return NA's
   if(max(table(pData(eset)$condition)) == 1){
     pValues = rep(NA,nrow(eset))
     names(pValues) = rownames(eset)
@@ -998,6 +998,7 @@ getFTestPValue = function(eset, adjust=F, log=T){
   if(adjust){ ### adjust for multiple testing using Benjamini & Hochberg (1995) method 
     pValues <-p.adjust(pValues,method="BH")
   }
+  
   return(pValues)
 }
 
@@ -1136,7 +1137,9 @@ sqImpute = function(eset,method="gmin"){
     
   # ignore case
   method = tolower(method)
-  
+
+  # some imputation method will fail if all entries per rowexp()
+    
   #exprs(esetImp) = log2(exprs(esetImp))
   
   # get value at 0.3%
@@ -1161,9 +1164,9 @@ sqImpute = function(eset,method="gmin"){
   }else if(method == "knn"){
     suppressWarnings(suppressPackageStartupMessages(require(impute,warn.conflicts = F)))
     cat("INFO: Imputing missing values using knn \n")
-    exprs(esetImp) =  exprs(esetImp) %>% log
+    #exprs(esetImp) =  exprs(esetImp) %>% log
     invisible(capture.output(exprs(esetImp) <-  impute::impute.knn(exprs(esetImp), maxp=30000)$data))
-    exprs(esetImp) =  exprs(esetImp) %>% exp
+    #exprs(esetImp) =  exprs(esetImp) %>% exp
   }else if(method == "lmin"){
     rowImp = apply(exprs(esetImp),1,min,  na.rm=T)/2
     exprs(esetImp) = exprs(esetImp) -  rowImp
