@@ -481,10 +481,10 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	mz = featureDT$"m/z" %>% as.character  %>% as.numeric 
 	rt = featureDT$"Retention time (min)" %>% as.character  %>% as.numeric 
 
-	if(is.null(measuredMass)){measuredMass <- rep(NA,nrow(expMatrix))}
-	if(is.null(massError)){massError <- rep(NA,nrow(expMatrix))}
-	if(is.null(mz)){mz <- rep(NA,nrow(expMatrix))}
-	if(is.null(rt)){rt <- rep(NA,nrow(expMatrix))}
+	if(is.null(measuredMass) | (length(measuredMass) == 0)){measuredMass <- rep(NA,nrow(expMatrix))}
+	if(is.null(massError) | (length(massError) == 0)){massError <- rep(NA,nrow(expMatrix))}
+	if(is.null(mz) | (length(mz) == 0)){mz <- rep(NA,nrow(expMatrix))}
+	if(is.null(rt) | (length(rt) == 0)){rt <- rep(NA,nrow(expMatrix))}
 	if(!is.null(featureDT$Charge)){charge = as.numeric(featureDT$Charge)}else{charge =  rep(NA,nrow(expMatrix))}
 	
   featureAnnotations <- data.frame(

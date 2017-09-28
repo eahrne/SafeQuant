@@ -100,6 +100,9 @@ ggVolcanoPlot = function(data=data
 #' @examples print("No examples")
 plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
  
+  # need more than own data feature
+  if(nrow(sqa$eset) <= 1 ) return()
+  
   # plot all volcanoes
   ctrlCondition = pData(sqa$eset)$condition[pData(sqa$eset)$isControl][1] %>% as.character
   caseConditions = setdiff(pData(sqa$eset)$condition %>% unique, ctrlCondition)

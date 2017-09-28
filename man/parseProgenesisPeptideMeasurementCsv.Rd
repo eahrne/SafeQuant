@@ -7,7 +7,7 @@
 parseProgenesisPeptideMeasurementCsv(file, expDesign = expDesign,
   method = "auc",
   expressionColIndices = .getProgenesisCsvExpressionColIndices(file, method =
-  method), uniqueProteins = F)
+  method), exclusivePeptides = F)
 }
 \arguments{
 \item{file}{path to Progenesis Peptide Measurement csv file}
@@ -18,7 +18,7 @@ parseProgenesisPeptideMeasurementCsv(file, expDesign = expDesign,
 
 \item{expressionColIndices}{default .getProgenesisCsvExpressionColIndices()}
 
-\item{uniqueProteins}{T/F keep unique peptides only}
+\item{specificPeptides}{T/F keep specific peptides only}
 }
 \value{
 ExpressionSet object

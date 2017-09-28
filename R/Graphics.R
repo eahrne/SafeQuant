@@ -587,8 +587,7 @@ pairsAnnot<-
 			points(x, y, pch = 20, col =col, bg = bg)
 		}
 		
-		
-		ok = is.finite(x) & is.finite(y)
+		ok = is.finite(x) & is.finite(y) & (length(x) > 1)
 		if (any(ok)){
 			abline(lm(y~x,subset=ok), col = "blue", lwd=1.5)
 			abline(coef=c(0,1),lty=2)
@@ -828,6 +827,9 @@ hClustHeatMap <- function(eset
 		,...
 ){
 	
+  # need more than own data feature
+  if(nrow(eset) <= 1 ) return()
+  
 	# do not plot filtered
 	eset <- eset[!fData(eset)$isFiltered,]
 	

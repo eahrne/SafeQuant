@@ -291,7 +291,7 @@ getAllCV <- function(eset){
     
     ### if replicates
     if(sum(colMatch) > 1){
-      cvTmp <- getCV(signal[,colMatch])
+      cvTmp <- getCV(subset(signal, select=colMatch))
     }
     
     cv <- cbind(cv,cvTmp)
