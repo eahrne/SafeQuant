@@ -489,9 +489,9 @@ parseProgenesisPeptideMeasurementCsv <- function(file,expDesign=expDesign,	metho
 	
   featureAnnotations <- data.frame(
 		proteinName=featureDT$myProteinGroup
-		,ac=  featureDT$myProteinGroup %>% as.character %>% getAccessionNumber()
+		,ac=featureDT$myProteinGroup %>% as.character %>% getAccessionNumber()
 		,proteinDescription=featureDT$Description
-		,geneName=  featureDT$Description %>% as.character %>% getGeneName() 
+		,geneName=featureDT$Description %>% as.character %>% getGeneName() 
 		,peptide=featureDT$Sequence
 		,idScore= score
 		,mass=measuredMass
