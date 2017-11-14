@@ -75,6 +75,8 @@ testGetCalibMixPairedEset <- function(){
 	
 	cat("--- testGetCalibMixPairedEset:  PASS ALL TEST  --- \n")
 	
+	boxplot(exprs(esetCalibMix), log="y")
+	pData(esetCalibMix)
 }
 
 ### compare our impurity correction to MSnbase

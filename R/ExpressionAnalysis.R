@@ -114,7 +114,6 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
     
     # add subject term to allow for paired t-statistic
     if("subject" %in% names(pData(eset))){
-      # no intercept
       design <- model.matrix(~0+condition + subject, data=pData(eset))
     }else{
       # no intercept
