@@ -12,4 +12,3 @@ COLORS
 color vector
 }
 \keyword{datasets}
-

@@ -1,8 +1,7 @@
 Package: SafeQuant
 Type: Package
 Title: A Toolbox for the Analysis of Proteomics Data
-Version: 2.3.2
-Date: 2017-03-30
+Version: 2.3.3
 Author: Erik Ahrne
 Maintainer: Erik Ahrne <erik.ahrne@unibas.ch>
 Description: Tools for the statistical analysis and visualization of (relative
@@ -13,10 +12,18 @@ Imports:
     seqinr,
     corrplot,
     optparse,
-    data.table,
     epiR,
     Biobase,
     ggplot2,
+    ggrepel,
     magrittr,
+    Hmisc,
+    pcaMethods,
+    impute,
+    dplyr,
+    GO.db,
+    UniProt.ws,
+    data.table,
+    affy
 License: GPL-3
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

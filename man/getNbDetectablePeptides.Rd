@@ -26,4 +26,3 @@ No note
 \examples{
 print("No examples")
 }
-

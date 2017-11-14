@@ -20,7 +20,7 @@ getAllEBayes(eset = eset, adjust = F, log = T, method = "pairwise",
 \item{adjustFilter}{matrix T/F do not adjust for multiple testing}
 }
 \value{
-ExpressionSet object
+data.frame of pvalues per condition comparison
 }
 \description{
 Perform statistical test (mderated t-test), comparing all case to control
@@ -40,4 +40,3 @@ Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16
 \seealso{
 \code{\link[limma]{eBayes}}
 }
-

@@ -41,4 +41,3 @@ print("No examples")
 \references{
 NA
 }
-

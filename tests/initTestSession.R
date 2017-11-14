@@ -4,6 +4,10 @@
 ###############################################################################
 
 ### load / source
+
+library(UniProt.ws)
+library(GO.db)
+library(stringr)
 library("limma")
 library(gplots) # volcano plot
 library(seqinr)
@@ -14,6 +18,10 @@ library(corrplot)
 library(Biobase)
 library(ggplot2)
 library(magrittr)
+library(ggrepel)
+library(plotly)
+library(Hmisc)
+library(dplyr)
 
 ### INIT
 if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
@@ -29,6 +37,10 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste0(sqRootDir,"/R/TMT.R"))
 	source(paste0(sqRootDir,"/R/UserOptions.R"))
 	source(paste0(sqRootDir,"/R/Targeted.R"))
+	
+	source(paste0(sqRootDir,"/R/GGGraphics.R"))
+	source(paste0(sqRootDir,"/R/DIA.R"))
+	
 	load(paste0(sqRootDir,"/data/kinaseMotif.rda"))
 	
 }else{ # CHECK mode
@@ -127,6 +139,8 @@ featureAnnotations <- data.frame(
 		 peptide
 		, charge		 	
 		,proteinName
+		,ac = NA
+		,geneName = NA
 		,proteinDescription
 		,idScore
 		,ptm

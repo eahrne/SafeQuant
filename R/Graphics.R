@@ -34,7 +34,7 @@ COLORS <- as.character(c(
 	# HACK TO avoid check error. See function call in safeQuant.R @TODO re-structure this messsy function 
 	if(is.na(sqaPeptide)){rm(sqaPeptide)}
 	if(is.na(sqaProtein)){rm(sqaProtein)}
-
+	
 	######################## OVERVIEW PLOT
 	fdr <-userOptions$fdrCutoff
 	nbPSM <- sum(!fData(esetNorm)$isFiltered,na.rm=T)
@@ -49,7 +49,7 @@ COLORS <- as.character(c(
 	if(fileType != "ProgenesisProtein"){
 		text(xPos,yPos,paste(nbPSM," PSM"),cex=cex, pos=4)
 		yPos <- yPos - 0.5
-				
+		
 	}
 	
 	if(exists("sqaPeptide")){
@@ -67,7 +67,7 @@ COLORS <- as.character(c(
 		text(xPos+0.5,yPos,paste(nbModPeptides," MOD."),cex=cex, pos=4)
 		yPos <- yPos - 0.5
 		
-	
+		
 		
 	}else if("peptide" %in% names(fData(esetNorm))) { ### TMT export
 		text(xPos,yPos,paste(length(unique(fData(esetNorm)$peptide))," PEPTIDES" ),cex=cex, pos=4)
@@ -81,14 +81,12 @@ COLORS <- as.character(c(
 	par(mar=c(5.1,4.1,4.1,2.1))
 	######################## OVERVIEW PLOT END
 	
-
-	
 	### charge state
 	if("charge" %in% names(fData(esetNorm)) & (sum(!is.na(fData(esetNorm)$charge),na.rm=T)>0) ){
 		if(userOptions$verbose) cat("CHARGE STATE PLOT \n")
 		chargeTable <- table(fData(esetNorm)$charge[!fData(esetNorm)$isFiltered] )
 		barplot2(chargeTable, xlab="Charge State", ylab="PSM Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
-			
+		
 	} 
 	if(exists("sqaPeptide")){
 		if(userOptions$verbose) cat("INFO: NB. MIS-CLEAVAGES PLOT \n")
@@ -109,7 +107,7 @@ COLORS <- as.character(c(
 				bp <- barplot2(motifTable, ,ylab="Modif. Site Counts", col="blue", plot.grid = TRUE, xaxt="n", grid.col="lightgrey")
 				mtext(names(motifTable),side=1,at=bp[,1], line=0.2, las=2,cex=0.6)
 			}	
-					
+			
 		}else{
 			
 			if(fileType == "ScaffoldTMT"){
@@ -141,6 +139,8 @@ COLORS <- as.character(c(
 			barplot2(nbPtmPerPeptideTable, xlab="Nb. PTM per Peptide", ylab="Peptide Counts", col="blue", plot.grid = TRUE, grid.col="lightgrey")
 		}
 		
+		cysteinFreqBarplot(fData(sqaPeptide$eset)$peptide)
+		
 	}else if("peptide" %in% names(fData(esetNorm))){
 		if(userOptions$verbose) cat("INFO: NB. MIS-CLEAVAGES PLOT 2 \n")	
 		### mis-cleavage
@@ -152,7 +152,7 @@ COLORS <- as.character(c(
 		nbSel <-min(c(nbRows,500))
 		nbMCTable <- (table(getNbMisCleavages(fData(esetNorm)$peptide[sel][sample(nbRows,nbSel)] ))/nbSel)*100
 		barplot2(nbMCTable, xlab="Nb. Mis-cleavages", ylab="Peptide Counts (%)", col="blue", plot.grid = TRUE, grid.col="lightgrey")
-	
+		
 	}
 	
 	#### peptides per protein
@@ -163,25 +163,25 @@ COLORS <- as.character(c(
 		peptidesPerProtein <- fData(sqaPeptide$eset)$nbPeptides[!fData(sqaPeptide$eset)$isFiltered]
 		peptidesPerProtein <- peptidesPerProtein[unique(names(peptidesPerProtein))]
 	}
-		
+	
+
+	
 	### discard filtered out proteins
 	peptidesPerProtein <- peptidesPerProtein[peptidesPerProtein > 0]
 	#counts <- max(c(min(peptidesPerProtein,na.rm=T),1),na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),2))
 	xPeptides <- min(peptidesPerProtein,na.rm=T):max(c(max(peptidesPerProtein,na.rm=T),10))
 	yCount <- unlist(lapply(xPeptides,function(t){ 
 						sum(unlist(peptidesPerProtein) == t,na.rm=T) }))
-
+	
 	yCount[yCount == 0] <- NA 
 	plot(xPeptides,yCount,type="n", log="x",xlab="Peptides Per Protein", ylab="Protein Counts")
 	grid()
 	lines(xPeptides,yCount,type="h",col="blue",lwd=2.5)
-	
-	### Id's ves Retention Time
+
+	### Id's vs Retention Time
 	if(exists("sqaPeptide") && ("retentionTime"  %in% names(fData(sqaPeptide$eset)))) plotNbIdentificationsVsRT(sqaPeptide$eset)
 	
-
 }
-
 
 ### some quality control plots
 #' @export
@@ -195,15 +195,15 @@ COLORS <- as.character(c(
 		barplotMSSignal(eset, ...)
 		plotMSSignalDistributions(log2(exprs(eset)), col=as.character(.getConditionColors(eset)[pData(eset)$condition,]), lwd=1.5, ...)
 		boxplot(getAllCV(eset)*100,  col=as.character(.getConditionColors(eset)[pData(eset)$condition,]))
-	
+		
 	}
 	
 	par(mfrow=c(1,1), mar=c(5.1,4.1,4.1,2.1))
 	
 	if(3 %in% selection)pairsAnnot(log2(exprs(eset)[sel,order(pData(eset)$condition)]), ...)
-		
+	
 	if((4 %in% selection) && ("pMassError" %in% names(fData(eset)))){
-			plotPrecMassErrorDistrib(eset,pMassTolWindow=userOptions$precursorMassFilter)
+		plotPrecMassErrorDistrib(eset,pMassTolWindow=userOptions$precursorMassFilter)
 	}
 	
 	### retention time normalization plot
@@ -221,7 +221,7 @@ COLORS <- as.character(c(
 		isDec <- isDecoy(fData(eset)$proteinName)
 		scores <- fData(eset)$idScore
 		qvalues <- fData(eset)$idQValue
-	
+		
 		if(1 %in% selection) {
 			plotScoreDistrib(scores[!isDec],scores[isDec], ...)
 			
@@ -237,7 +237,7 @@ COLORS <- as.character(c(
 #				if(is.finite(noModCutOff))abline(v=noModCutOff, "darkgreen")
 #				legend("right",c("unmod. cutoff","mod. cutoff"),col=c("blue","darkgreen"), lty=1)
 #			}
-					
+			
 		}
 		
 		if(2 %in% selection) plotIdScoreVsFDR(scores,qvalues,qvalueThrs, ...)
@@ -288,7 +288,7 @@ COLORS <- as.character(c(
 ){
 	
 	colorPalette <- rev(rich.colors(32))
-
+	
 	# no p/q-values
 	if(!all(is.finite(ylim))){
 		ylim <-c(0,1)
@@ -300,7 +300,7 @@ COLORS <- as.character(c(
 	}else{
 		dotColors <- colorPalette[round(1+ d[,3]/maxSignal *31)] 
 	}
-		
+	
 	par(fig=c(0,1,0.18,1))
 	plot(0,0
 			, xlab= paste("log2(",caseCondition,"/",controlCondition,")", sep="" )
@@ -328,8 +328,7 @@ COLORS <- as.character(c(
 		par(fig=c(0,1,0,0.3), new=TRUE)
 		.dotColorstrip(colorPalette, maxSignal=maxSignal*100)
 		par(mfrow=c(1,1))
-	}
-	
+	}	
 }
 
 #' @export
@@ -354,7 +353,6 @@ COLORS <- as.character(c(
 #' @import corrplot
 #' @importFrom graphics legend
 .correlationPlot <- function(d, textCol="black", labels=colnames(d),... ){
-	
 		
 	corrplot(cor(d,use="complete")^2
 			, type = "upper"
@@ -500,7 +498,7 @@ plotExpDesign <- function(eset, condColors=.getConditionColors(eset),  version="
 	ylim <- c(-2,nbSamples+2)
 	
 	plot(0,0,type="n", xlim=xlim, ylim=ylim, main="Experimental Design", axes=FALSE, xlab="", ylab="")
-		
+	
 	condYPosStep <- (nbSamples+2)/(nbConditions+1)
 	sampleNb <- 1
 	
@@ -549,7 +547,7 @@ pairsAnnot<-
 	if(ncol(data.frame(data)) < 2 ){
 		return(warning("INFO: Only one sample no pairsAnnot \n"))
 	}
-		
+	
 	### cex as a function of numbers of columns
 	cex <- 0.8
 	if(ncol(data) < 6){
@@ -562,13 +560,13 @@ pairsAnnot<-
 	}
 	
 	count <- 1
-
+	
 	panel.lm <-
 			function (x, y, col = par("col"), bg = NA, pch = par("pch"),
 					#	cex = 1, col.lm = "red", lwd=par("lwd"), ...)
 					col.lm = "red", lwd=par("lwd"))
 	{
-				
+		
 		if(isHeatCol){
 			df <- data.frame(x,y)
 			## Use densCols() output to get density at each point
@@ -589,8 +587,7 @@ pairsAnnot<-
 			points(x, y, pch = 20, col =col, bg = bg)
 		}
 		
-		
-		ok = is.finite(x) & is.finite(y)
+		ok = is.finite(x) & is.finite(y) & (length(x) > 1)
 		if (any(ok)){
 			abline(lm(y~x,subset=ok), col = "blue", lwd=1.5)
 			abline(coef=c(0,1),lty=2)
@@ -621,7 +618,7 @@ pairsAnnot<-
 	
 	#panel.txt <- function(x, y, labels, cex, font,digits=2, ...){
 	panel.txt <- function(x, y, labels, font,digits=2,...){
-
+		
 		txt = diagText[count]
 		text(0.5, 0.6, txt, cex=cexTxt, col=textCol[count])
 		
@@ -629,7 +626,7 @@ pairsAnnot<-
 	}
 	
 	pairs(data,lower.panel=panel.sse,upper.panel=panel.lm, text.panel=panel.txt,col=col,...)
-
+	
 	
 }
 
@@ -652,7 +649,7 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 	
 	eset <- eset[!fData(eset)$isFiltered,]
 	
-	d <- apply(exprs(eset),2, function(t){ (sum(is.na(t)) / length(t))*100 } )
+	d = (colSums(is.na(exprs(eset))) / nrow(eset)) * 100
 	ylim <- c(0,range(d)[2])
 	if(max(d,na.rm=T) == 0) ylim <- c(0,100)
 	
@@ -668,7 +665,7 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 			, grid.col="lightgrey"		
 			,...
 	)
-
+	
 	mtext(names(d),side=1,at=bp[,1], las=2, line=0.3,cex=0.9)
 	#par(mar=c(5.1,4.1,4.1,2.1))
 	
@@ -692,20 +689,20 @@ missinValueBarplot <- function(eset, col=as.character(.getConditionColors(eset)[
 #' @references NA
 #' @examples print("No examples")
 barplotMSSignal <- function(eset, col = as.character(.getConditionColors(eset)[pData(eset)$condition,])
-	,method=c("sum","sharedSignal")
-	,cex.lab=1.25
-	,cex.axis=1.25
-	,cex.names=0.9
-	,labels=rownames(pData(eset))
-	,...){
+		,method=c("sum","sharedSignal")
+		,cex.lab=1.25
+		,cex.axis=1.25
+		,cex.names=0.9
+		,labels=rownames(pData(eset))
+		,...){
 	
 	sel <- !fData(eset)$isFiltered
-
+	
 	### only use feature qunatified in all runs for normalization
 	if("sharedSignal" %in% method) sel <- sel & (as.vector(apply(is.finite(exprs(eset)),1,sum) == ncol(eset)))
 	
 	eset <- eset[sel,]			
-		
+	
 	if("median" %in% method){
 		profile <- apply(exprs(eset),2,median,na.rm=T)
 		ylab <- "Median MS-Signal (Scaled)"
@@ -747,7 +744,7 @@ cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pDa
 	### avoid crach when not enough repliocates
 	if(sum(!is.na(cv)) > 0){
 		boxplot(cv*100,yaxt="n",xaxt="n",...)
-
+		
 		grid(nx=NA, ny=NULL) #grid over boxplot
 		par(new=TRUE)
 		
@@ -776,7 +773,7 @@ cvBoxplot <- function(eset,col=as.character(.getConditionColors(eset)[unique(pDa
 #' @examples print("No examples")
 plotMSSignalDistributions <- function(d, col=1:100,ylab="Frequnecy", xlab="MS-Signal",... ){
 	
-
+	
 	### create a sms-signal histogram per column,
 	breaks <- seq(min(d,na.rm=T),max(d,na.rm=T),length=40)
 	mids <-  hist(d[,1],breaks=breaks,plot=F)$mids
@@ -830,12 +827,15 @@ hClustHeatMap <- function(eset
 		,...
 ){
 	
+  # need more than own data feature
+  if(nrow(eset) <= 1 ) return()
+  
 	# do not plot filtered
 	eset <- eset[!fData(eset)$isFiltered,]
 	
 	### we need at least two conditions
 	if(ncol(eset) == 1){
-			return(cat("INFO: Only one condition no hClustHeatMap \n"))
+		return(cat("INFO: Only one condition no hClustHeatMap \n"))
 	}
 	
 	#d <- log2(exprs(eset))
@@ -982,7 +982,7 @@ plotNbValidDeFeaturesPerFDR <- function(sqa,upRegulated=T,log2RatioCufOff=log2(1
 		legend("topleft", conditions, fill=as.character(conditionColors[conditions,]), cex=0.6)
 	}
 	
-
+	
 }
 
 #' Plot identifications target decoy distribution
@@ -1251,7 +1251,7 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		legd <- c()
 		
 		if("R" %in% disp) legd <- c(legd,as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
-			
+		
 		if("Rc" %in% disp) legd <- c(legd,as.expression(bquote(R[c]*"" == .(round(epi.ccc(x,y)$rho.c$est,2)))))
 		
 		if(length(legd) > 0 ){
@@ -1539,21 +1539,21 @@ plotAdjustedVsNonAdjustedRatio <- function(ratio,unAdjustedRatio){
 	### some extra margin for axis labels
 	par(mar=c(6.3,6.3,4.1,2.1))
 	plot(10^x, 10^y
-		,log="xy"
-		,xlab=""
-		,ylab=""
+			,log="xy"
+			,xlab=""
+			,ylab=""
 #		,yaxt="n"
 #		,xaxt="n"
-		,cex=cex
-		#,lwd=cex
-		,pch=19
-		,las=2,cex.axis=cex
-		,cex.main=cex
-		,... )
+			,cex=cex
+			#,lwd=cex
+			,pch=19
+			,las=2,cex.axis=cex
+			,cex.main=cex
+			,... )
 	
 #	axis(1,las=2,cex.axis=cex)
 #	axis(2,las=2,cex.axis=cex)
-
+	
 	abline(coef=c(0,1),lty=2)
 	### add axis labels
 	mtext(side=1,xlab,las=1, line=4.8, cex=cex, ...)
@@ -1579,12 +1579,12 @@ plotAdjustedVsNonAdjustedRatio <- function(ratio,unAdjustedRatio){
 		df <- data.frame(cpc =  x,signal = y)
 		medianFoldError <- median(abs(getLoocvFoldError(df)[,1]),na.rm=T)
 		linRc <- as.vector(unlist(epi.ccc(x,y)$rho.c)[1])
-	
+		
 		legend("topleft"
 				,legend=c(as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2))))
-							#,paste("Lin's Rc  = ",round(linRc,2))
-							,as.expression(bquote(R[c]*"" == .(round(linRc,2))))
-							,paste("Median Fold Error = ",round(medianFoldError,2))
+						#,paste("Lin's Rc  = ",round(linRc,2))
+						,as.expression(bquote(R[c]*"" == .(round(linRc,2))))
+						,paste("Median Fold Error = ",round(medianFoldError,2))
 				)
 				#,text.col=c(1,2)
 				,box.lwd=0
@@ -1817,3 +1817,20 @@ plotLogo <- function(motif, bgPeptides="ACDEFGHIKLMNPQRSTVWY", main="", targetRe
 	
 } 
 
+#' Plot Cystein Frequency 
+#' @param peptides vector
+#' @param ... see plot 
+#' @export
+#' @note  No note
+#' @details Selecting for peptides of length 7-19
+#' @references NA
+#' @examples print("No examples")
+cysteinFreqBarplot = function(peptides, ...){
+	
+	peptides = peptides %>% unique %>% as.character
+	peptidesLength = nchar(peptides)
+	peptides = subset(peptides ,peptidesLength > 6 & peptidesLength < 20  )
+	cFreq = str_detect(peptides,"C") %>% sum / length(peptides)
+	
+	barplot(c(cFreq,0.1148966,0.1326964,0.2126175)*100, col =c("blue",rep("lightgrey",3)), names=c("this sample","e.coli","yeast","human"), ylab ="Cystein containig peptides (%)", las=2, ... )
+} 

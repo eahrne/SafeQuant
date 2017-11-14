@@ -32,4 +32,3 @@ In Silico Instrumental Response Correction Improves Precision of Label-free Prot
 \seealso{
 \code{\link{getRTNormFactors}}
 }
-

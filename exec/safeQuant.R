@@ -1,29 +1,12 @@
-#!/usr/local/bin/Rscript
-
-###
-# 0) Update SHEBANG ('#!/usr/bin/Rscript') to match location of your R installation
-# 1) INSTALL SafeQuant
-#	- or SET sqDirPath 
-# 2) INSTALL PACKAGES
-#	affy
-#	limma
-#	gplots
-#	seqinr
-#	corrplot
-#	optparse
-#	data.table
-# magrittr
+#!/usr/bin/Rscript
 
 # Author: ahrnee-adm
-###############################################################################
-
-# TEST FILE
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/peptides1_FILTERED.csv /Volumes/pcf01\$/Schmidt_Group/Databases/SwissProt_Databases/s_human_d_201405.fasta
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/proteins1.csv
-# /Users/ahrnee-adm/dev/R/workspace/SafeQuant/inst/testData/new/TMT_6-Plex_Scaffold_Raw_Export_Example.xls
+###############################################################  
 
 ############################################################### INIT ############################################################### 
 #### DEPENDANCIES
+
+suppressWarnings(suppressPackageStartupMessages(library(stringr, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("affy", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library("limma", quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(gplots, quiet=T)))
@@ -32,9 +15,12 @@ suppressWarnings(suppressPackageStartupMessages(library(corrplot, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(optparse, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(data.table, quiet=T)))
 suppressWarnings(suppressPackageStartupMessages(library(magrittr, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(ggplot2, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(ggrepel, quiet=T)))
+suppressWarnings(suppressPackageStartupMessages(library(dplyr, quiet=T)))
 
 sourceDirOSX <- "/Users/ahrnee-adm/dev/R/workspace/SafeQuant/R/"
-sourceDirTPP <-  "/import/bc2/home/pcf/ahrnee/R/SafeQuant/R/"
+sourceDirTPP <-  "/home/pcfuser/R/SafeQuant/R/"
 
 # first check if dev or tpp mode
 if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
@@ -44,6 +30,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	source(paste(sourceDir,"ExpressionAnalysis.R",sep=""))
 	source(paste(sourceDir,"SafeQuantAnalysis.R",sep=""))
 	source(paste(sourceDir,"Graphics.R",sep=""))
+	source(paste(sourceDir,"GGGraphics.R",sep=""))
 	source(paste(sourceDir,"IdentificationAnalysis.R",sep=""))
 	source(paste(sourceDir,"Parser.R",sep=""))
 	source(paste(sourceDir,"TMT.R",sep=""))
@@ -58,7 +45,7 @@ if(file.exists(sourceDirOSX) | file.exists(sourceDirTPP)){
 	stop("SafeQuant Package not installed\n")
 }
 
-VERSION <- "2.3.2"
+VERSION <- "2.3.3"
 
 ### USER CMD LINE OPTIONS
 userOptions <- getUserOptions(version=VERSION)
@@ -102,7 +89,7 @@ if(fileType %in% c("ProgenesisProtein","ProgenesisFeature","ProgenesisPeptide"))
 		
 		#"ProgenesisFeature"
 		cat("INFO: PARSING PROGENESIS PEPTIDE EXPORT FILE ",userOptions$inputFile, "\n" )
-		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, uniqueProteins=userOptions$FUniquePeptides)
+		eset <- parseProgenesisPeptideMeasurementCsv(file=userOptions$inputFile,expDesign=expDesign, exclusivePeptides=userOptions$FExclusivePeptides)
 		
 	}else{ 	#"ProgenesisFeature"
 		
@@ -300,14 +287,13 @@ if(exists("intAdjObj")){
 	exprs(intAdjObj$esetAdj) <- exprs(intAdjObj$esetAdj)[,colnames(exprs(eset))]
 } 
 
-
 ### non-pairwise stat test
 statMethod <- c("")
-if(userOptions$SNonPairWiseStatTest) statMethod <- c("all")
+if(userOptions$SNonPairWiseStatTest) statMethod <- c("all") #@TODO what about 'naRep'
 if(userOptions$SRawDataAnalysis){ # No Normalization
 	esetNorm <- eset
 	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- intAdjObj$esetAdj
-}else{
+}else{ # NORMALIZE
 	method <- c("global","median")
 	# norm based on sum if norm anchor is specified 
 	if(sum(fData(eset)$isNormAnchor) < nrow(eset)) method <- c("global","sum")
@@ -315,14 +301,19 @@ if(userOptions$SRawDataAnalysis){ # No Normalization
 	if(exists("intAdjObj")) intAdjObj$esetAdjNorm <- sqNormalize(intAdjObj$esetAdj, method=method )
 }
 
-### add pseudo (baseline) intensity
-baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
-exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
-exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
+### MISSING VALUES IMPUTATION
+# baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(esetNorm)[,1])),promille=5)
+# exprs(esetNorm)[  is.na(exprs(esetNorm)) | (exprs(esetNorm) <= 0)  ] <- 0
+# exprs(esetNorm) <- exprs(esetNorm) + baselineIntensity
+# if(exists("intAdjObj")){
+# 	baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(intAdjObj$esetAdjNorm)[,1])),promille=5)
+# 	exprs(intAdjObj$esetAdjNorm)[  is.na(exprs(intAdjObj$esetAdjNorm)) | (exprs(intAdjObj$esetAdjNorm) <= 0)  ] <- 0
+# 	exprs(intAdjObj$esetAdjNorm) <- exprs(intAdjObj$esetAdjNorm) + baselineIntensity
+# }
+
+esetNorm = sqImpute(esetNorm,method=userOptions$SMissingValuesImutationMethod)
 if(exists("intAdjObj")){
-	baselineIntensity <- getBaselineIntensity(as.vector(unlist(exprs(intAdjObj$esetAdjNorm)[,1])),promille=5)
-	exprs(intAdjObj$esetAdjNorm)[  is.na(exprs(intAdjObj$esetAdjNorm)) | (exprs(intAdjObj$esetAdjNorm) <= 0)  ] <- 0
-	exprs(intAdjObj$esetAdjNorm) <- exprs(intAdjObj$esetAdjNorm) + baselineIntensity
+   intAdjObj$esetAdjNorm = sqImpute(intAdjObj$esetAdjNorm,method=userOptions$SMissingValuesImutationMethod )
 }
 
 if((fileType == "ProgenesisProtein") |  (fileType == "MaxQuantProteinGroup")){
@@ -423,7 +414,7 @@ userOptions$proteinReportFilePath <- file.path(userOptions$outputDir, paste0(use
 userOptions$paramsFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ_PARAMS.TXT",sep=""))
 userOptions$rDataFilePath <- file.path(userOptions$outputDir, paste(userOptions$resultsFileLabel,"_SQ.rData",sep=""))
 
-############################### GRAPHICS
+############################################################### GRAPHICS ############################################################### 
 
 # plot protein or peptide level results
 if(exists("sqaProtein")){
@@ -480,7 +471,6 @@ if(fileType %in% c("ProgenesisFeature","ProgenesisPeptide")){
 	par(parDefault)
 }
 
-
 layout(rbind(c(1,2), c(3,3)))
 ### missing values
 missinValueBarplot(eset)
@@ -509,7 +499,6 @@ if(length(unique(pData(sqaDisp$eset)$condition)) < 8){
 
 par(parDefault)
 
-
 ### TMT calibration mix
 if(exists("intAdjObj")){ 
 	
@@ -524,8 +513,6 @@ if(exists("intAdjObj")){
 	par(parDefault)
 
 }
-
-
 
 ### QUANT. QC PLOTS END
 
@@ -563,12 +550,19 @@ plotNbValidDeFeaturesPerFDR(sqaDisp,
 
 par(parDefault)
 
-plotVolcano(sqaDisp
-		, main=paste(lab,"Level")
-		, ratioThrs= userOptions$ratioCutOff
-		, pValueThreshold= userOptions$deFdrCutoff
-		, adjusted = T)
+# plotVolcano(sqaDisp
+# 		, main=paste(lab,"Level")
+# 		, ratioThrs= userOptions$ratioCutOff
+# 		, pValueThreshold= userOptions$deFdrCutoff
+# 		, adjusted = T)
 
+plotAllGGVolcanoes(sqaDisp
+                   ,log2RatioThrs =userOptions$ratioCutOff %>% log2
+                   ,pValueThrs= userOptions$deFdrCutoff
+                   ,ylab = "log10 Adj. P-Value"
+                   ,title = paste(lab,"Level")
+                   ,textSize = 15
+)
 
 if(userOptions$eBayes){
 	
@@ -596,11 +590,20 @@ if(userOptions$eBayes){
 	)
 	par(parDefault)
 	
-	plotVolcano(sqaDisp
-			, main=paste(lab,"Level")
-			, ratioThrs= userOptions$ratioCutOff
-			, pValueThreshold= userOptions$deFdrCutoff
-			, adjusted = F)
+	# plotVolcano(sqaDisp
+	# 		, main=paste(lab,"Level")
+	# 		, ratioThrs= userOptions$ratioCutOff
+	# 		, pValueThreshold= userOptions$deFdrCutoff
+	# 		, adjusted = F)
+	
+	plotAllGGVolcanoes(sqaDisp
+	                   ,log2RatioThrs =userOptions$ratioCutOff %>% log2
+	                   ,pValueThrs= userOptions$deFdrCutoff
+	                   ,ylab = "log10 P-Value"
+	                   ,title = paste(lab,"Level")
+	                   ,textSize = 15
+	                   ,isAdjusted = F
+	)
 	
 	par(mfrow=c(2,2))
 	if(nrow(CONDITIONCOLORS) > 4) par(mfrow=c(3,3))
@@ -652,13 +655,9 @@ if(userOptions$addQC){
 		maPlotSQ(esetNorm[sel,],sample=s)
 	}
 	
-	
-	
 	par(parDefault)
 	
 }
-
-
 
 cat("INFO: CREATED FILE ", userOptions$pdfFile,"\n")
 
@@ -666,11 +665,11 @@ graphics.off()
 
 ############################### GRAPHICS END
 
-### SPREADSHEET EXPORT
+############################################################### SPREADSHEET EXPORT ############################################################### 
 
 if(exists("sqaPeptide")){ 
 	
-	selFDataCol <- c("peptide","proteinName","proteinDescription", "idScore","idQValue"
+	selFDataCol <- c("peptide","proteinName", "ac","geneName", "proteinDescription", "idScore","idQValue"
 			,"retentionTime",	"ptm", "nbPtmsPerPeptide",	"nbRolledFeatures" ) 
 	selFDataCol <-	selFDataCol[selFDataCol %in% names(fData(sqaPeptide$eset))] 
 	
@@ -699,16 +698,15 @@ if(exists("sqaPeptide")){
 		selFDataCol <- c(selFDataCol,"ptmLocMascotConfidence")
 	}
 	
+	# add sqa object data 
 	cv <- sqaPeptide$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaPeptide$ratio
-	
-	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
-	
+	if(ncol(ratio) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
 	pValue <- sqaPeptide$pValue
-	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(ncol(pValue) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaPeptide$qValue
-	if(length(names(qValue)) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(ncol(qValue) > 0 )  names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	medianSignalDf <- getSignalPerCondition(sqaPeptide$eset)
 	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
@@ -719,8 +717,12 @@ if(exists("sqaPeptide")){
 			, medianSignalDf
 			, cv
 			, ratio	
+			, fracNAFeatures = getNAFraction(sqaPeptide$eset,method=c("cond","count"))
 			, pValue
-			, qValue )[!fData(sqaPeptide$eset)$isFiltered,]
+			, qValue
+			, FTestPValue = sqaPeptide$FPValue
+			, FTestQValue = sqaPeptide$FQValue
+			)[!fData(sqaPeptide$eset)$isFiltered,]
 	
 	### add unadjusted ratios if TMT ratio correction
 	if(userOptions$TAdjustRatios){
@@ -747,7 +749,7 @@ if(exists("sqaPeptide")){
 
 if(exists("sqaProtein")){
 	
-	selFDataCol <- c("proteinName","proteinDescription","idScore","idQValue","nbPeptides")
+	selFDataCol <- c("proteinName","ac","geneName","proteinDescription","idScore","idQValue","nbPeptides")
 	selFDataCol <- selFDataCol[selFDataCol %in%  names(fData(sqaProtein$eset))] 
 	
 	### add allAccessions
@@ -755,14 +757,15 @@ if(exists("sqaProtein")){
 		selFDataCol <- c(selFDataCol,"allAccessions")
 	}
 	
+	# add sqa object data 
 	cv <- sqaProtein$cv
 	names(cv) <- paste("cv",names(cv),sep="_")
 	ratio <- sqaProtein$ratio
-	if(length(names(ratio)) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
+	if(ncol(ratio) > 0 ) names(ratio) <- paste("log2ratio",names(ratio),sep="_")
 	pValue <- sqaProtein$pValue
-	if(length(names(pValue)) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
+	if(ncol(pValue) > 0 ) names(pValue) <- paste("pValue",names(pValue),sep="_")
 	qValue <- sqaProtein$qValue
-	if(length(names(qValue)) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
+	if(ncol(qValue) > 0 ) names(qValue) <- paste("qValue",names(qValue),sep="_")
 	
 	medianSignalDf <- getSignalPerCondition(sqaProtein$eset)
 	names(medianSignalDf) <- paste("medianInt",names(medianSignalDf),sep="_")
@@ -773,8 +776,12 @@ if(exists("sqaProtein")){
 			, medianSignalDf
 			, cv
 			, ratio	
+			, fracNAFeatures = getNAFraction(sqaProtein$eset,method=c("cond","count"))
 			, pValue
-			, qValue )[!fData(sqaProtein$eset)$isFiltered,]
+			, qValue 
+			, FTestPValue = sqaProtein$FPValue
+			, FTestQValue = sqaProtein$FQValue
+			)[!fData(sqaProtein$eset)$isFiltered,]
 	
 	# add median top3
 	if(exists("esetTop3")){
@@ -833,7 +840,7 @@ if(exists("sqaProtein")){
 
 ### SPREADSHEET EXPORT END
 
-### EXPORT PARAMS
+############################################################### PARAMS EXPORT ############################################################### 
 write.table(data.frame(
 				param=row.names(data.frame(unlist(userOptions[names(userOptions)])))
 				,value=as.vector((unlist(userOptions[names(userOptions)])))
@@ -848,7 +855,7 @@ cat("INFO: CREATED FILE ", userOptions$paramsFilePath,"\n")
 
 ### EXPORT PARAMS
 
-### EXPORT RDATA
+############################################################### RDATA EXPORT ############################################################### 
 
 if(userOptions$isSaveRObject){
 	save.image(file=userOptions$rDataFilePath)

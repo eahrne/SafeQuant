@@ -578,9 +578,9 @@ getAAProteinCoordinates <- function(peptideSeq,proteinSeq, aaRegExpr="[STY]"){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getMotifFreq = function(phosphoSeqs){
 
@@ -598,9 +598,9 @@ getMotifFreq = function(phosphoSeqs){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getKinaseFreq = function(phosphoSeqs){
   
@@ -634,9 +634,9 @@ getKinaseFreq = function(phosphoSeqs){
 #' @return ExpressionSet object
 #' @export
 #' @note  No note
-#' @details
+#' @details NA
 #' @references NA 
-#' @seealso 
+#' @seealso NA
 #' @examples print("No examples")
 getKinases = function(phosphoSeq){
   
@@ -654,3 +654,86 @@ getKinases = function(phosphoSeq){
   }
 }
 
+#' Extract Gene Name from uniprot fasta header description
+#' @param proteinDescription vector of descriptions
+#' @return vector of gene names
+#' @export
+#' @import stringr
+#' @note  No note
+#' @details ATP synthase subunit beta OS=Salmonella typhimurium (strain SL1344) GN=atpD -> atpD
+#' @examples print("No examples")
+getGeneName = function(proteinDescription){
+  return(str_extract(proteinDescription, "(GN=)[^\\s]*") %>% substr(.,start=4,stop=1000))
+}
+
+#' Extract accession numbers from Uniprot proteinNames
+#' @param proteinName vector of protein names
+#' @return vector of uniprot accession numbers
+#' @export
+#' @import stringr
+#' @note  No note
+#' @details sp|A0MZ66|SHOT1_HUMAN -> A0MZ66
+#' @examples print("No examples")
+getAccessionNumber = function(proteinName){
+  
+  stripped = str_replace_all(proteinName, "(^.{2}\\|)|(\\|.*)|([\\:\\;].*)","")
+  # make sure UniProtKB accession numbers consist of 6 or 10 alphanumerical characters
+  return(str_extract(stripped, "^[A-Z][0-9][A-Z 0-9]{3}[0-9][A-Z 0-9]{0,4}(\\-){0,1}[0-9]{0,2}$"))
+  
+
+}
+
+
+#' Get Go term data for a list of uniprot accession numbers
+#' @param taxId uniprot taxon identifier
+#' @param acs vector uniprot accession numbers
+#' @return data.frame "UNIPROTKB" "GO-ID"     "ccIds"     "mfIds"     "bpIds"     "ccTerms"   "mfTerms"   "bpTerms"
+#' @export
+#' @import GO.db
+#' @importFrom UniProt.ws select
+#' @note  No note
+#' @details NA
+#' @references NA 
+#' @seealso NA
+#' @examples print("No examples")
+getGoTermDF = function(taxId=taxId, acs=acs){
+	
+	# get proteome
+	proteome <- UniProt.ws(taxId=taxId)
+	
+	columns <- c("GO-ID")
+	kt <- "UNIPROTKB"
+	goRes = UniProt.ws::select(proteome, acs, columns, kt)
+	rownames(goRes) = acs
+	
+	# convert go-ids to terms (if term is cellular component)
+	ccIds = c()
+	mfIds = c()
+	bpIds = c()
+	
+	ccTerms = c()
+	mfTerms = c()
+	bpTerms = c()
+	for(goids in goRes$"GO-ID"){
+		
+		goids = unlist(strsplit(goids,"; "))
+		goterm = Term(goids)
+		ontology = Ontology(goids)
+		ccIds = c(ccIds,paste(goids[ontology %in% "CC"] ,collapse = ";"))
+		mfIds = c(mfIds,paste(goids[ontology %in% "MF"] ,collapse = ";"))
+		bpIds = c(bpIds,paste(goids[ontology %in% "BP"] ,collapse = ";"))
+		
+		ccTerms = c(ccTerms,paste(goterm[ontology %in% "CC"] ,collapse = ";"))
+		mfTerms = c(mfTerms,paste(goterm[ontology %in% "MF"] ,collapse = ";"))
+		bpTerms = c(bpTerms,paste(goterm[ontology %in% "BP"] ,collapse = ";"))
+	}
+	goRes$ccIds = ccIds
+	goRes$mfIds = mfIds
+	goRes$bpIds = bpIds
+	
+	goRes$ccTerms = ccTerms
+	goRes$mfTerms = mfTerms
+	goRes$bpTerms = bpTerms
+	
+	return(goRes)
+}

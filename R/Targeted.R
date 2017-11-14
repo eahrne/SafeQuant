@@ -112,7 +112,7 @@ getAllDotProduct = function(eset, nbRefRuns = 4){
 #' @param dCurve data.frame columns concentration, intensity
 #' @param lod limit of detection
 #' @param title plot title
-#' @return ggplot
+#' @return ggplot2
 #' @export
 #' @import magrittr ggplot2
 #' @note  No note

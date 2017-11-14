@@ -6,12 +6,12 @@ The SafeQuant Package includes methods for analysis of quantitative (LFQ,TMT,HRM
 
 A) Install CRAN library dependencies (open R)
 
-	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR","ggplot2","magrittr"))
+	R> install.packages(c("seqinr","gplots","corrplot","optparse","data.table","epiR","ggplot2","magrittr","dplyr","ggrepel"))
 
 B) Install BioConductor library dependencies (open R)
 
 	R> source("http://bioconductor.org/biocLite.R")
-	R> biocLite(c("limma"))
+	R> biocLite(c("limma","Biobase","pcaMethods","impute","GO.db","UniProt.ws","affy"))
 
 #### 2) Install SafeQuant from sources
 

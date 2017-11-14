@@ -1,0 +1,49 @@
+---
+title: '`r userOptions$resultsFileLabel`'
+author: 'SafeQuant `r VERSION`'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
+library(magrittr)
+library(SafeQuant)
+library(affy)
+library(motifStack)
+library(dplyr)
+library(DiffLogo)
+library(ggplot2)
+library(ggrepel)
+library(knitr)
+```
+
+## Volcanoes
+
+
+```{r volcano, fig.width=15, fig.height=7, echo=FALSE}
+
+plotlyWidgets <- htmltools::tagList()
+
+p = ggVolcanoPlot(data=ggDf,pValueThrs=pValueThrs,log2RatioThrs=log2RatioThrs,thrsLineCol = "lightgrey",thrsLineLty = 2, title="test title")
+
+
+plot(p)
+
+#  plotlyWidgets[[paste0(cond,"kinaseDown")]] = suppressWarnings(as.widget( ggplotly(q3)))
+
+plotlyWidgets[["1"]] = suppressWarnings(as.widget(ggplotly(p)))
+plotlyWidgets[["2"]] = suppressWarnings(as.widget(ggplotly(p)))
+
+
+plotlyWidgets
+
+ggplotly( plotAllGGVolcanoes(sqa) )
+
+
+```
+

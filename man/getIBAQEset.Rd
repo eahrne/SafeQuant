@@ -37,4 +37,3 @@ print("No examples")
 Global quantification of mammalian gene expression control, Schwanhausser (2011), \url{http://www.ncbi.nlm.nih.gov/pubmed/21593866}, 
 Critical assessment of proteome-wide label-free absolute abundance estimation strategies. Ahrne (2013), \url{http://www.ncbi.nlm.nih.gov/pubmed/23794183}
 }
-

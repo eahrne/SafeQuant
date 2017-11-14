@@ -297,6 +297,60 @@ testGetKinases = function(){
   
 }
 
+testGetGeneName = function(){
+  ### parse gene name
+  description1 = "ATP synthase subunit beta OS=Salmonella typhimurium (strain SL1344) GN=atpD"
+  description2 = "14-3-3 protein zeta/delta OS=Mus musculus GN=Ywhaz PE=1 SV=1"
+  description3 = "14-3-3 protein zeta/delta OS=Mus musculus PE=1 SV=1"
+  description4 = ""
+  description5 = NA
+  
+  cat("--- testGetGeneName: --- \n")
+  
+  all = c(description1,description2,description3,description4,description5)
+  res = getGeneName(all)
+  stopifnot( all(na.omit(res) == c("atpD","Ywhaz")))
+  
+  cat("--- testGetGeneName: PASS ALL TEST --- \n")
+
+}
+
+
+testGetAccessionNumber = function(){
+  
+  cat("--- testAccessionNumber: --- \n")
+  
+  proteinName = c("sp|A0JLT2|MED19_HUMAN","sp|A0MZ66-1|SHOT1_HUMAN", "myProtein", "P25665","tr|B4DRR0|B4DRR0_CON-HUMAN","tr|A0A022YWF9|E1WHQ6_SALTS","tr|E1WHQ6|E1WHQ6_SALTS,sp|A0A022YWF9|MED19_HUMAN",NA,"cust|Tet1CD|AlainWeber","P0CG47;P0CG48;P62979;P62987")
+# 
+#   stripped = str_replace_all(proteinName, "(^.{2}\\|)|(\\|.*)","")
+#   # make sure UniProtKB accession numbers consist of 6 or 10 alphanumerical characters
+#   str_extract(stripped, "^[A-Z][0-9][A-Z 0-9]{3}[0-9][A-Z 0-9]{0,4}(\\-){0,1}[0-9]{0,2}$")
+#   
+  res = getAccessionNumber(proteinName)
+  stopifnot( all( c("A0JLT2","A0MZ66-1",NA,"P25665","B4DRR0","A0A022YWF9","E1WHQ6",NA,NA,"P0CG47")  ==  res) %>% na.omit )
+
+  cat("--- testAccessionNumber: PASS ALL TEST --- \n")
+  
+}
+
+testGetGoTermDF = function(){
+	
+	cat("--- testGetGoTermDF: --- \n")
+	
+	taxId = 83333 # ecoli
+	acs = c("P00350","P00363","P00370")
+	
+	goTermDf = getGoTermDF(taxId,acs)
+	
+	stopifnot(nrow(goTermDf) == 3)
+	
+	cat("--- testGetGoTermDF: PASS ALL TEST --- \n")
+	
+}
+
+
+
+
 
 ### TEST FUNCTIONS END
 
@@ -323,16 +377,24 @@ testGetAAProteinCoordinates()
 testGetMotifFreq()
 testGetKinaseFreq()
 testGetKinases()
-
-
+testGetGeneName()
+testGetAccessionNumber()
+testGetGoTermDF()
 ### TESTS END
 
 
 ##### phospho kinase motif analysis 
 
-#phosphoMotifs = read.csv(file="~/dev/R/workspace/SafeQuant/tests/testData/motifs.xls",sep="\t")
 
 
 
- 
+
+
+
+
+
+
+
+
+
 

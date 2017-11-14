@@ -475,52 +475,71 @@ getIntSumPerProtein  <- function(intData,proteinACs,peptides,minNbPeptPerProt=1)
 	esetCalibMix <- eset[fData(eset)$proteinName %in% names(CALIBMIXRATIOS),]
 	
 	# pair up featureData
-	esetPair <- esetCalibMix[,1:2]
+	#esetPair <- esetCalibMix[,1:2]
 	
 	# add refernce ratios to feature data in case it's not already there
 	if(!("refRatio" %in% names(fData(esetCalibMix)))){
 		fData(esetCalibMix)$refRatio <- as.vector(unlist(CALIBMIXRATIOS[as.character(fData(esetCalibMix)$proteinName)]))
 	}
 	
-	fData(esetPair) <- rbind(fData(esetPair) 
-			, fData(esetPair)
-			, fData(esetPair)
-			, fData(esetPair)
-			, fData(esetPair)
-	)
+	# fData(esetPair) <- rbind(fData(esetPair) 
+	# 		, fData(esetPair)
+	# 		, fData(esetPair)
+	# 		, fData(esetPair)
+	# 		, fData(esetPair)
+	# )
 	
-	# add calibration mix dilution tag to featureData
+	featureData =  fData(esetCalibMix)[match(rep(rownames(fData(esetCalibMix)),5), rownames(fData(esetCalibMix))),]
+	
 #	calMixDilution <- c(rep(20,nrow(esetPair))
 #			,rep(100,nrow(esetPair))
 #			,rep(4,nrow(esetPair))
 #			,rep(20,nrow(esetPair))
 #			,rep(100,nrow(esetPair))
 #	)
-	calMixDilution <- c(rep(20,nrow(esetPair))
-			,rep(100,nrow(esetPair))
-			,rep(4,nrow(esetPair))
-			,rep(20,nrow(esetPair))
-			,rep(4,nrow(esetPair))
+	calMixDilution <- c(rep(20,nrow(esetCalibMix))
+			,rep(100,nrow(esetCalibMix))
+			,rep(4,nrow(esetCalibMix))
+			,rep(20,nrow(esetCalibMix))
+			,rep(4,nrow(esetCalibMix))
 	)
 	
-	fData(esetPair) <- cbind(fData(esetPair),calMixDilution=calMixDilution)
+	# fData(esetPair) <- cbind(fData(esetPair),calMixDilution=calMixDilution)
+	# #add dilution to peptide and proteinName
+	# fData(esetPair)$proteinName <- paste(fData(esetPair)$proteinName,"_",calMixDilution,sep="") 
+	# fData(esetPair)$peptide <- paste(fData(esetPair)$peptide,"_",calMixDilution,sep="") 
 	
+	featureData =  cbind(featureData,calMixDilution=calMixDilution)
 	#add dilution to peptide and proteinName
-	fData(esetPair)$proteinName <- paste(fData(esetPair)$proteinName,"_",calMixDilution,sep="") 
-	fData(esetPair)$peptide <- paste(fData(esetPair)$peptide,"_",calMixDilution,sep="") 
+	featureData$proteinName <- paste(featureData$proteinName,"_",calMixDilution,sep="") 
+	featureData$peptide <- paste(featureData$peptide,"_",calMixDilution,sep="") 
 	
 	# pair up expression data
-	exprs(esetPair) <- rbind(
-			exprs(esetPair)[,1:2]
-			,exprs(esetCalibMix[,3:4])
-			,exprs(esetCalibMix[,5:6])
-			,exprs(esetCalibMix[,7:8])
-			,exprs(esetCalibMix[,9:10])
+	# exprs(esetPair) <- rbind(
+	# 		exprs(esetPair)[,1:2]
+	# 		,exprs(esetCalibMix[,3:4])
+	# 		,exprs(esetCalibMix[,5:6])
+	# 		,exprs(esetCalibMix[,7:8])
+	# 		,exprs(esetCalibMix[,9:10])
+	# )
+	# rownames(esetPair) <- 1:nrow(esetPair)
+	
+	eMatrix = rbind(
+	  exprs(esetCalibMix)[,1:2]
+	  ,exprs(esetCalibMix[,3:4])
+	  ,exprs(esetCalibMix[,5:6])
+	  ,exprs(esetCalibMix[,7:8])
+	  ,exprs(esetCalibMix[,9:10])
 	)
-	rownames(esetPair) <- 1:nrow(esetPair)
+	rownames(eMatrix) <- 1:nrow(eMatrix)
 	
 	# get rid of globalNormFactors column
-	pData(esetPair) <- pData(esetPair)[,1:2]
+#	pData(esetPair) <- pData(esetPair)[,1:2]
+	
+	# get rid of globalNormFactors column
+	eDesign <- pData(eset)[1:2,]
+	rownames(featureData) = rownames(eMatrix)
+	esetPair =createExpressionDataset(expressionMatrix = eMatrix,expDesign = eDesign, featureAnnotations = featureData)
 	
 	return(esetPair)
 	

@@ -11,15 +11,13 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	source("testParser.R")
 	source("testIdentificationAnalysis.R")
 	source("testExpressionAnalysis.R")
-
-
 	source("testSafeQuantAnalysis.R")
-	source("testTMT.R")
-
+  source("testTMT.R")
 	source("testUserOptions.R")
 	source("testGraphics.R")
-	
 	source("testTargeted.R")
+  source("testGGGraphics.R")
+  source("testDIA.R")
 	
 	cat("\n ---------------------- ALL TESTS PASSED ------------------ \n")
 	
