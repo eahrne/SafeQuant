@@ -78,7 +78,7 @@ option_list <- list(
 		
 		#### peptide analysis specfic
 		make_option(c("--FLengthPeptide"), type="integer", default=1,
-				help="FILTER: --FL Min Peptide Length (Nb. AA's) [default Inf]
+				help="FILTER: --FL Min Peptide Length (Nb. AA's) [default 1]
 						Peptide analysis ONLY.",
 				metavar="Min Peptide Length (>=)"),
 		
