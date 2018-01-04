@@ -1107,6 +1107,7 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 #' Impute missing values
 #' @param eset ExpressionSet
 #' @param method c("knn","ppca","gMin",lMin)
+#' @param rowmax The maximum percent missing data allowed in any row to apply ppca and knn (if more missing values impute gmin). default 0.3
 #' @return ExpressionSet
 #' @export
 #' @import impute
@@ -1124,7 +1125,7 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
 #' @references Accounting for the Multiple Natures of Missing Values in Label-Free Quantitative Proteomics Data Sets to Compare Imputation Strategies, Lazar et al (2016), \url{http://pubs.acs.org/doi/abs/10.1021/acs.jproteome.5b00981}
 #' @seealso No note
 #' @examples print("No examples")
-sqImpute = function(eset,method="gmin"){
+sqImpute = function(eset,method="gmin", rowmax=0.3){
 
   esetImp = eset
 
@@ -1143,8 +1144,9 @@ sqImpute = function(eset,method="gmin"){
 
   #exprs(esetImp) = log2(exprs(esetImp))
 
-  # get value at 0.3%
-  gmin = (sample(exprs(esetImp),min(nrow(esetImp)*ncol(esetImp),10000))  %>% quantile(seq(0,1,0.001),na.rm=T))[4]
+  # get value at 0.5%
+  set.seed(2018)
+  gmin = (sample(exprs(esetImp),min(nrow(esetImp)*ncol(esetImp),10000))  %>% quantile(seq(0,1,0.001),na.rm=T))[6]
 
   if(method == "gmin"){
 
@@ -1160,13 +1162,17 @@ sqImpute = function(eset,method="gmin"){
     esetImp <- asExprSet(pc, esetImp)
     #exprs(esetImp) =  exprs(esetImp) %>% exp
     # neg values not accepted
-    exprs(esetImp)[  exprs(esetImp) < 0 ] <- gmin
+    exprs(esetImp)[  exprs(esetImp) < 0 ] <- 0
+    # add gmin
+    exprs(esetImp) = exprs(esetImp) + gmin
 
   }else if(method == "knn"){
     suppressWarnings(suppressPackageStartupMessages(require(impute,warn.conflicts = F)))
     cat("INFO: Imputing missing values using knn \n")
     #exprs(esetImp) =  exprs(esetImp) %>% log
-    invisible(capture.output(exprs(esetImp) <-  impute::impute.knn(exprs(esetImp), maxp=30000)$data))
+    invisible(capture.output(exprs(esetImp) <-  impute::impute.knn(exprs(esetImp), maxp=30000, rowmax=rowmax)$data))
+    # add gmin
+    exprs(esetImp) = exprs(esetImp) + gmin
     #exprs(esetImp) =  exprs(esetImp) %>% exp
   }else if(method == "lmin"){
     rowImp = apply(exprs(esetImp),1,min,  na.rm=T)/2
@@ -1186,14 +1192,17 @@ sqImpute = function(eset,method="gmin"){
 
   #exprs(esetImp) = 2^exprs(esetImp)
 
-  # set NA's to half mean if more than 50% NA's per row
-  if(method %in% c("knn","ppca")){
-    idxHalfNA = ((is.na(exprs(eset)) %>% rowSums) >  (ncol(eset) / 2)) %>% which
-    for(i in idxHalfNA){
-      t = exprs(eset)[i,]
-      exprs(esetImp)[i,][is.na(t)] = min(t,na.rm=T)/2
+  # add gmin to rows with more than rowmax fraction NA's
+   if(method %in% c("knn","ppca")){
+       idxTooManyNA = (((is.na(exprs(eset)) %>% rowSums) / ncol(eset)) >= rowmax) %>% which
+      for(i in idxTooManyNA){
+        t = exprs(eset)[i,]
+        t[is.na(t)] = 0
+        exprs(esetImp)[i,] = t + gmin
+        #t(rbind(t,exprs(esetImp)[i,])) %>% print
+      }
+      #cat("\t gmin method applied to ",signif(length(idxTooManyNA)/nrow(eset) * 100,3),"% of features\n"  )
     }
-  }
 
   # store imputed missing values
   impMatrix = exprs(esetImp)

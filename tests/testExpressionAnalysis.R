@@ -641,3 +641,47 @@ if(T){
 }
 
 ### get fraction missing values per peptide and protein.
+
+
+
+
+
+
+
+# library(magrittr)
+#
+# load("/Users/ahrnee-adm/tmp/SQ_Results/SQ_Results_SQ.rData")
+#
+# imp = fData(esetNorm)[grepl("NA_IMP_IN",fData(esetNorm) %>%names ) ]
+# imp[imp ==0] = NA
+# sel = which(rowSums(imp == min(imp,na.rm=T), na.rm = T) > 0)[1]
+#
+# rbind(imp[sel,],
+# exprs(eset)[sel,]) %>% t()
+#
+# # esetNormGMIN = sqImpute(eset,method = "gmin")
+# # impGmin = fData(esetNormGMIN)[12:21]
+# # impGmin[impGmin ==0] = NA
+# # min(impGmin,na.rm=T)
+# #
+# # (unlist(imp) %>% log10 == 0) %>% sum(na.rm=T)
+# #
+# # unlist(imp) %>% min(na.rm=T)
+#
+# hist(unlist(imp) %>% log10, breaks =10000 )
+# abline(v=mean(exprs(eset), na.rm=T) %>% log10 , col ="red")
+# #abline(v=colMeans(exprs(eset), na.rm=T) %>% log10 , col ="blue")
+# #abline(v= log10(11500) )
+#
+#
+# unlist(imp) %>% table
+#
+# #
+#
+# plot(exprs(esetNorm)[,1:2] %>% log10 )
+# abline(v=colMeans(exprs(eset),na.rm=T)[1] %>% log10 )
+# abline(h=colMeans(exprs(eset),na.rm=T)[2] %>% log10 )
+#
+# plot(exprs(esetNorm)[,3:4] %>% log10 )
+# abline(v=colMeans(exprs(eset),na.rm=T)[3] %>% log10 )
+# abline(h=colMeans(exprs(eset),na.rm=T)[4] %>% log10 )

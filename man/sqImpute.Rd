@@ -4,12 +4,14 @@
 \alias{sqImpute}
 \title{Impute missing values}
 \usage{
-sqImpute(eset, method = "gmin")
+sqImpute(eset, method = "gmin", rowmax = 0.3)
 }
 \arguments{
 \item{eset}{ExpressionSet}
 
 \item{method}{c("knn","ppca","gMin",lMin)}
+
+\item{rowmax}{The maximum percent missing data allowed in any row to apply ppca and knn (if more missing values impute gmin). default 0.3}
 }
 \value{
 ExpressionSet
