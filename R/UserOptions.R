@@ -1,5 +1,5 @@
 # TODO: Add comment
-# 
+#
 # Author: erikahrne
 ###############################################################################
 
@@ -9,95 +9,95 @@
 #' Command Line Option List
 #' @export
 option_list <- list(
-		
-		
+
+
 ### I/O
 		make_option(c("-i", "--inputFile"), type="character", default="",
 				help="I/O:  Input file: Progenesis (Feature,Protein or Peptide) .csv,
 			or Scaffold Q+ (Raw Export, for TMT quant) .xls (REQUIRED)",
-		),	
+		),
 		make_option(c("-o", "--outputDir"), type="character", default=NA,
 				help="I/O:  Results Output Directory [default FOLDER OF INPUTFILE]",
 		),
-		
+
 		make_option(c("-l", "--resultsFileLabel"), type="character", default="SQ_Results",
-				help="I/O: results file directory [default %default]", 
+				help="I/O: results file directory [default %default]",
 		),
 
 		make_option(c("-f", "--fastaFile"), type="character", default="",
 				help="I/O:  Protein DB .fasta file [default ./]",
 		),
-		
+
 		make_option(c("-p", "--scaffoldPTMSpectrumReportFile"), type="character", default="",
 				help="I/O:  Scaffold PTM Spectrum Report File [default ./]",
 		),
-		
+
 		make_option(c("-d","--spreadsheetExportDelimiter"), type="integer", default=1,
 		            help="I/O: Spreadsheet Export Delimiter 1) <tab> 2) <,> [default %default]",
     ),
-		
+
 ### I/O END
-		
+
 # FILTER (--F)
 		make_option(c("--FProteinAccessionSelection"), type="character", default=".",
 				help="FILTER: --FP Filter features by Accession Regular Expression [default %default] (all features kept)",
 				metavar="Protein Accession Reg. expr."),
-		
+
 		#### peptide analysis specfic
 		make_option(c("--FModificationSelection"), type="character", default="",
 				help="FILTER (LFQ PEP ONLY): --FM Only keep Peptides with modifications matching Regular Expression [default %default]
 				 (all features kept).",
 				metavar="modification name Reg. expr."),
-		
+
 		make_option(c("--FFdrCutoff"), type="double", default=0.01,
 				help="FILTER (LFQ ONLY): --FF Identification level False Discovery Rate Cutoff.  [0-1] [default %default]",
 				metavar="Peptide/Protein FDR cutoff"),
-		
+
 #		make_option(c("--FCoefficientOfVarianceMax"), type="double", default=Inf,
-#				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical 
+#				help="FILTER: --FC Do not include features with C.V. above this threshold in statistical
 #				test for differential expression [default %default]",
 #				metavar="Coefficent of Variance cutoff"),
-		
+
 		#### peptide analysis specfic
 		make_option(c("--FDeltaMassTolerancePrecursor"), type="character", default="AUTO SET",
 				help="FILTER (LFQ PEP ONLY): --FD Precursor mass Error Range filter (ppm) [default %default].
 				Peptide imports ONLY",
 				metavar="Mass Range [x,y]"),
-		
+
 		#### protein analysis specfic
 		make_option(c("--FNumberOfPeptidesPerProteinMin"), type="integer", default=1,
 				help="FILTER: --FN Only include those proteins with at least x identified peptides [default %default]
 				Protein analysis ONLY.",
 				metavar="Number of peptides"),
-		
+
 		#### peptide analysis specfic
 		make_option(c("--FSitesPerPeptide"), type="integer", default=99999,
 				help="FILTER: --FS Max Nb. Modifications Per Peptide [default Inf]
 						Peptide analysis ONLY.",
 				metavar="Max Number of PTM sites Per Petptide"),
-		
+
 		#### peptide analysis specfic
 		make_option(c("--FLengthPeptide"), type="integer", default=1,
 				help="FILTER: --FL Min Peptide Length (Nb. AA's) [default 1]
 						Peptide analysis ONLY.",
 				metavar="Min Peptide Length (>=)"),
-		
-		#### 
+
+		####
 		make_option(c("--FExclusivePeptides"), action="store_true", default=FALSE,
 				help="FILTER: --FE Discard all peptides mapping to multiple protein entries [default %default]
-			Note that by default all peptides are used for quantification and assigned to proteins using 
-			a Occam's Razor based algorithm.   
+			Note that by default all peptides are used for quantification and assigned to proteins using
+			a Occam's Razor based algorithm.
 				"),
-		
+
 		make_option(c("--FRatioCutOff"), type="double", default=1,
 				help="FILTER: --FR Intensity ratio cut-off. [default %default]",
-				metavar="Intensity ratio cutoff"),	
+				metavar="Intensity ratio cutoff"),
 
-		
-# FILTER (--F) END	
+
+# FILTER (--F) END
 
 # TMT (--T)
-		
+
 		# correct tmt ratios
 		make_option(c("--TAdjustRatios"), action="store_true", default=FALSE,
 				help="TMT: --TA Adjust TMT ratios using calibration mix proteins [default %default]
@@ -106,17 +106,17 @@ option_list <- list(
 # TMT (--T) END
 
 # STATISTICS (--S)
-	
+
 	make_option(c("--SAnchorProtein"), type="character", default=".",
 			help="STATISTICS: --SA Normalize Intensities by selected protein(s) Regular Expression
 			 [default %default] (use all proteins).",
 			metavar="Protein Accession Reg. expr."),
-	
+
   make_option(c("--SMissingValuesImutationMethod"), type="character", default="knn",
             help="STATISTICS: --SM 'ppca', 'knn','gMin','lMin','gMean,'lMean',
             [default %default] (use all proteins).",
-            metavar=" ppca: probabilistic pca
-                            knn: k-nearest neighbour
+            metavar=" ppca: probabilistic pca (+ gMin, if not enough data)
+                            knn: k-nearest neighbour (+ gMin, if not enough data)
                             gMin: global minimum
                             lMin: local minimum
                             gMean: global mean
@@ -132,33 +132,33 @@ option_list <- list(
 
 	make_option(c("--SRawDataAnalysis"), action="store_true", default=FALSE,
 			help="STATISTICS: --SR No data normalization [default %default]"),
-	
+
 # STATISTICS (--S) END
 
 # EXPERIMENTAL DESIGN (--E)
 
 	make_option(c("--EXperimentalDesign"), type="character", default=NA,
-			help='EXPERIMENTAL DESIGN: --EX "," seperated samples, ":" separated conditions 
-					Example: 1,2,3:4,5,6 
+			help='EXPERIMENTAL DESIGN: --EX "," seperated samples, ":" separated conditions
+					Example: 1,2,3:4,5,6
 					   condition1 (REF) : channel 1,2,3
 					   condition2: channel 4,5,6
 					Note: for 10-plex default is "1,4,7,10:2,5,8:3,6,9"
-					[default %default]'), 
-	
+					[default %default]'),
+
 	make_option(c("--EProteinQuantOff"), action="store_false", default=TRUE,
 			help='EXPERIMENTAL DESIGN: --EP Disable Protein Level Quantification [default %default]'),
-	
+
 	make_option(c("--ECorrelatedSamples "), action="store_true", default=FALSE,
 			help='EXPERIMENTAL DESIGN: --EC Apply "paired" statistical tests [default %default]'),
-	
+
 # EXPERIMENTAL DESIGN (--E) END
 
-# PDF-REPORT (--P) 
+# PDF-REPORT (--P)
 
 	make_option(c("--PQvalueCutOff"), type="double", default=0.01,
-			help="PDF-REPORT: --PQ Qvalue cut-off used for graphics. 
+			help="PDF-REPORT: --PQ Qvalue cut-off used for graphics.
 			High-lighting features with a qval < specified value. [0-1] [default %default]",
-			metavar="Differential expression qvalue cutOff"),	
+			metavar="Differential expression qvalue cutOff"),
 
 # ADDITIONAL-REPORTS (--A)
 	make_option(c("--ARDataFile"), action="store_true", default=FALSE,
@@ -166,13 +166,13 @@ option_list <- list(
 
 	make_option(c("--AIbaq"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS : --AI add iBAQ values to results spreadsheet. [default %default]"),
-	
+
 	make_option(c("--ATop3"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS : --AT add Top3 values to results spreadsheet. [default %default]"),
-	
+
 	make_option(c("--AQC"), action="store_true", default=FALSE,
 			help="ADDITIONAL-REPORTS : --AQ adds additional QC plots to .pdf report [default %default]"),
-	
+
 # ADDITIONAL-REPORTS (--A) END
 
 # TEST (peptide analysis specific)
@@ -184,7 +184,7 @@ option_list <- list(
 			help="Print extra output [default %default]")
 	)
 
-	
+
 #' Read User Specified Command Line Options
 #' @param version Safequant version number
 #' @return user options list
@@ -195,7 +195,7 @@ option_list <- list(
 #' @references NA
 #' @examples print("No examples")
 getUserOptions <- function(version=version){
-	
+
 	epilogue <- "Examples:
 	Progenesis LFQ Protein Quant:
 	>Rscript safeQuant.R -i /path/to/peptide_measurment.csv
@@ -208,17 +208,17 @@ getUserOptions <- function(version=version){
 
 	Scaffold Q+ TMT Protein Quant:
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls --EX 1,2,3,4:5,6,7:8,9,10
-	
+
 	Scaffold Q+ TMT  PEPTIDE PTM Quant (PHOSHO):
 	>Rscript safeQuant.R -i /path/to/Raw_Export.xls -p /path/to/Spectrum_Export_Scaffold_PTM.xls --EX 1,2,3,4:5,6,7:8,9,10 --FM phospho --FS 3 -f /path/to/proteins.fasta
 	"
-	
+
 	# get command line options, if help option encountered print help and exit,
 	# otherwise if options not found on command line then set defaults,
 	cmdOpt <- parse_args(OptionParser( prog=paste("SafeQuant",version), option_list=option_list, epilogue=epilogue))
-	
-	### CMD OPTIONS END						
-	
+
+	### CMD OPTIONS END
+
 	### SET USER OPTIONS
 	userOptions <- list()
 
@@ -226,7 +226,7 @@ getUserOptions <- function(version=version){
 	#VERBOSE: verbose
 	userOptions$verbose <- cmdOpt$verbose
 ### VERBOSE	END
-	
+
 # I/O
 	#I/O: progenesisFilePath
 	userOptions$inputFile <- cmdOpt$inputFile
@@ -234,14 +234,14 @@ getUserOptions <- function(version=version){
 		cat("ERROR. Please specify input file.",userOptions$inputFile, "Not found!","\n")
 		q(status=-1)
 	}
-	
+
 	#I/O: resultsFileLabel
 	userOptions$resultsFileLabel <- cmdOpt$resultsFileLabel
-	
+
 	#I/O: outputDir
 	userOptions$outputDir <- cmdOpt$outputDir
 	if(is.na(userOptions$outputDir)){ # see default
-		userOptions$outputDir <- dirname(userOptions$inputFile) 
+		userOptions$outputDir <- dirname(userOptions$inputFile)
 	}
 	if(!file.exists(userOptions$outputDir) & userOptions$outputDir != "" ){
 		cat("ERROR. No such directory",userOptions$outputDir,"\n")
@@ -249,7 +249,7 @@ getUserOptions <- function(version=version){
 	}else{
 		userOptions$outputDir <- file.path(userOptions$outputDir, userOptions$resultsFileLabel)
 	}
-	
+
 	#I/O: proteinFastaFile
 	userOptions$proteinFastaFile <- NA
 	if(nchar(cmdOpt$fastaFile) > 0 ){
@@ -259,9 +259,9 @@ getUserOptions <- function(version=version){
 		}else{
 			cat("ERROR. File does not exist",cmdOpt$fastaFile,"\n")
 			q(status=-1)
-		}				
+		}
 	}
-	
+
 	#I/O: scaffoldPTMSpectrumReportFile
 	userOptions$scaffoldPTMSpectrumReportFile <- NA
 	if(nchar(cmdOpt$scaffoldPTMSpectrumReportFile) > 0 ){
@@ -271,9 +271,9 @@ getUserOptions <- function(version=version){
 		}else{
 			cat("ERROR. File does not exist",cmdOpt$scaffoldPTMSpectrumReportFile,"\n")
 			q(status=-1)
-		}				
+		}
 	}
-	
+
 	#I/O: spreadsheetExportDelimiter
 	if(cmdOpt$spreadsheetExportDelimiter == 1){
 	  userOptions$sSheetExtension = "tsv"
@@ -282,24 +282,24 @@ getUserOptions <- function(version=version){
 	  userOptions$sSheetExtension = "csv"
 	  userOptions$sSheetExportDelimiter = ","
 	}
-	
+
 # I/O END
-	
+
 # FILTER (--F)
 
 	#FILTER: selectedProteinName
 	userOptions$selectedProteinName <- cmdOpt$FProteinAccessionSelection
-	
+
 	#FILTER: selectedModifName
 	userOptions$selectedModifName <- cmdOpt$FModificationSelection
-	
+
 	#FILTER: fdrCutoff
 	userOptions$fdrCutoff <- cmdOpt$FFdrCutoff
 	if(is.na(userOptions$fdrCutoff) | userOptions$fdrCutoff <= 0 | userOptions$fdrCutoff > 1 ){
 		cat("ERROR. fdrCutOff must be in the range [0-1]. You specified",userOptions$fdrCutoff,"\n")
 		q(status=-1)
 	}
-	
+
 	#FILTER: precursorMassFilter
 	if(cmdOpt$FDeltaMassTolerancePrecursor == "AUTO SET" ){
 		userOptions$precursorMassFilter <- NA
@@ -308,14 +308,14 @@ getUserOptions <- function(version=version){
 		userOptions$precursorMassFilter <- gsub("(\\[)","",cmdOpt$FDeltaMassTolerancePrecursor)
 		userOptions$precursorMassFilter <- gsub("(\\])","",userOptions$precursorMassFilter)
 		userOptions$precursorMassFilter <- sort(as.numeric(unlist(strsplit(userOptions$precursorMassFilter,","))))
-		
-		### check input format precursorMassFilter 
+
+		### check input format precursorMassFilter
 		if((length(userOptions$precursorMassFilter) != 2) | sum(is.na(userOptions$precursorMassFilter)) > 0 ){
 			cat("ERROR. Invalid FDeltaMassTolerancePrecursor", userOptions$minNbPeptidesPerProt, "\n")
 			q(status=-1)
 		}
 	}
-		
+
 	#FILTER: cvCutOff
 #	userOptions$cvCutOff <- cmdOpt$FCoefficientOfVarianceMax
 #	if(is.na(userOptions$cvCutOff) | (userOptions$cvCutOff < 0)){
@@ -329,31 +329,31 @@ getUserOptions <- function(version=version){
 		print(paste("ERROR. FNumberOfPeptidesPerProteinMin must be >= 0. You specified ", userOptions$minNbPeptidesPerProt))
 		q(status=-1)
 	}
-	
+
 	#FILTER: maxNbPTMsPerPeptide
 	userOptions$maxNbPtmsPerPeptide <- cmdOpt$FSitesPerPeptide
 	if(is.na(userOptions$maxNbPtmsPerPeptide) | userOptions$maxNbPtmsPerPeptide < 0 ){
 		print(paste("ERROR. FSitesPerPeptide must be >= 0. You specified ", userOptions$maxNbPtmsPerPeptide))
 		q(status=-1)
 	}
-	
+
 	#FILTER: maxNbPTMsPerPeptide
 	userOptions$minPeptideLength <- cmdOpt$FLengthPeptide
 	if(is.na(userOptions$minPeptideLength) | userOptions$minPeptideLength < 0 ){
 		print(paste("ERROR. FLengthPeptide must be >= 0. You specified ", userOptions$minPeptideLength))
 		q(status=-1)
 	}
-	
+
 	#FILTER: FExclusivePeptides
 	userOptions$FExclusivePeptides <- cmdOpt$FExclusivePeptides
-	
+
 	#FILTER: ratioCutOff
 	userOptions$ratioCutOff <- cmdOpt$FRatioCutOff
 	if(is.na(userOptions$ratioCutOff) | userOptions$ratioCutOff < 1){
 		cat("ERROR. ratioCutoff must be > 1. You specified",userOptions$ratioCutOff,"\n")
 		q(status=-1)
 	}
-	
+
 # FILTER (--F) END
 
 # TMT
@@ -363,34 +363,34 @@ getUserOptions <- function(version=version){
 
 
 # STATISTICS
-	
+
 	#STATISTICS: normAC
 	userOptions$normAC <- cmdOpt$SAnchorProtein
 
 	#STATISTICS: SMissingValuesImutationMethod
 	userOptions$SMissingValuesImutationMethod <- cmdOpt$SMissingValuesImutationMethod
-	
+
 	#STATISTICS: SNonPairWiseStatTest
 	userOptions$SNonPairWiseStatTest <- cmdOpt$SNonPairWiseStatTest
-	
+
 	#STATISTICS: eBayes
 	userOptions$eBayes <- cmdOpt$SPvalueInclude
-	
+
 	#STATISTICS: SRawDataAnalysis
 	userOptions$SRawDataAnalysis <- cmdOpt$SRawDataAnalysis
-	
-# STATISTICS END	
-	
+
+# STATISTICS END
+
 # EXPERIMENTAL DESIGN
 
 	#EXPERIMENTAL DESIGN: EXperimentalDesign
 	userOptions$expDesignTag <- cmdOpt$EXperimentalDesign
-	
+
 	userOptions$proteinQuant <- cmdOpt$EProteinQuant
 	#userOptions$proteinQuant <- userOptions$selectedModifName != "."
 
 	userOptions$ECorrelatedSamples <- cmdOpt$ECorrelatedSamples
-		
+
 # EXPERIMENTAL DESIGN END
 
 # PDF-REPORT (--P)
@@ -414,7 +414,7 @@ getUserOptions <- function(version=version){
 # PDF-REPORT (--P) END
 
 # TSV-REPORT (--T)
-#	
+#
 #	# TSV-REPORT: proteinFastaFile
 #	userOptions$proteinFastaFile <- NA
 #	if(nchar(cmdOpt$TFastaFile) > 0 ){
@@ -424,11 +424,11 @@ getUserOptions <- function(version=version){
 #		}else{
 #			cat("ERROR. File does not exist",cmdOpt$TFastaFile,"\n")
 #			q(status=-1)
-#		}				
+#		}
 #	}
 #
 #	# TSV-REPORT: proteaseTarget	(deprecated)
-#	userOptions$protease <- cmdOpt$TProtease	
+#	userOptions$protease <- cmdOpt$TProtease
 
 # TSV-REPORT (--T) END
 
@@ -443,11 +443,11 @@ getUserOptions <- function(version=version){
 	#ADDITIONAL-REPORTS additional QC plots
 	userOptions$addQC <- cmdOpt$AQC
 
-	#ADDITIONAL-REPORTS rDataFile, isSaveRObject	
+	#ADDITIONAL-REPORTS rDataFile, isSaveRObject
 	userOptions$isSaveRObject <- cmdOpt$ARDataFile
 	#userOptions$rDataFile <- paste(userOptions$outputDir,userOptions$resultsFileLabel,".rData",sep="")
-	
-	
+
+
 # ADDITIONAL-REPORTS (--A) END
 
 
@@ -463,7 +463,7 @@ getUserOptions <- function(version=version){
 
 
 #userInputTag <- "1,2,3:4,5,6"
-# tag: 1,2:3:4,5,6 
+# tag: 1,2:3:4,5,6
 #condition isControl
 #1 Condition 1      TRUE
 #2 Condition 1      TRUE
@@ -474,11 +474,11 @@ getUserOptions <- function(version=version){
 
 #' Create experimental design data.frame from user input string
 #' @param tag tag
-#' @param expDesignDefault data.frame  
+#' @param expDesignDefault data.frame
 #' @return data.frame describing experimental design
 #' @export
 #' @note  No note
-#' @details  tag: 1,2:3:4,5,6 
+#' @details  tag: 1,2:3:4,5,6
 #'		condition isControl
 #'	1 Condition 1 TRUE
 #'	2 Condition 1 TRUE
@@ -486,52 +486,52 @@ getUserOptions <- function(version=version){
 #'	4 Condition 2 FALSE
 #'	5 Condition 2 FALSE
 #'	6 Condition 2 FALSE
-#' @references NA 
+#' @references NA
 #' @examples print("No examples")
 expDesignTagToExpDesign <- function(tag, expDesignDefault){
-	
+
 	sampleOrder <- as.numeric(unlist(strsplit(tag,"[\\,\\:]")))
-	
+
 	# make sure no duplicates, within range etc.
-	if(is.na(sampleOrder[1]) 
-			| (max(table(sampleOrder))>1) 
+	if(is.na(sampleOrder[1])
+			| (max(table(sampleOrder))>1)
 			| (min(sampleOrder) < 1)
 			| max(as.numeric(sampleOrder)) > nrow(expDesignDefault)
 			){
 		stop("ERROR: expDesignTagToExpDesign, INVALID EXPERIMENTAL DESIGN ",tag,"\n")
-		
+
 	}
-	
+
 	expDesign <- data.frame(row.names=sampleOrder,condition=rep(NA,length(sampleOrder)), isControl=rep(FALSE,length(sampleOrder))  )
-	
+
 	condNb <- 1
 	for(cond in unlist(strsplit(tag,":"))){
-		
+
 		#cat(as.character(unlist(strsplit(cond,","))), paste("Condition",condNb) , "\n")
 		expDesign[as.character(unlist(strsplit(cond,","))),]$condition <- paste("Condition",condNb,sep="")
 		condNb <- condNb + 1
-	}       
-	
+	}
+
 	expDesign[ expDesign[,1] == "Condition1" ,]$isControl <- T
 	expDesign[,1] <- as.factor(expDesign[,1]) ### has to be factor and not character
-	
+
 	### get original sample names
 	rownames(expDesign) <- rownames(expDesignDefault)[as.numeric(rownames(expDesign))]
 	#expDesignUser$condition <- expDesign[rownames(expDesignUser) ,]$condition
-	
+
 	# get original condition names, unless conditions have been split
-	
+
 	# if more conditions than originally use cond_1, cond_n labellinf @TODO can be done better, to avoid loosing org condition names
 	if(length(unique(expDesign$condition)) > length(unique(expDesignDefault$condition))) return(expDesign)
-	
+
 	# check if conditions are split in new expDesign
 	for(cond in unique(expDesign$condition)){
 		runs <- rownames(expDesign)[expDesign$condition == cond]
-		
+
 		if(length(unique(expDesignDefault[runs,]$condition)) > 1){
 			return(expDesign)
 			#stop("SPLIT")
-		} 
+		}
 	}
 
 	### make sure a single condirion has not been split into two
@@ -540,8 +540,8 @@ expDesignTagToExpDesign <- function(tag, expDesignDefault){
 		# get original condition names
 		expDesign$condition <- expDesignDefault[rownames(expDesign),]$condition
 	}
-	
+
 	return(expDesign)
-	
+
 }
 
