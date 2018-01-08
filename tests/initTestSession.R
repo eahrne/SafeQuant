@@ -1,5 +1,5 @@
 # TODO: Add comment
-# 
+#
 # Author: ahrnee-adm
 ###############################################################################
 
@@ -24,11 +24,11 @@ library(Hmisc)
 library(dplyr)
 
 ### INIT
-if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode 
+if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	wd <- dirname(sys.frame(1)$ofile)
 	setwd(dirname(sys.frame(1)$ofile))
 	sqRootDir <- dirname(getwd())
-	
+
 	source(paste0(sqRootDir,"/R/ExpressionAnalysis.R"))
 	source(paste0(sqRootDir,"/R/SafeQuantAnalysis.R"))
 	source(paste0(sqRootDir,"/R/Graphics.R"))
@@ -37,12 +37,12 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){ # DEV mode
 	source(paste0(sqRootDir,"/R/TMT.R"))
 	source(paste0(sqRootDir,"/R/UserOptions.R"))
 	source(paste0(sqRootDir,"/R/Targeted.R"))
-	
+
 	source(paste0(sqRootDir,"/R/GGGraphics.R"))
 	source(paste0(sqRootDir,"/R/DIA.R"))
-	
+
 	load(paste0(sqRootDir,"/data/kinaseMotif.rda"))
-	
+
 }else{ # CHECK mode
 	### wd already set to tests when running CHECK
 	library(SafeQuant)
@@ -62,8 +62,8 @@ progenesisPeptideMeasurementCsvFile1 <- "testData/progenesis_pep_measurement1.cs
 progenesisProteinCsvFile1 <- "testData//progenesis_protein_export1.csv"
 progenesisPeptideMeasurementFractionatedCsvFile1 <- "testData/progenesis_pep_measurement_fractionated1.csv"
 
-progenesisProteinCsvFile2 <- "testData/2014/proteins2.csv"
-progenesisFeatureCsvFile2 <- "testData/2014/peptides2.csv"
+#progenesisProteinCsvFile2 <- "testData/2014/proteins2.csv"
+#progenesisFeatureCsvFile2 <- "testData/2014/peptides2.csv"
 
 
 # scaffold
@@ -82,7 +82,7 @@ maxQuantProteinFileTxt <- "testData/maxquant_protein_groups.csv"
 # db
 fastaFile <- "testData/mouse_proteins.fasta"
 
-# phospho motif 
+# phospho motif
 phosphoMotifFile <- "testData/motifs.xls"
 
 ### INIT END
@@ -137,7 +137,7 @@ expDesign <- data.frame(condition=c("A","A","B","B","C","C"),isControl=c(F,F,F,F
 
 featureAnnotations <- data.frame(
 		 peptide
-		, charge		 	
+		, charge
 		,proteinName
 		,ac = NA
 		,geneName = NA
@@ -154,7 +154,7 @@ eset <- createExpressionDataset(expressionMatrix=m,expDesign=expDesign,featureAn
 
 sqa <- safeQuantAnalysis(eset)
 
-# ABS. QUANT SIM. DATA 
+# ABS. QUANT SIM. DATA
 cpc <- rep(2^(1:5),10)
 set.seed(1234)
 signal <- rnorm(length(cpc),cpc,cpc/10)
@@ -174,13 +174,13 @@ exprs(esetPaired)[,6] <- rnorm(nrow(exprs(eset)),2000,2000/10)
 esetPaired <- createPairedExpDesign(esetPaired)
 
 
-##### TMT 
+##### TMT
 ### CREATE TEST DATA
 
 tmtTestData6Plex <- matrix(rep(10,24),ncol=6)
-tmtTestData6Plex[2,1:3] <- c(9,9,9) 
-tmtTestData6Plex[3,1:3] <- c(100,100,100) 
-tmtTestData6Plex[4,c(1,3,5)] <- c(100,100,100) 
+tmtTestData6Plex[2,1:3] <- c(9,9,9)
+tmtTestData6Plex[3,1:3] <- c(100,100,100)
+tmtTestData6Plex[4,c(1,3,5)] <- c(100,100,100)
 
 tmtTestData10Plex <- matrix(rep(10,100),ncol=10)
 

@@ -518,7 +518,16 @@ if(exists("intAdjObj")){
 
 par(parDefault)
 if(userOptions$verbose) cat("INFO: HEAT MAP \n")
-hClustHeatMap(sqaDisp$eset[(1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000)))) &  !fData(sqaDisp$eset)$isFiltered,],main= paste(lab,"Level"))
+#hClustHeatMapOld(sqaDisp$eset[(1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000)))) &  !fData(sqaDisp$eset)$isFiltered,],main= paste(lab,"Level"))
+
+# set smaller range if TMT
+breaks=seq(-2,2,length=20)
+if(fileType == "ScaffoldTMT" ){
+  breaks=seq(-1.5,1.5,length=20)
+}
+hClustHeatMap(sqaDisp$eset[(1:nrow(sqaDisp$eset) %in% sample(nrow(sqaDisp$eset),min(c(nrow(sqaDisp$eset),10000)))) &  !fData(sqaDisp$eset)$isFiltered,]
+              ,main= paste(lab,"Level")
+              ,breaks = breaks)
 
 ### QUANT. STAT. PLOTS
 
