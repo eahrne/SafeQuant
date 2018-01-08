@@ -18,7 +18,7 @@ data.frame describing experimental design
 Create experimental design data.frame from user input string
 }
 \details{
-tag: 1,2:3:4,5,6 
+tag: 1,2:3:4,5,6
 	condition isControl
 1 Condition 1 TRUE
 2 Condition 1 TRUE
