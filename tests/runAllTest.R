@@ -1,7 +1,9 @@
 # TODO: Add comment
 # 
-# Author: ahrnee-adm
+# Author: eahrne
 ###############################################################################
+
+
 
 ### Don't run if in CHECK mode
 if(!grepl("SafeQuant\\.Rcheck",getwd())){
@@ -13,7 +15,7 @@ if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	source("testExpressionAnalysis.R")
 	source("testSafeQuantAnalysis.R")
   source("testTMT.R")
-	source("testUserOptions.R")
+  source("testUserOptions.R")
 	source("testGraphics.R")
 	source("testTargeted.R")
   source("testGGGraphics.R")
