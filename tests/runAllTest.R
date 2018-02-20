@@ -3,8 +3,6 @@
 # Author: eahrne
 ###############################################################################
 
-
-
 ### Don't run if in CHECK mode
 if(!grepl("SafeQuant\\.Rcheck",getwd())){
 	
