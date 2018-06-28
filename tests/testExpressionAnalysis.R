@@ -37,7 +37,7 @@ testGetAllEBayes <- function(){
 
   stopifnot( mean(pAdj[,"A"]) > mean(p[,"A"]) )
 
-  ### paired desgn
+  ### paired design
   esetNonPaired <- esetPaired
   pData(esetNonPaired) <- pData(esetPaired)[,1:2]
 
@@ -599,6 +599,37 @@ testGetNbRolledUpFeatures = function(){
 
 }
 
+testGetGlobalNormFactors = function(){
+  
+  cat(" --- testGetGlobalNormFactors:  --- \n")
+  
+  nf = getGlobalNormFactors(eset,method="sum")
+  stopifnot(nf[1] == 1)
+  stopifnot(all(round(nf) == 1))
+  
+  # test "PPI norm" keeping condition differences
+  esetTmp = eset
+  exprs(esetTmp)[,c(1,2)] = 3*exprs(esetTmp)[,c(1,2)]
+  exprs(esetTmp)[,c(3)] = 2*exprs(esetTmp)[,c(3)]
+  
+  esetTmpNorm1 = globalNormalize(esetTmp,getGlobalNormFactors(esetTmp))
+  stopifnot(all(round(getGlobalNormFactors(esetTmpNorm1)) == 1))
+  
+  esetTmpNorm2 = globalNormalize(esetTmp,getGlobalNormFactors(esetTmp,method= c("median", "keepCDiff")  ))
+  stopifnot(all(round(getGlobalNormFactors(esetTmpNorm2))  == c(1,1,2,2,3,3)))
+
+   par(mfrow=c(1,3))
+   boxplot(exprs(esetTmp))
+   boxplot(exprs(esetTmpNorm1))
+   boxplot(exprs(esetTmpNorm2))
+  
+  cat(" --- testGetGlobalNormFactors: PASS ALL TEST  --- \n")
+  
+  
+  
+}
+
+
 
 ### TEST FUNCTIONS END
 
@@ -643,45 +674,24 @@ if(T){
 ### get fraction missing values per peptide and protein.
 
 
+# esetNP =  esetPaired
+# pData(esetNP) = pData(esetPaired)[,1:2]
+# 
+# # add subject term to allow for paired t-statistic
+# designPaired <- model.matrix(~0+condition + subject, data=pData(esetPaired))
+# design <- model.matrix(~0+condition, data=pData(esetNP))
+# 
+# # colnames(design) <- gsub("^condition","",colnames(design))
+# 
+# fitPaired <- lmFit(esetPaired,designPaired)
+# fit <- lmFit(esetNP,design)
+# 
+# exprs(esetNP)[1,]
+# exprs(esetPaired)[1,]
+# 
+# exprs(esetNP)[1,] - exprs(esetNP)[1,3] 
+# 
+# fitPaired$coefficients[1,]
+# fit$coefficients[1,]
 
 
-
-
-
-# library(magrittr)
-#
-# load("/Users/ahrnee-adm/tmp/SQ_Results/SQ_Results_SQ.rData")
-#
-# imp = fData(esetNorm)[grepl("NA_IMP_IN",fData(esetNorm) %>%names ) ]
-# imp[imp ==0] = NA
-# sel = which(rowSums(imp == min(imp,na.rm=T), na.rm = T) > 0)[1]
-#
-# rbind(imp[sel,],
-# exprs(eset)[sel,]) %>% t()
-#
-# # esetNormGMIN = sqImpute(eset,method = "gmin")
-# # impGmin = fData(esetNormGMIN)[12:21]
-# # impGmin[impGmin ==0] = NA
-# # min(impGmin,na.rm=T)
-# #
-# # (unlist(imp) %>% log10 == 0) %>% sum(na.rm=T)
-# #
-# # unlist(imp) %>% min(na.rm=T)
-#
-# hist(unlist(imp) %>% log10, breaks =10000 )
-# abline(v=mean(exprs(eset), na.rm=T) %>% log10 , col ="red")
-# #abline(v=colMeans(exprs(eset), na.rm=T) %>% log10 , col ="blue")
-# #abline(v= log10(11500) )
-#
-#
-# unlist(imp) %>% table
-#
-# #
-#
-# plot(exprs(esetNorm)[,1:2] %>% log10 )
-# abline(v=colMeans(exprs(eset),na.rm=T)[1] %>% log10 )
-# abline(h=colMeans(exprs(eset),na.rm=T)[2] %>% log10 )
-#
-# plot(exprs(esetNorm)[,3:4] %>% log10 )
-# abline(v=colMeans(exprs(eset),na.rm=T)[3] %>% log10 )
-# abline(h=colMeans(exprs(eset),na.rm=T)[4] %>% log10 )

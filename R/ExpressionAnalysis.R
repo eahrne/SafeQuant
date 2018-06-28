@@ -446,16 +446,19 @@ rtNormalize <- function(eset,rtNormFactors){
 
 #' Get normalization factors. calculated as summed/median signal per run (column) over summed/median of first run.
 #' @param eset ExpressionSet
-#' @param method c("sum","median)
+#' @param method c("sum","median", "keepCDiff")
+#' @param keepCondDiff logical default False, only normalize within conditions  
 #' @return vector of normalization factors
 #' @export
 #' @note  No note
-#' @details No details
+#' @details method - 'keepCDiff' logical default False, only normalize within conditions  
 #' @keywords normalization
 #' @references NA
 #' @examples print("No examples")
-getGlobalNormFactors <- function(eset, method="median"){
+getGlobalNormFactors <- function(eset, method="median" ){
 
+  keepCondDiff = ifelse("keepCDiff" %in% method, T,F)  
+  
   if("sum" %in% method){
     method <- "sum"
   }else{
@@ -482,9 +485,32 @@ getGlobalNormFactors <- function(eset, method="median"){
     }
   }
 
-  rawDataIdx = apply(data.frame(exprs(eset)[sel,]),2, FUN=method, na.rm=T)
-
+  ### equalize all runs 
+  eD = data.frame(exprs(eset)[sel,])
+  rawDataIdx = apply(eD,2, FUN=method, na.rm=T)
   normFactors = as.numeric(rawDataIdx[1]) / as.numeric(rawDataIdx)
+  
+  # keep differences between conditions
+  if(keepCondDiff){
+    # create rawDataIdx Tibble
+    if(keepCondDiff){
+      rawDataIdxTbl = tibble(cond=eset$condition,rawDataIdx)
+      # equalize per condition
+      if("median" %in% method){
+        condNormFactors = group_by(rawDataIdxTbl, cond) %>% summarise(condNF=median(rawDataIdx)) 
+      }else{
+        condNormFactors = group_by(rawDataIdxTbl, cond) %>% summarise(condNF=sum(rawDataIdx)) 
+      }
+      condNormFactors$condNF = condNormFactors$condNF / condNormFactors$condNF[1]
+      
+      # adjust normFactors by condition norm factors to preserve orignial diff btwn condition median/sums
+      for(cond in unique(eset$condition)){
+        selCond = eset$condition %in% cond
+        normFactors[selCond ] = normFactors[selCond ] * condNormFactors[  condNormFactors$cond == cond, ]$condNF
+      }
+    }
+  }
+
   return(normFactors)
 
 }
@@ -515,12 +541,12 @@ globalNormalize = function(eset,globalNormFactors){
 
 #' Normalize
 #' @param eset ExpressionSet
-#' @param	method c("global","rt","quantile")
+#' @param	method c("global","rt","quantile","keepCDiff)
 #' @return eset ExpressionSet
 #' @export
 #' @import limma
 #' @note  No note
-#' @details No details
+#' @details method - 'keepCDiff' logical default False, only normalize within conditions.  Works in cobinaiton witb 'global'
 #' @keywords normalization
 #' @references NA
 #' @seealso getGlobalNormFactors, getRTNormFactors
@@ -548,11 +574,11 @@ sqNormalize <- function(eset, method="global"){
   }
 
   ### @ experimental
-  #	if("vsn" %in% method){
-  #		library(vsn)
-  #		esetNorm <- justvsn(eset)
-  #		exprs(esetNorm) <- 2^exprs(esetNorm)
-  #	}
+  if("vsn" %in% method){
+  		library(vsn)
+  		esetNorm <- justvsn(eset)
+  		exprs(esetNorm) <- 2^exprs(esetNorm)
+  }
 
   #	if(identical(esetNorm,eset)){
   #		warning("No normalization performed")

@@ -32,9 +32,8 @@ ggVolcanoPlot = function(data=data
 		, xlim = range(data$ratio,na.rm=T)
 		, ylim = range(-log10(data$pValue),na.rm=T)
 		, abline = c("both")
-		, topNlabels = 10
+		, topNlabels = 30
 ){
-	
   # plotted data	
 	p =  ggplot(data,aes(x = ratio,y=-log10(pValue)
 					,label=pValue
@@ -77,7 +76,7 @@ ggVolcanoPlot = function(data=data
 	labPvalueThrs = ifelse(topNlabels > 0,sort(data$pValue)[min(topNlabels,length(data$pValue))],0)
 	dfLab = subset(data, (pValue <= min(labPvalueThrs,pValueThrs) ) & (abs(ratio) >= log2RatioThrs))
 	dfLab = dfLab[order(dfLab$pValue,decreasing = F), ]
-	dfLab = dfLab[1:min(10,nrow(dfLab)),]
+	dfLab = dfLab[1:min(topNlabels,nrow(dfLab)),]
 	dfLab = subset(dfLab, !is.na(geneName)) # avoid warning
 	
 	if(nrow(dfLab) > 0){
@@ -98,7 +97,7 @@ ggVolcanoPlot = function(data=data
 #' @details data.frame input object should contain columns ("ratio","pValue","geneName","ac","cv", "description")
 #' @references NA
 #' @examples print("No examples")
-plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
+plotAllGGVolcanoes = function(sqa, isAdjusted=T,topNlabels=10, ...){
  
   # need more than own data feature
   if(nrow(sqa$eset) <= 1 ) return()
@@ -145,10 +144,11 @@ plotAllGGVolcanoes = function(sqa, isAdjusted=T ,...){
                       , description=fData(sqa$eset)$proteinDescription
                       , naHighLightSel = (aboveNAThrsCount > 0)
                       , naCat = naCat
+                    
                       
                       )
 
     #plot
-    plot(ggVolcanoPlot(data=ggDf, xlab = paste("log2", cond,"/",ctrlCondition ),xlim=xlim,ylim=ylim,  ... ))
+    plot(ggVolcanoPlot(data=ggDf, xlab = paste("log2", cond,"/",ctrlCondition ), topNlabels=topNlabels ,xlim=xlim,ylim=ylim ,   ... ))
   }
 }
