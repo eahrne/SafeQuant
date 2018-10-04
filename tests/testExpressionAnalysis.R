@@ -618,10 +618,10 @@ testGetGlobalNormFactors = function(){
   esetTmpNorm2 = globalNormalize(esetTmp,getGlobalNormFactors(esetTmp,method= c("median", "keepCDiff")  ))
   stopifnot(all(round(getGlobalNormFactors(esetTmpNorm2))  == c(1,1,2,2,3,3)))
 
-   par(mfrow=c(1,3))
-   boxplot(exprs(esetTmp))
-   boxplot(exprs(esetTmpNorm1))
-   boxplot(exprs(esetTmpNorm2))
+  # par(mfrow=c(1,3))
+  # boxplot(exprs(esetTmp))
+  # boxplot(exprs(esetTmpNorm1))
+  # boxplot(exprs(esetTmpNorm2))
   
   cat(" --- testGetGlobalNormFactors: PASS ALL TEST  --- \n")
   

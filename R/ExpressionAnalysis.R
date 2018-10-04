@@ -143,9 +143,9 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
   }else{ 	#### PAIR-WISE COMPARISONS "pairwise" %in% method
 
     ## REASONING
-    # General case (linera model, anova ..)
+    # General case (linear model, anova ..)
     # Adding additional groups alters all Std. Errors. However if equal variance (homoscedastic) the std.error and p-values should not increase.
-    #   -> We are increasing the number of samples used to estimate the standard error of the condiiton coefficients
+    #   -> We are increasing the number of samples used to estimate the standard error of the condition coefficients
     #	-> If equal variance the power increases
     #
     # limma
@@ -1078,8 +1078,10 @@ rollUp <- function(eset, method = "sum", 	featureDataColumnName =  c("proteinNam
   rolledFData$nbFeatures=fdSummary$nbFeatures
 
   ### set peptides per protein
-  rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
-
+  #rolledFData$nbPeptides <- getNbPeptidesPerProtein(eset)[as.character(rolledFData$proteinName)]
+  tmp = getNbPeptidesPerProtein(eset)
+  rolledFData$nbPeptides <- tmp[match(as.character(rolledFData$proteinName),names(tmp))]
+  
   # drop index and rnames columns
   rolledFData = rolledFData[, !(names(rolledFData) %in% c("index","rnames"))   ]
 

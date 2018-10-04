@@ -1117,6 +1117,7 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @param isFitLm fit linear model
 #' @param disp  c("abline","R","Rc") display options
 #' @param legendPos see legend
+#' @param cexLegend = legend txt cex
 #' @param pch see plot
 #' @param ... see plot
 #' @import epiR
@@ -1127,7 +1128,11 @@ plotPrecMassErrorVsScore <- function(eset, pMassTolWindow=c(-10,10) ,...){
 #' @export
 #' @references NA
 #' @examples print("No examples")
-plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline","R","Rc"),pch=20,  ...){
+plotXYDensity <- function(x,y
+                          ,isFitLm=T
+                          ,legendPos="bottomright"
+                          ,cexLegend=2
+                          ,disp=c("abline","R","Rc"),pch=20,  ...){
 
 	df <- data.frame(x,y)
 
@@ -1158,8 +1163,6 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if("lowess" %in% disp){
 			lines(lowess(x[ok],y[ok],...))
 		}
-
-
 		legd <- c()
 
 		if("R" %in% disp) legd <- c(legd,as.expression(bquote(R^2*"" == .(round(summary(fit)$r.squared,2)))))
@@ -1169,16 +1172,12 @@ plotXYDensity <- function(x,y,isFitLm=T,legendPos="bottomright",disp=c("abline",
 		if(length(legd) > 0 ){
 			legend(legendPos
 					,legend= legd
-					,text.col=1, box.col="transparent", cex=2, bty="n"
+					,text.col=1, box.col="transparent", cex=cexLegend, bty="n"
 			)
 		}
-
 		return(fit)
-
 	}
-
 	return(NA)
-
 }
 
 #' Plot absolut Estimation calibration Curve
