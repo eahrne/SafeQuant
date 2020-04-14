@@ -153,12 +153,20 @@ getNbDetectablePeptides <- function(peptides, peptideLength=c(5,36)){
 #' @param proteinSeq protein sequence
 #' @param proteaseRegExp protease Regular Expression
 #' @param nbMiscleavages default 0
+#' @param minLength = 1
+#' @parammaxLength = 50
 #' @return vector of peptides
 #' @export
 #' @note  No note
 #' @details No details
 #' @examples print("No examples")
-getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),nbMiscleavages=0){
+getPeptides <- function(proteinSeq
+                        ,proteaseRegExp=.getProteaseRegExp("trypsin")
+                        ,nbMiscleavages=0
+                        ,minLength = 0
+                        ,maxLength = Inf
+                        
+                        ){
 
 	allAA <- as.vector(unlist(strsplit(proteinSeq,"")))
 
@@ -172,26 +180,45 @@ getPeptides <- function(proteinSeq,proteaseRegExp=.getProteaseRegExp("trypsin"),
 	if(length(separator) < length(fcPeptides)) separator <- c(separator,"")
 	fcPeptides <- paste(fcPeptides,separator,sep="")
 	fcPeptides <- fcPeptides[nchar(fcPeptides) > 0 ]
-
-	### if no mis-cleavages that's it
-	if(nbMiscleavages == 0){
-		return(fcPeptides)
-	}
-
-	allPeptides <- c()
-	### handle miscleavages
-	for(i in 1:length(fcPeptides)){
-		#cat(fcPeptides[i]," ",i," -------------\n")
-		for(j in i:(i+nbMiscleavages)){
-			if(j <= length(fcPeptides)){
-				pept <- paste(fcPeptides[i:j],collapse="")
-				#cat(j," ---",pept,"\n")
-				allPeptides <- c(allPeptides,pept)
-			}
-		}
-	}
-
-	return(allPeptides[nchar(allPeptides) > 0])
+  
+  ### if no mis-cleavages that's it
+  if(nbMiscleavages == 0){
+    allPeptides = fcPeptides
+  }else{
+    ### handle miscleavages
+    allPeptides = vector()
+    k = 1
+    for(i in 1:length(fcPeptides)){
+      #cat(fcPeptides[i]," ",i," -------------\n")
+      for(j in i:(i+nbMiscleavages)){
+        if(j <= length(fcPeptides)){
+          pept <- paste(fcPeptides[i:j],collapse="")
+          #cat(j," ---",pept,"\n")
+          #ap <- c(ap,pept)
+          kNew = k+length(pept) -1
+          allPeptides[k:kNew] = pept
+          k = kNew+1
+        }
+      }
+    }
+  }  
+ 
+	# ap <- c()
+	# ### handle miscleavages
+	# for(i in 1:length(fcPeptides)){
+	#    #cat(fcPeptides[i]," ",i," -------------\n")
+	#    for(j in i:(i+nbMiscleavages)){
+	#      if(j <= length(fcPeptides)){
+	#        pept <- paste(fcPeptides[i:j],collapse="")
+	#        #cat(j," ---",pept,"\n")
+	#        ap <- c(ap,pept)
+	#      }
+	#    }
+	# }
+  # print(all(ap == allPeptides))
+	
+	nbPeptides = nchar(allPeptides)
+	return(allPeptides[nbPeptides >= minLength & nbPeptides <= maxLength] %>% unique)
 
 }
 

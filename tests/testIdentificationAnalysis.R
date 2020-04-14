@@ -164,9 +164,9 @@ testGetPeptides <- function(){
 	stopifnot(paste(getPeptides(proteinSeq3),collapse="") == proteinSeq3)
 	stopifnot(length(getPeptides(proteinSeq3,proteaseRegExp=.getProteaseRegExp("lys-c"))) == 2)
 
-	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=0)) == 3)
-	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=1)) == 5)
-	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=2)) == 6)
+	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=0)) == 2)
+	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=1)) == 4)
+	stopifnot(length(getPeptides(proteinSeq4,nbMiscleavages=2)) == 5)
 
 	### digest whole db
 	if(F){

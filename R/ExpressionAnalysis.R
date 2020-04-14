@@ -90,7 +90,12 @@ createExpressionDataset <- function(expressionMatrix=expressionMatrix,expDesign=
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809}
 #' @seealso \code{\link[limma]{eBayes}}
 #' @examples print("No examples")
-getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFilter=matrix(F,nrow=nrow(eset),ncol=length(levels(pData(eset)$condition))-1  ) ){
+getAllEBayes <- function(eset=eset, 
+                         adjust=F, 
+                         log=T, 
+                         method="pairwise",
+                         adjustFilter=matrix(F,nrow=nrow(eset),ncol=length(levels(pData(eset)$condition))-1  )
+                         ,...){
 
   #### calculate moderated t-statistic, empirical Bayes method, Smyth (2004)
 
@@ -133,7 +138,9 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
     colnames(contrastMatrix) <- caseConditions
 
     # fit contrasts coefficients
-    fitContrasts <- eBayes(contrasts.fit(fit,contrastMatrix))
+    fitContrasts <- eBayes(contrasts.fit(fit,contrastMatrix),
+                           ...
+                           )
     pvalues <- data.frame(fitContrasts$p.value[,caseConditions])
     names(pvalues) <- caseConditions
 
@@ -161,9 +168,11 @@ getAllEBayes <- function(eset=eset, adjust=F, log=T, method="pairwise", adjustFi
         esetPair <- eset[,selCol]
         # add subject term to allow for paired t-statistic
         if("subject" %in% names(pData(eset))){
-          fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition) + subject, data=pData(esetPair)) ) )
+          fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition) + subject, data=pData(esetPair))),
+                       ...)
         }else{
-          fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition), data=pData(esetPair)) ) )
+          fit <-eBayes(lmFit(esetPair, model.matrix(~factor(esetPair$condition), data=pData(esetPair)),
+                       ),...)
         }
         p <- fit$p.value[,2]
 
@@ -486,8 +495,14 @@ getGlobalNormFactors <- function(eset, method="median" ){
   }
 
   ### equalize all runs 
-  eD = data.frame(exprs(eset)[sel,])
-  rawDataIdx = apply(eD,2, FUN=method, na.rm=T)
+  #eD = data.frame(exprs(eset)[sel,])
+  eD = exprs(eset)[sel,]
+  # if only one row (1 selected protein | peptide for norm)
+  if(class(eD) == 'numeric'){
+    rawDataIdx = eD
+  }else{
+    rawDataIdx = apply(eD,2, FUN=method, na.rm=T)
+  }
   normFactors = as.numeric(rawDataIdx[1]) / as.numeric(rawDataIdx)
   
   # keep differences between conditions
@@ -1004,7 +1019,7 @@ createPairedExpDesign  <-function(eset){
 #' @references Empirical Bayes method, Smyth (2004), \url{http://www.ncbi.nlm.nih.gov/pubmed/16646809}
 #' @seealso \code{\link[limma]{eBayes}}
 #' @examples print("No examples")
-getFTestPValue = function(eset, adjust=F, log=T){
+getFTestPValue = function(eset, adjust=F, log=T,...){
 
   pValues = list()
 
@@ -1017,7 +1032,8 @@ getFTestPValue = function(eset, adjust=F, log=T){
 
   if(log)(exprs(eset) <- log2(exprs(eset)))
 
-  fit =eBayes(lmFit(eset,model.matrix(~condition, data=pData(eset)) ))[,-1]
+  fit =eBayes(lmFit(eset,model.matrix(~condition, data=pData(eset)) ), 
+              ...)[,-1]
   #pValues = list()
   pValues = fit$F.p.value
   names(pValues) = rownames(eset)

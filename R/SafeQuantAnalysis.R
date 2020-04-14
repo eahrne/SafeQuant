@@ -14,7 +14,7 @@
 #' @param fcThrs fold change threshold
 #' @param method  c("global","naRep","rt","quantile","pairwise","all")
 #' @export
-safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), intensityAdjustmentObj=NA, fcThrs=1){
+safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), intensityAdjustmentObj=NA, fcThrs=1,...){
 	
 	out <- list()
 	class(out) <- "safeQuantAnalysis"
@@ -56,15 +56,15 @@ safeQuantAnalysis <- function(eset=eset, method=c("global","naRep","pairwise"), 
 	## we need at least two conditions
 	if(length(unique(pData(eset)$condition)) > 1){
 	
-	  out$pValue[match(rownames(eset)[sel] , rownames(out$pValue)),] <- getAllEBayes(eset[sel,],adjust=F,method=method)	
+	  out$pValue[match(rownames(eset)[sel] , rownames(out$pValue)),] <- getAllEBayes(eset[sel,],adjust=F,method=method,...)	
 		#out$pValue[rownames(eset)[sel], ] <- getAllEBayes(eset[sel, ], adjust = F, method = method)
 		
 	  # apply ratio cut-off for adjustment. 
 		adjustFilter <- data.frame((abs(out$ratio) < log2(fcThrs)))
-		out$qValue[match(rownames(eset)[sel] , rownames(out$qValue)) ,] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel) )
+		out$qValue[match(rownames(eset)[sel] , rownames(out$qValue)) ,] <- getAllEBayes(eset[sel,],adjust=T,method=method, adjustFilter=subset(adjustFilter,subset=sel),... )
 		#out$qValue[rownames(eset)[sel], ] <- getAllEBayes(eset[sel, ], adjust = T, method = method, adjustFilter = subset(adjustFilter, subset = sel))
 	
-		out$FPValue[sel] = getFTestPValue(eset[sel,])
+		out$FPValue[sel] = getFTestPValue(eset[sel,],...)
 
 		# apply ratio cut-off for adjustment. Keep if one cond meets ratio cut cut-off critera 
 		adjustFilterF = rowSums(!adjustFilter) > 0

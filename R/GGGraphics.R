@@ -34,6 +34,7 @@ ggVolcanoPlot = function(data=data
 		, abline = c("both")
 		, topNlabels = 30
 ){
+  
   # plotted data	
 	p =  ggplot(data,aes(x = ratio,y=-log10(pValue)
 					,label=pValue
@@ -43,10 +44,10 @@ ggVolcanoPlot = function(data=data
 					,color=intensity)) 
 	
 	# axis 
-	p = p + labs(list(x=xlab, y=ylab, title=title))
+	p = p + labs(list(title=title))
 	p = p + theme_bw()
-	p = p + scale_x_continuous(limits =xlim)
-	p = p + scale_y_continuous(limits =ylim)
+	p = p + scale_x_continuous(xlab,limits =xlim)
+	p = p + scale_y_continuous(ylab,limits =ylim)
 	
 	# abline		
 	#	 pvalue thrs
